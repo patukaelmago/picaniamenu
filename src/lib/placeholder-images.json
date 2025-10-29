@@ -1,0 +1,70 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-landing",
+      "description": "A close-up of a perfectly grilled steak on a wooden board.",
+      "imageUrl": "https://res.cloudinary.com/dq7nlctcw/image/upload/v1761068812/cld-sample-4.jpg",
+      "imageHint": "grilled steak"
+    },
+    {
+      "id": "entrada-1",
+      "description": "Empanadas on a plate.",
+      "imageUrl": "https://res.cloudinary.com/dq7nlctcw/image/upload/v1761068804/samples/breakfast.jpg",
+      "imageHint": "empanadas"
+    },
+    {
+      "id": "entrada-2",
+      "description": "Provoleta.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330499/samples/food/pot-mussels.jpg",
+      "imageHint": "empanadas"
+    },
+    {
+      "id": "parrilla-1",
+      "description": "Picanha steak sizzling on the grill.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330499/samples/sheep.jpg",
+      "imageHint": "picanha steak"
+    },
+    {
+      "id": "parrilla-2",
+      "description": "Asado, traditional Argentinian barbecue.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330501/samples/bike.jpg",
+      "imageHint": "asado barbecue"
+    },
+    {
+      "id": "parrilla-3",
+      "description": "el chorigol.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330497/samples/food/dessert.jpg",
+      "imageHint": "chorizo con dulce de leche"
+    },
+    {
+      "id": "acompanamiento-1",
+      "description": "A bowl of fresh salad.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330507/samples/food/spices.jpg",
+      "imageHint": "fresh salad"
+    },
+    {
+      "id": "acompanamiento-2",
+      "description": "Egg on Potatoes",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330498/samples/food/fish-vegetables.jpg",
+      "imageHint": "fresh salad"
+    },
+    {
+      "id": "postre-1",
+      "description": "Flan with dulce de leche.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1761179896/samples/food/FlanConDdl_vpgjw0.png",
+      "imageHint": "flan dessert"
+    },
+    {
+      "id": "vino-1",
+      "description": "A bottle of Malbec wine with a glass.",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1761181846/samples/food/rutini_zl2tsx.png",
+      "imageHint": "malbec wine"
+    },
+    {
+      "id": "admin-logo",
+      "description": "Picaña logo for admin sidebar",
+      "imageUrl": "https://res.cloudinary.com/doevg17qx/image/upload/v1679330502/samples/people/boy-snow-hoodie.jpg",
+      "imageHint": "restaurant logo"
+    }
+  ]
+}
