@@ -8,7 +8,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarGroup,
   useSidebar,
 } from '@/components/ui/sidebar';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -34,12 +33,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu'; // unifiqué el alias
 
 export default function AdminSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
-  const logo = PlaceHolderImages.find(p => p.id === 'admin-logo');
+  const logo = PlaceHolderImages.find((p) => p.id === 'admin-logo');
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -53,13 +52,14 @@ export default function AdminSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-3">
           {logo && (
-             <Image 
-                src={logo.imageUrl}
-                alt={logo.description}
-                data-ai-hint={logo.imageHint}
-                width={40}
-                height={40}
-                className='rounded-md'
+            <Image
+              src={logo.imageUrl}
+              alt={logo.description}
+              data-ai-hint={logo.imageHint}
+              width={40}
+              height={40}
+              className="rounded-md"
+              // si es dominio remoto, asegurate que esté en next.config.ts
             />
           )}
           <div className="flex flex-col">
@@ -68,24 +68,27 @@ export default function AdminSidebar() {
           </div>
         </div>
       </SidebarHeader>
+
       <SidebarContent className="p-2">
         <SidebarMenu>
-          {navItems.map(item => (
+          {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
-              <Link href={item.href} passHref>
-                <SidebarMenuButton
-                  isActive={pathname === item.href}
-                  tooltip={item.label}
-                  className="justify-start"
-                >
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.href}
+                tooltip={item.label}
+                className="justify-start"
+              >
+                <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
+                </Link>
+              </SidebarMenuButton>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
       </SidebarContent>
+
       <SidebarFooter>
         <Separator className="my-2" />
         <DropdownMenu>
@@ -111,6 +114,7 @@ export default function AdminSidebar() {
               {state === 'expanded' && <ChevronUp className="h-4 w-4" />}
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
@@ -120,22 +124,29 @@ export default function AdminSidebar() {
                 </p>
               </div>
             </DropdownMenuLabel>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem>
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
+
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               <span>Ajustes</span>
             </DropdownMenuItem>
+
             <DropdownMenuSeparator />
-            <Link href="/menu">
-                <DropdownMenuItem>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Cerrar Sesión</span>
-                </DropdownMenuItem>
-            </Link>
+
+            <DropdownMenuItem asChild>
+              <Link href="/menu">
+                <div className="flex items-center">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Cerrar Sesión</span>
+                </div>
+              </Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarFooter>
