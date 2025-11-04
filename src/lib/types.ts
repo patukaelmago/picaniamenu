@@ -1,5 +1,7 @@
-export type DietaryTag = 'sin TACC' | 'veggie';
-export type SpecialTag = 'Especial' | 'Sin stock';
+// src/lib/types.ts
+
+export type DietaryTag = "sin TACC" | "veggie";
+export type SpecialTag = "Especial" | "Sin stock";
 
 export interface MenuItem {
   id: string;
@@ -20,6 +22,9 @@ export interface MenuItem {
   createdAt: Date;
   updatedAt: Date;
 }
+
+// 👉 Este lo agregamos para alta/edición desde el formulario:
+export type MenuItemInput = Omit<MenuItem, "id" | "createdAt" | "updatedAt">;
 
 export interface Category {
   id: string;
