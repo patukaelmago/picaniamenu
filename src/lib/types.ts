@@ -3,6 +3,9 @@
 export type DietaryTag = "sin TACC" | "veggie";
 export type SpecialTag = "Especial" | "Sin stock";
 
+// -------------------------
+// 🥩 MENU ITEMS
+// -------------------------
 export interface MenuItem {
   id: string;
   name: string;
@@ -23,9 +26,12 @@ export interface MenuItem {
   updatedAt: Date;
 }
 
-// 👉 Este lo agregamos para alta/edición desde el formulario:
+// Tipo auxiliar para formularios (crear/editar)
 export type MenuItemInput = Omit<MenuItem, "id" | "createdAt" | "updatedAt">;
 
+// -------------------------
+// 📂 CATEGORIES
+// -------------------------
 export interface Category {
   id: string;
   name: string;
@@ -35,6 +41,9 @@ export interface Category {
   updatedAt: Date;
 }
 
+// -------------------------
+// ⚙️ RESTAURANT SETTINGS
+// -------------------------
 export interface RestaurantSettings {
   restaurantName: string;
   logoUrl: string;
