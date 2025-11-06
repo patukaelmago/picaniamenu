@@ -97,7 +97,6 @@ export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formCatName, setFormCatName] = useState("");
-  const [formCatOrder, setFormCatOrder] = useState<number>(0);
 
   // Drag & drop
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -260,9 +259,14 @@ export default function AdminMenuPage() {
     if (!name) return;
 
     try {
-      await createCategory({ name, order: formCatOrder, isVisible: true });
+      // siempre al final: calculamos el próximo "order"
+      const nextOrder =
+        categories.length === 0
+          ? 0
+          : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
+
+      await createCategory({ name, order: nextOrder, isVisible: true });
       setFormCatName("");
-      setFormCatOrder(0);
 
       const cats = await listCategories();
       setCategories(cats);
@@ -355,7 +359,10 @@ export default function AdminMenuPage() {
     setDragIndex(index);
   }
 
-  function handleDragOver(e: React.DragEvent<HTMLDivElement>, overIndex: number) {
+  function handleDragOver(
+    e: React.DragEvent<HTMLDivElement>,
+    overIndex: number
+  ) {
     e.preventDefault();
     if (dragIndex === null || dragIndex === overIndex) return;
     setCategories((prev) => arrayMove(prev, dragIndex, overIndex));
@@ -366,13 +373,22 @@ export default function AdminMenuPage() {
     if (dragIndex === null) return;
     setDragIndex(null);
 
-    // Persistir nuevo orden (0..n)
     try {
       setIsSavingOrder(true);
-      const updates = categories.map((c, i) =>
-        updateCategory(c.id, { order: i })
+
+      // 1) Actualizar el campo `order` en memoria según la posición actual
+      const reordered = categories.map((c, i) => ({
+        ...c,
+        order: i,
+      }));
+      setCategories(reordered);
+
+      // 2) Persistir esos órdenes en Firestore
+      const updates = reordered.map((c) =>
+        updateCategory(c.id, { order: c.order })
       );
       await Promise.all(updates);
+
       toast({ title: "Orden de categorías guardado" });
     } catch (e) {
       console.error(e);
@@ -381,7 +397,8 @@ export default function AdminMenuPage() {
         title: "Error",
         description: "No se pudo guardar el nuevo orden.",
       });
-      // Refrescar desde server por si quedó inconsistente
+
+      // Si algo falla, recargamos desde Firestore
       const fresh = await listCategories();
       setCategories(fresh);
     } finally {
@@ -509,7 +526,10 @@ export default function AdminMenuPage() {
                         />
                       </div>
 
-                      <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
+                      <Button
+                        onClick={handleGenerateKeywords}
+                        disabled={isGenerating}
+                      >
                         {isGenerating && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
@@ -630,16 +650,6 @@ export default function AdminMenuPage() {
                   />
                 </div>
 
-                <div className="grid gap-2 w-32">
-                  <Label htmlFor="new-cat-order">Orden</Label>
-                  <Input
-                    id="new-cat-order"
-                    type="number"
-                    value={formCatOrder}
-                    onChange={(e) => setFormCatOrder(Number(e.target.value))}
-                  />
-                </div>
-
                 <div className="grid gap-2">
                   <Label className="invisible">.</Label>
                   <Button onClick={onCreateCategory}>
@@ -671,9 +681,6 @@ export default function AdminMenuPage() {
                         <div className="flex items-center gap-3">
                           <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
                           <span className="font-medium">{category.name}</span>
-                          <span className="text-xs text-muted-foreground">
-                            (orden: {category.order ?? 0})
-                          </span>
                           {isSavingOrder && (
                             <span className="text-xs text-muted-foreground">
                               Guardando…
