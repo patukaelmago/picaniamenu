@@ -34,7 +34,12 @@ import {
   GripVertical,
   Loader2,
 } from "lucide-react";
-import { CATEGORIES } from "@/lib/data";
+import {
+  listCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory,
+} from "@/lib/categories-service";
 import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import {
   Sheet,
@@ -81,9 +86,32 @@ const emptyItem: MenuItemInput = {
   order: 0,
 };
 
+function arrayMove<T>(arr: T[], from: number, to: number) {
+  const copy = arr.slice();
+  const item = copy.splice(from, 1)[0];
+  copy.splice(to, 0, item);
+  return copy;
+}
+
 export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
-  const [categories] = useState<Category[]>(CATEGORIES);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [formCatName, setFormCatName] = useState("");
+  const [formCatOrder, setFormCatOrder] = useState<number>(0);
+
+  // Drag & drop
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [isSavingOrder, setIsSavingOrder] = useState(false);
+
+  // Modal/edición de categorías
+  const [catEditingId, setCatEditingId] = useState<string | null>(null);
+  const [catModalOpen, setCatModalOpen] = useState(false);
+  const [catForm, setCatForm] = useState<{
+    name: string;
+    order: number;
+    isVisible: boolean;
+  }>({ name: "", order: 0, isVisible: true });
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,6 +137,24 @@ export default function AdminMenuPage() {
     };
 
     load();
+  }, [toast]);
+
+  // Cargar categorías desde Firestore al montar
+  useEffect(() => {
+    const loadCats = async () => {
+      try {
+        const cats = await listCategories();
+        setCategories(cats);
+      } catch (e) {
+        console.error(e);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudieron cargar las categorías.",
+        });
+      }
+    };
+    loadCats();
   }, [toast]);
 
   const handleGenerateKeywords = async () => {
@@ -208,6 +254,142 @@ export default function AdminMenuPage() {
     }
   }
 
+  // Crear categoría (desde el dashboard)
+  async function onCreateCategory() {
+    const name = formCatName.trim();
+    if (!name) return;
+
+    try {
+      await createCategory({ name, order: formCatOrder, isVisible: true });
+      setFormCatName("");
+      setFormCatOrder(0);
+
+      const cats = await listCategories();
+      setCategories(cats);
+
+      toast({ title: "Categoría creada" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo crear la categoría.",
+      });
+    }
+  }
+
+  // ====== Categorías: editar / eliminar / toggle visible ======
+  function startEditCategory(cat: Category) {
+    setCatEditingId(cat.id);
+    setCatForm({
+      name: cat.name,
+      order: cat.order ?? 0,
+      isVisible: !!cat.isVisible,
+    });
+    setCatModalOpen(true);
+  }
+
+  async function saveCategoryEdit() {
+    if (!catEditingId) return;
+    try {
+      await updateCategory(catEditingId, {
+        name: catForm.name.trim(),
+        order: Number(catForm.order) || 0,
+        isVisible: catForm.isVisible,
+      });
+      setCatModalOpen(false);
+      setCatEditingId(null);
+      const cats = await listCategories();
+      setCategories(cats);
+      toast({ title: "Categoría actualizada" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar la categoría.",
+      });
+    }
+  }
+
+  async function onToggleVisible(cat: Category, value: boolean) {
+    // update optimista
+    setCategories((prev) =>
+      prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c))
+    );
+    try {
+      await updateCategory(cat.id, { isVisible: value });
+    } catch (e) {
+      // revertir si falla
+      setCategories((prev) =>
+        prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c))
+      );
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo cambiar la visibilidad.",
+      });
+    }
+  }
+
+  async function onDeleteCategory(cat: Category) {
+    if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
+    try {
+      await deleteCategory(cat.id);
+      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
+      toast({ title: "Categoría eliminada" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo eliminar la categoría.",
+      });
+    }
+  }
+  // ============================================================
+
+  // ====== Drag & Drop de categorías (orden) ======
+  function handleDragStart(index: number) {
+    setDragIndex(index);
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>, overIndex: number) {
+    e.preventDefault();
+    if (dragIndex === null || dragIndex === overIndex) return;
+    setCategories((prev) => arrayMove(prev, dragIndex, overIndex));
+    setDragIndex(overIndex);
+  }
+
+  async function handleDragEnd() {
+    if (dragIndex === null) return;
+    setDragIndex(null);
+
+    // Persistir nuevo orden (0..n)
+    try {
+      setIsSavingOrder(true);
+      const updates = categories.map((c, i) =>
+        updateCategory(c.id, { order: i })
+      );
+      await Promise.all(updates);
+      toast({ title: "Orden de categorías guardado" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el nuevo orden.",
+      });
+      // Refrescar desde server por si quedó inconsistente
+      const fresh = await listCategories();
+      setCategories(fresh);
+    } finally {
+      setIsSavingOrder(false);
+    }
+  }
+  // ============================================================
+
   return (
     <div className="space-y-8">
       <div>
@@ -262,10 +444,7 @@ export default function AdminMenuPage() {
                         />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label
-                          htmlFor="description"
-                          className="text-right"
-                        >
+                        <Label htmlFor="description" className="text-right">
                           Descripción
                         </Label>
                         <Textarea
@@ -273,10 +452,7 @@ export default function AdminMenuPage() {
                           className="col-span-3"
                           value={form.description}
                           onChange={(e) =>
-                            handleFormChange(
-                              "description",
-                              e.target.value
-                            )
+                            handleFormChange("description", e.target.value)
                           }
                         />
                       </div>
@@ -290,10 +466,7 @@ export default function AdminMenuPage() {
                           className="col-span-3"
                           value={form.price}
                           onChange={(e) =>
-                            handleFormChange(
-                              "price",
-                              Number(e.target.value)
-                            )
+                            handleFormChange("price", Number(e.target.value))
                           }
                         />
                       </div>
@@ -302,19 +475,23 @@ export default function AdminMenuPage() {
                           Categoría
                         </Label>
 
-                        {/* usamos un select nativo para elegir la categoría por id */}
                         <select
                           id="categoryId"
                           className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
                           value={form.categoryId}
-                          onChange={(e) => handleFormChange("categoryId", e.target.value)}
+                          onChange={(e) =>
+                            handleFormChange("categoryId", e.target.value)
+                          }
                         >
                           <option value="">Elegí una categoría…</option>
-                          {categories.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
+                          {categories
+                            .slice()
+                            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                            .map((cat) => (
+                              <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                              </option>
+                            ))}
                         </select>
                       </div>
 
@@ -332,10 +509,7 @@ export default function AdminMenuPage() {
                         />
                       </div>
 
-                      <Button
-                        onClick={handleGenerateKeywords}
-                        disabled={isGenerating}
-                      >
+                      <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
                         {isGenerating && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
@@ -396,9 +570,7 @@ export default function AdminMenuPage() {
                             {item.name}
                           </TableCell>
                           <TableCell>{category?.name}</TableCell>
-                          <TableCell>
-                            {formatCurrency(item.price)}
-                          </TableCell>
+                          <TableCell>{formatCurrency(item.price)}</TableCell>
                           <TableCell>
                             <Switch checked={item.inStock} disabled />
                           </TableCell>
@@ -442,57 +614,175 @@ export default function AdminMenuPage() {
             <CardHeader>
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>
-                Organizá las secciones de tu menú. (Por ahora usa CATEGORIES
-                estático)
+                Organizá las secciones de tu menú.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
-                {categories
-                  .slice()
-                  .sort((a, b) => a.order - b.order)
-                  .map((category) => (
-                    <div
-                      key={category.id}
-                      className="flex items-center justify-between p-3 bg-secondary rounded-md"
-                    >
-                      <div className="flex items-center gap-3">
-                        <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-                        <span className="font-medium">
-                          {category.name}
-                        </span>
+              {/* Formulario crear categoría */}
+              <div className="mb-4 flex items-end gap-3">
+                <div className="grid gap-2">
+                  <Label htmlFor="new-cat-name">Nombre</Label>
+                  <Input
+                    id="new-cat-name"
+                    placeholder="Ej: Entradas"
+                    value={formCatName}
+                    onChange={(e) => setFormCatName(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid gap-2 w-32">
+                  <Label htmlFor="new-cat-order">Orden</Label>
+                  <Input
+                    id="new-cat-order"
+                    type="number"
+                    value={formCatOrder}
+                    onChange={(e) => setFormCatOrder(Number(e.target.value))}
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label className="invisible">.</Label>
+                  <Button onClick={onCreateCategory}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Crear
+                  </Button>
+                </div>
+              </div>
+
+              {/* Lista de categorías con drag & drop */}
+              {categories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Aún no hay categorías. Creá la primera arriba 👆
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {categories
+                    .slice()
+                    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                    .map((category, index) => (
+                      <div
+                        key={category.id}
+                        className="flex items-center justify-between p-3 bg-secondary rounded-md"
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragOver={(e) => handleDragOver(e, index)}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <div className="flex items-center gap-3">
+                          <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+                          <span className="font-medium">{category.name}</span>
+                          <span className="text-xs text-muted-foreground">
+                            (orden: {category.order ?? 0})
+                          </span>
+                          {isSavingOrder && (
+                            <span className="text-xs text-muted-foreground">
+                              Guardando…
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center space-x-2">
+                            <Label
+                              htmlFor={`visible-${category.id}`}
+                              className="text-sm"
+                            >
+                              Visible
+                            </Label>
+                            <Switch
+                              id={`visible-${category.id}`}
+                              checked={category.isVisible}
+                              onCheckedChange={(v) =>
+                                onToggleVisible(category, v)
+                              }
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => startEditCategory(category)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-destructive"
+                              onClick={() => onDeleteCategory(category)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Label
-                            htmlFor={`visible-${category.id}`}
-                            className="text-sm"
-                          >
-                            Visible
-                          </Label>
-                          <Switch
-                            id={`visible-${category.id}`}
-                            checked={category.isVisible}
-                            disabled
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="icon" disabled>
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive"
-                            disabled
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                    ))}
+                </div>
+              )}
+
+              {/* Modal de edición de categoría */}
+              <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
+                <SheetContent className="sm:max-w-lg">
+                  <SheetHeader>
+                    <SheetTitle>Editar categoría</SheetTitle>
+                    <SheetDescription>
+                      Modificá el nombre, orden o visibilidad.
+                    </SheetDescription>
+                  </SheetHeader>
+
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-name" className="text-right">
+                        Nombre
+                      </Label>
+                      <Input
+                        id="cat-name"
+                        className="col-span-3"
+                        value={catForm.name}
+                        onChange={(e) =>
+                          setCatForm((p) => ({ ...p, name: e.target.value }))
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-order" className="text-right">
+                        Orden
+                      </Label>
+                      <Input
+                        id="cat-order"
+                        type="number"
+                        className="col-span-3"
+                        value={catForm.order}
+                        onChange={(e) =>
+                          setCatForm((p) => ({
+                            ...p,
+                            order: Number(e.target.value),
+                          }))
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">Visible</Label>
+                      <div className="col-span-3">
+                        <Switch
+                          checked={catForm.isVisible}
+                          onCheckedChange={(v) =>
+                            setCatForm((p) => ({ ...p, isVisible: v }))
+                          }
+                        />
                       </div>
                     </div>
-                  ))}
-              </div>
+                  </div>
+
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Button variant="secondary">Cancelar</Button>
+                    </SheetClose>
+                    <Button onClick={saveCategoryEdit}>Guardar</Button>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
             </CardContent>
           </Card>
         </TabsContent>
@@ -500,4 +790,3 @@ export default function AdminMenuPage() {
     </div>
   );
 }
-
