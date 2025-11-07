@@ -110,7 +110,7 @@ export const MENU_ITEMS: MenuItem[] = [
   // Acompañamientos
   {
     id: 'item6',
-    name: 'Papas Fritas a Caballo',
+    name: 'Papas Fritas a Cabalo',
     description: 'Papas fritas caseras con dos huevos fritos.',
     price: 3500,
     currency: 'ARS',

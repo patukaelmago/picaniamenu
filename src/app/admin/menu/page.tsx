@@ -111,10 +111,17 @@ export default function AdminMenuPage() {
     isVisible: boolean;
   }>({ name: "", order: 0, isVisible: true });
 
+  // CREAR ITEM
+  const [createOpen, setCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // EDITAR ITEM
+  const [editOpen, setEditOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
+
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState<MenuItemInput>(emptyItem);
   const { toast } = useToast();
 
   // Cargar platos desde Firestore al montar
@@ -134,7 +141,6 @@ export default function AdminMenuPage() {
         setLoading(false);
       }
     };
-
     load();
   }, [toast]);
 
@@ -156,18 +162,39 @@ export default function AdminMenuPage() {
     loadCats();
   }, [toast]);
 
-  const handleGenerateKeywords = async () => {
+  // ===== Helpers items =====
+  function onChangeCreate<K extends keyof MenuItemInput>(
+    key: K,
+    value: MenuItemInput[K]
+  ) {
+    setCreateForm((p) => ({ ...p, [key]: value }));
+  }
+  function onChangeEdit<K extends keyof MenuItemInput>(
+    key: K,
+    value: MenuItemInput[K]
+  ) {
+    setEditForm((p) => ({ ...p, [key]: value }));
+  }
+
+  async function handleGenerateKeywords() {
     setIsGenerating(true);
     try {
       const keywords = await generateSearchKeywords({
-        name: form.name || "Bife de Chorizo",
+        name: createOpen ? createForm.name || "Bife de Chorizo" : editForm.name || "Bife de Chorizo",
         tags: ["carne", "parrilla"],
         category: "Parrilla",
       });
-      setForm((prev) => ({
-        ...prev,
-        searchKeywords: keywords.searchKeywords,
-      }));
+      if (createOpen) {
+        setCreateForm((prev) => ({
+          ...prev,
+          searchKeywords: keywords.searchKeywords,
+        }));
+      } else {
+        setEditForm((prev) => ({
+          ...prev,
+          searchKeywords: keywords.searchKeywords,
+        }));
+      }
       toast({
         title: "Keywords generadas",
         description: `Se generaron: ${keywords.searchKeywords.join(", ")}`,
@@ -182,44 +209,35 @@ export default function AdminMenuPage() {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  function handleFormChange<K extends keyof MenuItemInput>(
-    key: K,
-    value: MenuItemInput[K]
-  ) {
-    setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  async function handleSaveItem() {
+  async function reloadItems() {
+    const data = await listMenuItems();
+    setItems(data);
+  }
+
+  // Crear
+  async function handleCreateItem() {
     try {
-      if (editingId) {
-        await updateMenuItem(editingId, form);
-        toast({ title: "Plato actualizado" });
-      } else {
-        await createMenuItem(form);
-        toast({ title: "Plato creado" });
-      }
-
-      setForm(emptyItem);
-      setEditingId(null);
-
-      // Recargar desde Firestore
-      const data = await listMenuItems();
-      setItems(data);
+      await createMenuItem(createForm);
+      toast({ title: "Plato creado" });
+      setCreateForm(emptyItem);
+      setCreateOpen(false);
+      await reloadItems();
     } catch (e) {
       console.error(e);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo guardar el plato.",
+        description: "No se pudo crear el plato.",
       });
     }
   }
 
+  // Abrir edición
   function handleStartEdit(item: MenuItem) {
-    setEditingId(item.id);
-    setForm({
+    setEditId(item.id);
+    setEditForm({
       name: item.name,
       description: item.description,
       price: item.price,
@@ -235,6 +253,27 @@ export default function AdminMenuPage() {
       searchKeywords: item.searchKeywords ?? [],
       order: item.order ?? 0,
     });
+    setEditOpen(true);
+  }
+
+  // Guardar edición
+  async function handleUpdateItem() {
+    if (!editId) return;
+    try {
+      await updateMenuItem(editId, editForm);
+      toast({ title: "Plato actualizado" });
+      setEditOpen(false);
+      setEditId(null);
+      setEditForm(emptyItem);
+      await reloadItems();
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el plato.",
+      });
+    }
   }
 
   async function handleDelete(id: string) {
@@ -259,7 +298,6 @@ export default function AdminMenuPage() {
     if (!name) return;
 
     try {
-      // siempre al final: calculamos el próximo "order"
       const nextOrder =
         categories.length === 0
           ? 0
@@ -267,10 +305,8 @@ export default function AdminMenuPage() {
 
       await createCategory({ name, order: nextOrder, isVisible: true });
       setFormCatName("");
-
       const cats = await listCategories();
       setCategories(cats);
-
       toast({ title: "Categoría creada" });
     } catch (e) {
       console.error(e);
@@ -317,14 +353,12 @@ export default function AdminMenuPage() {
   }
 
   async function onToggleVisible(cat: Category, value: boolean) {
-    // update optimista
     setCategories((prev) =>
       prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c))
     );
     try {
       await updateCategory(cat.id, { isVisible: value });
     } catch (e) {
-      // revertir si falla
       setCategories((prev) =>
         prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c))
       );
@@ -376,14 +410,12 @@ export default function AdminMenuPage() {
     try {
       setIsSavingOrder(true);
 
-      // 1) Actualizar el campo `order` en memoria según la posición actual
       const reordered = categories.map((c, i) => ({
         ...c,
         order: i,
       }));
       setCategories(reordered);
 
-      // 2) Persistir esos órdenes en Firestore
       const updates = reordered.map((c) =>
         updateCategory(c.id, { order: c.order })
       );
@@ -398,7 +430,6 @@ export default function AdminMenuPage() {
         description: "No se pudo guardar el nuevo orden.",
       });
 
-      // Si algo falla, recargamos desde Firestore
       const fresh = await listCategories();
       setCategories(fresh);
     } finally {
@@ -422,6 +453,7 @@ export default function AdminMenuPage() {
           <TabsTrigger value="categories">Categorías</TabsTrigger>
         </TabsList>
 
+        {/* ============ ITEMS ============ */}
         <TabsContent value="items" className="mt-6">
           <Card>
             <CardHeader>
@@ -429,75 +461,80 @@ export default function AdminMenuPage() {
               <CardDescription>
                 Administrá todos los items de tu menú.
               </CardDescription>
+
+              {/* Botón SIEMPRE de creación */}
               <div className="flex justify-end">
-                <Sheet>
+                <Sheet open={createOpen} onOpenChange={setCreateOpen}>
                   <SheetTrigger asChild>
-                    <Button>
-                      <PlusCircle className="mr-2 h-4 w-4" />{" "}
-                      {editingId ? "Editar Item" : "Agregar Item"}
+                    <Button onClick={() => setCreateForm(emptyItem)}>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Agregar Item
                     </Button>
                   </SheetTrigger>
+
+                  {/* Modal CREAR */}
                   <SheetContent className="sm:max-w-lg overflow-y-auto">
                     <SheetHeader>
-                      <SheetTitle>
-                        {editingId ? "Editar Item" : "Agregar Nuevo Item"}
-                      </SheetTitle>
+                      <SheetTitle>Agregar Nuevo Item</SheetTitle>
                       <SheetDescription>
                         Completá los detalles del plato o bebida.
                       </SheetDescription>
                     </SheetHeader>
+
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="name" className="text-right">
+                        <Label htmlFor="c-name" className="text-right">
                           Nombre
                         </Label>
                         <Input
-                          id="name"
+                          id="c-name"
                           className="col-span-3"
-                          value={form.name}
+                          value={createForm.name}
                           onChange={(e) =>
-                            handleFormChange("name", e.target.value)
+                            onChangeCreate("name", e.target.value)
                           }
                         />
                       </div>
+
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="description" className="text-right">
+                        <Label htmlFor="c-description" className="text-right">
                           Descripción
                         </Label>
                         <Textarea
-                          id="description"
+                          id="c-description"
                           className="col-span-3"
-                          value={form.description}
+                          value={createForm.description}
                           onChange={(e) =>
-                            handleFormChange("description", e.target.value)
+                            onChangeCreate("description", e.target.value)
                           }
                         />
                       </div>
+
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="price" className="text-right">
+                        <Label htmlFor="c-price" className="text-right">
                           Precio (ARS)
                         </Label>
                         <Input
-                          id="price"
+                          id="c-price"
                           type="number"
                           className="col-span-3"
-                          value={form.price}
+                          value={createForm.price}
                           onChange={(e) =>
-                            handleFormChange("price", Number(e.target.value))
+                            onChangeCreate("price", Number(e.target.value))
                           }
                         />
                       </div>
+
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="categoryId" className="text-right">
+                        <Label htmlFor="c-category" className="text-right">
                           Categoría
                         </Label>
-
                         <select
-                          id="categoryId"
+                          id="c-category"
                           className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
-                          value={form.categoryId}
+                          value={createForm.categoryId}
                           onChange={(e) =>
-                            handleFormChange("categoryId", e.target.value)
+                            onChangeCreate("categoryId", e.target.value)
                           }
                         >
                           <option value="">Elegí una categoría…</option>
@@ -513,33 +550,35 @@ export default function AdminMenuPage() {
                       </div>
 
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="imageId" className="text-right">
+                        <Label htmlFor="c-imageId" className="text-right">
                           Imagen ID
                         </Label>
                         <Input
-                          id="imageId"
+                          id="c-imageId"
                           className="col-span-3"
-                          value={form.imageId}
+                          value={createForm.imageId}
                           onChange={(e) =>
-                            handleFormChange("imageId", e.target.value)
+                            onChangeCreate("imageId", e.target.value)
                           }
                         />
                       </div>
 
-                      <Button
-                        onClick={handleGenerateKeywords}
-                        disabled={isGenerating}
-                      >
+                      <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
                         {isGenerating && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
                         Generar Keywords con IA
                       </Button>
                     </div>
+
                     <SheetFooter>
                       <SheetClose asChild>
-                        <Button type="button" onClick={handleSaveItem}>
-                          Guardar Cambios
+                        <Button
+                          type="button"
+                          onClick={handleCreateItem}
+                          disabled={!createForm.name || !createForm.categoryId}
+                        >
+                          Guardar Item
                         </Button>
                       </SheetClose>
                     </SheetFooter>
@@ -547,6 +586,7 @@ export default function AdminMenuPage() {
                 </Sheet>
               </div>
             </CardHeader>
+
             <CardContent>
               {loading ? (
                 <p>Cargando platos...</p>
@@ -627,8 +667,116 @@ export default function AdminMenuPage() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
 
+          {/* Modal EDITAR (se abre con ✏️) */}
+          <Sheet open={editOpen} onOpenChange={setEditOpen}>
+            <SheetContent className="sm:max-w-lg overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Editar Item</SheetTitle>
+                <SheetDescription>
+                  Actualizá los datos del plato o bebida.
+                </SheetDescription>
+              </SheetHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="e-name" className="text-right">
+                    Nombre
+                  </Label>
+                  <Input
+                    id="e-name"
+                    className="col-span-3"
+                    value={editForm.name}
+                    onChange={(e) => onChangeEdit("name", e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="e-description" className="text-right">
+                    Descripción
+                  </Label>
+                  <Textarea
+                    id="e-description"
+                    className="col-span-3"
+                    value={editForm.description}
+                    onChange={(e) =>
+                      onChangeEdit("description", e.target.value)
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="e-price" className="text-right">
+                    Precio (ARS)
+                  </Label>
+                  <Input
+                    id="e-price"
+                    type="number"
+                    className="col-span-3"
+                    value={editForm.price}
+                    onChange={(e) =>
+                      onChangeEdit("price", Number(e.target.value))
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="e-category" className="text-right">
+                    Categoría
+                  </Label>
+                  <select
+                    id="e-category"
+                    className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                    value={editForm.categoryId}
+                    onChange={(e) =>
+                      onChangeEdit("categoryId", e.target.value)
+                    }
+                  >
+                    <option value="">Elegí una categoría…</option>
+                    {categories
+                      .slice()
+                      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                      .map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="e-imageId" className="text-right">
+                    Imagen ID
+                  </Label>
+                  <Input
+                    id="e-imageId"
+                    className="col-span-3"
+                    value={editForm.imageId}
+                    onChange={(e) => onChangeEdit("imageId", e.target.value)}
+                  />
+                </div>
+
+                <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
+                  {isGenerating && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  Generar Keywords con IA
+                </Button>
+              </div>
+
+              <SheetFooter>
+                <SheetClose asChild>
+                  <Button type="button" onClick={handleUpdateItem} disabled={!editId}>
+                    Guardar Cambios
+                  </Button>
+                </SheetClose>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </TabsContent>
+        {/* ============ /ITEMS ============ */}
+
+        {/* ============ CATEGORÍAS ============ */}
         <TabsContent value="categories" className="mt-6">
           <Card>
             <CardHeader>
@@ -793,6 +941,7 @@ export default function AdminMenuPage() {
             </CardContent>
           </Card>
         </TabsContent>
+        {/* ============ /CATEGORÍAS ============ */}
       </Tabs>
     </div>
   );
