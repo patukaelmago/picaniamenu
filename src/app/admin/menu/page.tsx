@@ -437,7 +437,40 @@ export default function AdminMenuPage() {
     }
   }
   // ============================================================
+  // ✅ FUNCIÓN: handleToggleItem
+  // Esta función maneja los switches de los ítems ("En Stock", "Visible", "Especial")
+  // y actualiza Firestore sin necesidad de recargar la página.
+  async function handleToggleItem(
+    id: string,
+    field: "inStock" | "isVisible" | "isSpecial",
+    value: boolean
+  ) {
+    // Cambio instantáneo en la UI (optimista)
+    setItems((prev) =>
+      prev.map((item) =>
+        item.id === id ? ({ ...item, [field]: value } as MenuItem) : item
+      )
+    );
 
+    try {
+      // Persistir en Firestore
+      await updateMenuItem(id, { [field]: value });
+    } catch (e) {
+      console.error(e);
+      // Revertir si falla
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === id ? ({ ...item, [field]: !value } as MenuItem) : item
+        )
+      );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el estado del item.",
+      });
+    }
+  }
+  // ============================================================
   return (
     <div className="space-y-8">
       <div>
@@ -632,14 +665,24 @@ export default function AdminMenuPage() {
                           <TableCell>{category?.name}</TableCell>
                           <TableCell>{formatCurrency(item.price)}</TableCell>
                           <TableCell>
-                            <Switch checked={item.inStock} disabled />
+                            <Switch
+                              checked={item.inStock}
+                              onCheckedChange={(v) => handleToggleItem(item.id, "inStock", v)}
+                            />
                           </TableCell>
                           <TableCell>
-                            <Switch checked={item.isVisible} disabled />
+                            <Switch
+                              checked={item.isVisible}
+                              onCheckedChange={(v) => handleToggleItem(item.id, "isVisible", v)}
+                            />
                           </TableCell>
                           <TableCell>
-                            <Switch checked={item.isSpecial} disabled />
+                            <Switch
+                              checked={item.isSpecial}
+                              onCheckedChange={(v) => handleToggleItem(item.id, "isSpecial", v)}
+                            />
                           </TableCell>
+
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Button
