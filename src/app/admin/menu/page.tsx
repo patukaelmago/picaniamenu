@@ -631,7 +631,6 @@ export default function AdminMenuPage() {
                       <TableHead>Nombre</TableHead>
                       <TableHead>Categoría</TableHead>
                       <TableHead>Precio</TableHead>
-                      <TableHead>En Stock</TableHead>
                       <TableHead>Visible</TableHead>
                       <TableHead>Especial</TableHead>
                       <TableHead className="w-[100px]">Acciones</TableHead>
@@ -664,12 +663,6 @@ export default function AdminMenuPage() {
                           </TableCell>
                           <TableCell>{category?.name}</TableCell>
                           <TableCell>{formatCurrency(item.price)}</TableCell>
-                          <TableCell>
-                            <Switch
-                              checked={item.inStock}
-                              onCheckedChange={(v) => handleToggleItem(item.id, "inStock", v)}
-                            />
-                          </TableCell>
                           <TableCell>
                             <Switch
                               checked={item.isVisible}

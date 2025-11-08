@@ -47,27 +47,16 @@ export default function MenuClient() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const [loadingItems, setLoadingItems] = useState(true);
-  const [loadingCats, setLoadingCats] = useState(true);
 
-  // ====== LOAD DATA FROM FIRESTORE ======
+  // ====== LOAD DATA ======
   useEffect(() => {
     (async () => {
       try {
         const data = await listMenuItems();
-        // sólo visibles; orden por 'order' y nombre como desempate
-        const filtered = data
-          .filter((i) => i.isVisible !== false)
-          .sort(
-            (a, b) =>
-              (a.order ?? 0) - (b.order ?? 0) ||
-              a.name.localeCompare(b.name, "es")
-          );
-        setMenuItems(filtered);
+        // dejamos de filtrar por inStock - solo isVisible
+        setMenuItems(data.filter((i) => i.isVisible !== false));
       } catch (e) {
         console.error("Error cargando menú desde Firestore", e);
-      } finally {
-        setLoadingItems(false);
       }
     })();
   }, []);
@@ -76,34 +65,20 @@ export default function MenuClient() {
     (async () => {
       try {
         const cats = await listCategories();
-        // sólo visibles y ordenadas por 'order'
         const ordered = cats
           .filter((c) => c.isVisible !== false)
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         setCategories(ordered);
       } catch (e) {
         console.error("Error cargando categorías desde Firestore", e);
-      } finally {
-        setLoadingCats(false);
       }
     })();
   }, []);
-
-  // si se oculta/borra la categoría actualmente seleccionada, volver a "all"
-  useEffect(() => {
-    if (
-      selectedCategory !== "all" &&
-      !categories.some((c) => c.id === selectedCategory)
-    ) {
-      setSelectedCategory("all");
-    }
-  }, [categories, selectedCategory]);
 
   // ====== FILTERING ======
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
       if (!item.isVisible) return false;
-      if (!item.inStock) return false;
 
       if (selectedCategory !== "all" && item.categoryId !== selectedCategory) {
         return false;
@@ -112,14 +87,13 @@ export default function MenuClient() {
       const term = search.toLowerCase().trim();
       if (!term) return true;
 
-      const hayCoincidencia =
+      return (
         item.name.toLowerCase().includes(term) ||
         item.description.toLowerCase().includes(term) ||
         (item.searchKeywords ?? []).some((k) =>
-          (k || "").toLowerCase().includes(term)
-        );
-
-      return hayCoincidencia;
+          k.toLowerCase().includes(term)
+        )
+      );
     });
   }, [menuItems, selectedCategory, search]);
 
@@ -133,8 +107,6 @@ export default function MenuClient() {
     );
   }, [categories, filteredItems, selectedCategory]);
 
-  const isLoading = loadingItems || loadingCats;
-
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
@@ -142,8 +114,7 @@ export default function MenuClient() {
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-headline font-bold">Menú</h1>
           <p className="text-muted-foreground">
-            Descubrí nuestros platos, filtrá por categoría o buscá por
-            ingrediente.
+            Descubrí nuestros platos, filtrá por categoría o buscá por ingrediente.
           </p>
 
           <div className="relative max-w-xl">
@@ -157,7 +128,7 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías (dinámicas) */}
+        {/* chips de categorías */}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -190,83 +161,86 @@ export default function MenuClient() {
 
         {/* secciones por categoría */}
         <div className="space-y-10">
-          {isLoading && (
-            <p className="text-muted-foreground">Cargando menú…</p>
-          )}
+          {visibleCategories.map((category) => {
+            const itemsDeCat = filteredItems.filter(
+              (item) => item.categoryId === category.id
+            );
+            if (itemsDeCat.length === 0) return null;
 
-          {!isLoading &&
-            visibleCategories.map((category) => {
-              const itemsDeCat = filteredItems.filter(
-                (item) => item.categoryId === category.id
-              );
-              if (itemsDeCat.length === 0) return null;
+            return (
+              <section key={category.id} className="space-y-4">
+                <h2 className="text-2xl font-headline font-semibold">
+                  {category.name}
+                </h2>
 
-              return (
-                <section key={category.id} className="space-y-4">
-                  <h2 className="text-2xl font-headline font-semibold">
-                    {category.name}
-                  </h2>
+                <div className="grid gap-6 md:grid-cols-2">
+                  {itemsDeCat.map((item) => {
+                    const image = PlaceHolderImages.find(
+                      (p) => p.id === item.imageId
+                    );
 
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {itemsDeCat.map((item) => {
-                      const image = PlaceHolderImages.find(
-                        (p) => p.id === item.imageId
-                      );
+                    return (
+                      <Card
+                        key={item.id}
+                        className="overflow-hidden flex flex-col h-full"
+                      >
+                        {image ? (
+                          <div className="relative h-52 w-full">
+                            <Image
+                              src={image.imageUrl}
+                              alt={item.name}
+                              fill
+                              className="object-cover"
+                              data-ai-hint={image.imageHint}
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
+                            Sin imagen
+                          </div>
+                        )}
 
-                      return (
-                        <Card
-                          key={item.id}
-                          className="overflow-hidden flex flex-col h-full"
-                        >
-                          {image ? (
-                            <div className="relative h-52 w-full">
-                              <Image
-                                src={image.imageUrl}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                                data-ai-hint={image.imageHint}
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
-                              Sin imagen
-                            </div>
-                          )}
-
-                          <CardHeader>
+                        <CardHeader>
+                          <div className="flex items-center gap-2">
                             <CardTitle>{item.name}</CardTitle>
-                            <CardDescription>{item.description}</CardDescription>
-                          </CardHeader>
-                          <CardContent className="mt-auto space-y-3">
-                            <div className="flex flex-wrap gap-2">
-                              {(item.tags ?? []).map((tag) => (
-                                <Badge
-                                  key={tag}
-                                  variant="outline"
-                                  className="flex items-center gap-1"
-                                >
-                                  <TagIcon tag={tag} />
-                                  <span>{tag}</span>
-                                </Badge>
-                              ))}
-                            </div>
+                            {item.isSpecial && (
+                              <Badge className="flex items-center gap-1">
+                                <Sparkles className="h-3.5 w-3.5" />
+                                Especial
+                              </Badge>
+                            )}
+                          </div>
+                          <CardDescription>{item.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="mt-auto space-y-3">
+                          <div className="flex flex-wrap gap-2">
+                            {(item.tags ?? []).map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="outline"
+                                className="flex items-center gap-1"
+                              >
+                                <TagIcon tag={tag} />
+                                <span>{tag}</span>
+                              </Badge>
+                            ))}
+                          </div>
 
-                            <div className="flex items-center justify-between">
-                              <span className="text-lg font-semibold">
-                                {formatCurrency(item.price)}
-                              </span>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                </section>
-              );
-            })}
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-semibold">
+                              {formatCurrency(item.price)}
+                            </span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </section>
+            );
+          })}
 
-          {!isLoading && filteredItems.length === 0 && (
+          {filteredItems.length === 0 && (
             <p className="text-muted-foreground">
               No encontramos platos que coincidan con la búsqueda.
             </p>
