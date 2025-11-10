@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +21,14 @@ import {
 } from "@/lib/settings-service";
 
 import { storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  ref,
+  uploadBytesResumable,
+  getDownloadURL,
+  type UploadTask,
+} from "firebase/storage";
+
+// -------------------------------------------------------------
 
 export default function AdminSettingsPage() {
   // -------- estados del formulario --------
@@ -40,11 +47,27 @@ export default function AdminSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // progreso de upload
+  const [progress, setProgress] = useState<number>(0);
+
+  // para resetear el <input type=file>
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // flag para evitar setState después del unmount
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // ================== CARGAR DATOS INICIALES ==================
   useEffect(() => {
     const load = async () => {
       try {
         const settings: RestaurantSettings = await getRestaurantSettings();
+        if (!mountedRef.current) return;
         setName(settings.name);
         setCurrency(settings.currency);
         setLogoUrlInput(settings.logoUrl ?? "");
@@ -57,7 +80,7 @@ export default function AdminSettingsPage() {
           description: "No se pudieron cargar los ajustes del restaurante.",
         });
       } finally {
-        setIsLoading(false);
+        if (mountedRef.current) setIsLoading(false);
       }
     };
 
@@ -69,12 +92,13 @@ export default function AdminSettingsPage() {
   function handleLogoFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] ?? null;
     setLogoFile(file);
+    setProgress(0);
 
     if (file) {
       // Vista previa local
       const reader = new FileReader();
       reader.onload = () => {
-        setLogoPreview(reader.result as string);
+        if (mountedRef.current) setLogoPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     } else {
@@ -83,59 +107,85 @@ export default function AdminSettingsPage() {
     }
   }
 
+  // util para extensión
+  function guessExt(f: File | null) {
+    if (!f) return "png";
+    const ext = f.name.split(".").pop()?.toLowerCase();
+    return ext && ["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext)
+      ? ext
+      : "png";
+  }
+
   // ================== GUARDAR AJUSTES ==================
 
   async function handleSave() {
     setIsSaving(true);
+    setProgress(0);
     try {
       let finalLogoUrl = logoUrlInput.trim();
 
       // Si el usuario subió un archivo, ese tiene prioridad
       if (logoFile) {
-        const ext = logoFile.name.split(".").pop() || "png";
-        const storagePath = `restaurant-logo/logo.${ext}`;
-
+        const ext = guessExt(logoFile);
+        // nombre único para evitar caché
+        const storagePath = `logos/restaurant-logo-${Date.now()}.${ext}`;
         const storageRef = ref(storage, storagePath);
 
-        // Subir el archivo a Storage
-        await uploadBytes(storageRef, logoFile);
+        const metadata = { contentType: logoFile.type || `image/${ext}` };
 
-        // Obtener URL pública
-        finalLogoUrl = await getDownloadURL(storageRef);
+        // Upload con progreso (más confiable que uploadBytes)
+        await new Promise<string>((resolve, reject) => {
+          const task: UploadTask = uploadBytesResumable(storageRef, logoFile, metadata);
+
+          task.on(
+            "state_changed",
+            (snap) => {
+              const pct = (snap.bytesTransferred / snap.totalBytes) * 100;
+              setProgress(Math.round(pct));
+            },
+            (err) => reject(err),
+            async () => resolve(await getDownloadURL(task.snapshot.ref))
+          );
+        }).then((url) => {
+          finalLogoUrl = url;
+        });
       }
 
       await saveRestaurantSettings({
         name: name.trim(),
-        currency: currency.trim() || "ARS",
+        currency: (currency || "ARS").trim(),
         logoUrl: finalLogoUrl,
       });
 
-      // Actualizo estados locales
-      setLogoUrlInput(finalLogoUrl);
-      setLogoPreview(finalLogoUrl || logoPreview);
-      setLogoFile(null);
+      if (mountedRef.current) {
+        // Actualizo estados locales
+        setLogoUrlInput(finalLogoUrl);
+        setLogoPreview(finalLogoUrl || logoPreview);
+        setLogoFile(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
 
-      toast({
-        title: "Ajustes guardados",
-        description: "Los cambios del restaurante se guardaron correctamente.",
-      });
-    } catch (e) {
+        toast({
+          title: "Ajustes guardados",
+          description: "Los cambios del restaurante se guardaron correctamente.",
+        });
+      }
+    } catch (e: any) {
       console.error(e);
       toast({
         variant: "destructive",
         title: "Error",
         description:
+          e?.message ??
           "No se pudieron guardar los ajustes. Revisá la conexión o los permisos de Firebase Storage.",
       });
     } finally {
-      setIsSaving(false);
+      if (mountedRef.current) setIsSaving(false);
     }
   }
 
-  // ================== PUBLICAR MENÚ (ya lo tenías) ==================
+  // ================== PUBLICAR MENÚ (igual que tenías) ==================
 
   const handlePublish = () => {
-    // Acá en el futuro podés escribir un timestamp "publishedAt" en Firestore
     toast({
       title: "¡Menú Publicado!",
       description: "Los cambios en tu menú ahora son visibles para los clientes.",
@@ -202,12 +252,16 @@ export default function AdminSettingsPage() {
                   </Label>
                   <Input
                     id="logo-file"
+                    ref={fileInputRef}
                     type="file"
-                    accept="image/png,image/jpeg,image/jpg"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
                     onChange={handleLogoFileChange}
                   />
+                  {progress > 0 && isSaving && (
+                    <p className="text-xs text-muted-foreground">{`Subiendo… ${progress}%`}</p>
+                  )}
                   <p className="text-xs text-muted-foreground">
-                    Podés subir un archivo PNG/JPG. Si subís un archivo, se usará en lugar de la URL.
+                    Si subís un archivo, se usará en lugar de la URL.
                   </p>
                 </div>
 
@@ -223,15 +277,9 @@ export default function AdminSettingsPage() {
                     value={logoUrlInput}
                     onChange={(e) => {
                       setLogoUrlInput(e.target.value);
-                      // Si no hay archivo seleccionado, actualizamos la vista previa con la URL
-                      if (!logoFile) {
-                        setLogoPreview(e.target.value || null);
-                      }
+                      if (!logoFile) setLogoPreview(e.target.value || null);
                     }}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Si no subís archivo, se usará esta URL como logo.
-                  </p>
                 </div>
 
                 {/* Vista previa */}
@@ -239,7 +287,6 @@ export default function AdminSettingsPage() {
                   <Label>Vista previa del logo</Label>
                   {logoPreview ? (
                     <div className="inline-flex items-center justify-center rounded-md border bg-muted p-2">
-                      {/* con img común alcanza para el admin */}
                       <img
                         src={logoPreview}
                         alt="Logo preview"
@@ -271,8 +318,7 @@ export default function AdminSettingsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground mb-4">
-              Al publicar, se actualizará la versión del menú que ven tus clientes. Esto no se puede
-              deshacer.
+              Al publicar, se actualizará la versión del menú que ven tus clientes.
             </p>
             <Button variant="default" size="lg" onClick={handlePublish}>
               Publicar Menú Ahora
