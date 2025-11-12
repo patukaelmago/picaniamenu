@@ -34,8 +34,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'; // unifiqué el alias
+import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
 export default function AdminSidebar() {
+  const settings  = useRestaurantSettings();
+  const restaurantName = settings?.name || "Picaña";
   const pathname = usePathname();
   const { state } = useSidebar();
   const logo = PlaceHolderImages.find((p) => p.id === 'admin-logo');
@@ -63,7 +66,7 @@ export default function AdminSidebar() {
             />
           )}
           <div className="flex flex-col">
-            <h2 className="font-headline text-xl font-semibold">Picaña</h2>
+            <h2 className="font-headline text-xl font-semibold">{restaurantName}</h2>
             <p className="text-xs text-muted-foreground">Admin Panel</p>
           </div>
         </div>
@@ -106,7 +109,7 @@ export default function AdminSidebar() {
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">Admin</span>
                     <span className="text-xs text-muted-foreground">
-                      admin@picana.com
+                      admin@{restaurantName}.com
                     </span>
                   </div>
                 )}
@@ -120,7 +123,7 @@ export default function AdminSidebar() {
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">Admin</p>
                 <p className="text-xs leading-none text-muted-foreground">
-                  admin@picana.com
+                  admin@{restaurantName}.com
                 </p>
               </div>
             </DropdownMenuLabel>
