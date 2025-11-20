@@ -1,19 +1,19 @@
 "use client";
 
-import { Utensils, Twitter, Instagram, Facebook } from 'lucide-react';
-import Link from 'next/link';
+import { Utensils, Twitter, Instagram, Facebook } from "lucide-react";
+import Link from "next/link";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
-
-
-
 export default function Footer() {
-  const settings  = useRestaurantSettings();
+  const settings = useRestaurantSettings();
   const restaurantName = settings?.name || "Picaña";
+
   return (
-    <footer className="bg-secondary text-secondary-foreground border-t">
+    <footer className="border-t bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="container mx-auto flex flex-col items-center justify-between gap-6 px-4 py-8 md:flex-row md:px-6">
-      <Link href="/" className="flex items-center gap-3">
+
+        {/* LOGO + NOMBRE */}
+        <Link href="/" className="flex items-center gap-3">
           {settings?.logoUrl ? (
             <img
               src={settings.logoUrl}
@@ -21,26 +21,31 @@ export default function Footer() {
               className="h-10 w-auto object-contain"
             />
           ) : (
-            <Utensils className="h-8 w-8 text-accent" />
+            <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
           )}
-          <span className="text-2xl font-headline font-bold text-foreground">
-            {settings?.name ?? "Picaña"}
+          <span className="text-2xl font-headline font-bold text-[hsl(var(--nav-text))]">
+            {restaurantName}
           </span>
         </Link>
-        <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} {restaurantName} Restaurante. Todos los derechos reservados.
+
+        {/* COPYRIGHT */}
+        <p className="text-sm text-[hsl(var(--nav-text))]/80">
+          © {new Date().getFullYear()} {restaurantName} / Parrilla - Restaurante / Todos los derechos reservados.
         </p>
+
+        {/* REDES SOCIALES */}
         <div className="flex items-center gap-4">
           <Link href="#" aria-label="Twitter">
-            <Twitter className="h-5 w-5 hover:text-accent transition-colors" />
+            <Twitter className="h-5 w-5 text-[hsl(var(--nav-text))] hover:text-[#d8b878] transition-colors" />
           </Link>
           <Link href="#" aria-label="Instagram">
-            <Instagram className="h-5 w-5 hover:text-accent transition-colors" />
+            <Instagram className="h-5 w-5 text-[hsl(var(--nav-text))] hover:text-[#d8b878] transition-colors" />
           </Link>
           <Link href="#" aria-label="Facebook">
-            <Facebook className="h-5 w-5 hover:text-accent transition-colors" />
+            <Facebook className="h-5 w-5 text-[hsl(var(--nav-text))] hover:text-[#d8b878] transition-colors" />
           </Link>
         </div>
+
       </div>
     </footer>
   );

@@ -8,12 +8,21 @@ body {
 
 @layer base {
   :root {
-    --background: 40 33% 90%;
-    --foreground: 0 0% 4.3%;
-    --card: 40 33% 90%;
-    --card-foreground: 0 0% 4.3%;
-    --popover: 40 33% 90%;
-    --popover-foreground: 0 0% 4.3%;
+    /* NUEVOS COLORES PEDIDOS */
+    --background: 39 60% 94%;            /* #fff7e4 */
+    --foreground: 222 50% 24%;           /* #1d2f59 */
+
+    /* Ajusto también card/popover para mantener consistencia */
+    --card: 39 60% 94%;
+    --card-foreground: 222 50% 24%;
+    --popover: 39 60% 94%;
+    --popover-foreground: 222 50% 24%;
+
+    /* NAV Y FOOTER */
+    --nav-bg: 222 50% 24%;
+    --nav-text: 39 60% 94%;
+
+    /* Resto igual */
     --primary: 0 0% 4.3%;
     --primary-foreground: 0 0% 98%;
     --secondary: 40 10% 85%;
@@ -42,6 +51,7 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   .dark {
     --background: 0 0% 4.3%;
     --foreground: 40 33% 90%;
