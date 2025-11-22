@@ -166,7 +166,7 @@ export default function AdminSettingsPage() {
 
         toast({
           title: "Ajustes guardados",
-          description: "Los cambios del restaurante se guardaron correctamente.",
+          description: "Los cambios del restaurante se guardaron correctamente, gato",
         });
       }
     } catch (e: any) {
