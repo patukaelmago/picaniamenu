@@ -97,6 +97,7 @@ export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formCatName, setFormCatName] = useState("");
+  const [formCatParentId, setFormCatParentId] = useState<string>("");
 
   // Drag & drop
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -109,7 +110,8 @@ export default function AdminMenuPage() {
     name: string;
     order: number;
     isVisible: boolean;
-  }>({ name: "", order: 0, isVisible: true });
+    parentCategoryId: string | null;
+  }>({ name: "", order: 0, isVisible: true, parentCategoryId: null });
 
   // CREAR ITEM
   const [createOpen, setCreateOpen] = useState(false);
@@ -180,7 +182,9 @@ export default function AdminMenuPage() {
     setIsGenerating(true);
     try {
       const keywords = await generateSearchKeywords({
-        name: createOpen ? createForm.name || "Bife de Chorizo" : editForm.name || "Bife de Chorizo",
+        name: createOpen
+          ? createForm.name || "Bife de Chorizo"
+          : editForm.name || "Bife de Chorizo",
         tags: ["carne", "parrilla"],
         category: "Parrilla",
       });
@@ -303,8 +307,14 @@ export default function AdminMenuPage() {
           ? 0
           : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
 
-      await createCategory({ name, order: nextOrder, isVisible: true });
+      await createCategory({
+        name,
+        order: nextOrder,
+        isVisible: true,
+        parentCategoryId: formCatParentId || null,
+      });
       setFormCatName("");
+      setFormCatParentId("");
       const cats = await listCategories();
       setCategories(cats);
       toast({ title: "Categoría creada" });
@@ -325,6 +335,7 @@ export default function AdminMenuPage() {
       name: cat.name,
       order: cat.order ?? 0,
       isVisible: !!cat.isVisible,
+      parentCategoryId: cat.parentCategoryId ?? null,
     });
     setCatModalOpen(true);
   }
@@ -336,6 +347,7 @@ export default function AdminMenuPage() {
         name: catForm.name.trim(),
         order: Number(catForm.order) || 0,
         isVisible: catForm.isVisible,
+        parentCategoryId: catForm.parentCategoryId ?? null,
       });
       setCatModalOpen(false);
       setCatEditingId(null);
@@ -438,14 +450,11 @@ export default function AdminMenuPage() {
   }
   // ============================================================
   // ✅ FUNCIÓN: handleToggleItem
-  // Esta función maneja los switches de los ítems ("En Stock", "Visible", "Especial")
-  // y actualiza Firestore sin necesidad de recargar la página.
   async function handleToggleItem(
     id: string,
     field: "inStock" | "isVisible" | "isSpecial",
     value: boolean
   ) {
-    // Cambio instantáneo en la UI (optimista)
     setItems((prev) =>
       prev.map((item) =>
         item.id === id ? ({ ...item, [field]: value } as MenuItem) : item
@@ -453,11 +462,9 @@ export default function AdminMenuPage() {
     );
 
     try {
-      // Persistir en Firestore
       await updateMenuItem(id, { [field]: value });
     } catch (e) {
       console.error(e);
-      // Revertir si falla
       setItems((prev) =>
         prev.map((item) =>
           item.id === id ? ({ ...item, [field]: !value } as MenuItem) : item
@@ -471,6 +478,8 @@ export default function AdminMenuPage() {
     }
   }
   // ============================================================
+  const rootCategories = categories.filter((c) => !c.parentCategoryId);
+
   return (
     <div className="space-y-8">
       <div>
@@ -596,7 +605,10 @@ export default function AdminMenuPage() {
                         />
                       </div>
 
-                      <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
+                      <Button
+                        onClick={handleGenerateKeywords}
+                        disabled={isGenerating}
+                      >
                         {isGenerating && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
@@ -609,7 +621,9 @@ export default function AdminMenuPage() {
                         <Button
                           type="button"
                           onClick={handleCreateItem}
-                          disabled={!createForm.name || !createForm.categoryId}
+                          disabled={
+                            !createForm.name || !createForm.categoryId
+                          }
                         >
                           Guardar Item
                         </Button>
@@ -666,13 +680,17 @@ export default function AdminMenuPage() {
                           <TableCell>
                             <Switch
                               checked={item.isVisible}
-                              onCheckedChange={(v) => handleToggleItem(item.id, "isVisible", v)}
+                              onCheckedChange={(v) =>
+                                handleToggleItem(item.id, "isVisible", v)
+                              }
                             />
                           </TableCell>
                           <TableCell>
                             <Switch
                               checked={item.isSpecial}
-                              onCheckedChange={(v) => handleToggleItem(item.id, "isSpecial", v)}
+                              onCheckedChange={(v) =>
+                                handleToggleItem(item.id, "isSpecial", v)
+                              }
                             />
                           </TableCell>
 
@@ -788,11 +806,16 @@ export default function AdminMenuPage() {
                     id="e-imageId"
                     className="col-span-3"
                     value={editForm.imageId}
-                    onChange={(e) => onChangeEdit("imageId", e.target.value)}
+                    onChange={(e) =>
+                      onChangeEdit("imageId", e.target.value)
+                    }
                   />
                 </div>
 
-                <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
+                <Button
+                  onClick={handleGenerateKeywords}
+                  disabled={isGenerating}
+                >
                   {isGenerating && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -802,7 +825,11 @@ export default function AdminMenuPage() {
 
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button type="button" onClick={handleUpdateItem} disabled={!editId}>
+                  <Button
+                    type="button"
+                    onClick={handleUpdateItem}
+                    disabled={!editId}
+                  >
                     Guardar Cambios
                   </Button>
                 </SheetClose>
@@ -823,7 +850,7 @@ export default function AdminMenuPage() {
             </CardHeader>
             <CardContent>
               {/* Formulario crear categoría */}
-              <div className="mb-4 flex items-end gap-3">
+              <div className="mb-4 flex flex-wrap items-end gap-3">
                 <div className="grid gap-2">
                   <Label htmlFor="new-cat-name">Nombre</Label>
                   <Input
@@ -832,6 +859,26 @@ export default function AdminMenuPage() {
                     value={formCatName}
                     onChange={(e) => setFormCatName(e.target.value)}
                   />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="new-cat-parent">Categoría padre</Label>
+                  <select
+                    id="new-cat-parent"
+                    className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
+                    value={formCatParentId}
+                    onChange={(e) => setFormCatParentId(e.target.value)}
+                  >
+                    <option value="">Ninguna (categoría principal)</option>
+                    {rootCategories
+                      .slice()
+                      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                      .map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                  </select>
                 </div>
 
                 <div className="grid gap-2">
@@ -951,6 +998,34 @@ export default function AdminMenuPage() {
                           }))
                         }
                       />
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-parent" className="text-right">
+                        Categoría padre
+                      </Label>
+                      <select
+                        id="cat-parent"
+                        className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                        value={catForm.parentCategoryId ?? ""}
+                        onChange={(e) =>
+                          setCatForm((p) => ({
+                            ...p,
+                            parentCategoryId: e.target.value || null,
+                          }))
+                        }
+                      >
+                        <option value="">Ninguna (categoría principal)</option>
+                        {rootCategories
+                          .filter((c) => c.id !== catEditingId) // no se puede ser padre de sí misma
+                          .slice()
+                          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+                          .map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                      </select>
                     </div>
 
                     <div className="grid grid-cols-4 items-center gap-4">

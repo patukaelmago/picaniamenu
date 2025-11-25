@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
@@ -42,7 +42,6 @@ const TagIcon = ({ tag }: { tag: string }) => {
 };
 
 export default function MenuClient() {
-  // ====== STATE ======
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -53,7 +52,6 @@ export default function MenuClient() {
     (async () => {
       try {
         const data = await listMenuItems();
-        // dejamos de filtrar por inStock - solo isVisible
         setMenuItems(data.filter((i) => i.isVisible !== false));
       } catch (e) {
         console.error("Error cargando menú desde Firestore", e);
@@ -74,6 +72,27 @@ export default function MenuClient() {
       }
     })();
   }, []);
+
+  // ====== ROOT vs SUBCATEGORIES ======
+  const rootCategories = useMemo(
+    () => categories.filter((c) => !c.parentCategoryId),
+    [categories]
+  );
+
+  const childCategoriesByParent = useMemo(() => {
+    const map: Record<string, Category[]> = {};
+    categories.forEach((c) => {
+      if (c.parentCategoryId) {
+        if (!map[c.parentCategoryId]) map[c.parentCategoryId] = [];
+        map[c.parentCategoryId].push(c);
+      }
+    });
+
+    Object.values(map).forEach((arr) =>
+      arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    );
+    return map;
+  }, [categories]);
 
   // ====== FILTERING ======
   const filteredItems = useMemo(() => {
@@ -97,15 +116,22 @@ export default function MenuClient() {
     });
   }, [menuItems, selectedCategory, search]);
 
-  // categorías que tienen al menos un plato filtrado
-  const visibleCategories = useMemo(() => {
+  const visibleRootCategories = useMemo(() => {
     if (selectedCategory !== "all") {
-      return categories.filter((c) => c.id === selectedCategory);
+      return rootCategories.filter((c) => c.id === selectedCategory);
     }
-    return categories.filter((cat) =>
-      filteredItems.some((item) => item.categoryId === cat.id)
-    );
-  }, [categories, filteredItems, selectedCategory]);
+
+    return rootCategories.filter((cat) => {
+      const childCats = childCategoriesByParent[cat.id] ?? [];
+      const hasDirectItems = filteredItems.some(
+        (item) => item.categoryId === cat.id
+      );
+      const hasChildItems = childCats.some((sub) =>
+        filteredItems.some((item) => item.categoryId === sub.id)
+      );
+      return hasDirectItems || hasChildItems;
+    });
+  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -128,7 +154,7 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías */}
+        {/* chips de categorías (solo raíces) */}
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -142,7 +168,7 @@ export default function MenuClient() {
           >
             Todos
           </button>
-          {categories.map((cat) => (
+          {rootCategories.map((cat) => (
             <button
               key={cat.id}
               type="button"
@@ -159,13 +185,12 @@ export default function MenuClient() {
           ))}
         </div>
 
-        {/* secciones por categoría */}
+        {/* secciones por categoría raíz */}
         <div className="space-y-10">
-          {visibleCategories.map((category) => {
-            const itemsDeCat = filteredItems.filter(
-              (item) => item.categoryId === category.id
-            );
-            if (itemsDeCat.length === 0) return null;
+          {visibleRootCategories.map((category) => {
+            const childCats = childCategoriesByParent[category.id] ?? [];
+
+            const showImageForCategory = category.name === "Sugerencia del Dia";
 
             return (
               <section key={category.id} className="space-y-4">
@@ -173,69 +198,173 @@ export default function MenuClient() {
                   {category.name}
                 </h2>
 
-                <div className="grid gap-6 md:grid-cols-2">
-                  {itemsDeCat.map((item) => {
-                    const image = PlaceHolderImages.find(
-                      (p) => p.id === item.imageId
-                    );
+                {/* SIN subcategorías → comportamiento normal */}
+                {childCats.length === 0 ? (
+                  showImageForCategory ? (
+                    // SUGERENCIA DEL DIA = cards con imagen
+                    <div className="grid gap-6 md:grid-cols-2">
+                      {filteredItems
+                        .filter((item) => item.categoryId === category.id)
+                        .map((item) => {
+                          const image = PlaceHolderImages.find(
+                            (p) => p.id === item.imageId
+                          );
 
-                    return (
-                      <Card
-                        key={item.id}
-                        className="overflow-hidden flex flex-col h-full"
-                      >
-                        {image ? (
-                          <div className="relative h-52 w-full">
-                            <Image
-                              src={image.imageUrl}
-                              alt={item.name}
-                              fill
-                              className="object-cover"
-                              data-ai-hint={image.imageHint}
-                            />
-                          </div>
-                        ) : (
-                          <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
-                            Sin imagen
-                          </div>
-                        )}
+                          return (
+                            <Card
+                              key={item.id}
+                              className="overflow-hidden flex flex-col h-full"
+                            >
+                              {image ? (
+                                <div className="relative h-52 w-full">
+                                  <Image
+                                    src={image.imageUrl}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover"
+                                    data-ai-hint={image.imageHint}
+                                  />
+                                </div>
+                              ) : (
+                                <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
+                                  Sin imagen
+                                </div>
+                              )}
 
-                        <CardHeader>
-                          <div className="flex items-center gap-2">
-                            <CardTitle>{item.name}</CardTitle>
-                            {item.isSpecial && (
-                              <Badge className="flex items-center gap-1">
-                                <Sparkles className="h-3.5 w-3.5" />
-                                Especial
-                              </Badge>
-                            )}
+                              <CardHeader>
+                                <div className="flex items-center gap-2">
+                                  <CardTitle>{item.name}</CardTitle>
+                                  {item.isSpecial && (
+                                    <Badge className="flex items-center gap-1">
+                                      <Sparkles className="h-3.5 w-3.5" />
+                                      Especial
+                                    </Badge>
+                                  )}
+                                </div>
+                                <CardDescription>
+                                  {item.description}
+                                </CardDescription>
+                              </CardHeader>
+                              <CardContent className="mt-auto space-y-3">
+                                <div className="flex flex-wrap gap-2">
+                                  {(item.tags ?? []).map((tag) => (
+                                    <Badge
+                                      key={tag}
+                                      variant="outline"
+                                      className="flex items-center gap-1"
+                                    >
+                                      <TagIcon tag={tag} />
+                                      <span>{tag}</span>
+                                    </Badge>
+                                  ))}
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                  <span className="text-lg font-semibold">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    // RESTO SIN SUBCATEGORÍAS = lista tipo carta
+                    <div className="border-t divide-y">
+                      {filteredItems
+                        .filter((item) => item.categoryId === category.id)
+                        .map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-baseline justify-between gap-4 py-3"
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-headline font-semibold tracking-wide uppercase text-sm md:text-base">
+                                  {item.name}
+                                </span>
+                                {item.isSpecial && (
+                                  <Badge
+                                    variant="outline"
+                                    className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                  >
+                                    <Sparkles className="h-3 w-3" />
+                                    Especial
+                                  </Badge>
+                                )}
+                              </div>
+                              {item.description && (
+                                <p className="text-sm text-muted-foreground leading-snug">
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
+
+                            <div className="text-right min-w-[90px]">
+                              <span className="font-semibold text-base md:text-lg">
+                                {formatCurrency(item.price)}
+                              </span>
+                            </div>
                           </div>
-                          <CardDescription>{item.description}</CardDescription>
-                        </CardHeader>
-                        <CardContent className="mt-auto space-y-3">
-                          <div className="flex flex-wrap gap-2">
-                            {(item.tags ?? []).map((tag) => (
-                              <Badge
-                                key={tag}
-                                variant="outline"
-                                className="flex items-center gap-1"
+                        ))}
+                    </div>
+                  )
+                ) : (
+                  // CON SUBCATEGORÍAS (ej. Vinos -> Bodegas)
+                  <div className="space-y-8">
+                    {childCats.map((sub) => {
+                      const itemsSub = filteredItems.filter(
+                        (item) => item.categoryId === sub.id
+                      );
+                      if (itemsSub.length === 0) return null;
+
+                      return (
+                        <div key={sub.id} className="space-y-2">
+                          <h3 className="font-headline tracking-wide uppercase text-sm md:text-base border-b pb-1">
+                            {sub.name}
+                          </h3>
+                          <div className="divide-y">
+                            {itemsSub.map((item) => (
+                              <div
+                                key={item.id}
+                                className="flex items-baseline justify-between gap-4 py-3"
                               >
-                                <TagIcon tag={tag} />
-                                <span>{tag}</span>
-                              </Badge>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-headline font-semibold uppercase text-sm md:text-base">
+                                      {item.name}
+                                    </span>
+                                    {item.isSpecial && (
+                                      <Badge
+                                        variant="outline"
+                                        className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                      >
+                                        <Sparkles className="h-3 w-3" />
+                                        Especial
+                                      </Badge>
+                                    )}
+                                  </div>
+                                  {item.description && (
+                                    <p className="text-sm text-muted-foreground leading-snug">
+                                      {item.description}
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="text-right min-w-[90px]">
+                                  <span className="font-semibold text-base md:text-lg">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                </div>
+                              </div>
                             ))}
                           </div>
-
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-semibold">
-                              {formatCurrency(item.price)}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </section>
             );
           })}

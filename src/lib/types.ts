@@ -39,6 +39,8 @@ export interface Category {
   isVisible: boolean;
   createdAt: Date;
   updatedAt: Date;
+  // NUEVO: categoría padre (para subcategorías, ej. bodegas dentro de “Vinos”)
+  parentCategoryId?: string | null;
 }
 
 // -------------------------
