@@ -16,7 +16,7 @@ export default function Footer() {
         <Link href="/" className="flex items-center gap-3">
           {settings?.logoUrl ? (
             <img
-              src={settings.logoUrl}
+              src="/logorecortado.png"
               alt="Logo"
               className="h-10 w-auto object-contain"
             />
@@ -24,13 +24,13 @@ export default function Footer() {
             <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
           )}
           <span className="text-2xl font-headline font-bold text-[hsl(var(--nav-text))]">
-            {restaurantName}
-          </span>
+           { /*{restaurantName}*/
+          }</span>
         </Link>
 
         {/* COPYRIGHT */}
         <p className="text-sm text-[hsl(var(--nav-text))]/80">
-          © {new Date().getFullYear()} {restaurantName} / Parrilla - Restaurante / Todos los derechos reservados.
+          © {new Date().getFullYear()} {restaurantName} - Todos los derechos reservados.
         </p>
 
         {/* REDES SOCIALES */}

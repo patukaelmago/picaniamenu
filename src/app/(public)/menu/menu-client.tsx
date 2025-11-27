@@ -234,7 +234,7 @@ export default function MenuClient() {
                                 <div className="flex items-center gap-2">
                                   <CardTitle>{item.name}</CardTitle>
                                   {item.isSpecial && (
-                                    <Badge className="flex items-center gap-1">
+                                    <Badge className="flex items-center gap-1 rounded-sm">
                                       <Sparkles className="h-3.5 w-3.5" />
                                       Especial
                                     </Badge>
