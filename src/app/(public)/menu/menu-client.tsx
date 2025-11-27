@@ -139,10 +139,9 @@ export default function MenuClient() {
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-headline font-bold">Menú</h1>
-          <p className="text-muted-foreground">
+          {/*<p className="text-muted-foreground">
             Descubrí nuestros platos, filtrá por categoría o buscá por ingrediente.
-          </p>
-
+          </p>*/}
           <div className="relative max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -159,7 +158,7 @@ export default function MenuClient() {
           <button
             type="button"
             className={cn(
-              "rounded-full border px-4 py-1 text-sm",
+              "rounded-sm border px-4 py-1 text-sm",
               selectedCategory === "all"
                 ? "bg-foreground text-background"
                 : "bg-background text-foreground"
@@ -173,7 +172,7 @@ export default function MenuClient() {
               key={cat.id}
               type="button"
               className={cn(
-                "rounded-full border px-4 py-1 text-sm",
+                "rounded-sm border px-4 py-1 text-sm",
                 selectedCategory === cat.id
                   ? "bg-foreground text-background"
                   : "bg-background text-foreground"
