@@ -16,22 +16,22 @@ export default function Header() {
         <Link href="/" className="flex items-center gap-3">
           {settings?.logoUrl ? (
             <img
-              src={settings.logoUrl}
+              src="/logorecortado.png"
               alt="Logo"
-              className="h-10 w-auto object-contain"
+              className="h-8 w-auto object-contain mt-1"
             />
           ) : (
             <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
           )}
-          <span className="text-2xl font-headline font-bold text-[hsl(var(--nav-text))]">
+          {/*<span className="text-2xl font-headline font-bold text-[hsl(var(--nav-text))]">
             {settings?.name ?? "Picaña"}
-          </span>
+          </span>*/}
         </Link>
 
         {/* NAVEGACIÓN */}
         <nav className="flex items-center gap-4">
           
-          {/* BOTÓN MENÚ */}
+          {/* BOTÓN MENÚ 
           <Button
             variant="ghost"
             asChild
@@ -43,7 +43,7 @@ export default function Header() {
             "
           >
             <Link href="/menu">Menú</Link>
-          </Button>
+          </Button> */}
 
           {/* BOTÓN CÓDIGO QR */}
           <Button
