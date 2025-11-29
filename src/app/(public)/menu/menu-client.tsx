@@ -94,27 +94,44 @@ export default function MenuClient() {
     return map;
   }, [categories]);
 
+  // IDs de categoría válidos cuando hay una seleccionada (raíz + hijos)
+  const selectedCategoryIds = useMemo(() => {
+    if (selectedCategory === "all") return null;
+
+    const children = categories
+      .filter((c) => c.parentCategoryId === selectedCategory)
+      .map((c) => c.id);
+
+    return [selectedCategory, ...children];
+  }, [selectedCategory, categories]);
+
   // ====== FILTERING ======
   const filteredItems = useMemo(() => {
     return menuItems.filter((item) => {
       if (!item.isVisible) return false;
 
-      if (selectedCategory !== "all" && item.categoryId !== selectedCategory) {
+      // si hay categoría seleccionada, aceptamos esa categoría y sus subcategorías
+      if (
+        selectedCategoryIds &&
+        !selectedCategoryIds.includes(item.categoryId)
+      ) {
         return false;
       }
 
       const term = search.toLowerCase().trim();
       if (!term) return true;
 
+      const desc = item.description?.toLowerCase() ?? "";
+
       return (
         item.name.toLowerCase().includes(term) ||
-        item.description.toLowerCase().includes(term) ||
+        desc.includes(term) ||
         (item.searchKeywords ?? []).some((k) =>
           k.toLowerCase().includes(term)
         )
       );
     });
-  }, [menuItems, selectedCategory, search]);
+  }, [menuItems, selectedCategoryIds, search]);
 
   const visibleRootCategories = useMemo(() => {
     if (selectedCategory !== "all") {
@@ -139,9 +156,6 @@ export default function MenuClient() {
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-headline font-bold">Menú</h1>
-          {/*<p className="text-muted-foreground">
-            Descubrí nuestros platos, filtrá por categoría o buscá por ingrediente.
-          </p>*/}
           <div className="relative max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
