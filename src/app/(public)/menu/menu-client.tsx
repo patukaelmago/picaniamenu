@@ -20,6 +20,14 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+// 👇 importamos el acordeón de shadcn
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+
 const formatCurrency = (price: number) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -94,7 +102,7 @@ export default function MenuClient() {
     return map;
   }, [categories]);
 
-  // IDs de categoría válidos cuando hay una seleccionada (raíz + hijos)
+  // IDs válidos cuando hay categoría seleccionada (raíz + hijos)
   const selectedCategoryIds = useMemo(() => {
     if (selectedCategory === "all") return null;
 
@@ -324,8 +332,12 @@ export default function MenuClient() {
                     </div>
                   )
                 ) : (
-                  // CON SUBCATEGORÍAS (ej. Vinos -> Bodegas)
-                  <div className="space-y-8">
+                  // CON SUBCATEGORÍAS → usamos acordeón
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="w-full space-y-2"
+                  >
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
                         (item) => item.categoryId === sub.id
@@ -333,50 +345,56 @@ export default function MenuClient() {
                       if (itemsSub.length === 0) return null;
 
                       return (
-                        <div key={sub.id} className="space-y-2">
-                          <h3 className="font-headline tracking-wide uppercase text-sm md:text-base border-b pb-1">
+                        <AccordionItem
+                          key={sub.id}
+                          value={sub.id}
+                          className="border-b"
+                        >
+                          <AccordionTrigger className="font-headline tracking-wide uppercase text-sm md:text-base text-left">
                             {sub.name}
-                          </h3>
-                          <div className="divide-y">
-                            {itemsSub.map((item) => (
-                              <div
-                                key={item.id}
-                                className="flex items-baseline justify-between gap-4 py-3"
-                              >
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-headline font-semibold uppercase text-sm md:text-base">
-                                      {item.name}
-                                    </span>
-                                    {item.isSpecial && (
-                                      <Badge
-                                        variant="outline"
-                                        className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                      >
-                                        <Sparkles className="h-3 w-3" />
-                                        Especial
-                                      </Badge>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="divide-y">
+                              {itemsSub.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="flex items-baseline justify-between gap-4 py-3"
+                                >
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-headline font-semibold uppercase text-sm md:text-base">
+                                        {item.name}
+                                      </span>
+                                      {item.isSpecial && (
+                                        <Badge
+                                          variant="outline"
+                                          className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                        >
+                                          <Sparkles className="h-3 w-3" />
+                                          Especial
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    {item.description && (
+                                      <p className="text-sm text-muted-foreground leading-snug">
+                                        {item.description}
+                                      </p>
                                     )}
                                   </div>
-                                  {item.description && (
-                                    <p className="text-sm text-muted-foreground leading-snug">
-                                      {item.description}
-                                    </p>
-                                  )}
-                                </div>
 
-                                <div className="text-right min-w-[90px]">
-                                  <span className="font-semibold text-base md:text-lg">
-                                    {formatCurrency(item.price)}
-                                  </span>
+                                  <div className="text-right min-w-[90px]">
+                                    <span className="font-semibold text-base md:text-lg">
+                                      {formatCurrency(item.price)}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
                       );
                     })}
-                  </div>
+                  </Accordion>
                 )}
               </section>
             );
@@ -392,3 +410,4 @@ export default function MenuClient() {
     </main>
   );
 }
+
