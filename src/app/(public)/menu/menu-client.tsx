@@ -361,7 +361,7 @@ export default function MenuClient() {
                             className="font-headline tracking-wide uppercase text-sm md:text-base text-left no-underline hover:no-underline focus:no-underline"
                             style={{ textDecoration: "none" }}
                           >
-                            {sub.name}
+                          {sub.name} 
                           </AccordionTrigger>
                           <AccordionContent>
                             <div className="divide-y">
