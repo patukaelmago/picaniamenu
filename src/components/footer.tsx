@@ -10,7 +10,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-6 px-4 py-8 md:flex-row md:px-6">
+      <div className="container mx-auto flex flex-col items-center justify-between gap-6 px-4 py-8 md:px-6">
 
         {/* LOGO + NOMBRE */}
         <Link href="/" className="flex items-center mt-2 gap-3">
@@ -18,7 +18,7 @@ export default function Footer() {
             <img
               src="/logorecortado.png"
               alt="Logo"
-              className="h-14 w-auto object-contain"
+              className="h-8 w-auto object-contain"
             />
           ) : (
             <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
