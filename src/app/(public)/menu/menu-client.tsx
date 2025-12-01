@@ -175,12 +175,19 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías (solo raíces) */}
-        <div className="flex flex-wrap gap-2">
+        {/* chips de categorías (solo raíces)
+            - en mobile: scroll horizontal
+            - en md+: vuelve a wrap normal */}
+        <div
+          className="flex gap-2 overflow-x-auto no-scrollbar py-1 w-full
+                     md:flex-wrap md:overflow-visible"
+          // small padding workaround so items don't touch screen edges on mobile
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
           <button
             type="button"
             className={cn(
-              "rounded-sm border px-4 py-1 text-sm",
+              "rounded-sm border px-4 py-1 text-sm whitespace-nowrap",
               selectedCategory === "all"
                 ? "bg-foreground text-background"
                 : "bg-background text-foreground"
@@ -194,7 +201,7 @@ export default function MenuClient() {
               key={cat.id}
               type="button"
               className={cn(
-                "rounded-sm border px-4 py-1 text-sm",
+                "rounded-sm border px-4 py-1 text-sm whitespace-nowrap",
                 selectedCategory === cat.id
                   ? "bg-foreground text-background"
                   : "bg-background text-foreground"
@@ -216,7 +223,8 @@ export default function MenuClient() {
             return (
               <section key={category.id} className="space-y-4">
                 <h2 className="text-2xl font-headline font-semibold">
-                  {category.name}
+                  {/* si querés mostrar el título, descomenta */}
+                  {/* {category.name} */}
                 </h2>
 
                 {/* SIN subcategorías → comportamiento normal */}
@@ -333,11 +341,9 @@ export default function MenuClient() {
                   )
                 ) : (
                   // CON SUBCATEGORÍAS → usamos acordeón
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="w-full space-y-2"
-                  >
+                  // NOTE: type="multiple" permite abrir varios al mismo tiempo.
+                  // No "collapsible" prop here (avoid passing it when using multiple).
+                  <Accordion type="multiple" className="w-full space-y-2">
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
                         (item) => item.categoryId === sub.id
@@ -350,7 +356,11 @@ export default function MenuClient() {
                           value={sub.id}
                           className="border-b"
                         >
-                          <AccordionTrigger className="font-headline tracking-wide uppercase text-sm md:text-base text-left">
+                          <AccordionTrigger
+                            // quitamos subrayado por hover/ focus y forzamos sin decoration
+                            className="font-headline tracking-wide uppercase text-sm md:text-base text-left no-underline hover:no-underline focus:no-underline"
+                            style={{ textDecoration: "none" }}
+                          >
                             {sub.name}
                           </AccordionTrigger>
                           <AccordionContent>
@@ -410,4 +420,3 @@ export default function MenuClient() {
     </main>
   );
 }
-
