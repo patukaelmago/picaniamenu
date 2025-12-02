@@ -246,13 +246,12 @@ export default function MenuClient() {
                             >
                               {image ? (
                                 <div className="relative h-52 w-full">
-                                  <Image
+                                  <img
                                     src={image.imageUrl}
                                     alt={item.name}
-                                    
-                                    className="object-cover"
-                                    data-ai-hint={image.imageHint}
+                                    className="object-cover w-full h-full"
                                   />
+
                                 </div>
                               ) : (
                                 <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">

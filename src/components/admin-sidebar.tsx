@@ -55,7 +55,7 @@ export default function AdminSidebar() {
       <SidebarHeader>
         <div className="flex items-center gap-3">
           {logo && (
-            <Image
+            <img
               src={logo.imageUrl}
               alt={logo.description}
               data-ai-hint={logo.imageHint}
