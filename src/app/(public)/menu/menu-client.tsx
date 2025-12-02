@@ -249,7 +249,7 @@ export default function MenuClient() {
                                   <Image
                                     src={image.imageUrl}
                                     alt={item.name}
-                                    fill
+                                    
                                     className="object-cover"
                                     data-ai-hint={image.imageHint}
                                   />
@@ -372,7 +372,7 @@ export default function MenuClient() {
                                 >
                                   <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                      <span className="font-headline font-semibold uppercase text-sm md:text-base">
+                                      <span className="font-headline font-semibold uppercase text-blue text-sm md:text-base text-bold">
                                         {item.name}
                                       </span>
                                       {item.isSpecial && (
