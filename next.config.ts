@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",                    // 🔥 Habilita export static
+  // ❌ sacamos output: "export"
+  // porque rompe /admin y la optimización de imágenes
+
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -9,6 +11,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
+    unoptimized: true, // evita errores con imágenes remotas
     remotePatterns: [
       {
         protocol: "https",
