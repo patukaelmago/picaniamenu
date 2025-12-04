@@ -99,7 +99,7 @@ export default function AdminMenuPage() {
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
 
-  // Drag & drop
+  // Drag & drop de categorías
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
@@ -123,6 +123,12 @@ export default function AdminMenuPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
 
+  // Ordenamiento de items
+  const [sortMode, setSortMode] = useState<"auto" | "manual">("manual");
+  const [searchTerm, setSearchTerm] = useState(""); // 🔍 search admin
+  const [dragItem, setDragItem] = useState<MenuItem | null>(null);
+  const [isSavingItemsOrder, setIsSavingItemsOrder] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -144,7 +150,7 @@ export default function AdminMenuPage() {
       }
     };
     load();
-  }, []);
+  }, [toast]);
 
   // Cargar categorías desde Firestore al montar
   useEffect(() => {
@@ -162,7 +168,7 @@ export default function AdminMenuPage() {
       }
     };
     loadCats();
-  }, []);
+  }, [toast]);
 
   // ===== Helpers items =====
   function onChangeCreate<K extends keyof MenuItemInput>(
@@ -449,6 +455,7 @@ export default function AdminMenuPage() {
     }
   }
   // ============================================================
+
   // ✅ FUNCIÓN: handleToggleItem
   async function handleToggleItem(
     id: string,
@@ -478,7 +485,184 @@ export default function AdminMenuPage() {
     }
   }
   // ============================================================
+
+  // ====== Drag & Drop de ITEMS (orden manual) ======
+  function handleDragItemStart(item: MenuItem) {
+    if (sortMode !== "manual") return;
+    setDragItem(item);
+  }
+
+  function handleDragItemOver(
+    e: React.DragEvent<HTMLTableRowElement>,
+    targetItem: MenuItem
+  ) {
+    if (sortMode !== "manual") return;
+    e.preventDefault();
+    if (!dragItem) return;
+    if (dragItem.id === targetItem.id) return;
+    if (dragItem.categoryId !== targetItem.categoryId) return;
+
+    const categoryId = targetItem.categoryId;
+
+    setItems((prev) => {
+      const updated = [...prev];
+      const fromIndex = updated.findIndex((i) => i.id === dragItem.id);
+      const toIndex = updated.findIndex((i) => i.id === targetItem.id);
+      if (fromIndex === -1 || toIndex === -1) return prev;
+
+      const [moved] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, moved);
+
+      // recalcular orden solo dentro de esa categoría
+      let orderCounter = 0;
+      updated.forEach((i) => {
+        if (i.categoryId === categoryId) {
+          i.order = orderCounter++;
+        }
+      });
+
+      return updated;
+    });
+  }
+
+  async function handleDragItemEnd() {
+    if (!dragItem || sortMode !== "manual") {
+      setDragItem(null);
+      return;
+    }
+
+    try {
+      setIsSavingItemsOrder(true);
+      const categoryId = dragItem.categoryId;
+
+      const affected = items
+        .filter((i) => i.categoryId === categoryId)
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      await Promise.all(
+        affected.map((item) =>
+          updateMenuItem(item.id, { order: item.order ?? 0 })
+        )
+      );
+
+      toast({ title: "Orden de items guardado" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el orden de los items.",
+      });
+      await reloadItems();
+    } finally {
+      setIsSavingItemsOrder(false);
+      setDragItem(null);
+    }
+  }
+  // ============================================================
+
   const rootCategories = categories.filter((c) => !c.parentCategoryId);
+
+  // ====== FUNCIONES DE ORDENAMIENTO ======
+  function autoSortItems(localItems: MenuItem[], localCats: Category[]) {
+    const grouped = new Map<string, MenuItem[]>();
+
+    localItems.forEach((i) => {
+      const arr = grouped.get(i.categoryId) ?? [];
+      arr.push(i);
+      grouped.set(i.categoryId, arr);
+    });
+
+    const sortedCategories = localCats
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    const result: MenuItem[] = [];
+
+    sortedCategories.forEach((cat) => {
+      const arr = grouped.get(cat.id);
+      if (!arr) return;
+
+      arr
+        .slice()
+        .sort((a, b) =>
+          a.name.localeCompare(b.name, "es", { sensitivity: "base" })
+        )
+        .forEach((item) => result.push(item));
+    });
+
+    // por si hay items con categoría inexistente
+    localItems.forEach((item) => {
+      if (!result.find((r) => r.id === item.id)) {
+        result.push(item);
+      }
+    });
+
+    return result;
+  }
+
+  function manualSortItems(localItems: MenuItem[], localCats: Category[]) {
+    const grouped = new Map<string, MenuItem[]>();
+
+    localItems.forEach((i) => {
+      const arr = grouped.get(i.categoryId) ?? [];
+      arr.push(i);
+      grouped.set(i.categoryId, arr);
+    });
+
+    const sortedCategories = localCats
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    const result: MenuItem[] = [];
+
+    sortedCategories.forEach((cat) => {
+      let arr = grouped.get(cat.id);
+      if (!arr) return;
+
+      arr = arr
+        .slice()
+        .sort((a, b) => {
+          const orderA = a.order ?? 0;
+          const orderB = b.order ?? 0;
+          if (orderA !== orderB) return orderA - orderB;
+          return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+        });
+
+      arr.forEach((item) => result.push(item));
+    });
+
+    // items con categoría inválida al final
+    localItems.forEach((item) => {
+      if (!result.find((r) => r.id === item.id)) {
+        result.push(item);
+      }
+    });
+
+    return result;
+  }
+
+  // 1) ordenamos según modo
+  const baseSortedItems =
+    sortMode === "auto"
+      ? autoSortItems(items, categories)
+      : manualSortItems(items, categories);
+
+  // 2) aplicamos filtro de búsqueda
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+
+  const sortedItems = !normalizedSearch
+    ? baseSortedItems
+    : baseSortedItems.filter((item) => {
+        const category = categories.find((c) => c.id === item.categoryId);
+        const name = item.name.toLowerCase();
+        const catName = (category?.name ?? "").toLowerCase();
+
+        return (
+          name.includes(normalizedSearch) ||
+          catName.includes(normalizedSearch)
+        );
+      });
 
   return (
     <div className="space-y-8">
@@ -504,133 +688,172 @@ export default function AdminMenuPage() {
                 Administrá todos los items de tu menú.
               </CardDescription>
 
-              {/* Botón SIEMPRE de creación */}
-              <div className="flex justify-end">
-                <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-                  <SheetTrigger asChild>
-                    <Button onClick={() => setCreateForm(emptyItem)}>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Agregar Item
-                    </Button>
-                  </SheetTrigger>
+              {/* Header: modo de orden + buscador + botón agregar */}
+              <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                  <div className="flex items-center gap-3">
+                    <Label className="text-sm">Modo de ordenamiento:</Label>
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      value={sortMode}
+                      onChange={(e) =>
+                        setSortMode(e.target.value as "auto" | "manual")
+                      }
+                    >
+                      <option value="manual">Manual (drag & drop)</option>
+                      <option value="auto">Automático (alfabético)</option>
+                    </select>
+                  </div>
 
-                  {/* Modal CREAR */}
-                  <SheetContent className="sm:max-w-lg overflow-y-auto">
-                    <SheetHeader>
-                      <SheetTitle>Agregar Nuevo Item</SheetTitle>
-                      <SheetDescription>
-                        Completá los detalles del plato o bebida.
-                      </SheetDescription>
-                    </SheetHeader>
+                  {/* 🔍 BUSCADOR */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Buscar:</Label>
+                    <Input
+                      className="h-9 w-52"
+                      placeholder="Nombre o categoría..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
 
-                    <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="c-name" className="text-right">
-                          Nombre
-                        </Label>
-                        <Input
-                          id="c-name"
-                          className="col-span-3"
-                          value={createForm.name}
-                          onChange={(e) =>
-                            onChangeCreate("name", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="c-description" className="text-right">
-                          Descripción
-                        </Label>
-                        <Textarea
-                          id="c-description"
-                          className="col-span-3"
-                          value={createForm.description}
-                          onChange={(e) =>
-                            onChangeCreate("description", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="c-price" className="text-right">
-                          Precio (ARS)
-                        </Label>
-                        <Input
-                          id="c-price"
-                          type="number"
-                          className="col-span-3"
-                          value={createForm.price}
-                          onChange={(e) =>
-                            onChangeCreate("price", Number(e.target.value))
-                          }
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="c-category" className="text-right">
-                          Categoría
-                        </Label>
-                        <select
-                          id="c-category"
-                          className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
-                          value={createForm.categoryId}
-                          onChange={(e) =>
-                            onChangeCreate("categoryId", e.target.value)
-                          }
-                        >
-                          <option value="">Elegí una categoría…</option>
-                          {categories
-                            .slice()
-                            .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                            .map((cat) => (
-                              <option key={cat.id} value={cat.id}>
-                                {cat.name}
-                              </option>
-                            ))}
-                        </select>
-                      </div>
-
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="c-imageId" className="text-right">
-                          Imagen ID
-                        </Label>
-                        <Input
-                          id="c-imageId"
-                          className="col-span-3"
-                          value={createForm.imageId}
-                          onChange={(e) =>
-                            onChangeCreate("imageId", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <Button
-                        onClick={handleGenerateKeywords}
-                        disabled={isGenerating}
-                      >
-                        {isGenerating && (
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        )}
-                        Generar Keywords con IA
+                <div className="flex items-center gap-3">
+                  {isSavingItemsOrder && (
+                    <span className="text-xs text-muted-foreground">
+                      Guardando orden de items…
+                    </span>
+                  )}
+                  <Sheet open={createOpen} onOpenChange={setCreateOpen}>
+                    <SheetTrigger asChild>
+                      <Button onClick={() => setCreateForm(emptyItem)}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Agregar Item
                       </Button>
-                    </div>
+                    </SheetTrigger>
 
-                    <SheetFooter>
-                      <SheetClose asChild>
+                    {/* Modal CREAR */}
+                    <SheetContent className="sm:max-w-lg overflow-y-auto">
+                      <SheetHeader>
+                        <SheetTitle>Agregar Nuevo Item</SheetTitle>
+                        <SheetDescription>
+                          Completá los detalles del plato o bebida.
+                        </SheetDescription>
+                      </SheetHeader>
+
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="c-name" className="text-right">
+                            Nombre
+                          </Label>
+                          <Input
+                            id="c-name"
+                            className="col-span-3"
+                            value={createForm.name}
+                            onChange={(e) =>
+                              onChangeCreate("name", e.target.value)
+                            }
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label
+                            htmlFor="c-description"
+                            className="text-right"
+                          >
+                            Descripción
+                          </Label>
+                          <Textarea
+                            id="c-description"
+                            className="col-span-3"
+                            value={createForm.description}
+                            onChange={(e) =>
+                              onChangeCreate("description", e.target.value)
+                            }
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="c-price" className="text-right">
+                            Precio (ARS)
+                          </Label>
+                          <Input
+                            id="c-price"
+                            type="number"
+                            className="col-span-3"
+                            value={createForm.price}
+                            onChange={(e) =>
+                              onChangeCreate("price", Number(e.target.value))
+                            }
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="c-category" className="text-right">
+                            Categoría
+                          </Label>
+                          <select
+                            id="c-category"
+                            className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                            value={createForm.categoryId}
+                            onChange={(e) =>
+                              onChangeCreate("categoryId", e.target.value)
+                            }
+                          >
+                            <option value="">Elegí una categoría…</option>
+                            {categories
+                              .slice()
+                              .sort(
+                                (a, b) => (a.order ?? 0) - (b.order ?? 0)
+                              )
+                              .map((cat) => (
+                                <option key={cat.id} value={cat.id}>
+                                  {cat.name}
+                                </option>
+                              ))}
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="c-imageId" className="text-right">
+                            Imagen ID
+                          </Label>
+                          <Input
+                            id="c-imageId"
+                            className="col-span-3"
+                            value={createForm.imageId}
+                            onChange={(e) =>
+                              onChangeCreate("imageId", e.target.value)
+                            }
+                          />
+                        </div>
+
                         <Button
-                          type="button"
-                          onClick={handleCreateItem}
-                          disabled={
-                            !createForm.name || !createForm.categoryId
-                          }
+                          onClick={handleGenerateKeywords}
+                          disabled={isGenerating}
                         >
-                          Guardar Item
+                          {isGenerating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
+                          Generar Keywords con IA
                         </Button>
-                      </SheetClose>
-                    </SheetFooter>
-                  </SheetContent>
-                </Sheet>
+                      </div>
+
+                      <SheetFooter>
+                        <SheetClose asChild>
+                          <Button
+                            type="button"
+                            onClick={handleCreateItem}
+                            disabled={
+                              !createForm.name || !createForm.categoryId
+                            }
+                          >
+                            Guardar Item
+                          </Button>
+                        </SheetClose>
+                      </SheetFooter>
+                    </SheetContent>
+                  </Sheet>
+                </div>
               </div>
             </CardHeader>
 
@@ -651,7 +874,7 @@ export default function AdminMenuPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {items.map((item) => {
+                    {sortedItems.map((item) => {
                       const category = categories.find(
                         (c) => c.id === item.categoryId
                       );
@@ -659,7 +882,13 @@ export default function AdminMenuPage() {
                         (p) => p.id === item.imageId
                       );
                       return (
-                        <TableRow key={item.id}>
+                        <TableRow
+                          key={item.id}
+                          draggable={sortMode === "manual"}
+                          onDragStart={() => handleDragItemStart(item)}
+                          onDragOver={(e) => handleDragItemOver(e, item)}
+                          onDragEnd={handleDragItemEnd}
+                        >
                           <TableCell>
                             {image && (
                               <Image
