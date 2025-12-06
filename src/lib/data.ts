@@ -153,7 +153,7 @@ export const MENU_ITEMS: MenuItem[] = [
     description: 'Flan tradicional con dulce de leche y crema chantilly.',
     price: 4000,
     currency: 'ARS',
-    imageUrl: 'https://picsum.photos/seed/105/600/400',
+    imageUrl: 'https://res.cloudinary.com/dq7nlctcw/image/upload/v1764769276/03_jxzvng.jpg',
     imageId: 'postre-1',
     categoryId: 'cat4',
     isVisible: true,
