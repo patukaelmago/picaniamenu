@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-// 👇 importamos el acordeón de shadcn
 import {
   Accordion,
   AccordionItem,
@@ -118,7 +117,6 @@ export default function MenuClient() {
     return menuItems.filter((item) => {
       if (!item.isVisible) return false;
 
-      // si hay categoría seleccionada, aceptamos esa categoría y sus subcategorías
       if (
         selectedCategoryIds &&
         !selectedCategoryIds.includes(item.categoryId)
@@ -175,13 +173,10 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías (solo raíces)
-            - en mobile: scroll horizontal
-            - en md+: vuelve a wrap normal */}
+        {/* chips de categorías */}
         <div
           className="flex gap-2 overflow-x-auto no-scrollbar py-1 w-full
                      md:flex-wrap md:overflow-visible"
-          // small padding workaround so items don't touch screen edges on mobile
           style={{ WebkitOverflowScrolling: "touch" }}
         >
           <button
@@ -217,17 +212,15 @@ export default function MenuClient() {
         <div className="space-y-10">
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
-
             const showImageForCategory = category.name === "Sugerencia del Dia";
 
             return (
               <section key={category.id} className="space-y-4">
                 <h2 className="text-2xl font-headline font-semibold">
-                  {/* si querés mostrar el título, descomenta */}
                   {/* {category.name} */}
                 </h2>
 
-                {/* SIN subcategorías → comportamiento normal */}
+                {/* SIN subcategorías */}
                 {childCats.length === 0 ? (
                   showImageForCategory ? (
                     // SUGERENCIA DEL DIA = cards con imagen
@@ -239,19 +232,25 @@ export default function MenuClient() {
                             (p) => p.id === item.imageId
                           );
 
+                          const hasAnyImage = image || item.imageUrl;
+
                           return (
                             <Card
                               key={item.id}
                               className="overflow-hidden flex flex-col h-full"
                             >
-                              {image ? (
+                              {hasAnyImage ? (
                                 <div className="relative h-52 w-full">
-                                  <img
-                                    src={image.imageUrl}
+                                  <Image
+                                    src={
+                                      image?.imageUrl ||
+                                      item.imageUrl ||
+                                      "/img/placeholder.jpg"
+                                    }
                                     alt={item.name}
-                                    className="object-cover w-full h-full"
+                                    fill
+                                    className="object-cover"
                                   />
-
                                 </div>
                               ) : (
                                 <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
@@ -298,7 +297,7 @@ export default function MenuClient() {
                         })}
                     </div>
                   ) : (
-                    // RESTO SIN SUBCATEGORÍAS = lista tipo carta
+                    // RESTO SIN SUBCATEGORÍAS
                     <div className="border-t divide-y">
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
@@ -339,9 +338,7 @@ export default function MenuClient() {
                     </div>
                   )
                 ) : (
-                  // CON SUBCATEGORÍAS → usamos acordeón
-                  // NOTE: type="multiple" permite abrir varios al mismo tiempo.
-                  // No "collapsible" prop here (avoid passing it when using multiple).
+                  // CON SUBCATEGORÍAS → acordeón
                   <Accordion type="multiple" className="w-full space-y-2">
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
@@ -356,11 +353,10 @@ export default function MenuClient() {
                           className="border-b"
                         >
                           <AccordionTrigger
-                            // quitamos subrayado por hover/ focus y forzamos sin decoration
                             className="font-headline tracking-wide uppercase text-sm md:text-base text-left no-underline hover:no-underline focus:no-underline"
                             style={{ textDecoration: "none" }}
                           >
-                          {sub.name} 
+                            {sub.name}
                           </AccordionTrigger>
                           <AccordionContent>
                             <div className="divide-y">
