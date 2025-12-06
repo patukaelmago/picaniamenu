@@ -19,13 +19,6 @@ import {
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-
 const formatCurrency = (price: number) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -159,9 +152,17 @@ export default function MenuClient() {
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
         {/* encabezado + buscador */}
-        <div className="flex flex-col gap-4">
-          <h1 className="text-3xl font-headline font-bold">Menú</h1>
-          <div className="relative max-w-xl">
+        <div className="flex flex-col gap-4 items-center text-center">
+          <div className="space-y-1">
+             {/*<p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
+              Hierro, fuego y cocina a corazón abierto
+            </p>*/}
+            <h1 className="text-3xl font-headline tracking-[0.3em] uppercase">
+              Menú
+            </h1>
+          </div>
+
+          <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por plato, ingrediente..."
@@ -181,7 +182,7 @@ export default function MenuClient() {
           <button
             type="button"
             className={cn(
-              "rounded-sm border px-4 py-1 text-sm whitespace-nowrap",
+              "rounded-sm border px-4 py-1 text-xs md:text-sm whitespace-nowrap tracking-[0.18em] uppercase",
               selectedCategory === "all"
                 ? "bg-foreground text-background"
                 : "bg-background text-foreground"
@@ -195,7 +196,7 @@ export default function MenuClient() {
               key={cat.id}
               type="button"
               className={cn(
-                "rounded-sm border px-4 py-1 text-sm whitespace-nowrap",
+                "rounded-sm border px-4 py-1 text-xs md:text-sm whitespace-nowrap tracking-[0.18em] uppercase",
                 selectedCategory === cat.id
                   ? "bg-foreground text-background"
                   : "bg-background text-foreground"
@@ -221,14 +222,18 @@ export default function MenuClient() {
 
             return (
               <section key={category.id} className="space-y-4">
-                <h2 className="text-2xl font-headline font-semibold">
-                  {/* {category.name} */}
-                </h2>
+                {/* encabezado estilo carta */}
+                <div className="space-y-1">
+                  <h2 className="text-xs tracking-[0.35em] uppercase text-muted-foreground">
+                    {category.name}
+                  </h2>
+                  <div className="h-px w-full bg-[rgba(0,0,0,0.08)]" />
+                </div>
 
                 {/* SIN subcategorías */}
                 {childCats.length === 0 ? (
                   showImageForCategory ? (
-                    // SUGERENCIA DEL DIA = cards con imagen
+                    // SUGERENCIA DEL DÍA = cards con imagen (mantengo estética especial)
                     <div className="grid gap-6 md:grid-cols-2">
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
@@ -245,7 +250,7 @@ export default function MenuClient() {
                           return (
                             <Card
                               key={item.id}
-                              className="overflow-hidden flex flex-col h-full"
+                              className="overflow-hidden flex flex-col h-full border border-[rgba(0,0,0,0.08)] shadow-sm"
                             >
                               <div className="relative h-52 w-full">
                                 <img
@@ -258,7 +263,9 @@ export default function MenuClient() {
 
                               <CardHeader>
                                 <div className="flex items-center gap-2">
-                                  <CardTitle>{item.name}</CardTitle>
+                                  <CardTitle className="font-headline tracking-[0.12em] uppercase text-sm">
+                                    {item.name}
+                                  </CardTitle>
                                   {item.isSpecial && (
                                     <Badge className="flex items-center gap-1 rounded-sm">
                                       <Sparkles className="h-3.5 w-3.5" />
@@ -266,7 +273,7 @@ export default function MenuClient() {
                                     </Badge>
                                   )}
                                 </div>
-                                <CardDescription>
+                                <CardDescription className="text-xs leading-snug">
                                   {item.description}
                                 </CardDescription>
                               </CardHeader>
@@ -276,7 +283,7 @@ export default function MenuClient() {
                                     <Badge
                                       key={tag}
                                       variant="outline"
-                                      className="flex items-center gap-1"
+                                      className="flex items-center gap-1 text-[11px]"
                                     >
                                       <TagIcon tag={tag} />
                                       <span>{tag}</span>
@@ -284,8 +291,8 @@ export default function MenuClient() {
                                   ))}
                                 </div>
 
-                                <div className="flex items-center justify-between">
-                                  <span className="text-lg font-semibold">
+                                <div className="flex items-center justify-end">
+                                  <span className="text-base font-semibold">
                                     {formatCurrency(item.price)}
                                   </span>
                                 </div>
@@ -295,49 +302,61 @@ export default function MenuClient() {
                         })}
                     </div>
                   ) : (
-                    // RESTO SIN SUBCATEGORÍAS
-                    <div className="border-t divide-y">
+                    // CATEGORÍAS SIN SUBCATEGORÍAS → estilo carta
+                    <div className="divide-y divide-[rgba(0,0,0,0.06)]">
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
                         .map((item) => (
-                          <div
-                            key={item.id}
-                            className="flex items-baseline justify-between gap-4 py-3"
-                          >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-headline font-semibold tracking-wide uppercase text-sm md:text-base">
-                                  {item.name}
-                                </span>
-                                {item.isSpecial && (
-                                  <Badge
-                                    variant="outline"
-                                    className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                  >
-                                    <Sparkles className="h-3 w-3" />
-                                    Especial
-                                  </Badge>
-                                )}
-                              </div>
-                              {item.description && (
-                                <p className="text-sm text-muted-foreground leading-snug">
-                                  {item.description}
-                                </p>
+                          <div key={item.id} className="py-3">
+                            {/* línea nombre .... precio */}
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                {item.name}
+                              </span>
+                              {item.isSpecial && (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                >
+                                  <Sparkles className="h-3 w-3" />
+                                  Especial
+                                </Badge>
                               )}
-                            </div>
-
-                            <div className="text-right min-w-[90px]">
-                              <span className="font-semibold text-base md:text-lg">
+                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] mx-2" />
+                              <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                 {formatCurrency(item.price)}
                               </span>
                             </div>
+
+                            {/* descripción */}
+                            {item.description && (
+                              <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
+                                {item.description}
+                              </p>
+                            )}
+
+                            {/* tags opcionales */}
+                            {(item.tags ?? []).length > 0 && (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {(item.tags ?? []).map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant="outline"
+                                    className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                  >
+                                    <TagIcon tag={tag} />
+                                    <span>{tag}</span>
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         ))}
                     </div>
                   )
                 ) : (
-                  // CON SUBCATEGORÍAS → acordeón
-                  <Accordion type="multiple" className="w-full space-y-2">
+                  // CON SUBCATEGORÍAS → SIEMPRE ABIERTAS (sin acordeón)
+                  <div className="space-y-6">
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
                         (item) => item.categoryId === sub.id
@@ -345,66 +364,84 @@ export default function MenuClient() {
                       if (itemsSub.length === 0) return null;
 
                       return (
-                        <AccordionItem
+                        <div
                           key={sub.id}
-                          value={sub.id}
-                          className="border-b"
+                          className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
-                          <AccordionTrigger
-                            className="font-headline tracking-wide uppercase text-sm md:text-base text-left no-underline hover:no-underline focus:no-underline"
-                            style={{ textDecoration: "none" }}
+                          {/* título subcategoría */}
+                          <p
+                            className="
+                              font-headline 
+                              uppercase 
+                              text-xs 
+                              md:text-sm 
+                              font-bold
+                              tracking-[0.18em]
+                              pt-4 
+                              pb-2
+                              text-[#1b3059]
+                            "
                           >
                             {sub.name}
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="divide-y">
-                              {itemsSub.map((item) => (
-                                <div
-                                  key={item.id}
-                                  className="flex items-baseline justify-between gap-4 py-3"
-                                >
-                                  <div className="space-y-1">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-headline font-semibold uppercase text-blue text-sm md:text-base text-bold">
-                                        {item.name}
-                                      </span>
-                                      {item.isSpecial && (
-                                        <Badge
-                                          variant="outline"
-                                          className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                        >
-                                          <Sparkles className="h-3 w-3" />
-                                          Especial
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    {item.description && (
-                                      <p className="text-sm text-muted-foreground leading-snug">
-                                        {item.description}
-                                      </p>
-                                    )}
-                                  </div>
+                          </p>
 
-                                  <div className="text-right min-w-[90px]">
-                                    <span className="font-semibold text-base md:text-lg">
-                                      {formatCurrency(item.price)}
-                                    </span>
-                                  </div>
+                          {/* lista de items estilo carta */}
+                          <div className="divide-y divide-[rgba(0,0,0,0.06)]">
+                            {itemsSub.map((item) => (
+                              <div key={item.id} className="py-3">
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                    {item.name}
+                                  </span>
+                                  {item.isSpecial && (
+                                    <Badge
+                                      variant="outline"
+                                      className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                    >
+                                      <Sparkles className="h-3 w-3" />
+                                      Especial
+                                    </Badge>
+                                  )}
+                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] mx-2" />
+                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                                    {formatCurrency(item.price)}
+                                  </span>
                                 </div>
-                              ))}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
+
+                                {item.description && (
+                                  <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
+                                    {item.description}
+                                  </p>
+                                )}
+
+                                {(item.tags ?? []).length > 0 && (
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    {(item.tags ?? []).map((tag) => (
+                                      <Badge
+                                        key={tag}
+                                        variant="outline"
+                                        className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                      >
+                                        <TagIcon tag={tag} />
+                                        <span>{tag}</span>
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       );
                     })}
-                  </Accordion>
+                  </div>
                 )}
               </section>
             );
           })}
 
           {filteredItems.length === 0 && (
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm text-center">
               No encontramos platos que coincidan con la búsqueda.
             </p>
           )}

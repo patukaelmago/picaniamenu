@@ -9,7 +9,7 @@
     {
       "id": "entrada-1",
       "description": "Paella de Mar",
-      "imageUrl": "/img/02.jpg",
+      "imageUrl": "https://res.cloudinary.com/dq7nlctcw/image/upload/v1761068808/samples/dessert-on-a-plate.jpg",
       "imageHint": "empanadas"
     },
     {
