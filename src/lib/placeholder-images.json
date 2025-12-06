@@ -8,8 +8,8 @@
     },
     {
       "id": "entrada-1",
-      "description": "Empanadas on a plate.",
-      "imageUrl": "https://res.cloudinary.com/dq7nlctcw/image/upload/v1764769276/01_dpn0m8.jpg",
+      "description": "Paella de Mar",
+      "imageUrl": "/img/02.jpg",
       "imageHint": "empanadas"
     },
     {
@@ -50,9 +50,9 @@
     },
     {
       "id": "postre-1",
-      "description": "Flan with dulce de leche.",
+      "description": "Volcan de Chocolate",
       "imageUrl": "https://res.cloudinary.com/dq7nlctcw/image/upload/v1764769276/03_jxzvng.jpg",
-      "imageHint": "flan dessert"
+      "imageHint": "Chocolate Volcan"
     },
     {
       "id": "vino-1",

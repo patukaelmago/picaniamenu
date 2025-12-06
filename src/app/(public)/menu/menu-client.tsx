@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
 
 import type { Category, MenuItem } from "@/lib/types";
@@ -212,7 +211,13 @@ export default function MenuClient() {
         <div className="space-y-10">
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
-            const showImageForCategory = category.name === "Sugerencia del Dia";
+
+            // detectar "SUGERENCIA DEL DÍA" aunque tenga mayúsculas y tilde
+            const normalizedName = category.name
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "");
+            const showImageForCategory = normalizedName === "sugerencia del dia";
 
             return (
               <section key={category.id} className="space-y-4">
@@ -232,31 +237,24 @@ export default function MenuClient() {
                             (p) => p.id === item.imageId
                           );
 
-                          const hasAnyImage = image || item.imageUrl;
+                          const src =
+                            image?.imageUrl ||
+                            item.imageUrl ||
+                            "/img/placeholder.jpg";
 
                           return (
                             <Card
                               key={item.id}
                               className="overflow-hidden flex flex-col h-full"
                             >
-                              {hasAnyImage ? (
-                                <div className="relative h-52 w-full">
-                                  <Image
-                                    src={
-                                      image?.imageUrl ||
-                                      item.imageUrl ||
-                                      "/img/placeholder.jpg"
-                                    }
-                                    alt={item.name}
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                              ) : (
-                                <div className="h-16 w-full bg-muted flex items-center px-4 text-sm text-muted-foreground">
-                                  Sin imagen
-                                </div>
-                              )}
+                              <div className="relative h-52 w-full">
+                                <img
+                                  src={src}
+                                  alt={item.name}
+                                  className="object-cover w-full h-full"
+                                  data-ai-hint={image?.imageHint}
+                                />
+                              </div>
 
                               <CardHeader>
                                 <div className="flex items-center gap-2">
