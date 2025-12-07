@@ -153,14 +153,14 @@ export default function MenuClient() {
       <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
-         {/* <div className="space-y-1">
-            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
+          <div className="space-y-1">
+            {/*<p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
               Hierro, fuego y cocina a corazón abierto
-            </p>
-            <h1 className="text-3xl font-headline tracking-[0.3em] uppercase">
-              Menú
+            </p>*/}
+            <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase">
+              Nuestra Carta
             </h1>
-          </div> */}
+          </div> 
 
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
