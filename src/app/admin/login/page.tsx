@@ -1,42 +1,31 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Utensils } from "lucide-react";
-import Link from "next/link";
+"use client";
 
-export default function AdminLoginPage() {
+import LoginWithGoogle from "@/components/LoginWithGoogle";
+
+export default function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-            <div className="flex justify-center mb-4">
-                <Utensils className="h-12 w-12 text-accent" />
-            </div>
-          <CardTitle className="text-2xl font-headline">Admin Login</CardTitle>
-          <CardDescription>
-            Ingresá a tu cuenta para administrar el menú.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" placeholder="m@example.com" required />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Contraseña</Label>
-            <Input id="password" type="password" required />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button className="w-full" asChild>
-            <Link href="/admin">Ingresar</Link>
-          </Button>
-           <Button variant="outline" className="w-full">
-            Ingresar con Google
-          </Button>
-        </CardFooter>
-      </Card>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#fff7e3]">
+      <div className="w-full max-w-md rounded-2xl border border-[#f0e0c0] bg-white/90 shadow-lg p-8 space-y-6">
+        <div className="text-center space-y-2">
+          <p className="text-[11px] tracking-[0.25em] uppercase text-[#b28a4a]">
+            Picaña Admin
+          </p>
+          <h1 className="text-2xl font-semibold text-[#1b3059]">
+            Iniciar sesión
+          </h1>
+          <p className="text-sm text-slate-500">
+            Usá tu cuenta de Google autorizada para administrar el menú del
+            restaurante.
+          </p>
+        </div>
+
+        <LoginWithGoogle />
+
+        <p className="text-[11px] text-center text-slate-400">
+          Al continuar aceptás el uso interno del panel de administración de
+          Picaña.
+        </p>
+      </div>
     </div>
   );
 }
