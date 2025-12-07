@@ -153,14 +153,14 @@ export default function MenuClient() {
       <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
-          <div className="space-y-1">
-             {/*<p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
+         {/* <div className="space-y-1">
+            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
               Hierro, fuego y cocina a corazón abierto
-            </p>*/}
+            </p>
             <h1 className="text-3xl font-headline tracking-[0.3em] uppercase">
               Menú
             </h1>
-          </div>
+          </div> */}
 
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -173,7 +173,7 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías */}
+        {/* chips de categorías 
         <div
           className="flex gap-2 overflow-x-auto no-scrollbar py-1 w-full
                      md:flex-wrap md:overflow-visible"
@@ -206,7 +206,7 @@ export default function MenuClient() {
               {cat.name}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* secciones por categoría raíz */}
         <div className="space-y-10">
@@ -222,9 +222,9 @@ export default function MenuClient() {
 
             return (
               <section key={category.id} className="space-y-4">
-                {/* encabezado estilo carta */}
+                {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
-                  <h2 className="text-xs tracking-[0.35em] uppercase text-muted-foreground">
+                  <h2 className="text-sm md:text-base tracking-[0.25em] uppercase text-[#1b3059] font-semibold">
                     {category.name}
                   </h2>
                   <div className="h-px w-full bg-[rgba(0,0,0,0.08)]" />
@@ -233,7 +233,7 @@ export default function MenuClient() {
                 {/* SIN subcategorías */}
                 {childCats.length === 0 ? (
                   showImageForCategory ? (
-                    // SUGERENCIA DEL DÍA = cards con imagen (mantengo estética especial)
+                    // SUGERENCIA DEL DÍA = cards con imagen
                     <div className="grid gap-6 md:grid-cols-2">
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
@@ -308,7 +308,6 @@ export default function MenuClient() {
                         .filter((item) => item.categoryId === category.id)
                         .map((item) => (
                           <div key={item.id} className="py-3">
-                            {/* línea nombre .... precio */}
                             <div className="flex items-baseline gap-2">
                               <span className="font-headline text-[15px] md:text-base tracking-wide">
                                 {item.name}
@@ -328,14 +327,12 @@ export default function MenuClient() {
                               </span>
                             </div>
 
-                            {/* descripción */}
                             {item.description && (
                               <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
                                 {item.description}
                               </p>
                             )}
 
-                            {/* tags opcionales */}
                             {(item.tags ?? []).length > 0 && (
                               <div className="mt-1 flex flex-wrap gap-1">
                                 {(item.tags ?? []).map((tag) => (
@@ -355,7 +352,7 @@ export default function MenuClient() {
                     </div>
                   )
                 ) : (
-                  // CON SUBCATEGORÍAS → SIEMPRE ABIERTAS (sin acordeón)
+                  // CON SUBCATEGORÍAS → SIEMPRE ABIERTAS
                   <div className="space-y-6">
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
@@ -368,24 +365,23 @@ export default function MenuClient() {
                           key={sub.id}
                           className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
-                          {/* título subcategoría */}
+                          {/* título subcategoría (UN PASO MÁS CHICO) */}
                           <p
                             className="
                               font-headline 
                               uppercase 
-                              text-xs 
-                              md:text-sm 
-                              font-bold
-                              tracking-[0.18em]
+                              text-[11px]
+                              md:text-xs
+                              font-semibold
+                              tracking-[0.16em]
                               pt-4 
                               pb-2
-                              text-[#1b3059]
+                              text-[rgba(0,0,0,0.7)]
                             "
                           >
                             {sub.name}
                           </p>
 
-                          {/* lista de items estilo carta */}
                           <div className="divide-y divide-[rgba(0,0,0,0.06)]">
                             {itemsSub.map((item) => (
                               <div key={item.id} className="py-3">
