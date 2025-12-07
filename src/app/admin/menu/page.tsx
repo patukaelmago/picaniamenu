@@ -688,13 +688,12 @@ export default function AdminMenuPage() {
                 Administrá todos los items de tu menú.
               </CardDescription>
 
-              {/* Header: modo de orden + buscador + botón agregar 
+              {/* Header: modo de orden + buscador + botón agregar  */}
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  <div className="flex items-center gap-3">
+                  {/*<div className="flex items-center gap-3">
                     <Label className="text-sm">Modo de ordenamiento:</Label>
-                    
-                  </div> */}
+                  </div>*/}
 
                   {/* 🔍 BUSCADOR */}
                   <div className="flex items-center gap-2">
