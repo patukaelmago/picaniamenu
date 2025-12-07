@@ -231,7 +231,7 @@ export default function AdminSettingsPage() {
                   />
                 </div>
 
-                {/* Moneda */}
+                {/* Moneda 
                 <div className="space-y-2">
                   <Label htmlFor="currency">
                     <Wallet className="inline-block mr-2 h-4 w-4" />
@@ -242,7 +242,7 @@ export default function AdminSettingsPage() {
                     value={currency}
                     onChange={(e) => setCurrency(e.target.value)}
                   />
-                </div>
+                </div>*/}
 
                 {/* Logo archivo */}
                 <div className="space-y-2">
