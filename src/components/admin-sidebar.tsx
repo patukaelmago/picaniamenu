@@ -47,6 +47,7 @@ export default function AdminSidebar() {
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/menu', label: 'Menú', icon: UtensilsCrossed },
     { href: '/admin/settings', label: 'Ajustes', icon: Settings },
+    { href: '/qr', label: 'qr', icon: LayoutDashboard },
   ];
 
   return (
