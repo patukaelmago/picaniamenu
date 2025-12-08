@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Picaña | Restaurante",
@@ -29,15 +30,23 @@ export default function RootLayout({
       </head>
 
       <body className="font-body antialiased">
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {children}
 
-        {/* Botón flotante para volver arriba */}
-        <ScrollToTopButton />
+          {/* Botón flotante para volver arriba */}
+          <ScrollToTopButton />
 
-        {/* Notificaciones */}
-        <Toaster />
+          {/* Notificaciones */}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+
 
