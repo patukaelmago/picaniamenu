@@ -57,7 +57,7 @@ export default function Header() {
               transition-colors
             "
           >
-            <Link href="/qr">Código QR</Link>
+            <Link href="/menu#menu-viernes">Menú Viernes </Link>
           </Button>
 
           {/* BOTÓN ADMIN: SE MANTIENE IGUAL */}
