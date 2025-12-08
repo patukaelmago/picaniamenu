@@ -13,7 +13,8 @@ export default function Footer() {
       <div className="container mx-auto flex flex-col items-center justify-between gap-6 px-4 py-8 md:px-6">
 
         {/* LOGO + NOMBRE */}
-        <Link href="/" className="flex items-center mt-2 gap-3">
+        <Link href="https://picania-rosario.github.io/picania.github.io/" 
+              className="flex items-center mt-2 gap-3">
           {settings?.logoUrl ? (
             <img
               src="/logorecortado.png"
