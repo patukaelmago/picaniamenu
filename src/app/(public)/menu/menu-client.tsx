@@ -160,7 +160,7 @@ export default function MenuClient() {
             <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase">
               Nuestra Carta
             </h1>
-          </div> 
+          </div>
 
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -221,7 +221,16 @@ export default function MenuClient() {
             const showImageForCategory = normalizedName === "sugerencia del dia";
 
             return (
-              <section id="menu-viernes" key={category.id} className="space-y-4">
+              <section
+                id={
+                  category.name.toLowerCase() === "menú viernes"
+                    || category.name.toLowerCase() === "menu viernes"
+                    ? "menu-viernes"
+                    : undefined
+                }
+                key={category.id}
+                className="space-y-4 scroll-mt-28 md:scroll-mt-36"
+              >
                 {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
                   <h2 className="text-sm md:text-base tracking-[0.25em] uppercase text-[#1b3059] font-semibold">
