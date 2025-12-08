@@ -196,11 +196,17 @@ export default function MenuClient() {
               .replace(/[\u0300-\u036f]/g, "");
             const showImageForCategory = normalizedName === "sugerencia del dia";
 
+            // normalizamos también para decidir el id del anchor (viernes)
+            const normalizedForId = category.name
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "");
+
             return (
               <section
                 id={
-                  category.name.toLowerCase() === "menú viernes" ||
-                  category.name.toLowerCase() === "menu viernes"
+                  normalizedForId === "menu viernes" ||
+                  normalizedForId === "almuerzo viernes"
                     ? "menu-viernes"
                     : undefined
                 }
