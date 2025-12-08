@@ -1,35 +1,52 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
+import * as React from "react";
 import { Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
 
-  // Evita el flash raro entre light/dark en el primer render
-  useEffect(() => {
+  // 👉 Evitamos usar resolvedTheme hasta que estemos montados en el cliente
+  React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  // Mientras no montó, mostramos el botón “neutro” para que no parpadee
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-[hsl(var(--nav-text))]"
+        aria-label="Cambiar tema"
+      >
+        <Sun className="h-5 w-5" />
+      </Button>
+    );
+  }
 
-  const isDark = theme === "dark";
+  const isDark = resolvedTheme === "dark";
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      className="rounded-full border border-transparent hover:border-border"
       aria-label="Cambiar tema"
       onClick={() => setTheme(isDark ? "light" : "dark")}
+      className={cn(
+        "relative transition-colors",
+        isDark
+          ? "text-[#d9b36c]" // dorado cuando está en oscuro
+          : "text-[hsl(var(--nav-text))]" // color nav normal en claro
+      )}
     >
-      {/* Sol (modo claro) */}
-      <Sun className={`h-4 w-4 transition-all ${isDark ? "scale-0 opacity-0" : "scale-100 opacity-100"}`} />
-      {/* Luna (modo oscuro) */}
-      <Moon className={`h-4 w-4 absolute transition-all ${isDark ? "scale-100 opacity-100" : "scale-0 opacity-0"}`} />
+      {/* Sol y luna con animación linda */}
+      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
     </Button>
   );
 }
