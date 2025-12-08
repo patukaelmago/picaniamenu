@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, MENU_ITEMS } from "@/lib/data";
@@ -41,19 +44,16 @@ export default function AdminDashboardPage() {
     })
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  // Por ahora los handlers sólo loguean. Después los conectamos a Firestore.
   const handleAddItem = (section: "entrada" | "plato" | "postre") => {
-    // Acá podés abrir el mismo modal que usás en la pestaña Menú,
-    // con la categoría Menú Viernes y la sección preseleccionada.
     console.log("Agregar item a sección:", section);
   };
 
   const handleEditItem = (id: string) => {
-    // Conectá esto a tu flujo de edición real
     console.log("Editar item Menú Viernes:", id);
   };
 
   const handleDeleteItem = (id: string) => {
-    // Conectá esto a tu flujo de eliminación real
     console.log("Eliminar item Menú Viernes:", id);
   };
 
@@ -67,7 +67,7 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* TARJETAS RESUMEN (las dejamos porque son útiles) */}
+      {/* TARJETAS RESUMEN (si querés volver a usarlas, descomentá este bloque)
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -112,9 +112,11 @@ export default function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
+      */}
 
       {/* MENÚ VIERNES */}
       <div className="mt-8 space-y-6">
+        {/* 👉 Acá estaba al revés: ahora el mensaje sale SOLO si NO hay categoría */}
         {!fridayCategory ? (
           <Card>
             <CardContent className="py-6">
@@ -169,15 +171,50 @@ type SectionCardProps = {
 };
 
 function SectionCard({ title, items, onAdd, onEdit, onDelete }: SectionCardProps) {
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const parsedPrice =
+      price.trim() === "" ? null : Number(price.replace(",", "."));
+
+    console.log("Nuevo item creado en sección:", title, {
+      name,
+      description,
+      price: parsedPrice,
+    });
+
+    // Por ahora sólo llamamos al callback genérico.
+    // Cuando tengas Firestore acá vas a hacer el create real.
+    onAdd();
+
+    // Reseteo del form
+    setName("");
+    setDescription("");
+    setPrice("");
+    setShowForm(false);
+  };
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
-        <Button size="sm" onClick={onAdd}>
-          Agregar item
+        <Button
+          size="sm"
+          onClick={() => {
+            setShowForm((v) => !v);
+          }}
+        >
+          {showForm ? "Cancelar" : "Agregar item"}
         </Button>
       </CardHeader>
-      <CardContent className="space-y-2">
+
+      <CardContent className="space-y-4">
+        {/* LISTA DE ITEMS EXISTENTES */}
         {items.length === 0 ? (
           <p className="text-xs text-muted-foreground">
             Todavía no hay items cargados para esta sección.
@@ -219,6 +256,66 @@ function SectionCard({ title, items, onAdd, onEdit, onDelete }: SectionCardProps
               </div>
             </div>
           ))
+        )}
+
+        {/* FORMULARIO PARA CREAR NUEVO ITEM */}
+        {showForm && (
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-2 rounded-lg border border-dashed px-3 py-3"
+          >
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">Nombre del plato</label>
+              <input
+                className="h-8 rounded-md border px-2 text-sm"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Ej: Bife de chorizo"
+                required
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">Descripción</label>
+              <textarea
+                className="rounded-md border px-2 py-1 text-sm"
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Opcional: breve descripción del plato"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1">
+              <label className="text-xs font-medium">Precio (opcional)</label>
+              <input
+                className="h-8 rounded-md border px-2 text-sm"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Ej: 28000"
+                inputMode="numeric"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-1">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowForm(false);
+                  setName("");
+                  setDescription("");
+                  setPrice("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" size="sm">
+                Guardar item
+              </Button>
+            </div>
+          </form>
         )}
       </CardContent>
     </Card>

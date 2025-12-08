@@ -46,7 +46,6 @@ export default function AdminSidebar() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/menu', label: 'Menú', icon: UtensilsCrossed },
-    { href: '/admin/import', label: 'Importar', icon: Download },
     { href: '/admin/settings', label: 'Ajustes', icon: Settings },
   ];
 
