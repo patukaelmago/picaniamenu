@@ -199,8 +199,9 @@ export default function MenuClient() {
             return (
               <section
                 id={
-                  category.name.toLowerCase() === "almuerzo viernes" 
-                    ? "ALMUERZO VIERNES"
+                  category.name.toLowerCase() === "menú viernes" ||
+                  category.name.toLowerCase() === "menu viernes"
+                    ? "menu-viernes"
                     : undefined
                 }
                 key={category.id}

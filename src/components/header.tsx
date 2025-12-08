@@ -4,6 +4,7 @@ import { Utensils } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Header() {
   const settings = useRestaurantSettings();
@@ -11,10 +12,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
-        
+
         {/* LOGO + NOMBRE */}
-        <Link href="https://picania-rosario.github.io/picania.github.io/"
-              className="flex items-center gap-3">
+        <Link
+          href="https://picania-rosario.github.io/picania.github.io/"
+          className="flex items-center gap-3"
+        >
           {settings?.logoUrl ? (
             <img
               src="/logorecortado.png"
@@ -24,56 +27,27 @@ export default function Header() {
           ) : (
             <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
           )}
-          {/*<span className="text-2xl font-headline font-bold text-[hsl(var(--nav-text))]">
-            {settings?.name ?? "Picaña"}
-          </span>*/}
         </Link>
 
         {/* NAVEGACIÓN */}
         <nav className="flex items-center gap-4">
-          
-          {/* BOTÓN MENÚ 
-          <Button
-            variant="ghost"
-            asChild
-            className="
-              text-[hsl(var(--nav-text))] 
-              hover:bg-[hsl(var(--nav-text))] 
-              hover:text-[hsl(var(--nav-bg))]
-              transition-colors
-            "
-          >
-            <Link href="/menu">Menú</Link>
-          </Button> */}
 
           {/* BOTÓN Menu Viernes */}
           <Button
             variant="ghost"
             asChild
             className="
-            text-[hsl(var(--nav-text))]
-            hover:text-[hsl(var(--nav-accent))]
-            hover:bg-transparent
-            transition-colors
-          "
+              text-[hsl(var(--nav-text))]
+              hover:text-[hsl(var(--nav-accent))]
+              hover:bg-transparent
+              transition-colors
+            "
           >
             <Link href="/menu#menu-viernes">Almuerzo Viernes</Link>
           </Button>
 
-          {/* BOTÓN ADMIN: SE MANTIENE IGUAL 
-          <Button
-            variant="ghost"
-            asChild
-            className="
-              text-[hsl(var(--nav-text))]
-              hover:bg-[hsl(var(--nav-text))]
-              hover:text-[hsl(var(--nav-bg))]
-              transition-colors
-            "
-          >
-            <Link href="/admin">Admin</Link>
-          </Button>*/}
-
+          {/* TOGGLE DE TEMA (claro/oscuro) */}
+          <ThemeToggle />
         </nav>
       </div>
     </header>
