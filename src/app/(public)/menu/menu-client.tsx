@@ -104,8 +104,10 @@ export default function MenuClient() {
     return [selectedCategory, ...children];
   }, [selectedCategory, categories]);
 
-  // ====== FILTERING ======
+  // ====== FILTERING (incluye nombre de categoría y categoría padre) ======
   const filteredItems = useMemo(() => {
+    const term = search.toLowerCase().trim();
+
     return menuItems.filter((item) => {
       if (!item.isVisible) return false;
 
@@ -116,20 +118,32 @@ export default function MenuClient() {
         return false;
       }
 
-      const term = search.toLowerCase().trim();
+      // si no hay término, ya está filtrado por visibilidad/categoría
       if (!term) return true;
 
       const desc = item.description?.toLowerCase() ?? "";
 
-      return (
+      const category = categories.find((c) => c.id === item.categoryId);
+      const parentCategory = category?.parentCategoryId
+        ? categories.find((c) => c.id === category.parentCategoryId)
+        : undefined;
+
+      const catName = category?.name.toLowerCase() ?? "";
+      const parentCatName = parentCategory?.name.toLowerCase() ?? "";
+
+      const matchesText =
         item.name.toLowerCase().includes(term) ||
         desc.includes(term) ||
         (item.searchKeywords ?? []).some((k) =>
           k.toLowerCase().includes(term)
-        )
-      );
+        );
+
+      const matchesCategory =
+        catName.includes(term) || parentCatName.includes(term);
+
+      return matchesText || matchesCategory;
     });
-  }, [menuItems, selectedCategoryIds, search]);
+  }, [menuItems, selectedCategoryIds, search, categories]);
 
   const visibleRootCategories = useMemo(() => {
     if (selectedCategory !== "all") {
@@ -154,9 +168,6 @@ export default function MenuClient() {
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="space-y-1">
-            {/*<p className="text-xs tracking-[0.25em] uppercase text-muted-foreground">
-              Hierro, fuego y cocina a corazón abierto
-            </p>*/}
             <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase">
               Nuestra Carta
             </h1>
@@ -173,41 +184,6 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* chips de categorías 
-        <div
-          className="flex gap-2 overflow-x-auto no-scrollbar py-1 w-full
-                     md:flex-wrap md:overflow-visible"
-          style={{ WebkitOverflowScrolling: "touch" }}
-        >
-          <button
-            type="button"
-            className={cn(
-              "rounded-sm border px-4 py-1 text-xs md:text-sm whitespace-nowrap tracking-[0.18em] uppercase",
-              selectedCategory === "all"
-                ? "bg-foreground text-background"
-                : "bg-background text-foreground"
-            )}
-            onClick={() => setSelectedCategory("all")}
-          >
-            Todos
-          </button>
-          {rootCategories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              className={cn(
-                "rounded-sm border px-4 py-1 text-xs md:text-sm whitespace-nowrap tracking-[0.18em] uppercase",
-                selectedCategory === cat.id
-                  ? "bg-foreground text-background"
-                  : "bg-background text-foreground"
-              )}
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div> */}
-
         {/* secciones por categoría raíz */}
         <div className="space-y-10">
           {visibleRootCategories.map((category) => {
@@ -223,8 +199,8 @@ export default function MenuClient() {
             return (
               <section
                 id={
-                  category.name.toLowerCase() === "menú viernes"
-                    || category.name.toLowerCase() === "menu viernes"
+                  category.name.toLowerCase() === "menú viernes" ||
+                  category.name.toLowerCase() === "menu viernes"
                     ? "menu-viernes"
                     : undefined
                 }
