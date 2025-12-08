@@ -46,21 +46,21 @@ export default function Header() {
             <Link href="/menu">Menú</Link>
           </Button> */}
 
-          {/* BOTÓN CÓDIGO QR */}
+          {/* BOTÓN Menu Viernes */}
           <Button
             variant="ghost"
             asChild
             className="
-              text-[hsl(var(--nav-text))] 
-              hover:bg-[hsl(var(--nav-text))] 
-              hover:text-[hsl(var(--nav-bg))]
-              transition-colors
-            "
+            text-[hsl(var(--nav-text))]
+            hover:text-[hsl(var(--nav-accent))]
+            hover:bg-transparent
+            transition-colors
+          "
           >
             <Link href="/menu#menu-viernes">Menú Viernes </Link>
           </Button>
 
-          {/* BOTÓN ADMIN: SE MANTIENE IGUAL */}
+          {/* BOTÓN ADMIN: SE MANTIENE IGUAL 
           <Button
             variant="ghost"
             asChild
@@ -72,7 +72,7 @@ export default function Header() {
             "
           >
             <Link href="/admin">Admin</Link>
-          </Button>
+          </Button>*/}
 
         </nav>
       </div>
