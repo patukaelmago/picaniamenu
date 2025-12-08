@@ -57,7 +57,7 @@ export default function Header() {
             transition-colors
           "
           >
-            <Link href="/menu#menu-viernes">Almuerzo ejecutivo viernes 1/2 día</Link>
+            <Link href="/menu#menu-viernes">Almuerzo Viernes</Link>
           </Button>
 
           {/* BOTÓN ADMIN: SE MANTIENE IGUAL 
