@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, MENU_ITEMS } from "@/lib/data";
-import { Layers, Utensils, CalendarCheck } from "lucide-react";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
+// Si no usás las tarjetas de resumen, podés borrar estos imports:
+// import { Layers, Utensils, CalendarCheck } from "lucide-react";
+// import { format } from "date-fns";
+// import { es } from "date-fns/locale";
 
 export default function AdminDashboardPage() {
   const totalCategories = CATEGORIES.length;
@@ -67,96 +68,53 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* TARJETAS RESUMEN (si querés volver a usarlas, descomentá este bloque)
+      {/* TARJETAS RESUMEN (si querés usarlas, descomentá)
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Categorías Totales
-            </CardTitle>
-            <Layers className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalCategories}</div>
-            <p className="text-xs text-muted-foreground">
-              Categorías en el menú
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Items Totales</CardTitle>
-            <Utensils className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalItems}</div>
-            <p className="text-xs text-muted-foreground">
-              Platos y bebidas en el menú
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Última Publicación
-            </CardTitle>
-            <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {format(lastPublished, "dd MMM, yyyy", { locale: es })}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {format(lastPublished, "HH:mm 'hs.'", { locale: es })}
-            </p>
-          </CardContent>
-        </Card>
+        ...
       </div>
       */}
 
-      {/* MENÚ VIERNES */}
+      {/* AVISO SI NO EXISTE LA CATEGORÍA */}
+      {!fridayCategory && (
+        <Card>
+          <CardContent className="py-6">
+            <p className="text-sm text-muted-foreground">
+              No encontré la categoría <strong>“Menú Viernes”</strong>. Creala
+              en la pestaña <strong>Menú</strong> y asignale los platos que
+              quieras. Igual acá ya podés ir armando la estructura.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* MENÚ VIERNES – SIEMPRE MOSTRAMOS LAS SECCIONES */}
       <div className="mt-8 space-y-6">
-        {/* 👉 Acá estaba al revés: ahora el mensaje sale SOLO si NO hay categoría */}
-        {!fridayCategory ? (
-          <Card>
-            <CardContent className="py-6">
-              <p className="text-sm text-muted-foreground">
-                No encontré la categoría <strong>“Menú Viernes”</strong>. Creala
-                en la pestaña <strong>Menú</strong> y asignale los platos que
-                quieras.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <>
-            {/* ENTRADA */}
-            <SectionCard
-              title="La entrada"
-              items={entradas}
-              onAdd={() => handleAddItem("entrada")}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-            />
+        {/* ENTRADA */}
+        <SectionCard
+          title="La entrada"
+          items={entradas}
+          onAdd={() => handleAddItem("entrada")}
+          onEdit={handleEditItem}
+          onDelete={handleDeleteItem}
+        />
 
-            {/* PLATOS */}
-            <SectionCard
-              title="Platos del Menú Viernes"
-              items={platos}
-              onAdd={() => handleAddItem("plato")}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-            />
+        {/* PLATOS */}
+        <SectionCard
+          title="Platos del Menú Viernes"
+          items={platos}
+          onAdd={() => handleAddItem("plato")}
+          onEdit={handleEditItem}
+          onDelete={handleDeleteItem}
+        />
 
-            {/* POSTRE */}
-            <SectionCard
-              title="El postre"
-              items={postres}
-              onAdd={() => handleAddItem("postre")}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-            />
-          </>
-        )}
+        {/* POSTRE */}
+        <SectionCard
+          title="El postre"
+          items={postres}
+          onAdd={() => handleAddItem("postre")}
+          onEdit={handleEditItem}
+          onDelete={handleDeleteItem}
+        />
       </div>
     </div>
   );
@@ -170,7 +128,13 @@ type SectionCardProps = {
   onDelete: (id: string) => void;
 };
 
-function SectionCard({ title, items, onAdd, onEdit, onDelete }: SectionCardProps) {
+function SectionCard({
+  title,
+  items,
+  onAdd,
+  onEdit,
+  onDelete,
+}: SectionCardProps) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -189,10 +153,10 @@ function SectionCard({ title, items, onAdd, onEdit, onDelete }: SectionCardProps
     });
 
     // Por ahora sólo llamamos al callback genérico.
-    // Cuando tengas Firestore acá vas a hacer el create real.
+    // Cuando tengas Firestore, acá va el create real.
     onAdd();
 
-    // Reseteo del form
+    // Reset
     setName("");
     setDescription("");
     setPrice("");
@@ -321,3 +285,4 @@ function SectionCard({ title, items, onAdd, onEdit, onDelete }: SectionCardProps
     </Card>
   );
 }
+
