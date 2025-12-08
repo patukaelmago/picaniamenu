@@ -206,7 +206,7 @@ export default function MenuClient() {
               <section
                 id={
                   normalizedForId === "menu viernes" ||
-                  normalizedForId === "almuerzo viernes"
+                    normalizedForId === "almuerzo viernes"
                     ? "menu-viernes"
                     : undefined
                 }
@@ -215,10 +215,20 @@ export default function MenuClient() {
               >
                 {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
-                  <h2 className="text-sm md:text-base tracking-[0.25em] uppercase text-[#1b3059] font-semibold">
+                  <h2
+                    className="
+    text-sm md:text-base 
+    tracking-[0.25em] 
+    uppercase 
+    font-semibold
+    text-[#1b3059]
+    dark:text-[#d9b36c]
+  "
+                  >
                     {category.name}
                   </h2>
-                  <div className="h-px w-full bg-[rgba(0,0,0,0.08)]" />
+
+                  <div className="h-px w-full bg-[rgba(0,0,0,0.08)] dark:bg-[#fff7e3]/30" />
                 </div>
 
                 {/* SIN subcategorías */}
@@ -264,9 +274,10 @@ export default function MenuClient() {
                                     </Badge>
                                   )}
                                 </div>
-                                <CardDescription className="text-xs leading-snug">
-                                  {item.description}
-                                </CardDescription>
+                                <CardDescription className="text-xs leading-snug text-muted-foreground dark:text-[#fff7e3]">
+  {item.description}
+</CardDescription>
+
                               </CardHeader>
                               <CardContent className="mt-auto space-y-3">
                                 <div className="flex flex-wrap gap-2">
@@ -312,16 +323,18 @@ export default function MenuClient() {
                                   Especial
                                 </Badge>
                               )}
-                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] mx-2" />
+                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[#fff7e3]/70 mx-2" />
+
                               <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                 {formatCurrency(item.price)}
                               </span>
                             </div>
 
                             {item.description && (
-                              <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
-                                {item.description}
-                              </p>
+                              <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                              {item.description}
+                            </p>
+                            
                             )}
 
                             {(item.tags ?? []).length > 0 && (
@@ -359,19 +372,21 @@ export default function MenuClient() {
                           {/* título subcategoría (UN PASO MÁS CHICO) */}
                           <p
                             className="
-                              font-headline 
-                              uppercase 
-                              text-[11px]
-                              md:text-xs
-                              font-semibold
-                              tracking-[0.16em]
-                              pt-4 
-                              pb-2
-                              text-[rgba(0,0,0,0.7)]
-                            "
+    font-headline 
+    uppercase 
+    text-[11px]
+    md:text-xs
+    font-semibold
+    tracking-[0.16em]
+    pt-4 
+    pb-2
+    text-[rgba(0,0,0,0.7)]
+    dark:text-[#d9b36c]
+  "
                           >
                             {sub.name}
                           </p>
+
 
                           <div className="divide-y divide-[rgba(0,0,0,0.06)]">
                             {itemsSub.map((item) => (
@@ -389,16 +404,17 @@ export default function MenuClient() {
                                       Especial
                                     </Badge>
                                   )}
-                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] mx-2" />
+                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[#fff7e3]/70 mx-2" />
                                   <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                     {formatCurrency(item.price)}
                                   </span>
                                 </div>
 
                                 {item.description && (
-                                  <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
-                                    {item.description}
-                                  </p>
+                                  <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                                  {item.description}
+                                </p>
+                                
                                 )}
 
                                 {(item.tags ?? []).length > 0 && (
