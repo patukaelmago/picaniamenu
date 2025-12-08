@@ -221,7 +221,7 @@ export default function MenuClient() {
             const showImageForCategory = normalizedName === "sugerencia del dia";
 
             return (
-              <section key={category.id} className="space-y-4">
+              <section id="menu-viernes" key={category.id} className="space-y-4">
                 {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
                   <h2 className="text-sm md:text-base tracking-[0.25em] uppercase text-[#1b3059] font-semibold">
