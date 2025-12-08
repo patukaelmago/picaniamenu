@@ -46,8 +46,8 @@ export default function AdminSidebar() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/menu', label: 'Menú', icon: UtensilsCrossed },
-    { href: '/admin/settings', label: 'Ajustes', icon: Settings },
     { href: '/qr', label: 'qr', icon: LayoutDashboard },
+    { href: '/admin/settings', label: 'Ajustes', icon: Settings },
   ];
 
   return (
