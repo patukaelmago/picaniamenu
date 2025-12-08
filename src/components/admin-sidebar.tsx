@@ -44,9 +44,9 @@ export default function AdminSidebar() {
   const logo = PlaceHolderImages.find((p) => p.id === 'admin-logo');
 
   const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+    //{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/menu', label: 'Menú', icon: UtensilsCrossed },
-    { href: '/qr', label: 'qr', icon: LayoutDashboard },
+    { href: '/admin/qr', label: 'qr', icon: LayoutDashboard },
     { href: '/admin/settings', label: 'Ajustes', icon: Settings },
   ];
 
