@@ -13,7 +13,8 @@ export default function Header() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
         
         {/* LOGO + NOMBRE */}
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="https://picania-rosario.github.io/picania.github.io/"
+              className="flex items-center gap-3">
           {settings?.logoUrl ? (
             <img
               src="/logorecortado.png"
