@@ -229,7 +229,7 @@ export default function MenuClient() {
                     : undefined
                 }
                 key={category.id}
-                className="space-y-4 scroll-mt-28 md:scroll-mt-36"
+                className="space-y-4 scroll-mt-20 md:scroll-mt-36"
               >
                 {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
