@@ -1,62 +1,128 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, MENU_ITEMS } from "@/lib/data";
-// Si no usás las tarjetas de resumen, podés borrar estos imports:
-// import { Layers, Utensils, CalendarCheck } from "lucide-react";
-// import { format } from "date-fns";
-// import { es } from "date-fns/locale";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+
+type FridayDish = {
+  id: string;
+  name: string;
+  description?: string;
+  price?: number;
+};
+
+type FridayMenuData = {
+  entrada: string;
+  postre: string;
+  platos: FridayDish[];
+};
 
 export default function AdminDashboardPage() {
-  const totalCategories = CATEGORIES.length;
-  const totalItems = MENU_ITEMS.length;
-  const lastPublished = new Date(); // Mock data
+  const [menu, setMenu] = useState<FridayMenuData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // drafts para los inputs de entrada y postre
+  const [entradaDraft, setEntradaDraft] = useState("");
+  const [postreDraft, setPostreDraft] = useState("");
 
   // ─────────────────────────────────────────────
-  //   MENÚ VIERNES (buscamos la categoría)
+  //   Cargar Menú Viernes desde Firestore
   // ─────────────────────────────────────────────
-  const fridayCategory =
-    CATEGORIES.find(
-      (c) =>
-        c.name.toLowerCase() === "menú viernes" ||
-        c.name.toLowerCase() === "menu viernes"
-    ) ?? null;
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const ref = doc(db, "menu_viernes", "data");
+        const snap = await getDoc(ref);
 
-  const fridayItems = fridayCategory
-    ? MENU_ITEMS.filter((item) => item.categoryId === fridayCategory.id)
-    : [];
+        if (snap.exists()) {
+          const data = snap.data() as FridayMenuData;
+          const safeData: FridayMenuData = {
+            entrada: data.entrada ?? "",
+            postre: data.postre ?? "",
+            platos: Array.isArray(data.platos) ? data.platos : [],
+          };
+          setMenu(safeData);
+          setEntradaDraft(safeData.entrada);
+          setPostreDraft(safeData.postre);
+        } else {
+          const emptyMenu: FridayMenuData = {
+            entrada: "",
+            postre: "",
+            platos: [],
+          };
+          setMenu(emptyMenu);
+          setEntradaDraft("");
+          setPostreDraft("");
+        }
+      } catch (err) {
+        console.error("Error cargando menú viernes:", err);
+        setError("No se pudo cargar el Menú Viernes.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // Usamos un campo opcional "course" si existe en los items
-  // (entrada | plato | postre). Si no existe, caen como "plato".
-  const entradas = fridayItems
-    .filter((item) => (item as any).course === "entrada")
-    .sort((a, b) => a.name.localeCompare(b.name));
+    load();
+  }, []);
 
-  const postres = fridayItems
-    .filter((item) => (item as any).course === "postre")
-    .sort((a, b) => a.name.localeCompare(b.name));
+  // guarda el menú completo (o un parcial) en Firestore
+  const saveMenu = async (partial: Partial<FridayMenuData>) => {
+    if (!menu) return;
+    setSaving(true);
+    setError(null);
 
-  const platos = fridayItems
-    .filter((item) => {
-      const course = (item as any).course;
-      return !course || course === "plato";
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    try {
+      const ref = doc(db, "menu_viernes", "data");
+      const nextMenu: FridayMenuData = {
+        entrada: menu.entrada,
+        postre: menu.postre,
+        platos: menu.platos,
+        ...partial,
+      };
 
-  // Por ahora los handlers sólo loguean. Después los conectamos a Firestore.
-  const handleAddItem = (section: "entrada" | "plato" | "postre") => {
-    console.log("Agregar item a sección:", section);
+      await setDoc(ref, nextMenu, { merge: true });
+      setMenu(nextMenu);
+    } catch (err) {
+      console.error("Error guardando Menú Viernes:", err);
+      setError("No se pudo guardar el Menú Viernes.");
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleEditItem = (id: string) => {
-    console.log("Editar item Menú Viernes:", id);
+  // ─────────────────────────────────────────────
+  //   Handlers de Entrada / Postre
+  // ─────────────────────────────────────────────
+  const handleSaveEntrada = () => {
+    if (!menu) return;
+    saveMenu({ entrada: entradaDraft });
   };
 
-  const handleDeleteItem = (id: string) => {
-    console.log("Eliminar item Menú Viernes:", id);
+  const handleSavePostre = () => {
+    if (!menu) return;
+    saveMenu({ postre: postreDraft });
   };
+
+  // ─────────────────────────────────────────────
+  //   Handlers de Platos
+  // ─────────────────────────────────────────────
+  const handleSavePlatos = async (platos: FridayDish[]) => {
+    await saveMenu({ platos });
+  };
+
+  if (loading || !menu) {
+    return (
+      <div className="p-6">
+        <h1 className="text-3xl font-bold font-headline">Menú Viernes</h1>
+        <p className="mt-2 text-muted-foreground">Cargando menú…</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -68,123 +134,174 @@ export default function AdminDashboardPage() {
         </p>
       </div>
 
-      {/* TARJETAS RESUMEN (si querés usarlas, descomentá)
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        ...
-      </div>
-      */}
-
-      {/* AVISO SI NO EXISTE LA CATEGORÍA */}
-      {!fridayCategory && (
+      {error && (
         <Card>
-          <CardContent className="py-6">
-            <p className="text-sm text-muted-foreground">
-              No encontré la categoría <strong>“Menú Viernes”</strong>. Creala
-              en la pestaña <strong>Menú</strong> y asignale los platos que
-              quieras. Igual acá ya podés ir armando la estructura.
-            </p>
+          <CardContent className="py-3">
+            <p className="text-sm text-destructive">{error}</p>
           </CardContent>
         </Card>
       )}
 
-      {/* MENÚ VIERNES – SIEMPRE MOSTRAMOS LAS SECCIONES */}
-      <div className="mt-8 space-y-6">
-        {/* ENTRADA */}
-        <SectionCard
-          title="La entrada"
-          items={entradas}
-          onAdd={() => handleAddItem("entrada")}
-          onEdit={handleEditItem}
-          onDelete={handleDeleteItem}
-        />
+      {/* ENTRADA */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">La entrada</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Acá cargás el texto de la entrada que se ve en la carta (por ej.:
+            “Focaccia, humus de zanahoria, bocconcinos…”).
+          </p>
 
-        {/* PLATOS */}
-        <SectionCard
-          title="Platos del Menú Viernes"
-          items={platos}
-          onAdd={() => handleAddItem("plato")}
-          onEdit={handleEditItem}
-          onDelete={handleDeleteItem}
-        />
+          <input
+            className="w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="Texto de la entrada del viernes"
+            value={entradaDraft}
+            onChange={(e) => setEntradaDraft(e.target.value)}
+          />
 
-        {/* POSTRE */}
-        <SectionCard
-          title="El postre"
-          items={postres}
-          onAdd={() => handleAddItem("postre")}
-          onEdit={handleEditItem}
-          onDelete={handleDeleteItem}
-        />
-      </div>
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSaveEntrada}
+              disabled={saving}
+            >
+              {saving ? "Guardando…" : "Guardar entrada"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* PLATOS */}
+      <PlatosSection
+        platos={menu.platos}
+        onChange={handleSavePlatos}
+        saving={saving}
+      />
+
+      {/* POSTRE */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base font-semibold">El postre</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Acá cargás el texto del postre del menú viernes (por ej.: “Crumble
+            de pera con helado…”).
+          </p>
+
+          <input
+            className="w-full rounded-md border px-3 py-2 text-sm"
+            placeholder="Texto del postre del viernes"
+            value={postreDraft}
+            onChange={(e) => setPostreDraft(e.target.value)}
+          />
+
+          <div className="flex justify-end">
+            <Button
+              size="sm"
+              onClick={handleSavePostre}
+              disabled={saving}
+            >
+              {saving ? "Guardando…" : "Guardar postre"}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-type SectionCardProps = {
-  title: string;
-  items: typeof MENU_ITEMS;
-  onAdd: () => void;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+// ─────────────────────────────────────────────
+//   Sección PLATOS (múltiples items)
+// ─────────────────────────────────────────────
+
+type PlatosSectionProps = {
+  platos: FridayDish[];
+  onChange: (platos: FridayDish[]) => void;
+  saving: boolean;
 };
 
-function SectionCard({
-  title,
-  items,
-  onAdd,
-  onEdit,
-  onDelete,
-}: SectionCardProps) {
+function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
+
+  const resetForm = () => {
+    setEditingId(null);
+    setName("");
+    setDescription("");
+    setPrice("");
+  };
+
+  const startCreate = () => {
+    resetForm();
+    setShowForm(true);
+  };
+
+  const startEdit = (dish: FridayDish) => {
+    setEditingId(dish.id);
+    setName(dish.name);
+    setDescription(dish.description ?? "");
+    setPrice(dish.price != null ? String(dish.price) : "");
+    setShowForm(true);
+  };
+
+  const handleDelete = (id: string) => {
+    const next = platos.filter((p) => p.id !== id);
+    onChange(next);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const parsedPrice =
-      price.trim() === "" ? null : Number(price.replace(",", "."));
+      price.trim() === "" ? undefined : Number(price.replace(",", "."));
 
-    console.log("Nuevo item creado en sección:", title, {
-      name,
-      description,
-      price: parsedPrice,
-    });
+    const base: FridayDish = {
+      id: editingId ?? crypto.randomUUID(),
+      name: name.trim(),
+      description: description.trim() || undefined,
+      price:
+        parsedPrice != null && !Number.isNaN(parsedPrice)
+          ? parsedPrice
+          : undefined,
+    };
 
-    // Por ahora sólo llamamos al callback genérico.
-    // Cuando tengas Firestore, acá va el create real.
-    onAdd();
+    let next: FridayDish[];
+    if (editingId) {
+      next = platos.map((p) => (p.id === editingId ? base : p));
+    } else {
+      next = [...platos, base];
+    }
 
-    // Reset
-    setName("");
-    setDescription("");
-    setPrice("");
+    onChange(next);
+    resetForm();
     setShowForm(false);
   };
 
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-semibold">{title}</CardTitle>
-        <Button
-          size="sm"
-          onClick={() => {
-            setShowForm((v) => !v);
-          }}
-        >
-          {showForm ? "Cancelar" : "Agregar item"}
+        <CardTitle className="text-base font-semibold">
+          Platos del Menú Viernes
+        </CardTitle>
+        <Button size="sm" onClick={startCreate}>
+          Agregar item
         </Button>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* LISTA DE ITEMS EXISTENTES */}
-        {items.length === 0 ? (
+        {/* LISTA DE PLATOS */}
+        {platos.length === 0 ? (
           <p className="text-xs text-muted-foreground">
-            Todavía no hay items cargados para esta sección.
+            Todavía no hay platos cargados para el menú viernes.
           </p>
         ) : (
-          items.map((item) => (
+          platos.map((item) => (
             <div
               key={item.id}
               className="flex items-center justify-between rounded-lg border px-3 py-2"
@@ -206,14 +323,14 @@ function SectionCard({
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onEdit(item.id)}
+                  onClick={() => startEdit(item)}
                 >
                   ✏️
                 </Button>
                 <Button
                   variant="outline"
                   size="icon"
-                  onClick={() => onDelete(item.id)}
+                  onClick={() => handleDelete(item.id)}
                 >
                   🗑
                 </Button>
@@ -222,7 +339,7 @@ function SectionCard({
           ))
         )}
 
-        {/* FORMULARIO PARA CREAR NUEVO ITEM */}
+        {/* FORMULARIO */}
         {showForm && (
           <form
             onSubmit={handleSubmit}
@@ -234,7 +351,7 @@ function SectionCard({
                 className="h-8 rounded-md border px-2 text-sm"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Ej: Bife de chorizo"
+                placeholder="Ej: Milanesas con crema de batatas"
                 required
               />
             </div>
@@ -256,7 +373,7 @@ function SectionCard({
                 className="h-8 rounded-md border px-2 text-sm"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="Ej: 28000"
+                placeholder="Ej: 18500"
                 inputMode="numeric"
               />
             </div>
@@ -267,16 +384,14 @@ function SectionCard({
                 variant="outline"
                 size="sm"
                 onClick={() => {
+                  resetForm();
                   setShowForm(false);
-                  setName("");
-                  setDescription("");
-                  setPrice("");
                 }}
               >
                 Cancelar
               </Button>
-              <Button type="submit" size="sm">
-                Guardar item
+              <Button type="submit" size="sm" disabled={saving}>
+                {saving ? "Guardando…" : editingId ? "Actualizar plato" : "Guardar plato"}
               </Button>
             </div>
           </form>
@@ -285,4 +400,6 @@ function SectionCard({
     </Card>
   );
 }
+
+
 
