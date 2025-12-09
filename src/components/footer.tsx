@@ -10,13 +10,10 @@ export default function Footer() {
 
   return (
     <footer className="border-t bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-6 px-4 py-10 md:px-6">
+      <div className="container mx-auto flex flex-col items-center gap-6 px-4 py-10">
 
         {/* LOGO */}
-        <Link
-          href="https://picania-rosario.github.io/picania.github.io/"
-          className="flex items-center gap-3 mt-2"
-        >
+        <Link href="/" className="flex items-center mt-2 gap-3">
           {settings?.logoUrl ? (
             <img
               src="/logorecortado.png"
@@ -28,45 +25,19 @@ export default function Footer() {
           )}
         </Link>
 
-        {/* FORMAS DE PAGO */}
-        <div className="flex flex-col items-center gap-3 mt-4">
-          <p className="text-sm text-[hsl(var(--nav-text))]/80 tracking-wide">
-            Aceptamos las siguientes tarjetas:
-          </p>
-
-          <div className="flex items-center gap-6 opacity-90">
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
-              alt="Visa"
-              className="h-7 w-auto"
-            />
-
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png"
-              alt="Mastercard"
-              className="h-7 w-auto"
-            />
-
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/3/30/American_Express_logo_%282018%29.svg"
-              alt="American Express"
-              className="h-7 w-auto"
-            />
-
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/3/30/Mercado_Pago_logo.png"
-              alt="Mercado Pago"
-              className="h-7 w-auto"
-            />
-          </div>
+        {/* MÉTODOS DE PAGO */}
+        <div className="flex items-center gap-6 mt-4 opacity-90">
+          <img src="/payments/visa.png" alt="Visa" className="h-6 w-auto" />
+          <img src="/payments/mastercard.png" alt="Mastercard" className="h-6 w-auto" />
+          <img src="/payments/amex.png" alt="American Express" className="h-6 w-auto" />
+          <img src="/payments/mp.png" alt="Mercado Pago" className="h-6 w-auto" />
         </div>
 
         {/* COPYRIGHT */}
         <p className="text-sm text-[hsl(var(--nav-text))]/80 mt-4">
-          © {new Date().getFullYear()} {restaurantName} Restaurante
+          © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
         </p>
       </div>
     </footer>
   );
 }
-
