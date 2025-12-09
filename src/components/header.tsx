@@ -37,13 +37,14 @@ export default function Header() {
             variant="ghost"
             asChild
             className="
-              text-[hsl(var(--nav-text))]
-              hover:text-[hsl(var(--nav-accent))]
-              hover:bg-transparent
-              transition-colors
-            "
-          >
-            <Link href="/menu#menu-viernes">Almuerzo Viernes</Link>
+            text-[hsl(var(--nav-text))]
+            opacity-80
+            hover:opacity-100
+            hover:text-[#d9b36c]
+            hover:bg-transparent
+            transition-all
+            hover:scale-105">
+          <Link href="/menu#menu-viernes">Almuerzo Viernes</Link>
           </Button>
 
           {/* TOGGLE DE TEMA (claro/oscuro) */}

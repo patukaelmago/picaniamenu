@@ -10,14 +10,22 @@ export default function Footer() {
 
   return (
     <footer className="border-t bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
-      <div className="container mx-auto flex flex-col items-center gap-6 px-4 py-10">
+      <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-8 md:px-6">
 
         {/* LOGO */}
-        <Link href="/" className="flex items-center mt-2 gap-3">
+        <Link
+          href="https://picania-rosario.github.io/picania.github.io/"
+          className="
+            flex items-center gap-3 mt-2
+            opacity-90
+            transition-transform transition-opacity
+            hover:opacity-100 hover:scale-105
+          "
+        >
           {settings?.logoUrl ? (
             <img
               src="/logorecortado.png"
-              alt="Logo"
+              alt="Logo Picaña"
               className="h-8 w-auto object-contain"
             />
           ) : (
@@ -26,15 +34,37 @@ export default function Footer() {
         </Link>
 
         {/* MÉTODOS DE PAGO */}
-        <div className="flex items-center gap-6 mt-4 opacity-90">
-          <img src="/payments/visa.png" alt="Visa" className="h-6 w-auto" />
-          <img src="/payments/mastercard.png" alt="Mastercard" className="h-6 w-auto" />
-          <img src="/payments/amex.png" alt="American Express" className="h-6 w-auto" />
-          <img src="/payments/mp.png" alt="Mercado Pago" className="h-6 w-auto" />
+        <div className="mt-4 flex flex-col items-center gap-3">
+          <p className="text-xs tracking-[0.2em] uppercase text-[hsl(var(--nav-text))]/70">
+            Aceptamos las siguientes tarjetas
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-6">
+            <img
+              src="/payments/visa.png"
+              alt="Visa"
+              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+            />
+            <img
+              src="/payments/mastercard.png"
+              alt="Mastercard"
+              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+            />
+            <img
+              src="/payments/amex.png"
+              alt="American Express"
+              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+            />
+            <img
+              src="/payments/mp.png"
+              alt="Mercado Pago"
+              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+            />
+          </div>
         </div>
 
         {/* COPYRIGHT */}
-        <p className="text-sm text-[hsl(var(--nav-text))]/80 mt-4">
+        <p className="mt-4 text-xs text-[hsl(var(--nav-text))]/70 text-center">
           © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
         </p>
       </div>
