@@ -38,13 +38,11 @@ export function ThemeToggle() {
       aria-label="Cambiar tema"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        // 🔴 acá matamos cualquier hover/focus visual del botón
-        "relative bg-transparent hover:bg-transparent hover:text-inherit focus-visible:ring-0 focus-visible:ring-offset-0 active:opacity-80 transition-none",
-        // color según tema (dorado solo cuando está en oscuro)
+        "relative transition-colors hover:text-[#d9b36c]",
         isDark
-          ? "text-[#d9b36c]"
-          : "text-[hsl(var(--nav-text))]"
-      )}
+          ? "text-[hsl(var(--nav-text))]"  // CREMITA en dark mode por defecto
+          : "text-[hsl(var(--nav-text))]"  // CREMITA también en modo claro
+      )}      
     >
       {/* Sol y luna con la animación */}
       <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
