@@ -275,8 +275,8 @@ export default function MenuClient() {
                                   )}
                                 </div>
                                 <CardDescription className="text-xs leading-snug text-muted-foreground dark:text-[#fff7e3]">
-  {item.description}
-</CardDescription>
+                                  {item.description}
+                                </CardDescription>
 
                               </CardHeader>
                               <CardContent className="mt-auto space-y-3">
@@ -323,7 +323,7 @@ export default function MenuClient() {
                                   Especial
                                 </Badge>
                               )}
-                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[#fff7e3]/70 mx-2" />
+                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[hsl(var(--nav-text))] mx-2" />
 
                               <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                 {formatCurrency(item.price)}
@@ -332,9 +332,9 @@ export default function MenuClient() {
 
                             {item.description && (
                               <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
-                              {item.description}
-                            </p>
-                            
+                                {item.description}
+                              </p>
+
                             )}
 
                             {(item.tags ?? []).length > 0 && (
@@ -371,22 +371,19 @@ export default function MenuClient() {
                         >
                           {/* título subcategoría (UN PASO MÁS CHICO) */}
                           <p
-                            className="
-    font-headline 
-    uppercase 
-    text-[11px]
-    md:text-xs
-    font-semibold
-    tracking-[0.16em]
-    pt-4 
-    pb-2
-    text-[rgba(0,0,0,0.7)]
-    dark:text-[#d9b36c]
-  "
+                            className="font-headline 
+                                      uppercase 
+                                      text-[11px]
+                                      md:text-xs
+                                      font-semibold
+                                      tracking-[0.16em]
+                                      pt-4 
+                                      pb-2
+                                      text-[rgba(0,0,0,0.7)]
+                                      dark:text-[#d9b36c]"
                           >
                             {sub.name}
                           </p>
-
 
                           <div className="divide-y divide-[rgba(0,0,0,0.06)]">
                             {itemsSub.map((item) => (
@@ -404,7 +401,7 @@ export default function MenuClient() {
                                       Especial
                                     </Badge>
                                   )}
-                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[#fff7e3]/70 mx-2" />
+                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[hsl(var(--nav-text))] mx-2" />
                                   <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                     {formatCurrency(item.price)}
                                   </span>
@@ -412,9 +409,9 @@ export default function MenuClient() {
 
                                 {item.description && (
                                   <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
-                                  {item.description}
-                                </p>
-                                
+                                    {item.description}
+                                  </p>
+
                                 )}
 
                                 {(item.tags ?? []).length > 0 && (
