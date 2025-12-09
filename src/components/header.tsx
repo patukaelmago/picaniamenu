@@ -16,7 +16,10 @@ export default function Header() {
         {/* LOGO + NOMBRE */}
         <Link
           href="https://picania-rosario.github.io/picania.github.io/"
-          className="flex items-center gap-3"
+          className="flex items-center gap-3 mt-2
+            opacity-90
+            transition-transform transition-opacity
+            hover:opacity-100 hover:scale-105"
         >
           {settings?.logoUrl ? (
             <img

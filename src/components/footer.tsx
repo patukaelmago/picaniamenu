@@ -11,7 +11,6 @@ export default function Footer() {
   return (
     <footer className="border-t bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="container mx-auto flex flex-col items-center gap-4 px-4 py-8 md:px-6">
-
         {/* LOGO */}
         <Link
           href="https://picania-rosario.github.io/picania.github.io/"
@@ -43,22 +42,22 @@ export default function Footer() {
             <img
               src="/visa.png"
               alt="Visa"
-              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+              className="h-6 md:h-7 lg:h-10 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
               src="/mastercard.png"
               alt="Mastercard"
-              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+              className="h-6 md:h-7 lg:h-10 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
               src="/amex.png"
               alt="American Express"
-              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+              className="h-6 md:h-7 lg:h-10 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
               src="/mp.png"
               alt="Mercado Pago"
-              className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+              className="h-6 md:h-7 lg:h-9 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
           </div>
         </div>
@@ -71,3 +70,4 @@ export default function Footer() {
     </footer>
   );
 }
+
