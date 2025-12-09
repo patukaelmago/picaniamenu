@@ -41,22 +41,22 @@ export default function Footer() {
 
           <div className="flex flex-wrap items-center justify-center gap-6">
             <img
-              src="/payments/visa.png"
+              src="/visa.png"
               alt="Visa"
               className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
-              src="/payments/mastercard.png"
+              src="/mastercard.png"
               alt="Mastercard"
               className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
-              src="/payments/amex.png"
+              src="/amex.png"
               alt="American Express"
               className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
-              src="/payments/mp.png"
+              src="/mp.png"
               alt="Mercado Pago"
               className="h-6 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />

@@ -43,7 +43,7 @@ export default function Header() {
             hover:text-[#d9b36c]
             hover:bg-transparent
             transition-all
-            hover:scale-105">
+            ">
           <Link href="/menu#menu-viernes">Almuerzo Viernes</Link>
           </Button>
 
