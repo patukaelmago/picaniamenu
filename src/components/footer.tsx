@@ -42,7 +42,7 @@ export default function Footer() {
             <img
               src="/visa.png"
               alt="Visa"
-              className="h-6 md:h-7 lg:h-10 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
+              className="h-6 md:h-7 lg:h-12 w-auto opacity-80 grayscale-[40%] transition-all hover:opacity-100 hover:grayscale-0 hover:scale-105"
             />
             <img
               src="/mastercard.png"
