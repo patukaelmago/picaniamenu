@@ -5,8 +5,9 @@
 html {
   scroll-behavior: smooth;
 }
+
 body {
-  font-family: 'PT Sans', sans-serif;
+  font-family: "PT Sans", sans-serif;
 }
 
 @layer base {
@@ -23,7 +24,7 @@ body {
 
     /* NAV Y FOOTER */
     --nav-bg: 222 50% 24%;
-    --nav-text: 39 60% 94%;
+    --nav-text: 39 60% 94%;              /* cremita */
 
     /* Resto igual */
     --primary: 0 0% 4.3%;
@@ -56,18 +57,27 @@ body {
   }
 
   .dark {
+    /* FONDO OSCURO */
     --background: 0 0% 4.3%;
-    --foreground: 40 33% 90%;
+
+    /* TEXTO PRINCIPAL EN CREMITA (COMO EL LOGO) */
+    --foreground: 39 60% 94%;
+
+    /* Cards / popovers también en cremita */
     --card: 0 0% 4.3%;
-    --card-foreground: 40 33% 90%;
+    --card-foreground: 39 60% 94%;
     --popover: 0 0% 4.3%;
-    --popover-foreground: 40 33% 90%;
+    --popover-foreground: 39 60% 94%;
+
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 4.3%;
+
     --secondary: 0 0% 10%;
-    --secondary-foreground: 40 33% 90%;
+    --secondary-foreground: 39 60% 94%;
+
     --muted: 0 0% 10%;
-    --muted-foreground: 40 33% 60%;
+    --muted-foreground: 40 33% 70%;
+
     --accent: 39 44% 51%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
@@ -95,7 +105,18 @@ body {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* Placeholder del buscador */
+  input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+
+  .dark input::placeholder {
+    color: hsl(var(--nav-text));
+    opacity: 0.8;
   }
 }
