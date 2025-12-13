@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
+import Link from "next/link";
 
 import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -10,6 +11,7 @@ import { listCategories } from "@/lib/categories-service";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -134,9 +136,7 @@ export default function MenuClient() {
       const matchesText =
         item.name.toLowerCase().includes(term) ||
         desc.includes(term) ||
-        (item.searchKeywords ?? []).some((k) =>
-          k.toLowerCase().includes(term)
-        );
+        (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
       const matchesCategory =
         catName.includes(term) || parentCatName.includes(term);
@@ -167,10 +167,47 @@ export default function MenuClient() {
       <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
-          <div className="space-y-1">
-            <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase">
-              Nuestra Carta
-            </h1>
+          {/* FILA: titulo centrado REAL + boton a la derecha del container */}
+          <div className="w-full">
+            <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
+              {/* Columna izquierda vacía (balance) */}
+              <div className="hidden md:block" />
+
+              {/* Título centrado */}
+              <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center">
+                Nuestra Carta
+              </h1>
+
+              {/* Botón a la derecha */}
+              <div className="flex justify-center md:justify-end">
+                <Button
+                  variant="ghost"
+                  asChild
+                  className="
+    rounded-full
+    px-5
+    py-2
+    border border-[rgba(0,0,0,0.18)]
+    text-[#1d2f59]               /* azul fijo */
+    bg-transparent
+    opacity-85
+
+    hover:opacity-100
+    hover:bg-[#1d2f59]/5         /* fondo azul MUY suave */
+    hover:text-[#1d2f59]         /* mantiene el texto legible */
+    hover:border-[#1d2f59]/30
+
+    transition-all
+  "
+                >
+                  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
+                    Almuerzo Viernes
+                    <span className="text-xs opacity-60">▾</span>
+                  </Link>
+                </Button>
+
+              </div>
+            </div>
           </div>
 
           <div className="relative w-full max-w-xl">
@@ -217,13 +254,13 @@ export default function MenuClient() {
                 <div className="space-y-1">
                   <h2
                     className="
-    text-sm md:text-base 
-    tracking-[0.25em] 
-    uppercase 
-    font-semibold
-    text-[#1b3059]
-    dark:text-[#d9b36c]
-  "
+                      text-sm md:text-base 
+                      tracking-[0.25em] 
+                      uppercase 
+                      font-semibold
+                      text-[#1b3059]
+                      dark:text-[#d9b36c]
+                    "
                   >
                     {category.name}
                   </h2>
@@ -277,8 +314,8 @@ export default function MenuClient() {
                                 <CardDescription className="text-xs leading-snug text-muted-foreground dark:text-[#fff7e3]">
                                   {item.description}
                                 </CardDescription>
-
                               </CardHeader>
+
                               <CardContent className="mt-auto space-y-3">
                                 <div className="flex flex-wrap gap-2">
                                   {(item.tags ?? []).map((tag) => (
@@ -334,7 +371,6 @@ export default function MenuClient() {
                               <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
                                 {item.description}
                               </p>
-
                             )}
 
                             {(item.tags ?? []).length > 0 && (
@@ -411,7 +447,6 @@ export default function MenuClient() {
                                   <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
                                     {item.description}
                                   </p>
-
                                 )}
 
                                 {(item.tags ?? []).length > 0 && (

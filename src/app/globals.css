@@ -63,6 +63,10 @@ body {
     /* TEXTO PRINCIPAL EN CREMITA (COMO EL LOGO) */
     --foreground: 39 60% 94%;
 
+    /* NAV Y FOOTER (INVERTIDO EN DARK) */
+    --nav-bg: 39 60% 94%;               /* crema (como el fondo en claro) */
+    --nav-text: 222 50% 24%;            /* azul (para logo e íconos) */
+
     /* Cards / popovers también en cremita */
     --card: 0 0% 4.3%;
     --card-foreground: 39 60% 94%;
