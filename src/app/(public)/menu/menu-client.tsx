@@ -25,6 +25,8 @@ const formatCurrency = (price: number) =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
   }).format(price);
 
 const TagIcon = ({ tag }: { tag: string }) => {
@@ -200,12 +202,14 @@ export default function MenuClient() {
     transition-all
   "
                 >
-                  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
+                  <Link
+                    href="/menu#menu-viernes"
+                    className="flex items-center gap-2"
+                  >
                     Almuerzo Viernes
                     <span className="text-xs opacity-60">▾</span>
                   </Link>
                 </Button>
-
               </div>
             </div>
           </div>
@@ -243,7 +247,7 @@ export default function MenuClient() {
               <section
                 id={
                   normalizedForId === "menu viernes" ||
-                    normalizedForId === "almuerzo viernes"
+                  normalizedForId === "almuerzo viernes"
                     ? "menu-viernes"
                     : undefined
                 }
