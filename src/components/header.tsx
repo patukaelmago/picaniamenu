@@ -11,7 +11,6 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 border-b bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
-
         {/* LOGO CENTRADO */}
         <Link
           href="https://picania-rosario.github.io/picania.github.io/"
@@ -24,11 +23,21 @@ export default function Header() {
           "
         >
           {settings?.logoUrl ? (
-            <img
-              src="/logorecortado.png"
-              alt="Logo"
-              className="h-8 w-auto object-contain"
-            />
+            <>
+              {/* LOGO MODO CLARO */}
+              <img
+                src="/logorecortado.png"
+                alt="Logo"
+                className="h-8 w-auto object-contain dark:hidden"
+              />
+
+              {/* LOGO MODO OSCURO (AZUL) */}
+              <img
+                src="/logorecortado_azul.png"
+                alt="Logo"
+                className="hidden h-8 w-auto object-contain dark:block"
+              />
+            </>
           ) : (
             <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
           )}
@@ -38,7 +47,6 @@ export default function Header() {
         <nav className="ml-auto flex items-center">
           <ThemeToggle />
         </nav>
-
       </div>
     </header>
   );
