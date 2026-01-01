@@ -186,21 +186,30 @@ export default function MenuClient() {
                   variant="ghost"
                   asChild
                   className="
-    rounded-sm
-    px-5
-    py-2
-    border border-[rgba(0,0,0,0.18)]
-    text-[#1d2f59]               /* azul fijo */
-    bg-transparent
-    opacity-85
+                    rounded-sm
+                    px-5
+                    py-2
+                    border
+                    bg-transparent
+                    opacity-85
 
-    hover:opacity-100
-    hover:bg-[#1b3059]/5         /* fondo azul MUY suave */
-    hover:text-[#1d2f59]         /* mantiene el texto legible */
-    hover:border-[#1d2f59]/30
+                    /* ☀️ MODO CLARO */
+                    border-[rgba(0,0,0,0.18)]
+                    text-[#1d2f59]
+                    hover:opacity-100
+                    hover:bg-[#1b3059]/5
+                    hover:text-[#1d2f59]
+                    hover:border-[#1d2f59]/30
 
-    transition-all
-  "
+                    /* 🌙 MODO OSCURO */
+                    dark:border-[#fff7e3]/40
+                    dark:text-[#fff7e3]
+                    dark:hover:bg-[#fff7e3]/10
+                    dark:hover:text-[#fff7e3]
+                    dark:hover:border-[#fff7e3]/70
+
+                    transition-all
+                  "
                 >
                   <Link
                     href="/menu#menu-viernes"
@@ -217,11 +226,40 @@ export default function MenuClient() {
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Buscar por plato, ingrediente..."
-              className="pl-9"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+  placeholder="Buscar por plato, ingrediente..."
+  className="
+    pl-9
+
+    /* fondo */
+    bg-transparent
+    dark:bg-transparent
+
+    /* texto */
+    text-[#1d2f59]
+    dark:text-[#fff7e3]
+
+    /* placeholder */
+    placeholder:text-[#1d2f59]/60
+    dark:placeholder:text-[#fff7e3]/70
+
+    /* borde normal */
+    border
+    border-[#1d2f59]/30
+    dark:border-[#fff7e3]/40
+
+    /* focus: mismo grosor, color crema */
+    focus-visible:ring-0
+    focus-visible:border-[#1d2f59]/60
+    dark:focus-visible:border-[#fff7e3]
+
+    /* evitar fondo automático */
+    focus:bg-transparent
+    dark:focus:bg-transparent
+  "
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+/>
+
           </div>
         </div>
 
@@ -480,9 +518,17 @@ export default function MenuClient() {
           })}
 
           {filteredItems.length === 0 && (
-            <p className="text-muted-foreground text-sm text-center">
-              No encontramos platos que coincidan con la búsqueda.
-            </p>
+            <p
+            className="
+              text-sm
+              text-center
+              text-[#1d2f59]/70
+              dark:text-[#fff7e3]/70
+            "
+          >
+            No encontramos platos que coincidan con la búsqueda.
+          </p>
+          
           )}
         </div>
       </section>
