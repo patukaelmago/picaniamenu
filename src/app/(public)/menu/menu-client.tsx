@@ -184,7 +184,7 @@ export default function MenuClient() {
                   variant="ghost"
                   asChild
                   className="
-    rounded-full
+    rounded-sm
     px-5
     py-2
     border border-[rgba(0,0,0,0.18)]
@@ -193,7 +193,7 @@ export default function MenuClient() {
     opacity-85
 
     hover:opacity-100
-    hover:bg-[#1d2f59]/5         /* fondo azul MUY suave */
+    hover:bg-[#1b3059]/5         /* fondo azul MUY suave */
     hover:text-[#1d2f59]         /* mantiene el texto legible */
     hover:border-[#1d2f59]/30
 
