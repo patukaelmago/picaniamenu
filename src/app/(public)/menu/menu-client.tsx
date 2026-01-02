@@ -506,11 +506,13 @@ export default function MenuClient() {
     flex-1
     border-b
     border-dotted
-    border-[#1d2f59]/30
-    dark:border-[#fff7e3]/40
+    border-[#545454)]
+    dark:border-b-[#1b1a19]
     mx-2
   "
 />
+
+
 
                                   <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                     {formatCurrency(item.price)}
