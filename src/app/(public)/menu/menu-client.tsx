@@ -384,7 +384,13 @@ export default function MenuClient() {
                     </div>
                   ) : (
                     // CATEGORÍAS SIN SUBCATEGORÍAS → estilo carta
-                    <div className="divide-y divide-[rgba(0,0,0,0.06)]">
+<div
+  className="
+    divide-y
+    divide-[rgba(0,0,0,0.06)]
+    dark:divide-[#fff7e3]/25
+  "
+>
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
                         .map((item) => (
@@ -402,7 +408,17 @@ export default function MenuClient() {
                                   Especial
                                 </Badge>
                               )}
-                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[hsl(var(--nav-text))] mx-2" />
+                              <div
+  className="
+    flex-1
+    border-b
+    border-dotted
+    border-[rgba(0,0,0,0.35)]
+    dark:border-[rgba(255,247,227,0.35)]
+    mx-2
+  "
+/>
+
 
                               <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                 {formatCurrency(item.price)}
@@ -463,7 +479,13 @@ export default function MenuClient() {
                             {sub.name}
                           </p>
 
-                          <div className="divide-y divide-[rgba(0,0,0,0.06)]">
+                          <div
+  className="
+    divide-y
+    divide-[rgba(0,0,0,0.06)]
+    dark:divide-[#fff]/25
+  "
+>
                             {itemsSub.map((item) => (
                               <div key={item.id} className="py-3">
                                 <div className="flex items-baseline gap-2">
@@ -479,7 +501,17 @@ export default function MenuClient() {
                                       Especial
                                     </Badge>
                                   )}
-                                  <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[hsl(var(--nav-text))] mx-2" />
+                                  <div
+  className="
+    flex-1
+    border-b
+    border-dotted
+    border-[#1d2f59]/30
+    dark:border-[#fff7e3]/40
+    mx-2
+  "
+/>
+
                                   <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                     {formatCurrency(item.price)}
                                   </span>
