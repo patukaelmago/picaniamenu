@@ -28,14 +28,14 @@ export default function Header() {
               <img
                 src="/logorecortado.png"
                 alt="Logo"
-                className="h-8 w-auto object-contain dark:hidden"
+                className="h-12 w-auto object-contain dark:hidden"
               />
 
               {/* LOGO MODO OSCURO (AZUL) */}
               <img
                 src="/logorecortado_azul.png"
                 alt="Logo"
-                className="hidden h-8 w-auto object-contain dark:block"
+                className="hidden h-12 w-auto object-contain dark:block"
               />
             </>
           ) : (

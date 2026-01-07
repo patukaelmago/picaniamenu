@@ -166,7 +166,7 @@ export default function MenuClient() {
 
   return (
     <main className="min-h-screen bg-background">
-      <section className="mx-auto max-w-5xl px-4 py-8 space-y-6">
+     <section className="mx-auto max-w-5xl px-4 pt-12 pb-8 space-y-6">
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
           {/* FILA: titulo centrado REAL + boton a la derecha del container */}
