@@ -20,6 +20,8 @@ export default function Header() {
             opacity-90
             transition-transform transition-opacity
             hover:opacity-100 hover:scale-105
+            dark:brightness-75
+  dark:hover:brightness-100
           "
         >
           {settings?.logoUrl ? (

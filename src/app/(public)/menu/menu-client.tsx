@@ -180,46 +180,45 @@ export default function MenuClient() {
                 Nuestra Carta
               </h1>
 
-              {/* Botón a la derecha */}
               <div className="flex justify-center md:justify-end">
-                <Button
-                  variant="ghost"
-                  asChild
-                  className="
-                    rounded-sm
-                    px-5
-                    py-2
-                    border
-                    bg-transparent
-                    opacity-85
+              <Button
+  asChild
+  className="
+    rounded-sm
+    px-5
+    py-2
+    border
 
-                    /* ☀️ MODO CLARO */
-                    border-[rgba(0,0,0,0.18)]
-                    text-[#1d2f59]
-                    hover:opacity-100
-                    hover:bg-[#1b3059]/5
-                    hover:text-[#1d2f59]
-                    hover:border-[#1d2f59]/30
+    /* ☀️ MODO CLARO */
+    bg-[#1b3059]
+    text-[#fff7e3]
+    border-[#1b3059]
+    opacity-90
+    hover:scale-[1.03]
+    
+    hover:bg-[#223c6f]
+    hover:opacity-100
 
-                    /* 🌙 MODO OSCURO */
-                    dark:border-[#fff7e3]/40
-                    dark:text-[#fff7e3]
-                    dark:hover:bg-[#fff7e3]/10
-                    dark:hover:text-[#fff7e3]
-                    dark:hover:border-[#fff7e3]/70
+    /* 🌙 MODO OSCURO */
+    dark:bg-[#fff7e3]
+    dark:text-[#1b3059]
+    dark:border-[#fff7e3]
+    hover:opacity-100
+    
 
-                    transition-all
-                  "
-                >
-                  <Link
-                    href="/menu#menu-viernes"
-                    className="flex items-center gap-2"
-                  >
-                    Almuerzo Viernes
-                    <span className="text-xs opacity-60">▾</span>
-                  </Link>
-                </Button>
-              </div>
+    transition-all
+    duration-200
+    ease-out
+  "
+>
+  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
+    Almuerzo Viernes
+    <span className="text-xs opacity-60">▾</span>
+  </Link>
+</Button>
+
+</div>
+
             </div>
           </div>
 

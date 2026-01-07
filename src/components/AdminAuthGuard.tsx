@@ -9,31 +9,28 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
   const router = useRouter();
   const [checking, setChecking] = useState(true);
 
+  // ✅ Preview/dev: no bloqueamos para poder trabajar rápido
+  const isPreview =
+    process.env.NEXT_PUBLIC_PREVIEW === "true" ||
+    process.env.NODE_ENV !== "production";
+
   useEffect(() => {
+    if (isPreview) {
+      setChecking(false);
+      return;
+    }
+
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        // No está logueado → al login
         router.replace("/login");
         return;
       }
 
-      // 🔹 POR AHORA: si está logueado, lo dejamos pasar
       setChecking(false);
-
-      // 🔹 MÁS ADELANTE: acá vamos a chequear el claim "admin"
-      /*
-      const idTokenResult = await user.getIdTokenResult();
-      const isAdmin = !!idTokenResult.claims?.admin;
-      if (!isAdmin) {
-        router.replace("/no-access");
-        return;
-      }
-      setChecking(false);
-      */
     });
 
     return () => unsub();
-  }, [router]);
+  }, [router, isPreview]);
 
   if (checking) {
     return (
