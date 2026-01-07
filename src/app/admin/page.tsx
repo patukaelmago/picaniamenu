@@ -22,7 +22,12 @@ type FridayMenuData = {
 export default function AdminDashboardPage() {
   const [menu, setMenu] = useState<FridayMenuData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
+
+  // ✅ estados de guardado separados (no se hunden ambos botones)
+  const [savingEntrada, setSavingEntrada] = useState(false);
+  const [savingPostre, setSavingPostre] = useState(false);
+  const [savingPlatos, setSavingPlatos] = useState(false);
+
   const [error, setError] = useState<string | null>(null);
 
   // drafts para los inputs de entrada y postre
@@ -40,21 +45,17 @@ export default function AdminDashboardPage() {
         const snap = await getDoc(ref);
 
         if (snap.exists()) {
-          const data = snap.data() as FridayMenuData;
+          const data = snap.data() as Partial<FridayMenuData>;
           const safeData: FridayMenuData = {
             entrada: data.entrada ?? "",
             postre: data.postre ?? "",
-            platos: Array.isArray(data.platos) ? data.platos : [],
+            platos: Array.isArray(data.platos) ? (data.platos as FridayDish[]) : [],
           };
           setMenu(safeData);
           setEntradaDraft(safeData.entrada);
           setPostreDraft(safeData.postre);
         } else {
-          const emptyMenu: FridayMenuData = {
-            entrada: "",
-            postre: "",
-            platos: [],
-          };
+          const emptyMenu: FridayMenuData = { entrada: "", postre: "", platos: [] };
           setMenu(emptyMenu);
           setEntradaDraft("");
           setPostreDraft("");
@@ -73,7 +74,7 @@ export default function AdminDashboardPage() {
   // guarda el menú completo (o un parcial) en Firestore
   const saveMenu = async (partial: Partial<FridayMenuData>) => {
     if (!menu) return;
-    setSaving(true);
+
     setError(null);
 
     try {
@@ -85,34 +86,50 @@ export default function AdminDashboardPage() {
         ...partial,
       };
 
-      await setDoc(ref, nextMenu, { merge: true });
+      // ✅ Guardamos SOLO lo que viene en partial (merge true),
+      // y actualizamos el state con la versión combinada.
+      await setDoc(ref, partial, { merge: true });
       setMenu(nextMenu);
     } catch (err) {
       console.error("Error guardando Menú Viernes:", err);
       setError("No se pudo guardar el Menú Viernes.");
-    } finally {
-      setSaving(false);
+      throw err;
     }
   };
 
   // ─────────────────────────────────────────────
   //   Handlers de Entrada / Postre
   // ─────────────────────────────────────────────
-  const handleSaveEntrada = () => {
+  const handleSaveEntrada = async () => {
     if (!menu) return;
-    saveMenu({ entrada: entradaDraft });
+    setSavingEntrada(true);
+    try {
+      await saveMenu({ entrada: entradaDraft });
+    } finally {
+      setSavingEntrada(false);
+    }
   };
 
-  const handleSavePostre = () => {
+  const handleSavePostre = async () => {
     if (!menu) return;
-    saveMenu({ postre: postreDraft });
+    setSavingPostre(true);
+    try {
+      await saveMenu({ postre: postreDraft });
+    } finally {
+      setSavingPostre(false);
+    }
   };
 
   // ─────────────────────────────────────────────
   //   Handlers de Platos
   // ─────────────────────────────────────────────
   const handleSavePlatos = async (platos: FridayDish[]) => {
-    await saveMenu({ platos });
+    setSavingPlatos(true);
+    try {
+      await saveMenu({ platos });
+    } finally {
+      setSavingPlatos(false);
+    }
   };
 
   if (loading || !menu) {
@@ -161,23 +178,15 @@ export default function AdminDashboardPage() {
           />
 
           <div className="flex justify-end">
-            <Button
-              size="sm"
-              onClick={handleSaveEntrada}
-              disabled={saving}
-            >
-              {saving ? "Guardando…" : "Guardar entrada"}
+            <Button size="sm" onClick={handleSaveEntrada} disabled={savingEntrada}>
+              {savingEntrada ? "Guardando…" : "Guardar entrada"}
             </Button>
           </div>
         </CardContent>
       </Card>
 
       {/* PLATOS */}
-      <PlatosSection
-        platos={menu.platos}
-        onChange={handleSavePlatos}
-        saving={saving}
-      />
+      <PlatosSection platos={menu.platos} onChange={handleSavePlatos} saving={savingPlatos} />
 
       {/* POSTRE */}
       <Card>
@@ -198,12 +207,8 @@ export default function AdminDashboardPage() {
           />
 
           <div className="flex justify-end">
-            <Button
-              size="sm"
-              onClick={handleSavePostre}
-              disabled={saving}
-            >
-              {saving ? "Guardando…" : "Guardar postre"}
+            <Button size="sm" onClick={handleSavePostre} disabled={savingPostre}>
+              {savingPostre ? "Guardando…" : "Guardar postre"}
             </Button>
           </div>
         </CardContent>
@@ -218,7 +223,7 @@ export default function AdminDashboardPage() {
 
 type PlatosSectionProps = {
   platos: FridayDish[];
-  onChange: (platos: FridayDish[]) => void;
+  onChange: (platos: FridayDish[]) => Promise<void> | void;
   saving: boolean;
 };
 
@@ -250,25 +255,25 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
     setShowForm(true);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     const next = platos.filter((p) => p.id !== id);
-    onChange(next);
+    await onChange(next);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const parsedPrice =
-      price.trim() === "" ? undefined : Number(price.replace(",", "."));
+    const parsedPrice = price.trim() === "" ? undefined : Number(price.replace(",", "."));
 
     const base: FridayDish = {
-      id: editingId ?? crypto.randomUUID(),
+      id:
+        editingId ??
+        (typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : String(Date.now())),
       name: name.trim(),
       description: description.trim() || undefined,
-      price:
-        parsedPrice != null && !Number.isNaN(parsedPrice)
-          ? parsedPrice
-          : undefined,
+      price: parsedPrice != null && !Number.isNaN(parsedPrice) ? parsedPrice : undefined,
     };
 
     let next: FridayDish[];
@@ -278,7 +283,7 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
       next = [...platos, base];
     }
 
-    onChange(next);
+    await onChange(next);
     resetForm();
     setShowForm(false);
   };
@@ -286,9 +291,7 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-base font-semibold">
-          Platos del Menú Viernes
-        </CardTitle>
+        <CardTitle className="text-base font-semibold">Platos del Menú Viernes</CardTitle>
         <Button size="sm" onClick={startCreate}>
           Agregar item
         </Button>
@@ -309,9 +312,7 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
               <div className="flex flex-col">
                 <span className="text-sm font-medium">{item.name}</span>
                 {item.description && (
-                  <span className="text-xs text-muted-foreground">
-                    {item.description}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{item.description}</span>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -320,18 +321,10 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
                     ${item.price.toLocaleString("es-AR")}
                   </span>
                 )}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => startEdit(item)}
-                >
+                <Button variant="outline" size="icon" onClick={() => startEdit(item)}>
                   ✏️
                 </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => handleDelete(item.id)}
-                >
+                <Button variant="outline" size="icon" onClick={() => handleDelete(item.id)}>
                   🗑
                 </Button>
               </div>
@@ -400,6 +393,3 @@ function PlatosSection({ platos, onChange, saving }: PlatosSectionProps) {
     </Card>
   );
 }
-
-
-
