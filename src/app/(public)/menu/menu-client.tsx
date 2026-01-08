@@ -19,7 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 const formatCurrency = (price: number) =>
   new Intl.NumberFormat("es-AR", {
@@ -49,6 +48,13 @@ export default function MenuClient() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+
+  // ✅ FIX HYDRATION: render del carrusel sólo luego del mount
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  // ====== CAROUSEL STATE ======
+  const [activeSlide, setActiveSlide] = useState(0);
 
   // ====== LOAD DATA ======
   useEffect(() => {
@@ -122,7 +128,6 @@ export default function MenuClient() {
         return false;
       }
 
-      // si no hay término, ya está filtrado por visibilidad/categoría
       if (!term) return true;
 
       const desc = item.description?.toLowerCase() ?? "";
@@ -148,25 +153,138 @@ export default function MenuClient() {
   }, [menuItems, selectedCategoryIds, search, categories]);
 
   const visibleRootCategories = useMemo(() => {
+    const isSuggestion = (name: string) =>
+      name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") === "sugerencia del dia";
+  
     if (selectedCategory !== "all") {
-      return rootCategories.filter((c) => c.id === selectedCategory);
+      return rootCategories.filter(
+        (c) => c.id === selectedCategory && !isSuggestion(c.name)
+      );
+    }
+  
+    return rootCategories
+      .filter((c) => !isSuggestion(c.name)) // 🚫 no renderiza “Sugerencia del día” abajo
+      .filter((cat) => {
+        const childCats = childCategoriesByParent[cat.id] ?? [];
+        const hasDirectItems = filteredItems.some(
+          (item) => item.categoryId === cat.id
+        );
+        const hasChildItems = childCats.some((sub) =>
+          filteredItems.some((item) => item.categoryId === sub.id)
+        );
+        return hasDirectItems || hasChildItems;
+      });
+  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);  
+
+  // ====== CAROUSEL IMAGES (toma imágenes de "Sugerencia del día") ======
+  const carouselImages = useMemo(() => {
+    const sugCat = categories.find((c) => {
+      const n = c.name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+      return n === "sugerencia del dia";
+    });
+
+    const items = sugCat
+      ? menuItems.filter(
+          (i) => i.categoryId === sugCat.id && i.isVisible !== false
+        )
+      : [];
+
+    const imgs = items
+      .map((item) => {
+        const ph = PlaceHolderImages.find((p) => p.id === item.imageId);
+        const src = ph?.imageUrl || item.imageUrl || "/img/placeholder.jpg";
+        return { src, alt: item.name, hint: ph?.imageHint };
+      })
+      .slice(0, 6);
+
+    // fallback (si no hay nada todavía)
+    if (imgs.length === 0) {
+      return [
+        { src: "/img/placeholder.jpg", alt: "Plato", hint: "food" as any },
+        { src: "/img/placeholder.jpg", alt: "Postre", hint: "dessert" as any },
+      ];
     }
 
-    return rootCategories.filter((cat) => {
-      const childCats = childCategoriesByParent[cat.id] ?? [];
-      const hasDirectItems = filteredItems.some(
-        (item) => item.categoryId === cat.id
-      );
-      const hasChildItems = childCats.some((sub) =>
-        filteredItems.some((item) => item.categoryId === sub.id)
-      );
-      return hasDirectItems || hasChildItems;
-    });
-  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
+    return imgs;
+  }, [categories, menuItems]);
+
+  // autoplay suave
+  useEffect(() => {
+    if (!mounted) return;
+    if (!carouselImages?.length) return;
+
+    setActiveSlide((prev) => (prev >= carouselImages.length ? 0 : prev));
+
+    const id = window.setInterval(() => {
+      setActiveSlide((prev) => (prev + 1) % carouselImages.length);
+    }, 4500);
+
+    return () => window.clearInterval(id);
+  }, [carouselImages, mounted]);
 
   return (
     <main className="min-h-screen bg-background">
-     <section className="mx-auto max-w-5xl px-4 pt-12 pb-8 space-y-6">
+      <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
+        {/* ====== CARRUSEL ARRIBA (con degradado fino abajo) ====== */}
+        {mounted && (
+          <div className="w-full">
+            <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
+              <div className="relative h-[220px] md:h-[320px] w-full">
+                {carouselImages.map((img, idx) => (
+                  <img
+                    key={`${img.src}-${idx}`}
+                    src={img.src}
+                    alt={img.alt}
+                    data-ai-hint={img.hint}
+                    className={[
+                      "absolute inset-0 h-full w-full object-cover",
+                      "transition-opacity duration-700 ease-out",
+                      idx === activeSlide ? "opacity-100" : "opacity-0",
+                    ].join(" ")}
+                  />
+                ))}
+
+                {/* detallito fino: degradado hacia el fondo del sitio 
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />*/}
+              </div>
+              <div
+  className="
+    pointer-events-none
+    absolute
+    inset-x-0
+    bottom-0
+    h-24
+    bg-transparent
+  "
+/>
+
+              {/* puntitos discretos */}
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                {carouselImages.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    aria-label={`Ir a imagen ${i + 1}`}
+                    onClick={() => setActiveSlide(i)}
+                    className={[
+                      "h-1.5 w-1.5 rounded-full transition-all",
+                      i === activeSlide
+                        ? "bg-[#fff7e3] dark:bg-[#fff7e3]"
+                        : "bg-[#fff7e3]/50 dark:bg-[#fff7e3]/40",
+                    ].join(" ")}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
           {/* FILA: titulo centrado REAL + boton a la derecha del container */}
@@ -176,89 +294,87 @@ export default function MenuClient() {
               <div className="hidden md:block" />
 
               {/* Título centrado */}
-              <h1 className="text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center">
+              <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
                 Nuestra Carta
               </h1>
 
-              <div className="flex justify-center md:justify-end">
-              <Button
-  asChild
-  className="
-    rounded-sm
-    px-5
-    py-2
-    border
+              <div className="flex justify-center md:justify-end pt-8 ">
+                <Button
+                  asChild
+                  className="
+                    rounded-sm
+                    px-5
+                    py-2
+                    border
 
-    /* ☀️ MODO CLARO */
-    bg-[#1b3059]
-    text-[#fff7e3]
-    border-[#1b3059]
-    opacity-90
-    hover:scale-[1.03]
-    
-    hover:bg-[#223c6f]
-    hover:opacity-100
+                    /* ☀️ MODO CLARO */
+                    bg-[#1b3059]
+                    text-[#fff7e3]
+                    border-[#1b3059]
+                    opacity-90
+                    hover:scale-[1.03]
+                    hover:bg-[#223c6f]
+                    hover:opacity-100
 
-    /* 🌙 MODO OSCURO */
-    dark:bg-[#fff7e3]
-    dark:text-[#1b3059]
-    dark:border-[#fff7e3]
-    hover:opacity-100
-    
+                    /* 🌙 MODO OSCURO */
+                    dark:bg-[#fff7e3]
+                    dark:text-[#1b3059]
+                    dark:border-[#fff7e3]
+                    hover:opacity-100
 
-    transition-all
-    duration-200
-    ease-out
-  "
->
-  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
-    Almuerzo Viernes
-    <span className="text-xs opacity-60">▾</span>
-  </Link>
-</Button>
-
-</div>
-
+                    transition-all
+                    duration-200
+                    ease-out
+                  "
+                >
+                  <Link
+                    href="/menu#menu-viernes"
+                    className="flex items-center gap-2"
+                  >
+                    Almuerzo Viernes
+                    <span className="text-xs opacity-60">▾</span>
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
 
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-  placeholder="Buscar por plato, ingrediente..."
-  className="
-    pl-9
+              placeholder="Buscar por plato, ingrediente..."
+              className="
+                pl-9
 
-    /* fondo */
-    bg-transparent
-    dark:bg-transparent
+                /* fondo */
+                bg-transparent
+                dark:bg-transparent
 
-    /* texto */
-    text-[#1d2f59]
-    dark:text-[#fff7e3]
+                /* texto */
+                text-[#1d2f59]
+                dark:text-[#fff7e3]
 
-    /* placeholder */
-    placeholder:text-[#1d2f59]/60
-    dark:placeholder:text-[#fff7e3]/70
+                /* placeholder */
+                placeholder:text-[#1d2f59]/60
+                dark:placeholder:text-[#fff7e3]/70
 
-    /* borde normal */
-    border
-    border-[#1d2f59]/30
-    dark:border-[#fff7e3]/40
+                /* borde normal */
+                border
+                border-[#1d2f59]/30
+                dark:border-[#fff7e3]/40
 
-    /* focus: mismo grosor, color crema */
-    focus-visible:ring-0
-    focus-visible:border-[#1d2f59]/60
-    dark:focus-visible:border-[#fff7e3]
+                /* focus: mismo grosor, color crema */
+                focus-visible:ring-0
+                focus-visible:border-[#1d2f59]/60
+                dark:focus-visible:border-[#fff7e3]
 
-    /* evitar fondo automático */
-    focus:bg-transparent
-    dark:focus:bg-transparent
-  "
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-/>
-
+                /* evitar fondo automático */
+                focus:bg-transparent
+                dark:focus:bg-transparent
+              "
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </div>
         </div>
 
@@ -267,14 +383,12 @@ export default function MenuClient() {
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
 
-            // detectar "SUGERENCIA DEL DÍA" aunque tenga mayúsculas y tilde
             const normalizedName = category.name
               .toLowerCase()
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "");
             const showImageForCategory = normalizedName === "sugerencia del dia";
 
-            // normalizamos también para decidir el id del anchor (viernes)
             const normalizedForId = category.name
               .toLowerCase()
               .normalize("NFD")
@@ -291,7 +405,6 @@ export default function MenuClient() {
                 key={category.id}
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
-                {/* encabezado categoría raíz (MÁS GRANDE) */}
                 <div className="space-y-1">
                   <h2
                     className="
@@ -309,10 +422,8 @@ export default function MenuClient() {
                   <div className="h-px w-full bg-[rgba(0,0,0,0.08)] dark:bg-[#fff7e3]/30" />
                 </div>
 
-                {/* SIN subcategorías */}
                 {childCats.length === 0 ? (
                   showImageForCategory ? (
-                    // SUGERENCIA DEL DÍA = cards con imagen
                     <div className="grid gap-6 md:grid-cols-2">
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
@@ -382,14 +493,13 @@ export default function MenuClient() {
                         })}
                     </div>
                   ) : (
-                    // CATEGORÍAS SIN SUBCATEGORÍAS → estilo carta
-<div
-  className="
-    divide-y
-    divide-[rgba(0,0,0,0.06)]
-    dark:divide-[#fff7e3]/25
-  "
->
+                    <div
+                      className="
+                        divide-y
+                        divide-[rgba(0,0,0,0.06)]
+                        dark:divide-[#fff7e3]/25
+                      "
+                    >
                       {filteredItems
                         .filter((item) => item.categoryId === category.id)
                         .map((item) => (
@@ -408,16 +518,15 @@ export default function MenuClient() {
                                 </Badge>
                               )}
                               <div
-  className="
-    flex-1
-    border-b
-    border-dotted
-    border-[rgba(0,0,0,0.35)]
-    dark:border-[rgba(255,247,227,0.35)]
-    mx-2
-  "
-/>
-
+                                className="
+                                  flex-1
+                                  border-b
+                                  border-dotted
+                                  border-[rgba(0,0,0,0.35)]
+                                  dark:border-[rgba(255,247,227,0.35)]
+                                  mx-2
+                                "
+                              />
 
                               <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                 {formatCurrency(item.price)}
@@ -449,7 +558,6 @@ export default function MenuClient() {
                     </div>
                   )
                 ) : (
-                  // CON SUBCATEGORÍAS → SIEMPRE ABIERTAS
                   <div className="space-y-6">
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
@@ -462,29 +570,28 @@ export default function MenuClient() {
                           key={sub.id}
                           className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
-                          {/* título subcategoría (UN PASO MÁS CHICO) */}
                           <p
                             className="font-headline 
-                                      uppercase 
-                                      text-[11px]
-                                      md:text-xs
-                                      font-semibold
-                                      tracking-[0.16em]
-                                      pt-4 
-                                      pb-2
-                                      text-[rgba(0,0,0,0.7)]
-                                      dark:text-[#d9b36c]"
+                              uppercase 
+                              text-[11px]
+                              md:text-xs
+                              font-semibold
+                              tracking-[0.16em]
+                              pt-4 
+                              pb-2
+                              text-[rgba(0,0,0,0.7)]
+                              dark:text-[#d9b36c]"
                           >
                             {sub.name}
                           </p>
 
                           <div
-  className="
-    divide-y
-    divide-[rgba(0,0,0,0.06)]
-    dark:divide-[#fff]/25
-  "
->
+                            className="
+                              divide-y
+                              divide-[rgba(0,0,0,0.06)]
+                              dark:divide-[#fff]/25
+                            "
+                          >
                             {itemsSub.map((item) => (
                               <div key={item.id} className="py-3">
                                 <div className="flex items-baseline gap-2">
@@ -501,17 +608,15 @@ export default function MenuClient() {
                                     </Badge>
                                   )}
                                   <div
-  className="
-    flex-1
-    border-b
-    border-dotted
-    border-[#545454)]
-    dark:border-b-[#1b1a19]
-    mx-2
-  "
-/>
-
-
+                                    className="
+                                      flex-1
+                                      border-b
+                                      border-dotted
+                                      border-[rgba(0,0,0,0.35)]
+                                      dark:border-[rgba(255,247,227,0.35)]
+                                      mx-2
+                                    "
+                                  />
 
                                   <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                     {formatCurrency(item.price)}
@@ -552,16 +657,15 @@ export default function MenuClient() {
 
           {filteredItems.length === 0 && (
             <p
-            className="
-              text-sm
-              text-center
-              text-[#1d2f59]/70
-              dark:text-[#fff7e3]/70
-            "
-          >
-            No encontramos platos que coincidan con la búsqueda.
-          </p>
-          
+              className="
+                text-sm
+                text-center
+                text-[#1d2f59]/70
+                dark:text-[#fff7e3]/70
+              "
+            >
+              No encontramos platos que coincidan con la búsqueda.
+            </p>
           )}
         </div>
       </section>
