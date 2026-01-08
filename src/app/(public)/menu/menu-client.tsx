@@ -158,13 +158,13 @@ export default function MenuClient() {
         .toLowerCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "") === "sugerencia del dia";
-  
+
     if (selectedCategory !== "all") {
       return rootCategories.filter(
         (c) => c.id === selectedCategory && !isSuggestion(c.name)
       );
     }
-  
+
     return rootCategories
       .filter((c) => !isSuggestion(c.name)) // 🚫 no renderiza “Sugerencia del día” abajo
       .filter((cat) => {
@@ -177,7 +177,7 @@ export default function MenuClient() {
         );
         return hasDirectItems || hasChildItems;
       });
-  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);  
+  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
 
   // ====== CAROUSEL IMAGES (toma imágenes de "Sugerencia del día") ======
   const carouselImages = useMemo(() => {
@@ -191,8 +191,8 @@ export default function MenuClient() {
 
     const items = sugCat
       ? menuItems.filter(
-          (i) => i.categoryId === sugCat.id && i.isVisible !== false
-        )
+        (i) => i.categoryId === sugCat.id && i.isVisible !== false
+      )
       : [];
 
     const imgs = items
@@ -254,7 +254,7 @@ export default function MenuClient() {
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />*/}
               </div>
               <div
-  className="
+                className="
     pointer-events-none
     absolute
     inset-x-0
@@ -262,7 +262,7 @@ export default function MenuClient() {
     h-24
     bg-transparent
   "
-/>
+              />
 
               {/* puntitos discretos */}
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
@@ -289,55 +289,53 @@ export default function MenuClient() {
         <div className="flex flex-col gap-4 items-center text-center">
           {/* FILA: titulo centrado REAL + boton a la derecha del container */}
           <div className="w-full">
-            <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
-              {/* Columna izquierda vacía (balance) */}
-              <div className="hidden md:block" />
+  <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
+    {/* Columna izquierda vacía (balance) */}
+    <div className="hidden md:block" />
 
-              {/* Título centrado */}
-              <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
-                Nuestra Carta
-              </h1>
+    {/* Título centrado */}
+    <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center">
+      Nuestra Carta
+    </h1>
 
-              <div className="flex justify-center md:justify-end pt-8 ">
-                <Button
-                  asChild
-                  className="
-                    rounded-sm
-                    px-5
-                    py-2
-                    border
+    {/* ✅ En mobile: lo separo del título y del search (queda “en el medio”).
+        ✅ En desktop: queda igual que antes (a la derecha, con pt-8). */}
+    <div className="flex justify-center md:justify-end pt-4 md:pt-8 pb-2 md:pb-0">
+      <Button
+        asChild
+        className="
+          rounded-sm
+          px-5
+          py-2
+          border
 
-                    /* ☀️ MODO CLARO */
-                    bg-[#1b3059]
-                    text-[#fff7e3]
-                    border-[#1b3059]
-                    opacity-90
-                    hover:scale-[1.03]
-                    hover:bg-[#223c6f]
-                    hover:opacity-100
+          bg-[#1b3059]
+          text-[#fff7e3]
+          border-[#1b3059]
+          opacity-90
+          hover:scale-[1.03]
+          hover:bg-[#223c6f]
+          hover:opacity-100
 
-                    /* 🌙 MODO OSCURO */
-                    dark:bg-[#fff7e3]
-                    dark:text-[#1b3059]
-                    dark:border-[#fff7e3]
-                    hover:opacity-100
+          dark:bg-[#fff7e3]
+          dark:text-[#1b3059]
+          dark:border-[#fff7e3]
+          hover:opacity-100
 
-                    transition-all
-                    duration-200
-                    ease-out
-                  "
-                >
-                  <Link
-                    href="/menu#menu-viernes"
-                    className="flex items-center gap-2"
-                  >
-                    Almuerzo Viernes
-                    <span className="text-xs opacity-60">▾</span>
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
+          transition-all
+          duration-200
+          ease-out
+        "
+      >
+        <Link href="/menu#menu-viernes" className="flex items-center gap-2">
+          Almuerzo Viernes
+          <span className="text-xs opacity-60">▾</span>
+        </Link>
+      </Button>
+    </div>
+  </div>
+</div>
+
 
           <div className="relative w-full max-w-xl">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -398,7 +396,7 @@ export default function MenuClient() {
               <section
                 id={
                   normalizedForId === "menu viernes" ||
-                  normalizedForId === "almuerzo viernes"
+                    normalizedForId === "almuerzo viernes"
                     ? "menu-viernes"
                     : undefined
                 }
