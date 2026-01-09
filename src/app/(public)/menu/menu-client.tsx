@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
 import Link from "next/link";
 
+import { getFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems } from "@/lib/menu-service";
@@ -12,13 +13,7 @@ import { listCategories } from "@/lib/categories-service";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Sparkles as SparklesIcon } from "lucide-react";
 
 const formatCurrency = (price: number) =>
   new Intl.NumberFormat("es-AR", {
@@ -43,11 +38,58 @@ const TagIcon = ({ tag }: { tag: string }) => {
   }
 };
 
+const norm = (s: string) =>
+  (s ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+
+/**
+ * Si estamos en Menú Viernes > Incluye:
+ * - Para "Entrada" y "Postre o café" mostramos lo que viene de fridayData (admin)
+ * - Para "Bebida" dejamos la description original del item
+ */
+function fridayDescOverride(
+  itemName: string,
+  originalDesc: string | undefined,
+  fridayData: FridayData
+) {
+  const n = norm(itemName);
+
+  if (n === "entrada") return fridayData?.entrada ?? "";
+  if (n === "postre o cafe" || n === "postre" || n === "cafe")
+    return fridayData?.postre ?? "";
+
+  // Bebida u otros: mantener lo que estaba en el item
+  return originalDesc ?? "";
+}
+
 export default function MenuClient() {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+
+  // ✅ datos del menú viernes (entrada/postre)
+  const [fridayData, setFridayData] = useState<FridayData>({
+    entrada: "",
+    postre: "",
+  });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getFridayData();
+        setFridayData({
+          entrada: data?.entrada ?? "",
+          postre: data?.postre ?? "",
+        });
+      } catch (e) {
+        console.error("Error cargando menu_viernes/data", e);
+      }
+    })();
+  }, []);
 
   // ✅ FIX HYDRATION: render del carrusel sólo luego del mount
   const [mounted, setMounted] = useState(false);
@@ -145,26 +187,21 @@ export default function MenuClient() {
         desc.includes(term) ||
         (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
-      const matchesCategory =
-        catName.includes(term) || parentCatName.includes(term);
+      const matchesCategory = catName.includes(term) || parentCatName.includes(term);
 
       return matchesText || matchesCategory;
     });
   }, [menuItems, selectedCategoryIds, search, categories]);
 
   const visibleRootCategories = useMemo(() => {
-    const isSuggestion = (name: string) =>
-      name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") === "sugerencia del dia";
-  
+    const isSuggestion = (name: string) => norm(name) === "sugerencia del dia";
+
     if (selectedCategory !== "all") {
       return rootCategories.filter(
         (c) => c.id === selectedCategory && !isSuggestion(c.name)
       );
     }
-  
+
     return rootCategories
       .filter((c) => !isSuggestion(c.name)) // 🚫 no renderiza “Sugerencia del día” abajo
       .filter((cat) => {
@@ -177,17 +214,11 @@ export default function MenuClient() {
         );
         return hasDirectItems || hasChildItems;
       });
-  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);  
+  }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
 
   // ====== CAROUSEL IMAGES (toma imágenes de "Sugerencia del día") ======
   const carouselImages = useMemo(() => {
-    const sugCat = categories.find((c) => {
-      const n = c.name
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-      return n === "sugerencia del dia";
-    });
+    const sugCat = categories.find((c) => norm(c.name) === "sugerencia del dia");
 
     const items = sugCat
       ? menuItems.filter(
@@ -203,7 +234,6 @@ export default function MenuClient() {
       })
       .slice(0, 6);
 
-    // fallback (si no hay nada todavía)
     if (imgs.length === 0) {
       return [
         { src: "/img/placeholder.jpg", alt: "Plato", hint: "food" as any },
@@ -231,7 +261,7 @@ export default function MenuClient() {
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
-        {/* ====== CARRUSEL ARRIBA (con degradado fino abajo) ====== */}
+        {/* ====== CARRUSEL ARRIBA ====== */}
         {mounted && (
           <div className="w-full">
             <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
@@ -249,20 +279,7 @@ export default function MenuClient() {
                     ].join(" ")}
                   />
                 ))}
-
-                {/* detallito fino: degradado hacia el fondo del sitio 
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent to-background" />*/}
               </div>
-              <div
-  className="
-    pointer-events-none
-    absolute
-    inset-x-0
-    bottom-0
-    h-24
-    bg-transparent
-  "
-/>
 
               {/* puntitos discretos */}
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
@@ -287,13 +304,9 @@ export default function MenuClient() {
 
         {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
-          {/* FILA: titulo centrado REAL + boton a la derecha del container */}
           <div className="w-full">
             <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
-              {/* Columna izquierda vacía (balance) */}
               <div className="hidden md:block" />
-
-              {/* Título centrado */}
               <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
                 Nuestra Carta
               </h1>
@@ -306,8 +319,6 @@ export default function MenuClient() {
                     px-5
                     py-2
                     border
-
-                    /* ☀️ MODO CLARO */
                     bg-[#1b3059]
                     text-[#fff7e3]
                     border-[#1b3059]
@@ -315,13 +326,9 @@ export default function MenuClient() {
                     hover:scale-[1.03]
                     hover:bg-[#223c6f]
                     hover:opacity-100
-
-                    /* 🌙 MODO OSCURO */
                     dark:bg-[#fff7e3]
                     dark:text-[#1b3059]
                     dark:border-[#fff7e3]
-                    hover:opacity-100
-
                     transition-all
                     duration-200
                     ease-out
@@ -345,30 +352,18 @@ export default function MenuClient() {
               placeholder="Buscar por plato, ingrediente..."
               className="
                 pl-9
-
-                /* fondo */
                 bg-transparent
                 dark:bg-transparent
-
-                /* texto */
                 text-[#1d2f59]
                 dark:text-[#fff7e3]
-
-                /* placeholder */
                 placeholder:text-[#1d2f59]/60
                 dark:placeholder:text-[#fff7e3]/70
-
-                /* borde normal */
                 border
                 border-[#1d2f59]/30
                 dark:border-[#fff7e3]/40
-
-                /* focus: mismo grosor, color crema */
                 focus-visible:ring-0
                 focus-visible:border-[#1d2f59]/60
                 dark:focus-visible:border-[#fff7e3]
-
-                /* evitar fondo automático */
                 focus:bg-transparent
                 dark:focus:bg-transparent
               "
@@ -383,25 +378,15 @@ export default function MenuClient() {
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
 
-            const normalizedName = category.name
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "");
-            const showImageForCategory = normalizedName === "sugerencia del dia";
+            const normalizedForId = norm(category.name);
 
-            const normalizedForId = category.name
-              .toLowerCase()
-              .normalize("NFD")
-              .replace(/[\u0300-\u036f]/g, "");
+            const isFridayMenu =
+              normalizedForId === "menu viernes" ||
+              normalizedForId === "almuerzo viernes";
 
             return (
               <section
-                id={
-                  normalizedForId === "menu viernes" ||
-                  normalizedForId === "almuerzo viernes"
-                    ? "menu-viernes"
-                    : undefined
-                }
+                id={isFridayMenu ? "menu-viernes" : undefined}
                 key={category.id}
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
@@ -422,141 +407,73 @@ export default function MenuClient() {
                   <div className="h-px w-full bg-[rgba(0,0,0,0.08)] dark:bg-[#fff7e3]/30" />
                 </div>
 
+                {/* CON SUBCATEGORÍAS / SIN SUBCATEGORÍAS */}
                 {childCats.length === 0 ? (
-                  showImageForCategory ? (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      {filteredItems
-                        .filter((item) => item.categoryId === category.id)
-                        .map((item) => {
-                          const image = PlaceHolderImages.find(
-                            (p) => p.id === item.imageId
-                          );
+                  <div
+                    className="
+                      divide-y
+                      divide-[rgba(0,0,0,0.06)]
+                      dark:divide-[#fff7e3]/25
+                    "
+                  >
+                    {filteredItems
+                      .filter((item) => item.categoryId === category.id)
+                      .map((item) => (
+                        <div key={item.id} className="py-3">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-headline text-[15px] md:text-base tracking-wide">
+                              {item.name}
+                            </span>
 
-                          const src =
-                            image?.imageUrl ||
-                            item.imageUrl ||
-                            "/img/placeholder.jpg";
-
-                          return (
-                            <Card
-                              key={item.id}
-                              className="overflow-hidden flex flex-col h-full border border-[rgba(0,0,0,0.08)] shadow-sm"
-                            >
-                              <div className="relative h-52 w-full">
-                                <img
-                                  src={src}
-                                  alt={item.name}
-                                  className="object-cover w-full h-full"
-                                  data-ai-hint={image?.imageHint}
-                                />
-                              </div>
-
-                              <CardHeader>
-                                <div className="flex items-center gap-2">
-                                  <CardTitle className="font-headline tracking-[0.12em] uppercase text-sm">
-                                    {item.name}
-                                  </CardTitle>
-                                  {item.isSpecial && (
-                                    <Badge className="flex items-center gap-1 rounded-sm">
-                                      <Sparkles className="h-3.5 w-3.5" />
-                                      Especial
-                                    </Badge>
-                                  )}
-                                </div>
-                                <CardDescription className="text-xs leading-snug text-muted-foreground dark:text-[#fff7e3]">
-                                  {item.description}
-                                </CardDescription>
-                              </CardHeader>
-
-                              <CardContent className="mt-auto space-y-3">
-                                <div className="flex flex-wrap gap-2">
-                                  {(item.tags ?? []).map((tag) => (
-                                    <Badge
-                                      key={tag}
-                                      variant="outline"
-                                      className="flex items-center gap-1 text-[11px]"
-                                    >
-                                      <TagIcon tag={tag} />
-                                      <span>{tag}</span>
-                                    </Badge>
-                                  ))}
-                                </div>
-
-                                <div className="flex items-center justify-end">
-                                  <span className="text-base font-semibold">
-                                    {formatCurrency(item.price)}
-                                  </span>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          );
-                        })}
-                    </div>
-                  ) : (
-                    <div
-                      className="
-                        divide-y
-                        divide-[rgba(0,0,0,0.06)]
-                        dark:divide-[#fff7e3]/25
-                      "
-                    >
-                      {filteredItems
-                        .filter((item) => item.categoryId === category.id)
-                        .map((item) => (
-                          <div key={item.id} className="py-3">
-                            <div className="flex items-baseline gap-2">
-                              <span className="font-headline text-[15px] md:text-base tracking-wide">
-                                {item.name}
-                              </span>
-                              {item.isSpecial && (
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                >
-                                  <Sparkles className="h-3 w-3" />
-                                  Especial
-                                </Badge>
-                              )}
-                              <div
-                                className="
-                                  flex-1
-                                  border-b
-                                  border-dotted
-                                  border-[rgba(0,0,0,0.35)]
-                                  dark:border-[rgba(255,247,227,0.35)]
-                                  mx-2
-                                "
-                              />
-
-                              <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                                {formatCurrency(item.price)}
-                              </span>
-                            </div>
-
-                            {item.description && (
-                              <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
-                                {item.description}
-                              </p>
+                            {item.isSpecial && (
+                              <Badge
+                                variant="outline"
+                                className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                              >
+                                <SparklesIcon className="h-3 w-3" />
+                                Especial
+                              </Badge>
                             )}
 
-                            {(item.tags ?? []).length > 0 && (
-                              <div className="mt-1 flex flex-wrap gap-1">
-                                {(item.tags ?? []).map((tag) => (
-                                  <Badge
-                                    key={tag}
-                                    variant="outline"
-                                    className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                  >
-                                    <TagIcon tag={tag} />
-                                    <span>{tag}</span>
-                                  </Badge>
-                                ))}
-                              </div>
-                            )}
+                            <div
+                              className="
+                                flex-1
+                                border-b
+                                border-dotted
+                                border-[rgba(0,0,0,0.35)]
+                                dark:border-[rgba(255,247,227,0.35)]
+                                mx-2
+                              "
+                            />
+
+                            <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                              {formatCurrency(item.price)}
+                            </span>
                           </div>
-                        ))}
-                    </div>
-                  )
+
+                          {item.description && (
+                            <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                              {item.description}
+                            </p>
+                          )}
+
+                          {(item.tags ?? []).length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {(item.tags ?? []).map((tag) => (
+                                <Badge
+                                  key={tag}
+                                  variant="outline"
+                                  className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                >
+                                  <TagIcon tag={tag} />
+                                  <span>{tag}</span>
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                  </div>
                 ) : (
                   <div className="space-y-6">
                     {childCats.map((sub) => {
@@ -564,6 +481,8 @@ export default function MenuClient() {
                         (item) => item.categoryId === sub.id
                       );
                       if (itemsSub.length === 0) return null;
+
+                      const isIncluye = norm(sub.name) === "incluye";
 
                       return (
                         <div
@@ -592,59 +511,90 @@ export default function MenuClient() {
                               dark:divide-[#fff]/25
                             "
                           >
-                            {itemsSub.map((item) => (
-                              <div key={item.id} className="py-3">
-                                <div className="flex items-baseline gap-2">
-                                  <span className="font-headline text-[15px] md:text-base tracking-wide">
-                                    {item.name}
-                                  </span>
-                                  {item.isSpecial && (
-                                    <Badge
-                                      variant="outline"
-                                      className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                    >
-                                      <Sparkles className="h-3 w-3" />
-                                      Especial
-                                    </Badge>
-                                  )}
-                                  <div
-                                    className="
-                                      flex-1
-                                      border-b
-                                      border-dotted
-                                      border-[rgba(0,0,0,0.35)]
-                                      dark:border-[rgba(255,247,227,0.35)]
-                                      mx-2
-                                    "
-                                  />
+                            {itemsSub.map((item) => {
+                              const shownDesc =
+                                isFridayMenu && isIncluye
+                                  ? fridayDescOverride(
+                                      item.name,
+                                      item.description,
+                                      fridayData
+                                    )
+                                  : item.description ?? "";
 
-                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                                    {formatCurrency(item.price)}
-                                  </span>
-                                </div>
-
-                                {item.description && (
-                                  <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
-                                    {item.description}
-                                  </p>
-                                )}
-
-                                {(item.tags ?? []).length > 0 && (
-                                  <div className="mt-1 flex flex-wrap gap-1">
-                                    {(item.tags ?? []).map((tag) => (
-                                      <Badge
-                                        key={tag}
-                                        variant="outline"
-                                        className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                      >
-                                        <TagIcon tag={tag} />
-                                        <span>{tag}</span>
-                                      </Badge>
-                                    ))}
+                              // ✅ INCLUYE (Menú Viernes): sin precio, sin línea, formato "Bebida: ..."
+                              if (isFridayMenu && isIncluye) {
+                                return (
+                                  <div key={item.id} className="py-3">
+                                    <p className="text-sm md:text-base text-[#1d2f59] dark:text-[#fff7e3]">
+                                      <span className="font-semibold text-[#1d2f59] dark:text-[#fff7e3]">
+                                        {item.name}:
+                                      </span>{" "}
+                                      <span className="text-[#1d2f59]/80 dark:text-[#fff7e3]/90">
+                                        {shownDesc || "—"}
+                                      </span>
+                                    </p>
+                                    <div className="h-px w-full bg-[rgba(255,255,255,0.10)]" />
                                   </div>
-                                )}
-                              </div>
-                            ))}
+                                );
+                              }
+
+                              // ✅ resto: como siempre (con precio)
+                              return (
+                                <div key={item.id} className="py-3">
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                      {item.name}
+                                    </span>
+
+                                    {item.isSpecial && (
+                                      <Badge
+                                        variant="outline"
+                                        className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                      >
+                                        <SparklesIcon className="h-3 w-3" />
+                                        Especial
+                                      </Badge>
+                                    )}
+
+                                    <div
+                                      className="
+                                        flex-1
+                                        border-b
+                                        border-dotted
+                                        border-[rgba(0,0,0,0.35)]
+                                        dark:border-[rgba(255,247,227,0.35)]
+                                        mx-2
+                                      "
+                                    />
+
+                                    <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                                      {formatCurrency(item.price)}
+                                    </span>
+                                  </div>
+
+                                  {shownDesc && (
+                                    <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                                      {shownDesc}
+                                    </p>
+                                  )}
+
+                                  {(item.tags ?? []).length > 0 && (
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                      {(item.tags ?? []).map((tag) => (
+                                        <Badge
+                                          key={tag}
+                                          variant="outline"
+                                          className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                        >
+                                          <TagIcon tag={tag} />
+                                          <span>{tag}</span>
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                       );
