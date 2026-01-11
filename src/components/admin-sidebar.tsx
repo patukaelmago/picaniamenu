@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Sidebar,
   SidebarHeader,
@@ -9,23 +10,22 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   useSidebar,
-} from '@/components/ui/sidebar';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
-  LayoutDashboard,
   UtensilsCrossed,
-  Download,
+  QrCode,
   Settings,
   LogOut,
   ChevronUp,
   User,
-} from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,22 +33,29 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'; // unifiqué el alias
+} from "@/components/ui/dropdown-menu";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
 export default function AdminSidebar() {
-  const settings  = useRestaurantSettings();
+  const settings = useRestaurantSettings();
   const restaurantName = settings?.name || "Picaña";
   const pathname = usePathname();
   const { state } = useSidebar();
-  const logo = PlaceHolderImages.find((p) => p.id === 'admin-logo');
+  const logo = PlaceHolderImages.find((p) => p.id === "admin-logo");
 
+  // ✅ Primer botón: vuelve a /admin (Almuerzo Viernes por default)
   const navItems = [
-    //{ href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/menu', label: 'Menú', icon: UtensilsCrossed },
-    { href: '/admin/qr', label: 'Qr', icon: LayoutDashboard },
-    { href: '/admin/settings', label: 'Ajustes', icon: Settings },
+    { href: "/admin", label: "Almuerzo Viernes", icon: Sparkles },
+    { href: "/admin/menu", label: "Menú", icon: UtensilsCrossed },
+    { href: "/admin/qr", label: "QR", icon: QrCode },
+    { href: "/admin/settings", label: "Ajustes", icon: Settings },
   ];
+
+  // ✅ Activo: /admin solo exacto. Otros: también en subrutas.
+  const isActiveHref = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
     <Sidebar>
@@ -62,11 +69,12 @@ export default function AdminSidebar() {
               width={40}
               height={40}
               className="rounded-md"
-              // si es dominio remoto, asegurate que esté en next.config.ts
             />
           )}
           <div className="flex flex-col">
-            <h2 className="font-headline text-xl font-semibold">{restaurantName}</h2>
+            <h2 className="font-headline text-xl font-semibold">
+              {restaurantName}
+            </h2>
             <p className="text-xs text-muted-foreground">Admin Panel</p>
           </div>
         </div>
@@ -74,11 +82,33 @@ export default function AdminSidebar() {
 
       <SidebarContent className="p-2">
         <SidebarMenu>
+          {/* ✅ ThemeToggle VISIBLE: adentro del SidebarMenu */}
+          <SidebarMenuItem>
+            <div className="flex items-center justify-between px-2 py-2">
+              <span className="text-sm text-muted-foreground">Tema</span>
+
+              <div
+                className="
+        text-muted-foreground
+        [&_button]:text-muted-foreground
+        [&_svg]:text-muted-foreground
+        [&_button:hover]:bg-transparent
+        [&_button:hover]:text-muted-foreground
+      "
+              >
+                <ThemeToggle />
+              </div>
+            </div>
+          </SidebarMenuItem>
+
+
+          <Separator className="my-2" />
+
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname === item.href}
+                isActive={isActiveHref(item.href)}
                 tooltip={item.label}
                 className="justify-start"
               >
@@ -105,7 +135,8 @@ export default function AdminSidebar() {
                   <AvatarImage src="https://res.cloudinary.com/doevg17qx/image/upload/v1679330497/samples/people/kitchen-bar.jpg" />
                   <AvatarFallback>AD</AvatarFallback>
                 </Avatar>
-                {state === 'expanded' && (
+
+                {state === "expanded" && (
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">Admin</span>
                     <span className="text-xs text-muted-foreground">
@@ -114,7 +145,8 @@ export default function AdminSidebar() {
                   </div>
                 )}
               </div>
-              {state === 'expanded' && <ChevronUp className="h-4 w-4" />}
+
+              {state === "expanded" && <ChevronUp className="h-4 w-4" />}
             </Button>
           </DropdownMenuTrigger>
 

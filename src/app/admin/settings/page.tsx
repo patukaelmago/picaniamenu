@@ -308,7 +308,7 @@ export default function AdminSettingsPage() {
           </CardContent>
         </Card>
 
-        {/* -------- Publicar Menú -------- */}
+        {/* -------- Publicar Menú -------- 
         <Card>
           <CardHeader>
             <CardTitle>Publicar Menú</CardTitle>
@@ -324,7 +324,7 @@ export default function AdminSettingsPage() {
               Publicar Menú Ahora
             </Button>
           </CardContent>
-        </Card>
+        </Card>*/}
       </div>
     </div>
   );
