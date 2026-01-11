@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,6 +33,8 @@ import {
   Trash2,
   GripVertical,
   Loader2,
+  ChevronRight,
+  ChevronDown,
 } from "lucide-react";
 import {
   listCategories,
@@ -93,14 +95,27 @@ function arrayMove<T>(arr: T[], from: number, to: number) {
   return copy;
 }
 
+
 export default function AdminMenuPage() {
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
+  const [openParents, setOpenParents] = useState<Record<string, boolean>>({});
 
-  // Drag & drop de categorías
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  function toggleParent(id: string) {
+    setOpenParents((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  }
+  
+
+  // ✅ Filtro por categoría padre (Items)
+  const [parentFilterId, setParentFilterId] = useState<string>("");
+
+  // Drag & drop de categorías (AHORA SOLO PADRES)
+  const [dragRootIndex, setDragRootIndex] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   // Modal/edición de categorías
@@ -131,6 +146,101 @@ export default function AdminMenuPage() {
 
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  // ========= Indexes útiles =========
+  const categoryById = useMemo(() => {
+    const m = new Map<string, Category>();
+    categories.forEach((c) => m.set(c.id, c));
+    return m;
+  }, [categories]);
+
+  const rootCategories = useMemo(
+    () => categories.filter((c) => !c.parentCategoryId),
+    [categories]
+  );
+
+  const childrenByParent = useMemo(() => {
+    const m = new Map<string, Category[]>();
+    categories.forEach((c) => {
+      if (!c.parentCategoryId) return;
+      const arr = m.get(c.parentCategoryId) ?? [];
+      arr.push(c);
+      m.set(c.parentCategoryId, arr);
+    });
+
+    // ordenar hijos por order
+    m.forEach((arr, key) => {
+      m.set(
+        key,
+        arr.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      );
+    });
+
+    return m;
+  }, [categories]);
+
+  const sortedRootCategories = useMemo(() => {
+    return rootCategories
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  }, [rootCategories]);
+
+  // ✅ Lista plana "visual" para selects (Padre + Hijos indentados)
+  const categoryOptions = useMemo(() => {
+    const options: Array<{
+      id: string;
+      label: string;
+      isChild: boolean;
+      parentId: string | null;
+    }> = [];
+
+    sortedRootCategories.forEach((parent) => {
+      options.push({
+        id: parent.id,
+        label: parent.name,
+        isChild: false,
+        parentId: null,
+      });
+
+      const kids = childrenByParent.get(parent.id) ?? [];
+      kids.forEach((child) => {
+        options.push({
+          id: child.id,
+          label: `↳ ${child.name}`,
+          isChild: true,
+          parentId: parent.id,
+        });
+      });
+    });
+
+    // si hay categorías huérfanas (parentId inexistente), las agregamos al final
+    const orphan = categories
+      .filter(
+        (c) =>
+          !!c.parentCategoryId && !categoryById.get(c.parentCategoryId ?? "")
+      )
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    if (orphan.length) {
+      options.push({
+        id: "__orphan_title__",
+        label: "— Subcategorías (sin padre) —",
+        isChild: false,
+        parentId: null,
+      });
+      orphan.forEach((c) => {
+        options.push({
+          id: c.id,
+          label: `↳ ${c.name}`,
+          isChild: true,
+          parentId: c.parentCategoryId ?? null,
+        });
+      });
+    }
+
+    return options;
+  }, [sortedRootCategories, childrenByParent, categories, categoryById]);
 
   // Cargar platos desde Firestore al montar
   useEffect(() => {
@@ -406,40 +516,50 @@ export default function AdminMenuPage() {
   }
   // ============================================================
 
-  // ====== Drag & Drop de categorías (orden) ======
-  function handleDragStart(index: number) {
-    setDragIndex(index);
+  // ====== Drag & Drop de CATEGORÍAS PADRES (orden) ======
+  function handleRootDragStart(index: number) {
+    setDragRootIndex(index);
   }
 
-  function handleDragOver(
+  function handleRootDragOver(
     e: React.DragEvent<HTMLDivElement>,
     overIndex: number
   ) {
     e.preventDefault();
-    if (dragIndex === null || dragIndex === overIndex) return;
-    setCategories((prev) => arrayMove(prev, dragIndex, overIndex));
-    setDragIndex(overIndex);
+    if (dragRootIndex === null || dragRootIndex === overIndex) return;
+
+    // reordenamos SOLO padres (local)
+    const moved = arrayMove(sortedRootCategories, dragRootIndex, overIndex);
+
+    // aplicamos el nuevo orden a categories (solo order de padres)
+    setCategories((prev) => {
+      const next = prev.slice();
+      moved.forEach((cat, i) => {
+        const idx = next.findIndex((c) => c.id === cat.id);
+        if (idx !== -1) next[idx] = { ...next[idx], order: i };
+      });
+      return next;
+    });
+
+    setDragRootIndex(overIndex);
   }
 
-  async function handleDragEnd() {
-    if (dragIndex === null) return;
-    setDragIndex(null);
+  async function handleRootDragEnd() {
+    if (dragRootIndex === null) return;
+    setDragRootIndex(null);
 
     try {
       setIsSavingOrder(true);
 
-      const reordered = categories.map((c, i) => ({
-        ...c,
-        order: i,
-      }));
-      setCategories(reordered);
+      const parents = rootCategories
+        .slice()
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      const updates = reordered.map((c) =>
-        updateCategory(c.id, { order: c.order })
+      await Promise.all(
+        parents.map((c, i) => updateCategory(c.id, { order: i }))
       );
-      await Promise.all(updates);
 
-      toast({ title: "Orden de categorías guardado" });
+      toast({ title: "Orden de categorías padre guardado" });
     } catch (e) {
       console.error(e);
       toast({
@@ -561,8 +681,6 @@ export default function AdminMenuPage() {
   }
   // ============================================================
 
-  const rootCategories = categories.filter((c) => !c.parentCategoryId);
-
   // ====== FUNCIONES DE ORDENAMIENTO ======
   function autoSortItems(localItems: MenuItem[], localCats: Category[]) {
     const grouped = new Map<string, MenuItem[]>();
@@ -651,18 +769,37 @@ export default function AdminMenuPage() {
   // 2) aplicamos filtro de búsqueda
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  const sortedItems = !normalizedSearch
+  // ✅ helper: determinar el padre de un item (por su categoría)
+  function getItemParentId(item: MenuItem): string | null {
+    const cat = categoryById.get(item.categoryId);
+    if (!cat) return null;
+    return cat.parentCategoryId ?? cat.id; // si es padre, su "padre" es ella misma
+  }
+
+  const filteredBySearch = !normalizedSearch
     ? baseSortedItems
     : baseSortedItems.filter((item) => {
         const category = categories.find((c) => c.id === item.categoryId);
         const name = item.name.toLowerCase();
         const catName = (category?.name ?? "").toLowerCase();
 
+        // también buscamos por nombre del padre
+        const parentId = getItemParentId(item);
+        const parentName = parentId
+          ? (categoryById.get(parentId)?.name ?? "").toLowerCase()
+          : "";
+
         return (
           name.includes(normalizedSearch) ||
-          catName.includes(normalizedSearch)
+          catName.includes(normalizedSearch) ||
+          parentName.includes(normalizedSearch)
         );
       });
+
+  // ✅ 3) filtro por categoría padre (si está seleccionado)
+  const sortedItems = !parentFilterId
+    ? filteredBySearch
+    : filteredBySearch.filter((item) => getItemParentId(item) === parentFilterId);
 
   return (
     <div className="space-y-8">
@@ -684,17 +821,11 @@ export default function AdminMenuPage() {
           <Card>
             <CardHeader>
               <CardTitle>Platos y Bebidas</CardTitle>
-              <CardDescription>
-                Administrá todos los items de tu menú.
-              </CardDescription>
+              <CardDescription>Administrá todos los items de tu menú.</CardDescription>
 
-              {/* Header: modo de orden + buscador + botón agregar  */}
+              {/* Header: buscador + filtro padre + botón agregar  */}
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  {/*<div className="flex items-center gap-3">
-                    <Label className="text-sm">Modo de ordenamiento:</Label>
-                  </div>*/}
-
                   {/* 🔍 BUSCADOR */}
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Buscar:</Label>
@@ -704,6 +835,23 @@ export default function AdminMenuPage() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                  </div>
+
+                  {/* ✅ FILTRO POR CATEGORÍA PADRE */}
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Categoría padre:</Label>
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm min-w-[220px]"
+                      value={parentFilterId}
+                      onChange={(e) => setParentFilterId(e.target.value)}
+                    >
+                      <option value="">Todas</option>
+                      {sortedRootCategories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -739,17 +887,12 @@ export default function AdminMenuPage() {
                             id="c-name"
                             className="col-span-3"
                             value={createForm.name}
-                            onChange={(e) =>
-                              onChangeCreate("name", e.target.value)
-                            }
+                            onChange={(e) => onChangeCreate("name", e.target.value)}
                           />
                         </div>
 
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label
-                            htmlFor="c-description"
-                            className="text-right"
-                          >
+                          <Label htmlFor="c-description" className="text-right">
                             Descripción
                           </Label>
                           <Textarea
@@ -777,6 +920,7 @@ export default function AdminMenuPage() {
                           />
                         </div>
 
+                        {/* ✅ SELECT de categoría: padres + subcategorías */}
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="c-category" className="text-right">
                             Categoría
@@ -790,14 +934,11 @@ export default function AdminMenuPage() {
                             }
                           >
                             <option value="">Elegí una categoría…</option>
-                            {categories
-                              .slice()
-                              .sort(
-                                (a, b) => (a.order ?? 0) - (b.order ?? 0)
-                              )
-                              .map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                  {cat.name}
+                            {categoryOptions
+                              .filter((o) => o.id !== "__orphan_title__")
+                              .map((o) => (
+                                <option key={o.id} value={o.id}>
+                                  {o.label}
                                 </option>
                               ))}
                           </select>
@@ -811,16 +952,11 @@ export default function AdminMenuPage() {
                             id="c-imageId"
                             className="col-span-3"
                             value={createForm.imageId}
-                            onChange={(e) =>
-                              onChangeCreate("imageId", e.target.value)
-                            }
+                            onChange={(e) => onChangeCreate("imageId", e.target.value)}
                           />
                         </div>
 
-                        <Button
-                          onClick={handleGenerateKeywords}
-                          disabled={isGenerating}
-                        >
+                        <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
                           {isGenerating && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                           )}
@@ -833,9 +969,7 @@ export default function AdminMenuPage() {
                           <Button
                             type="button"
                             onClick={handleCreateItem}
-                            disabled={
-                              !createForm.name || !createForm.categoryId
-                            }
+                            disabled={!createForm.name || !createForm.categoryId}
                           >
                             Guardar Item
                           </Button>
@@ -865,12 +999,14 @@ export default function AdminMenuPage() {
                   </TableHeader>
                   <TableBody>
                     {sortedItems.map((item) => {
-                      const category = categories.find(
-                        (c) => c.id === item.categoryId
-                      );
-                      const image = PlaceHolderImages.find(
-                        (p) => p.id === item.imageId
-                      );
+                      const category = categories.find((c) => c.id === item.categoryId);
+                      const parentId = getItemParentId(item);
+                      const parentName = parentId
+                        ? categoryById.get(parentId)?.name
+                        : undefined;
+
+                      const image = PlaceHolderImages.find((p) => p.id === item.imageId);
+
                       return (
                         <TableRow
                           key={item.id}
@@ -891,10 +1027,21 @@ export default function AdminMenuPage() {
                               />
                             )}
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {item.name}
+                          <TableCell className="font-medium">{item.name}</TableCell>
+
+                          {/* ✅ Mostrar Padre > Sub */}
+                          <TableCell>
+                            {parentName && category?.parentCategoryId ? (
+                              <span className="text-sm">
+                                <span className="text-muted-foreground">{parentName}</span>
+                                <span className="text-muted-foreground"> {" > "} </span>
+                                <span>{category?.name}</span>
+                              </span>
+                            ) : (
+                              <span>{category?.name}</span>
+                            )}
                           </TableCell>
-                          <TableCell>{category?.name}</TableCell>
+
                           <TableCell>{formatCurrency(item.price)}</TableCell>
                           <TableCell>
                             <Switch
@@ -972,9 +1119,7 @@ export default function AdminMenuPage() {
                     id="e-description"
                     className="col-span-3"
                     value={editForm.description}
-                    onChange={(e) =>
-                      onChangeEdit("description", e.target.value)
-                    }
+                    onChange={(e) => onChangeEdit("description", e.target.value)}
                   />
                 </div>
 
@@ -987,12 +1132,11 @@ export default function AdminMenuPage() {
                     type="number"
                     className="col-span-3"
                     value={editForm.price}
-                    onChange={(e) =>
-                      onChangeEdit("price", Number(e.target.value))
-                    }
+                    onChange={(e) => onChangeEdit("price", Number(e.target.value))}
                   />
                 </div>
 
+                {/* ✅ SELECT de categoría: padres + subcategorías */}
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="e-category" className="text-right">
                     Categoría
@@ -1001,17 +1145,14 @@ export default function AdminMenuPage() {
                     id="e-category"
                     className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
                     value={editForm.categoryId}
-                    onChange={(e) =>
-                      onChangeEdit("categoryId", e.target.value)
-                    }
+                    onChange={(e) => onChangeEdit("categoryId", e.target.value)}
                   >
                     <option value="">Elegí una categoría…</option>
-                    {categories
-                      .slice()
-                      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                      .map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
+                    {categoryOptions
+                      .filter((o) => o.id !== "__orphan_title__")
+                      .map((o) => (
+                        <option key={o.id} value={o.id}>
+                          {o.label}
                         </option>
                       ))}
                   </select>
@@ -1025,16 +1166,11 @@ export default function AdminMenuPage() {
                     id="e-imageId"
                     className="col-span-3"
                     value={editForm.imageId}
-                    onChange={(e) =>
-                      onChangeEdit("imageId", e.target.value)
-                    }
+                    onChange={(e) => onChangeEdit("imageId", e.target.value)}
                   />
                 </div>
 
-                <Button
-                  onClick={handleGenerateKeywords}
-                  disabled={isGenerating}
-                >
+                <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
                   {isGenerating && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
@@ -1044,11 +1180,7 @@ export default function AdminMenuPage() {
 
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button
-                    type="button"
-                    onClick={handleUpdateItem}
-                    disabled={!editId}
-                  >
+                  <Button type="button" onClick={handleUpdateItem} disabled={!editId}>
                     Guardar Cambios
                   </Button>
                 </SheetClose>
@@ -1058,220 +1190,287 @@ export default function AdminMenuPage() {
         </TabsContent>
         {/* ============ /ITEMS ============ */}
 
-        {/* ============ CATEGORÍAS ============ */}
-        <TabsContent value="categories" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Categorías del Menú</CardTitle>
-              <CardDescription>
-                Organizá las secciones de tu menú.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {/* Formulario crear categoría */}
-              <div className="mb-4 flex flex-wrap items-end gap-3">
-                <div className="grid gap-2">
-                  <Label htmlFor="new-cat-name">Nombre</Label>
-                  <Input
-                    id="new-cat-name"
-                    placeholder="Ej: Entradas"
-                    value={formCatName}
-                    onChange={(e) => setFormCatName(e.target.value)}
-                  />
-                </div>
+       {/* ============ CATEGORÍAS ============ */}
+<TabsContent value="categories" className="mt-6">
+  <Card>
+    <CardHeader>
+      <CardTitle>Categorías del Menú</CardTitle>
+      <CardDescription>Organizá las secciones de tu menú.</CardDescription>
+    </CardHeader>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="new-cat-parent">Categoría padre</Label>
-                  <select
-                    id="new-cat-parent"
-                    className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
-                    value={formCatParentId}
-                    onChange={(e) => setFormCatParentId(e.target.value)}
-                  >
-                    <option value="">Ninguna (categoría principal)</option>
-                    {rootCategories
-                      .slice()
-                      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                      .map((cat) => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </option>
-                      ))}
-                  </select>
-                </div>
+    <CardContent>
+      {/* Formulario crear categoría */}
+      <div className="mb-4 flex flex-wrap items-end gap-3">
+        <div className="grid gap-2">
+          <Label htmlFor="new-cat-name">Nombre</Label>
+          <Input
+            id="new-cat-name"
+            placeholder="Ej: Entradas"
+            value={formCatName}
+            onChange={(e) => setFormCatName(e.target.value)}
+          />
+        </div>
 
-                <div className="grid gap-2">
-                  <Label className="invisible">.</Label>
-                  <Button onClick={onCreateCategory}>
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Crear
-                  </Button>
-                </div>
-              </div>
+        <div className="grid gap-2">
+          <Label htmlFor="new-cat-parent">Categoría padre</Label>
+          <select
+            id="new-cat-parent"
+            className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
+            value={formCatParentId}
+            onChange={(e) => setFormCatParentId(e.target.value)}
+          >
+            <option value="">Ninguna (categoría principal)</option>
+            {sortedRootCategories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-              {/* Lista de categorías con drag & drop */}
-              {categories.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Aún no hay categorías. Creá la primera arriba 👆
-                </p>
-              ) : (
-                <div className="space-y-2">
-                  {categories
-                    .slice()
-                    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                    .map((category, index) => (
-                      <div
-                        key={category.id}
-                        className="flex items-center justify-between p-3 bg-secondary rounded-md"
-                        draggable
-                        onDragStart={() => handleDragStart(index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <div className="flex items-center gap-3">
-                          <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-                          <span className="font-medium">{category.name}</span>
-                          {isSavingOrder && (
-                            <span className="text-xs text-muted-foreground">
-                              Guardando…
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center space-x-2">
-                            <Label
-                              htmlFor={`visible-${category.id}`}
-                              className="text-sm"
-                            >
-                              Visible
-                            </Label>
-                            <Switch
-                              id={`visible-${category.id}`}
-                              checked={category.isVisible}
-                              onCheckedChange={(v) =>
-                                onToggleVisible(category, v)
-                              }
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => startEditCategory(category)}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="text-destructive"
-                              onClick={() => onDeleteCategory(category)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              )}
+        <div className="grid gap-2">
+          <Label className="invisible">.</Label>
+          <Button onClick={onCreateCategory}>
+            <PlusCircle className="mr-2 h-4 w-4" />
+            Crear
+          </Button>
+        </div>
+      </div>
 
-              {/* Modal de edición de categoría */}
-              <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
-                <SheetContent className="sm:max-w-lg">
-                  <SheetHeader>
-                    <SheetTitle>Editar categoría</SheetTitle>
-                    <SheetDescription>
-                      Modificá el nombre, orden o visibilidad.
-                    </SheetDescription>
-                  </SheetHeader>
+      {/* Lista de categorías: PADRES + HIJAS indentadas */}
+      {categories.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          Aún no hay categorías. Creá la primera arriba 👆
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {sortedRootCategories.map((parent, index) => {
+            const children = childrenByParent.get(parent.id) ?? [];
 
-                  <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-name" className="text-right">
-                        Nombre
-                      </Label>
-                      <Input
-                        id="cat-name"
-                        className="col-span-3"
-                        value={catForm.name}
-                        onChange={(e) =>
-                          setCatForm((p) => ({ ...p, name: e.target.value }))
-                        }
-                      />
-                    </div>
+            return (
+              <div key={parent.id} className="space-y-2">
+                {/* PADRE */}
+                <div
+                  className="flex items-center justify-between p-3 bg-secondary rounded-md cursor-pointer select-none"
+                  draggable
+                  onClick={() => toggleParent(parent.id)}
+                  onDragStart={() => handleRootDragStart(index)}
+                  onDragOver={(e) => handleRootDragOver(e, index)}
+                  onDragEnd={handleRootDragEnd}
+                >
+                  <div className="flex items-center gap-3">
+                    {openParents[parent.id] ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-order" className="text-right">
-                        Orden
-                      </Label>
-                      <Input
-                        id="cat-order"
-                        type="number"
-                        className="col-span-3"
-                        value={catForm.order}
-                        onChange={(e) =>
-                          setCatForm((p) => ({
-                            ...p,
-                            order: Number(e.target.value),
-                          }))
-                        }
-                      />
-                    </div>
+                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-parent" className="text-right">
-                        Categoría padre
-                      </Label>
-                      <select
-                        id="cat-parent"
-                        className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
-                        value={catForm.parentCategoryId ?? ""}
-                        onChange={(e) =>
-                          setCatForm((p) => ({
-                            ...p,
-                            parentCategoryId: e.target.value || null,
-                          }))
-                        }
-                      >
-                        <option value="">Ninguna (categoría principal)</option>
-                        {rootCategories
-                          .filter((c) => c.id !== catEditingId) // no se puede ser padre de sí misma
-                          .slice()
-                          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-                          .map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.name}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
+                    <span className="font-semibold">{parent.name}</span>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label className="text-right">Visible</Label>
-                      <div className="col-span-3">
-                        <Switch
-                          checked={catForm.isVisible}
-                          onCheckedChange={(v) =>
-                            setCatForm((p) => ({ ...p, isVisible: v }))
-                          }
-                        />
-                      </div>
-                    </div>
+                    <span className="ml-2 rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+                      Padre
+                    </span>
+
+                    {isSavingOrder && (
+                      <span className="text-xs text-muted-foreground">
+                        Guardando…
+                      </span>
+                    )}
                   </div>
 
-                  <SheetFooter>
-                    <SheetClose asChild>
-                      <Button variant="secondary">Cancelar</Button>
-                    </SheetClose>
-                    <Button onClick={saveCategoryEdit}>Guardar</Button>
-                  </SheetFooter>
-                </SheetContent>
-              </Sheet>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        {/* ============ /CATEGORÍAS ============ */}
+                  {/* 👇 clave: que esto NO cierre/abra cuando tocás switch o botones */}
+                  <div
+                    className="flex items-center gap-4"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <Label
+                        htmlFor={`visible-${parent.id}`}
+                        className="text-sm"
+                      >
+                        Visible
+                      </Label>
+                      <Switch
+                        id={`visible-${parent.id}`}
+                        checked={parent.isVisible}
+                        onCheckedChange={(v) => onToggleVisible(parent, v)}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => startEditCategory(parent)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive"
+                        onClick={() => onDeleteCategory(parent)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* HIJAS (✅ se ocultan/abren con el padre) */}
+                {openParents[parent.id] &&
+                  children.map((child) => (
+                    <div
+                      key={child.id}
+                      className="ml-8 flex items-center justify-between p-3 bg-secondary/60 rounded-md border border-border/40"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-muted-foreground">↳</span>
+                        <span className="font-medium">{child.name}</span>
+                        <span className="ml-2 rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+                          Subcategoría
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center space-x-2">
+                          <Label
+                            htmlFor={`visible-${child.id}`}
+                            className="text-sm"
+                          >
+                            Visible
+                          </Label>
+                          <Switch
+                            id={`visible-${child.id}`}
+                            checked={child.isVisible}
+                            onCheckedChange={(v) =>
+                              onToggleVisible(child, v)
+                            }
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => startEditCategory(child)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive"
+                            onClick={() => onDeleteCategory(child)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Modal de edición de categoría */}
+      <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
+        <SheetContent className="sm:max-w-lg">
+          <SheetHeader>
+            <SheetTitle>Editar categoría</SheetTitle>
+            <SheetDescription>
+              Modificá el nombre, orden o visibilidad.
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cat-name" className="text-right">
+                Nombre
+              </Label>
+              <Input
+                id="cat-name"
+                className="col-span-3"
+                value={catForm.name}
+                onChange={(e) =>
+                  setCatForm((p) => ({ ...p, name: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cat-order" className="text-right">
+                Orden
+              </Label>
+              <Input
+                id="cat-order"
+                type="number"
+                className="col-span-3"
+                value={catForm.order}
+                onChange={(e) =>
+                  setCatForm((p) => ({
+                    ...p,
+                    order: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cat-parent" className="text-right">
+                Categoría padre
+              </Label>
+              <select
+                id="cat-parent"
+                className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                value={catForm.parentCategoryId ?? ""}
+                onChange={(e) =>
+                  setCatForm((p) => ({
+                    ...p,
+                    parentCategoryId: e.target.value || null,
+                  }))
+                }
+              >
+                <option value="">Ninguna (categoría principal)</option>
+                {sortedRootCategories
+                  .filter((c) => c.id !== catEditingId) // no se puede ser padre de sí misma
+                  .map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Visible</Label>
+              <div className="col-span-3">
+                <Switch
+                  checked={catForm.isVisible}
+                  onCheckedChange={(v) =>
+                    setCatForm((p) => ({ ...p, isVisible: v }))
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button variant="secondary">Cancelar</Button>
+            </SheetClose>
+            <Button onClick={saveCategoryEdit}>Guardar</Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+    </CardContent>
+  </Card>
+</TabsContent>
+{/* ============ /CATEGORÍAS ============ */}
       </Tabs>
     </div>
   );
