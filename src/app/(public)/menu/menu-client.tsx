@@ -187,7 +187,8 @@ export default function MenuClient() {
         desc.includes(term) ||
         (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
-      const matchesCategory = catName.includes(term) || parentCatName.includes(term);
+      const matchesCategory =
+        catName.includes(term) || parentCatName.includes(term);
 
       return matchesText || matchesCategory;
     });
@@ -391,6 +392,7 @@ export default function MenuClient() {
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
+                  {/* ✅ CATEGORÍA PADRE: crema en dark */}
                   <h2
                     className="
                       text-sm md:text-base 
@@ -398,7 +400,7 @@ export default function MenuClient() {
                       uppercase 
                       font-semibold
                       text-[#1b3059]
-                      dark:text-[#d9b36c]
+                      dark:text-[#fff7e3]
                     "
                   >
                     {category.name}
@@ -421,7 +423,8 @@ export default function MenuClient() {
                       .map((item) => (
                         <div key={item.id} className="py-3">
                           <div className="flex items-baseline gap-2">
-                            <span className="font-headline text-[15px] md:text-base tracking-wide">
+                            {/* ✅ ITEM: crema en dark */}
+                            <span className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
                               {item.name}
                             </span>
 
@@ -446,13 +449,14 @@ export default function MenuClient() {
                               "
                             />
 
-                            <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                            <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
                               {formatCurrency(item.price)}
                             </span>
                           </div>
 
+                          {/* ✅ DESCRIPCIÓN: dorado en dark */}
                           {item.description && (
-                            <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                            <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#d9b36c] leading-snug max-w-3xl">
                               {item.description}
                             </p>
                           )}
@@ -489,6 +493,7 @@ export default function MenuClient() {
                           key={sub.id}
                           className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
+                          {/* subcategoría: dorado en dark (queda igual que ya estaba) */}
                           <p
                             className="font-headline 
                               uppercase 
@@ -529,7 +534,8 @@ export default function MenuClient() {
                                       <span className="font-semibold text-[#1d2f59] dark:text-[#fff7e3]">
                                         {item.name}:
                                       </span>{" "}
-                                      <span className="text-[#1d2f59]/80 dark:text-[#fff7e3]/90">
+                                      {/* ✅ DESCRIPCIÓN INCLUYE: dorado en dark */}
+                                      <span className="text-[#1d2f59]/80 dark:text-[#d9b36c]">
                                         {shownDesc || "—"}
                                       </span>
                                     </p>
@@ -542,7 +548,8 @@ export default function MenuClient() {
                               return (
                                 <div key={item.id} className="py-3">
                                   <div className="flex items-baseline gap-2">
-                                    <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                    {/* ✅ ITEM: crema en dark */}
+                                    <span className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
                                       {item.name}
                                     </span>
 
@@ -567,13 +574,14 @@ export default function MenuClient() {
                                       "
                                     />
 
-                                    <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                                    <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
                                       {formatCurrency(item.price)}
                                     </span>
                                   </div>
 
+                                  {/* ✅ DESCRIPCIÓN: dorado en dark */}
                                   {shownDesc && (
-                                    <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#fff7e3] leading-snug max-w-3xl">
+                                    <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#d9b36c] leading-snug max-w-3xl">
                                       {shownDesc}
                                     </p>
                                   )}
