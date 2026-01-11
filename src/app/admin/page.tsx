@@ -185,9 +185,9 @@ export default function AdminDashboardPage() {
         </CardContent>
       </Card>
 
-      {/* PLATOS */}
+      {/* PLATOS
       <PlatosSection platos={menu.platos} onChange={handleSavePlatos} saving={savingPlatos} />
-
+         */}
       {/* POSTRE */}
       <Card>
         <CardHeader>
