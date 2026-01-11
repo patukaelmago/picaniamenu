@@ -262,12 +262,29 @@ export default function AdminMenuPage() {
     load();
   }, [toast]);
 
+  //helper//
+  const norm = (s: string) =>
+    (s ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  
   // Cargar categorías desde Firestore al montar
   useEffect(() => {
     const loadCats = async () => {
       try {
         const cats = await listCategories();
         setCategories(cats);
+  
+        // ✅ DEFAULT: ALMUERZO VIERNES (solo si todavía está en "Todas")
+        const fridayParent = cats.find(
+          (c) =>
+            !c.parentCategoryId &&
+            (norm(c.name) === "almuerzo viernes" || norm(c.name) === "menu viernes")
+        );
+  
+        setParentFilterId((prev) => prev || (fridayParent?.id ?? ""));
       } catch (e) {
         console.error(e);
         toast({
@@ -277,8 +294,10 @@ export default function AdminMenuPage() {
         });
       }
     };
+  
     loadCats();
   }, [toast]);
+  
 
   // ===== Helpers items =====
   function onChangeCreate<K extends keyof MenuItemInput>(
