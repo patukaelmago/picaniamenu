@@ -2,8 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { auth } from "@/lib/firebase"; // ajustá si tu archivo se llama distinto
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export default function LoginWithGoogle() {
   const router = useRouter();
@@ -13,16 +18,33 @@ export default function LoginWithGoogle() {
     try {
       setLoading(true);
 
+      // ✅ Persistencia: queda logueado aunque recargues / cierres pestaña
+      await setPersistence(auth, browserLocalPersistence);
+
       const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+
       const result = await signInWithPopup(auth, provider);
 
       console.log("Logueado:", result.user);
 
-      // cuando todo sale bien, lo mandamos al admin
-      router.push("/admin");
+      // ✅ mandalo al admin home
+      router.replace("/admin");
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
-      alert(error?.message ?? "Error al iniciar sesión");
+
+      // Mensajes más amigables según error típico
+      const code = error?.code as string | undefined;
+
+      if (code === "auth/popup-closed-by-user") {
+        alert("Se cerró la ventana de Google. Probá de nuevo.");
+      } else if (code === "auth/unauthorized-domain") {
+        alert(
+          "Dominio no autorizado en Firebase Auth. Agregalo en Authentication > Settings > Authorized domains."
+        );
+      } else {
+        alert(error?.message ?? "Error al iniciar sesión");
+      }
     } finally {
       setLoading(false);
     }
