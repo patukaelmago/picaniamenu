@@ -20,7 +20,7 @@ import {
   Settings,
   LogOut,
   ChevronUp,
-  User,
+  User as UserIcon,
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
@@ -36,6 +36,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
+// ✅ Firebase auth user
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { useEffect, useState } from "react";
+
 export default function AdminSidebar() {
   const settings = useRestaurantSettings();
   const restaurantName = settings?.name || "Picaña";
@@ -43,7 +48,14 @@ export default function AdminSidebar() {
   const { state } = useSidebar();
   const logo = PlaceHolderImages.find((p) => p.id === "admin-logo");
 
-  // ✅ Primer botón: vuelve a /admin (Almuerzo Viernes por default)
+  // ✅ user real de Google
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    return () => unsub();
+  }, []);
+
   const navItems = [
     { href: "/admin", label: "Almuerzo Viernes", icon: Sparkles },
     { href: "/admin/menu", label: "Menú", icon: UtensilsCrossed },
@@ -51,11 +63,18 @@ export default function AdminSidebar() {
     { href: "/admin/settings", label: "Ajustes", icon: Settings },
   ];
 
-  // ✅ Activo: /admin solo exacto. Otros: también en subrutas.
   const isActiveHref = (href: string) => {
     if (href === "/admin") return pathname === "/admin";
     return pathname === href || pathname.startsWith(href + "/");
   };
+
+  const displayName = user?.displayName || "Admin";
+  const email = user?.email || `admin@${restaurantName}.com`;
+  const photoURL = user?.photoURL || ""; // si viene vacío, AvatarFallback se ve
+
+  const fallback =
+    (displayName?.trim()?.[0] || "A").toUpperCase() +
+    (displayName?.trim()?.split(" ")?.[1]?.[0] || "D").toUpperCase();
 
   return (
     <Sidebar>
@@ -77,33 +96,16 @@ export default function AdminSidebar() {
             </h2>
             <p className="text-xs text-muted-foreground">Admin Panel</p>
           </div>
+
+          {/* ✅ Theme toggle en header (si lo querés ahí) */}
+          <nav className="ml-auto flex items-center">
+            <ThemeToggle />
+          </nav>
         </div>
       </SidebarHeader>
 
       <SidebarContent className="p-2">
         <SidebarMenu>
-          {/* ✅ ThemeToggle VISIBLE: adentro del SidebarMenu */}
-          <SidebarMenuItem>
-            <div className="flex items-center justify-between px-2 py-2">
-              <span className="text-sm text-muted-foreground">Tema</span>
-
-              <div
-                className="
-        text-muted-foreground
-        [&_button]:text-muted-foreground
-        [&_svg]:text-muted-foreground
-        [&_button:hover]:bg-transparent
-        [&_button:hover]:text-muted-foreground
-      "
-              >
-                <ThemeToggle />
-              </div>
-            </div>
-          </SidebarMenuItem>
-
-
-          <Separator className="my-2" />
-
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
@@ -131,17 +133,16 @@ export default function AdminSidebar() {
               className="flex h-auto w-full items-center justify-between p-2"
             >
               <div className="flex items-center gap-2">
+                {/* ✅ FOTO REAL DE GOOGLE */}
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://res.cloudinary.com/doevg17qx/image/upload/v1679330497/samples/people/kitchen-bar.jpg" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarImage src={photoURL} alt={displayName} />
+                  <AvatarFallback>{fallback}</AvatarFallback>
                 </Avatar>
 
                 {state === "expanded" && (
                   <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium">Admin</span>
-                    <span className="text-xs text-muted-foreground">
-                      admin@{restaurantName}.com
-                    </span>
+                    <span className="text-sm font-medium">{displayName}</span>
+                    <span className="text-xs text-muted-foreground">{email}</span>
                   </div>
                 )}
               </div>
@@ -152,18 +153,27 @@ export default function AdminSidebar() {
 
           <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Admin</p>
-                <p className="text-xs leading-none text-muted-foreground">
-                  admin@{restaurantName}.com
-                </p>
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={photoURL} alt={displayName} />
+                  <AvatarFallback>{fallback}</AvatarFallback>
+                </Avatar>
+
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {displayName}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {email}
+                  </p>
+                </div>
               </div>
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <User className="mr-2 h-4 w-4" />
+              <UserIcon className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
 
