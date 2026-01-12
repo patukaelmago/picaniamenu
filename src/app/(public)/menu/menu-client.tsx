@@ -312,7 +312,7 @@ export default function MenuClient() {
                 Nuestra Carta
               </h1>
 
-              <div className="flex justify-center md:justify-end pt-8 ">
+              <div className="flex justify-center md:justify-end py-4 md:pt-8 ">
                 <Button
                   asChild
                   className="
@@ -347,7 +347,7 @@ export default function MenuClient() {
             </div>
           </div>
 
-          <div className="relative w-full max-w-xl">
+          <div className="relative w-full max-w-xl mb-4">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por plato, ingrediente..."
