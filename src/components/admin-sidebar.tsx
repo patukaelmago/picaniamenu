@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,9 +45,8 @@ export default function AdminSidebar() {
   const restaurantName = settings?.name || "Picaña";
   const pathname = usePathname();
   const { state } = useSidebar();
-  const logo = PlaceHolderImages.find((p) => p.id === "admin-logo");
 
-  // ✅ user real de Google
+  // ✅ user real de Google (para el footer)
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -70,7 +68,7 @@ export default function AdminSidebar() {
 
   const displayName = user?.displayName || "Admin";
   const email = user?.email || `admin@${restaurantName}.com`;
-  const photoURL = user?.photoURL || ""; // si viene vacío, AvatarFallback se ve
+  const photoURL = user?.photoURL || "";
 
   const fallback =
     (displayName?.trim()?.[0] || "A").toUpperCase() +
@@ -79,28 +77,30 @@ export default function AdminSidebar() {
   return (
     <Sidebar>
       <SidebarHeader>
-        <div className="flex items-center gap-3">
-          {logo && (
+        {/* ✅ Header: SOLO LOGO + ThemeToggle (sin avatar/nombre) */}
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/admin" className="flex items-center">
+            {/* Light: logo azul | Dark: logo crema */}
             <img
-              src={logo.imageUrl}
-              alt={logo.description}
-              data-ai-hint={logo.imageHint}
-              width={40}
+              src="/logorecortado_azul.png"
+              alt="Picaña"
+              width={150}
               height={40}
-              className="rounded-md"
+              className="block dark:hidden h-10 w-auto"
             />
-          )}
-          <div className="flex flex-col">
-            <h2 className="font-headline text-xl font-semibold">
-              {restaurantName}
-            </h2>
-            <p className="text-xs text-muted-foreground">Admin Panel</p>
-          </div>
+            <img
+              src="/logorecortado.png"
+              alt="Picaña"
+              width={150}
+              height={40}
+              className="hidden dark:block h-10 w-auto"
+            />
+          </Link>
 
-          {/* ✅ Theme toggle en header (si lo querés ahí) */}
-          <nav className="ml-auto flex items-center">
+          {/* Tema toggle */}
+          <div className="flex items-center">
             <ThemeToggle />
-          </nav>
+          </div>
         </div>
       </SidebarHeader>
 
@@ -126,6 +126,8 @@ export default function AdminSidebar() {
 
       <SidebarFooter>
         <Separator className="my-2" />
+
+        {/* ✅ Footer: Google photo + name + email */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -133,7 +135,6 @@ export default function AdminSidebar() {
               className="flex h-auto w-full items-center justify-between p-2"
             >
               <div className="flex items-center gap-2">
-                {/* ✅ FOTO REAL DE GOOGLE */}
                 <Avatar className="h-8 w-8">
                   <AvatarImage src={photoURL} alt={displayName} />
                   <AvatarFallback>{fallback}</AvatarFallback>
@@ -160,12 +161,8 @@ export default function AdminSidebar() {
                 </Avatar>
 
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {displayName}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {email}
-                  </p>
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{email}</p>
                 </div>
               </div>
             </DropdownMenuLabel>
