@@ -12,12 +12,14 @@ export function ThemeToggle() {
 
   React.useEffect(() => setMounted(true), []);
 
+  // mientras hidrata, mostramos un icono estable
   if (!mounted) {
     return (
       <Button
+        type="button"
         variant="ghost"
         size="icon"
-        className="text-[hsl(var(--nav-text))] hover:bg-transparent"
+        className="text-[hsl(var(--nav-text))] hover:bg-transparent hover:text-[hsl(var(--nav-text))]"
         aria-label="Cambiar tema"
       >
         <Sun className="h-5 w-5" />
@@ -29,14 +31,16 @@ export function ThemeToggle() {
 
   return (
     <Button
+      type="button"
       variant="ghost"
       size="icon"
       aria-label="Cambiar tema"
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "relative transition-colors hover:bg-transparent",
-        "text-[hsl(var(--nav-text))]",            // ICONO SIEMPRE CREMITA
-        "hover:text-[#d9b36c]"                    // SOLO EL ICONO CAMBIA A DORADO
+        "relative",
+        "hover:bg-transparent",
+        "text-[hsl(var(--nav-text))]",
+        "hover:text-[hsl(var(--nav-text))]" // ✅ sin hover (mantiene mismo color)
       )}
     >
       <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
