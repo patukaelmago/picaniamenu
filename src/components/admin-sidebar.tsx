@@ -11,9 +11,11 @@ import {
   SidebarMenuButton,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+
 import {
   UtensilsCrossed,
   QrCode,
@@ -23,8 +25,10 @@ import {
   User as UserIcon,
   Sparkles,
 } from "lucide-react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,26 +37,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
-// ✅ Firebase auth user
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+
+import { useTheme } from "next-themes";
+import Image from "next/image";
 
 export default function AdminSidebar() {
-  const settings = useRestaurantSettings();
-  const restaurantName = settings?.name || "Picaña";
   const pathname = usePathname();
   const { state } = useSidebar();
 
-  // ✅ user real de Google (para el footer)
+  // ✅ user real de Google
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsub();
   }, []);
+
+  // ✅ logo por tema
+  const { resolvedTheme } = useTheme();
+  const logoSrc =
+    resolvedTheme === "dark" ? "/logorecortado.png" : "/logorecortado_azul.png";
 
   const navItems = [
     { href: "/admin", label: "Almuerzo Viernes", icon: Sparkles },
@@ -67,41 +75,38 @@ export default function AdminSidebar() {
   };
 
   const displayName = user?.displayName || "Admin";
-  const email = user?.email || `admin@${restaurantName}.com`;
+  const email = user?.email || "admin@picaña.com";
   const photoURL = user?.photoURL || "";
 
-  const fallback =
-    (displayName?.trim()?.[0] || "A").toUpperCase() +
-    (displayName?.trim()?.split(" ")?.[1]?.[0] || "D").toUpperCase();
+  const fallback = useMemo(() => {
+    const parts = (displayName || "Admin").trim().split(" ");
+    const a = (parts[0]?.[0] || "A").toUpperCase();
+    const b = (parts[1]?.[0] || "D").toUpperCase();
+    return a + b;
+  }, [displayName]);
 
   return (
     <Sidebar>
-      <SidebarHeader>
-        {/* ✅ Header: SOLO LOGO + ThemeToggle (sin avatar/nombre) */}
-        <div className="flex items-center justify-between gap-3">
-          <Link href="/admin" className="flex items-center">
-            {/* Light: logo azul | Dark: logo crema */}
-            <img
-              src="/logorecortado_azul.png"
-              alt="Picaña"
-              width={150}
-              height={40}
-              className="block dark:hidden h-10 w-auto"
-            />
-            <img
-              src="/logorecortado.png"
-              alt="Picaña"
-              width={150}
-              height={40}
-              className="hidden dark:block h-10 w-auto"
-            />
-          </Link>
-
-          {/* Tema toggle */}
-          <div className="flex items-center">
-            <ThemeToggle />
-          </div>
+      <SidebarHeader className="py-4">
+        {/* ✅ LOGO centrado (sin texto) */}
+        <div className="flex items-center justify-center px-2">
+          <Image
+            src={logoSrc}
+            alt="Picaña"
+            width={180}
+            height={60}
+            priority
+            className="h-auto w-[180px] object-contain"
+          />
         </div>
+
+        {/* ✅ Tema + toggle alineados, con el toggle del color del logo */}
+        <div className="mt-3 flex items-center justify-between px-3">
+          <span className="text-sm text-muted-foreground">Tema</span>
+          <ThemeToggle />
+        </div>
+
+        <Separator className="mt-3" />
       </SidebarHeader>
 
       <SidebarContent className="p-2">
@@ -124,10 +129,10 @@ export default function AdminSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
+      {/* ✅ Perfil real de Google abajo */}
       <SidebarFooter>
         <Separator className="my-2" />
 
-        {/* ✅ Footer: Google photo + name + email */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -195,3 +200,4 @@ export default function AdminSidebar() {
     </Sidebar>
   );
 }
+
