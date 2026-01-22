@@ -12,28 +12,27 @@ body {
 
 @layer base {
   :root {
-    /* NUEVOS COLORES PEDIDOS */
-    --background: 39 60% 94%;            /* #fff7e4 */
-    --foreground: 222 50% 24%;           /* #1d2f59 */
+    /* Colors from Style Guide */
+    --background: 40 38% 85%; /* #E8DFC8 */
+    --foreground: 0 0% 4.3%; /* #0B0B0B */
 
-    /* Ajusto también card/popover para mantener consistencia */
-    --card: 39 60% 94%;
-    --card-foreground: 222 50% 24%;
-    --popover: 39 60% 94%;
-    --popover-foreground: 222 50% 24%;
+    --card: 40 38% 85%;
+    --card-foreground: 0 0% 4.3%;
+    --popover: 40 38% 85%;
+    --popover-foreground: 0 0% 4.3%;
 
     /* NAV Y FOOTER */
-    --nav-bg: 222 50% 24%;
-    --nav-text: 39 60% 94%;              /* cremita */
+    --nav-bg: 0 0% 4.3%; /* Dark Charcoal */
+    --nav-text: 40 38% 85%; /* Soft Beige */
 
-    /* Resto igual */
+    /* ShadCN variables */
     --primary: 0 0% 4.3%;
     --primary-foreground: 0 0% 98%;
     --secondary: 40 10% 85%;
     --secondary-foreground: 0 0% 4.3%;
     --muted: 40 10% 85%;
     --muted-foreground: 0 0% 40%;
-    --accent: 39 44% 51%;
+    --accent: 39 44% 51%; /* Muted Gold */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -57,32 +56,29 @@ body {
   }
 
   .dark {
-    /* FONDO OSCURO */
-    --background: 0 0% 4.3%;
-
-    /* TEXTO PRINCIPAL EN CREMITA (COMO EL LOGO) */
-    --foreground: 39 60% 94%;
+    /* Dark Mode Theme */
+    --background: 0 0% 4.3%; /* Dark Charcoal */
+    --foreground: 40 38% 85%; /* Soft Beige */
 
     /* NAV Y FOOTER (INVERTIDO EN DARK) */
-    --nav-bg: 39 60% 94%;               /* crema (como el fondo en claro) */
-    --nav-text: 222 50% 24%;            /* azul (para logo e íconos) */
+    --nav-bg: 40 38% 85%;
+    --nav-text: 0 0% 4.3%;
 
-    /* Cards / popovers también en cremita */
     --card: 0 0% 4.3%;
-    --card-foreground: 39 60% 94%;
+    --card-foreground: 40 38% 85%;
     --popover: 0 0% 4.3%;
-    --popover-foreground: 39 60% 94%;
+    --popover-foreground: 40 38% 85%;
 
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 4.3%;
 
     --secondary: 0 0% 10%;
-    --secondary-foreground: 39 60% 94%;
+    --secondary-foreground: 40 38% 85%;
 
     --muted: 0 0% 10%;
     --muted-foreground: 40 33% 70%;
 
-    --accent: 39 44% 51%;
+    --accent: 39 44% 51%; /* Muted Gold */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
