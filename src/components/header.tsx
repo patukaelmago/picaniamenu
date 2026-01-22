@@ -26,14 +26,14 @@ export default function Header() {
         >
           {settings?.logoUrl ? (
             <>
-              {/* LOGO MODO CLARO */}
+              {/* LOGO MODO CLARO (fondo nav oscuro -> logo claro) */}
               <img
                 src="/logorecortado.png"
                 alt="Logo"
                 className="h-12 w-auto object-contain dark:hidden"
               />
 
-              {/* LOGO MODO OSCURO (AZUL) */}
+              {/* LOGO MODO OSCURO (fondo nav claro -> logo oscuro) */}
               <img
                 src="/logorecortado_azul.png"
                 alt="Logo"

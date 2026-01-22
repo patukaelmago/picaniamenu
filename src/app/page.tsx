@@ -11,11 +11,10 @@ export default function Home() {
         flex
         flex-col
         items-center
+        justify-center
         text-center
-        pt-36
-        md:pt-20
-        bg-[hsl(var(--nav-bg))]
-        dark:bg-black
+        p-4
+        bg-background
       "
     >
       {/* LOGO */}
@@ -25,11 +24,9 @@ export default function Home() {
         className="
           w-[260px]
           md:w-[360px]
-          lg:mt-10
           h-auto
-          mb-20
-          opacity-95
-          pt-24
+          mb-12
+          dark:invert
         "
       />
 
@@ -38,16 +35,16 @@ export default function Home() {
         asChild
         size="lg"
         className="
-          bg-[#fff7e3]
-          hover:bg-[#e8dbbd]
-          text-[#1b3059]
+          bg-primary
+          text-primary-foreground
+          hover:bg-primary/90
+          dark:bg-accent
+          dark:text-accent-foreground
+          dark:hover:bg-accent/90
           font-bold
-          text-lg
-          mt-24
-          md:mt-10
+          text-base
           py-4
           px-8
-          mb-4
           shadow-sm
         "
       >
