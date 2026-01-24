@@ -1,7 +1,24 @@
-# Settings to manage and configure a Firebase App Hosting backend.
+# Firebase App Hosting configuration
 # https://firebase.google.com/docs/app-hosting/configure
 
 runConfig:
-  # Increase this value if you'd like to automatically spin up
-  # more instances in response to increased traffic.
   maxInstances: 1
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: "AIzaSyCK_WLBxq3bK2-LIc3MZEOCm1nHuEVDFey"
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: "studio-4948282065-ea24d.firebaseapp.com"
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: "studio-4948282065-ea24d"
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: "studio-4948282065-ea24d.firebasestorage.app"
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "542920346593"
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: "1:542920346593:web:8637c324e4e1f1ad4160a0"
