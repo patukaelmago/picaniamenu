@@ -313,36 +313,33 @@ export default function MenuClient() {
               </h1>
 
               <div className="flex justify-center md:justify-end py-4 md:pt-8 ">
-                <Button
-                  asChild
-                  className="
-                    rounded-sm
-                    px-5
-                    py-2
-                    border
-                    bg-[#1b3059]
-                    text-[#fff7e3]
-                    border-[#1b3059]
-                    opacity-90
-                    hover:scale-[1.03]
-                    hover:bg-[#223c6f]
-                    hover:opacity-100
-                    dark:bg-[#fff7e3]
-                    dark:text-[#1b3059]
-                    dark:border-[#fff7e3]
-                    transition-all
-                    duration-200
-                    ease-out
-                  "
-                >
-                  <Link
-                    href="/menu#menu-viernes"
-                    className="flex items-center gap-2"
-                  >
-                    Almuerzo Viernes
-                    <span className="text-xs opacity-60">▾</span>
-                  </Link>
-                </Button>
+              <Button
+  asChild
+  className="
+    rounded-sm
+    px-5
+    py-2
+    border
+    bg-[hsl(var(--nav-bg))]
+    text-[hsl(var(--nav-text))]
+    border-[hsl(var(--nav-bg))]
+    opacity-90
+    hover:scale-[1.03]
+    hover:opacity-100
+    hover:bg-[hsl(var(--nav-bg))]
+    transition-all
+    duration-200
+    ease-out
+  "
+>
+  <Link
+    href="/menu#menu-viernes"
+    className="flex items-center gap-2"
+  >
+    Almuerzo Viernes
+    <span className="text-xs opacity-60">▾</span>
+  </Link>
+</Button>
               </div>
             </div>
           </div>
@@ -399,7 +396,7 @@ export default function MenuClient() {
                       tracking-[0.25em] 
                       uppercase 
                       font-semibold
-                      text-[#1b3059]
+                      text-[hsl(var(--nav-bg))]
                       dark:text-[#fff7e3]
                     "
                   >
@@ -530,7 +527,7 @@ export default function MenuClient() {
                               if (isFridayMenu && isIncluye) {
                                 return (
                                   <div key={item.id} className="py-3">
-                                    <p className="text-sm md:text-base text-[#1d2f59] dark:text-[#fff7e3]">
+                                    <p className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
                                       <span className="font-semibold text-[#1d2f59] dark:text-[#fff7e3]">
                                         {item.name}:
                                       </span>{" "}
