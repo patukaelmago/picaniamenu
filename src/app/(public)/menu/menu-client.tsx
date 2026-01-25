@@ -374,6 +374,11 @@ export default function MenuClient() {
             const isFridayMenu =
               normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes";
 
+            // ✅ ITEMS DIRECTO EN EL PADRE (ahora se ven aunque haya subcategorías)
+            const parentItems = filteredItems.filter(
+              (item) => item.categoryId === category.id
+            );
+
             return (
               <section
                 id={isFridayMenu ? "menu-viernes" : undefined}
@@ -382,16 +387,14 @@ export default function MenuClient() {
               >
                 <div className="space-y-1">
                   {/* ✅ CATEGORÍA PADRE: crema en dark */}
-                  <h2
-                   className="font-headline text-[15px] md:text-base tracking-wide text-[rgb(0, 0, 0)] font-bold dark:text-[#fff7e3]"
-                  >
+                  <h2 className="font-headline text-[15px] md:text-base tracking-wide text-[rgb(0, 0, 0)] font-bold dark:text-[#fff7e3]">
                     {category.name}
                   </h2>
 
                   <div className="h-px w-full bg-[rgba(0,0,0,0.08)] dark:bg-[#fff7e3]/30" />
                 </div>
 
-                {/* CON SUBCATEGORÍAS / SIN SUBCATEGORÍAS */}
+                {/* SIN SUBCATEGORÍAS */}
                 {childCats.length === 0 ? (
                   <div
                     className="
@@ -405,7 +408,6 @@ export default function MenuClient() {
                       .map((item) => (
                         <div key={item.id} className="py-3">
                           <div className="flex items-baseline gap-2">
-                            {/* ✅ ITEM: crema en dark */}
                             <span className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
                               {item.name}
                             </span>
@@ -436,7 +438,6 @@ export default function MenuClient() {
                             </span>
                           </div>
 
-                          {/* ✅ DESCRIPCIÓN: dorado en dark */}
                           {item.description && (
                             <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#d9b36c] leading-snug max-w-3xl">
                               {item.description}
@@ -461,7 +462,76 @@ export default function MenuClient() {
                       ))}
                   </div>
                 ) : (
+                  // CON SUBCATEGORÍAS (✅ ahora muestra: items del padre + subcats)
                   <div className="space-y-6">
+                    {/* ✅ 1) items asignados DIRECTO al padre */}
+                    {parentItems.length > 0 && (
+                      <div
+                        className="
+                          divide-y
+                          divide-[rgba(0,0,0,0.06)]
+                          dark:divide-[#fff7e3]/25
+                        "
+                      >
+                        {parentItems.map((item) => (
+                          <div key={item.id} className="py-3">
+                            <div className="flex items-baseline gap-2">
+                              <span className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
+                                {item.name}
+                              </span>
+
+                              {item.isSpecial && (
+                                <Badge
+                                  variant="outline"
+                                  className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                >
+                                  <SparklesIcon className="h-3 w-3" />
+                                  Especial
+                                </Badge>
+                              )}
+
+                              <div
+                                className="
+                                  flex-1
+                                  border-b
+                                  border-dotted
+                                  border-[rgba(0,0,0,0.35)]
+                                  dark:border-[rgba(255,247,227,0.35)]
+                                  mx-2
+                                "
+                              />
+
+                              <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
+                                {formatCurrency(item.price)}
+                              </span>
+                            </div>
+
+                            {item.description && (
+                              <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#d9b36c] leading-snug max-w-3xl">
+                                {item.description}
+                              </p>
+                            )}
+
+                            {(item.tags ?? []).length > 0 && (
+                              <div className="mt-1 flex flex-wrap gap-1">
+                                {(item.tags ?? []).map((tag) => (
+                                  <Badge
+                                    key={tag}
+                                    variant="outline"
+                                    className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                  >
+                                    <TagIcon tag={tag} />
+                                    <span>{tag}</span>
+                                  </Badge>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* ✅ 2) subcategorías */}
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
                         (item) => item.categoryId === sub.id
@@ -469,7 +539,7 @@ export default function MenuClient() {
                       if (itemsSub.length === 0) return null;
 
                       const isIncluye = norm(sub.name) === "incluye";
-                      const showSubTitle = sub.isVisible !== false; // ✅ key
+                      const showSubTitle = sub.isVisible !== false;
 
                       return (
                         <div
@@ -504,10 +574,13 @@ export default function MenuClient() {
                             {itemsSub.map((item) => {
                               const shownDesc =
                                 isFridayMenu && isIncluye
-                                  ? fridayDescOverride(item.name, item.description, fridayData)
+                                  ? fridayDescOverride(
+                                      item.name,
+                                      item.description,
+                                      fridayData
+                                    )
                                   : item.description ?? "";
 
-                              // ✅ INCLUYE (Menú Viernes): sin precio, sin línea, formato "Bebida: ..."
                               if (isFridayMenu && isIncluye) {
                                 return (
                                   <div key={item.id} className="py-3">
@@ -515,7 +588,6 @@ export default function MenuClient() {
                                       <span className="font-semibold text-[#1d2f59] dark:text-[#fff7e3]">
                                         {item.name}:
                                       </span>{" "}
-                                      {/* ✅ DESCRIPCIÓN INCLUYE: dorado en dark */}
                                       <span className="text-[#1d2f59]/80 dark:text-[#d9b36c]">
                                         {shownDesc || "—"}
                                       </span>
@@ -525,11 +597,9 @@ export default function MenuClient() {
                                 );
                               }
 
-                              // ✅ resto: como siempre (con precio)
                               return (
                                 <div key={item.id} className="py-3">
                                   <div className="flex items-baseline gap-2">
-                                    {/* ✅ ITEM: crema en dark */}
                                     <span className="font-headline text-[15px] md:text-base tracking-wide text-[#1d2f59] dark:text-[#fff7e3]">
                                       {item.name}
                                     </span>
@@ -560,7 +630,6 @@ export default function MenuClient() {
                                     </span>
                                   </div>
 
-                                  {/* ✅ DESCRIPCIÓN: dorado en dark */}
                                   {shownDesc && (
                                     <p className="mt-1 text-xs md:text-sm text-muted-foreground dark:text-[#d9b36c] leading-snug max-w-3xl">
                                       {shownDesc}
