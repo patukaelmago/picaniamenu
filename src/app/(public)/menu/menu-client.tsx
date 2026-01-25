@@ -383,14 +383,7 @@ export default function MenuClient() {
                 <div className="space-y-1">
                   {/* ✅ CATEGORÍA PADRE: crema en dark */}
                   <h2
-                    className="
-                      text-sm md:text-base 
-                      tracking-[0.25em] 
-                      uppercase 
-                      font-semibold
-                      text-[hsl(var(--nav-bg))]
-                      dark:text-[#fff7e3]
-                    "
+                   className="font-headline text-[15px] md:text-base tracking-wide text-[rgb(0, 0, 0)] font-bold dark:text-[#fff7e3]"
                   >
                     {category.name}
                   </h2>
