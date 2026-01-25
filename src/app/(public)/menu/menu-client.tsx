@@ -114,8 +114,10 @@ export default function MenuClient() {
     (async () => {
       try {
         const cats = await listCategories();
+        // ✅ IMPORTANTE: no filtramos isVisible acá, porque si no desaparecen subcategorías
+        // y con ellas se “pierden” los items. La visibilidad la resolvemos en el render.
         const ordered = cats
-          .filter((c) => c.isVisible !== false)
+          .slice()
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         setCategories(ordered);
       } catch (e) {
@@ -125,11 +127,13 @@ export default function MenuClient() {
   }, []);
 
   // ====== ROOT vs SUBCATEGORIES ======
+  // ✅ Solo ocultamos PADRES (categorías raíz) si isVisible=false
   const rootCategories = useMemo(
-    () => categories.filter((c) => !c.parentCategoryId),
+    () => categories.filter((c) => !c.parentCategoryId && c.isVisible !== false),
     [categories]
   );
 
+  // ✅ Hijas: las incluimos TODAS (aunque isVisible=false) para no perder items.
   const childCategoriesByParent = useMemo(() => {
     const map: Record<string, Category[]> = {};
     categories.forEach((c) => {
@@ -163,10 +167,7 @@ export default function MenuClient() {
     return menuItems.filter((item) => {
       if (!item.isVisible) return false;
 
-      if (
-        selectedCategoryIds &&
-        !selectedCategoryIds.includes(item.categoryId)
-      ) {
+      if (selectedCategoryIds && !selectedCategoryIds.includes(item.categoryId)) {
         return false;
       }
 
@@ -187,8 +188,7 @@ export default function MenuClient() {
         desc.includes(term) ||
         (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
-      const matchesCategory =
-        catName.includes(term) || parentCatName.includes(term);
+      const matchesCategory = catName.includes(term) || parentCatName.includes(term);
 
       return matchesText || matchesCategory;
     });
@@ -207,9 +207,7 @@ export default function MenuClient() {
       .filter((c) => !isSuggestion(c.name)) // 🚫 no renderiza “Sugerencia del día” abajo
       .filter((cat) => {
         const childCats = childCategoriesByParent[cat.id] ?? [];
-        const hasDirectItems = filteredItems.some(
-          (item) => item.categoryId === cat.id
-        );
+        const hasDirectItems = filteredItems.some((item) => item.categoryId === cat.id);
         const hasChildItems = childCats.some((sub) =>
           filteredItems.some((item) => item.categoryId === sub.id)
         );
@@ -222,9 +220,7 @@ export default function MenuClient() {
     const sugCat = categories.find((c) => norm(c.name) === "sugerencia del dia");
 
     const items = sugCat
-      ? menuItems.filter(
-          (i) => i.categoryId === sugCat.id && i.isVisible !== false
-        )
+      ? menuItems.filter((i) => i.categoryId === sugCat.id && i.isVisible !== false)
       : [];
 
     const imgs = items
@@ -313,33 +309,30 @@ export default function MenuClient() {
               </h1>
 
               <div className="flex justify-center md:justify-end py-4 md:pt-8 ">
-              <Button
-  asChild
-  className="
-    rounded-sm
-    px-5
-    py-2
-    border
-    bg-[hsl(var(--nav-bg))]
-    text-[hsl(var(--nav-text))]
-    border-[hsl(var(--nav-bg))]
-    opacity-90
-    hover:scale-[1.03]
-    hover:opacity-100
-    hover:bg-[hsl(var(--nav-bg))]
-    transition-all
-    duration-200
-    ease-out
-  "
->
-  <Link
-    href="/menu#menu-viernes"
-    className="flex items-center gap-2"
-  >
-    Almuerzo Viernes
-    <span className="text-xs opacity-60">▾</span>
-  </Link>
-</Button>
+                <Button
+                  asChild
+                  className="
+                    rounded-sm
+                    px-5
+                    py-2
+                    border
+                    bg-[hsl(var(--nav-bg))]
+                    text-[hsl(var(--nav-text))]
+                    border-[hsl(var(--nav-bg))]
+                    opacity-90
+                    hover:scale-[1.03]
+                    hover:opacity-100
+                    hover:bg-[hsl(var(--nav-bg))]
+                    transition-all
+                    duration-200
+                    ease-out
+                  "
+                >
+                  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
+                    Almuerzo Viernes
+                    <span className="text-xs opacity-60">▾</span>
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -379,8 +372,7 @@ export default function MenuClient() {
             const normalizedForId = norm(category.name);
 
             const isFridayMenu =
-              normalizedForId === "menu viernes" ||
-              normalizedForId === "almuerzo viernes";
+              normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes";
 
             return (
               <section
@@ -484,27 +476,30 @@ export default function MenuClient() {
                       if (itemsSub.length === 0) return null;
 
                       const isIncluye = norm(sub.name) === "incluye";
+                      const showSubTitle = sub.isVisible !== false; // ✅ key
 
                       return (
                         <div
                           key={sub.id}
                           className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
-                          {/* subcategoría: dorado en dark (queda igual que ya estaba) */}
-                          <p
-                            className="font-headline 
-                              uppercase 
-                              text-[11px]
-                              md:text-xs
-                              font-semibold
-                              tracking-[0.16em]
-                              pt-4 
-                              pb-2
-                              text-[rgba(0,0,0,0.7)]
-                              dark:text-[#d9b36c]"
-                          >
-                            {sub.name}
-                          </p>
+                          {/* ✅ si está oculta, no mostramos el nombre, pero dejamos los items */}
+                          {showSubTitle && (
+                            <p
+                              className="font-headline 
+                                uppercase 
+                                text-[11px]
+                                md:text-xs
+                                font-semibold
+                                tracking-[0.16em]
+                                pt-4 
+                                pb-2
+                                text-[rgba(0,0,0,0.7)]
+                                dark:text-[#d9b36c]"
+                            >
+                              {sub.name}
+                            </p>
+                          )}
 
                           <div
                             className="
@@ -516,11 +511,7 @@ export default function MenuClient() {
                             {itemsSub.map((item) => {
                               const shownDesc =
                                 isFridayMenu && isIncluye
-                                  ? fridayDescOverride(
-                                      item.name,
-                                      item.description,
-                                      fridayData
-                                    )
+                                  ? fridayDescOverride(item.name, item.description, fridayData)
                                   : item.description ?? "";
 
                               // ✅ INCLUYE (Menú Viernes): sin precio, sin línea, formato "Bebida: ..."
