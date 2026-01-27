@@ -61,7 +61,6 @@ function fridayDescOverride(
   if (n === "postre o cafe" || n === "postre" || n === "cafe")
     return fridayData?.postre ?? "";
 
-  // Bebida u otros: mantener lo que estaba en el item
   return originalDesc ?? "";
 }
 
@@ -71,7 +70,6 @@ export default function MenuClient() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
 
-  // ✅ datos del menú viernes (entrada/postre)
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
     postre: "",
@@ -91,14 +89,14 @@ export default function MenuClient() {
     })();
   }, []);
 
-  // ✅ FIX HYDRATION: render del carrusel sólo luego del mount
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // ====== CAROUSEL STATE ======
   const [activeSlide, setActiveSlide] = useState(0);
 
-  // ====== LOAD DATA ======
+  // ✅ evita que se vea el alt ("Plato") mientras cargan las imágenes
+  const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
+
   useEffect(() => {
     (async () => {
       try {
@@ -114,8 +112,6 @@ export default function MenuClient() {
     (async () => {
       try {
         const cats = await listCategories();
-        // ✅ IMPORTANTE: no filtramos isVisible acá, porque si no desaparecen subcategorías
-        // y con ellas se “pierden” los items. La visibilidad la resolvemos en el render.
         const ordered = cats
           .slice()
           .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
@@ -126,14 +122,11 @@ export default function MenuClient() {
     })();
   }, []);
 
-  // ====== ROOT vs SUBCATEGORIES ======
-  // ✅ Solo ocultamos PADRES (categorías raíz) si isVisible=false
   const rootCategories = useMemo(
     () => categories.filter((c) => !c.parentCategoryId && c.isVisible !== false),
     [categories]
   );
 
-  // ✅ Hijas: las incluimos TODAS (aunque isVisible=false) para no perder items.
   const childCategoriesByParent = useMemo(() => {
     const map: Record<string, Category[]> = {};
     categories.forEach((c) => {
@@ -149,7 +142,6 @@ export default function MenuClient() {
     return map;
   }, [categories]);
 
-  // IDs válidos cuando hay categoría seleccionada (raíz + hijos)
   const selectedCategoryIds = useMemo(() => {
     if (selectedCategory === "all") return null;
 
@@ -160,7 +152,6 @@ export default function MenuClient() {
     return [selectedCategory, ...children];
   }, [selectedCategory, categories]);
 
-  // ====== FILTERING (incluye nombre de categoría y categoría padre) ======
   const filteredItems = useMemo(() => {
     const term = search.toLowerCase().trim();
 
@@ -204,7 +195,7 @@ export default function MenuClient() {
     }
 
     return rootCategories
-      .filter((c) => !isSuggestion(c.name)) // 🚫 no renderiza “Sugerencia del día” abajo
+      .filter((c) => !isSuggestion(c.name))
       .filter((cat) => {
         const childCats = childCategoriesByParent[cat.id] ?? [];
         const hasDirectItems = filteredItems.some((item) => item.categoryId === cat.id);
@@ -215,7 +206,6 @@ export default function MenuClient() {
       });
   }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
 
-  // ====== CAROUSEL IMAGES (toma imágenes de "Sugerencia del día") ======
   const carouselImages = useMemo(() => {
     const sugCat = categories.find((c) => norm(c.name) === "sugerencia del dia");
 
@@ -241,7 +231,6 @@ export default function MenuClient() {
     return imgs;
   }, [categories, menuItems]);
 
-  // autoplay suave
   useEffect(() => {
     if (!mounted) return;
     if (!carouselImages?.length) return;
@@ -255,10 +244,14 @@ export default function MenuClient() {
     return () => window.clearInterval(id);
   }, [carouselImages, mounted]);
 
+  // ✅ si cambia el set de imágenes, reseteamos el loaded map para que no “aparezcan” antes de cargar
+  useEffect(() => {
+    setLoadedSlides({});
+  }, [carouselImages]);
+
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
-        {/* ====== CARRUSEL ARRIBA ====== */}
         {mounted && (
           <div className="w-full">
             <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
@@ -267,18 +260,21 @@ export default function MenuClient() {
                   <img
                     key={`${img.src}-${idx}`}
                     src={img.src}
-                    alt={img.alt}
+                    alt="" // ✅ evita que se vea “Plato”
                     data-ai-hint={img.hint}
+                    onLoad={() =>
+                      setLoadedSlides((p) => ({ ...p, [idx]: true }))
+                    }
                     className={[
                       "absolute inset-0 h-full w-full object-cover",
                       "transition-opacity duration-700 ease-out",
                       idx === activeSlide ? "opacity-100" : "opacity-0",
+                      loadedSlides[idx] ? "visible" : "invisible",
                     ].join(" ")}
                   />
                 ))}
               </div>
 
-              {/* puntitos discretos */}
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                 {carouselImages.map((_, i) => (
                   <button
@@ -299,7 +295,6 @@ export default function MenuClient() {
           </div>
         )}
 
-        {/* encabezado + buscador */}
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
             <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
@@ -364,17 +359,14 @@ export default function MenuClient() {
           </div>
         </div>
 
-        {/* secciones por categoría raíz */}
         <div className="space-y-10">
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
-
             const normalizedForId = norm(category.name);
 
             const isFridayMenu =
               normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes";
 
-            // ✅ ITEMS DIRECTO EN EL PADRE (ahora se ven aunque haya subcategorías)
             const parentItems = filteredItems.filter(
               (item) => item.categoryId === category.id
             );
@@ -386,23 +378,14 @@ export default function MenuClient() {
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
-                  {/* ✅ CATEGORÍA PADRE: crema en dark */}
                   <h2 className="font-headline text-[15px] md:text-base tracking-wide text-[rgb(0, 0, 0)] font-bold dark:text-[#fff7e3]">
                     {category.name}
                   </h2>
-
                   <div className="h-px w-full bg-[rgba(0,0,0,0.08)] dark:bg-[#fff7e3]/30" />
                 </div>
 
-                {/* SIN SUBCATEGORÍAS */}
                 {childCats.length === 0 ? (
-                  <div
-                    className="
-                      divide-y
-                      divide-[rgba(0,0,0,0.06)]
-                      dark:divide-[#fff7e3]/25
-                    "
-                  >
+                  <div className="divide-y divide-[rgba(0,0,0,0.06)] dark:divide-[#fff7e3]/25">
                     {filteredItems
                       .filter((item) => item.categoryId === category.id)
                       .map((item) => (
@@ -422,16 +405,7 @@ export default function MenuClient() {
                               </Badge>
                             )}
 
-                            <div
-                              className="
-                                flex-1
-                                border-b
-                                border-dotted
-                                border-[rgba(0,0,0,0.35)]
-                                dark:border-[rgba(255,247,227,0.35)]
-                                mx-2
-                              "
-                            />
+                            <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[rgba(255,247,227,0.35)] mx-2" />
 
                             <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
                               {formatCurrency(item.price)}
@@ -462,17 +436,9 @@ export default function MenuClient() {
                       ))}
                   </div>
                 ) : (
-                  // CON SUBCATEGORÍAS (✅ ahora muestra: items del padre + subcats)
                   <div className="space-y-6">
-                    {/* ✅ 1) items asignados DIRECTO al padre */}
                     {parentItems.length > 0 && (
-                      <div
-                        className="
-                          divide-y
-                          divide-[rgba(0,0,0,0.06)]
-                          dark:divide-[#fff7e3]/25
-                        "
-                      >
+                      <div className="divide-y divide-[rgba(0,0,0,0.06)] dark:divide-[#fff7e3]/25">
                         {parentItems.map((item) => (
                           <div key={item.id} className="py-3">
                             <div className="flex items-baseline gap-2">
@@ -490,16 +456,7 @@ export default function MenuClient() {
                                 </Badge>
                               )}
 
-                              <div
-                                className="
-                                  flex-1
-                                  border-b
-                                  border-dotted
-                                  border-[rgba(0,0,0,0.35)]
-                                  dark:border-[rgba(255,247,227,0.35)]
-                                  mx-2
-                                "
-                              />
+                              <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[rgba(255,247,227,0.35)] mx-2" />
 
                               <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
                                 {formatCurrency(item.price)}
@@ -531,7 +488,6 @@ export default function MenuClient() {
                       </div>
                     )}
 
-                    {/* ✅ 2) subcategorías */}
                     {childCats.map((sub) => {
                       const itemsSub = filteredItems.filter(
                         (item) => item.categoryId === sub.id
@@ -546,39 +502,19 @@ export default function MenuClient() {
                           key={sub.id}
                           className="border-b border-[rgba(0,0,0,0.08)] pb-3"
                         >
-                          {/* ✅ si está oculta, no mostramos el nombre, pero dejamos los items */}
                           {showSubTitle && (
                             <p
-                              className="font-headline 
-                                uppercase 
-                                text-[11px]
-                                md:text-xs
-                                font-semibold
-                                tracking-[0.16em]
-                                pt-4 
-                                pb-2
-                                text-[rgba(0,0,0,0.7)]
-                                dark:text-[#d9b36c]"
+                              className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-[rgba(0,0,0,0.7)] dark:text-[#d9b36c]"
                             >
                               {sub.name}
                             </p>
                           )}
 
-                          <div
-                            className="
-                              divide-y
-                              divide-[rgba(0,0,0,0.06)]
-                              dark:divide-[#fff]/25
-                            "
-                          >
+                          <div className="divide-y divide-[rgba(0,0,0,0.06)] dark:divide-[#fff]/25">
                             {itemsSub.map((item) => {
                               const shownDesc =
                                 isFridayMenu && isIncluye
-                                  ? fridayDescOverride(
-                                      item.name,
-                                      item.description,
-                                      fridayData
-                                    )
+                                  ? fridayDescOverride(item.name, item.description, fridayData)
                                   : item.description ?? "";
 
                               if (isFridayMenu && isIncluye) {
@@ -614,16 +550,7 @@ export default function MenuClient() {
                                       </Badge>
                                     )}
 
-                                    <div
-                                      className="
-                                        flex-1
-                                        border-b
-                                        border-dotted
-                                        border-[rgba(0,0,0,0.35)]
-                                        dark:border-[rgba(255,247,227,0.35)]
-                                        mx-2
-                                      "
-                                    />
+                                    <div className="flex-1 border-b border-dotted border-[rgba(0,0,0,0.35)] dark:border-[rgba(255,247,227,0.35)] mx-2" />
 
                                     <span className="font-semibold text-sm md:text-base whitespace-nowrap text-[#1d2f59] dark:text-[#fff7e3]">
                                       {formatCurrency(item.price)}
@@ -664,14 +591,7 @@ export default function MenuClient() {
           })}
 
           {filteredItems.length === 0 && (
-            <p
-              className="
-                text-sm
-                text-center
-                text-[#1d2f59]/70
-                dark:text-[#fff7e3]/70
-              "
-            >
+            <p className="text-sm text-center text-[#1d2f59]/70 dark:text-[#fff7e3]/70">
               No encontramos platos que coincidan con la búsqueda.
             </p>
           )}
