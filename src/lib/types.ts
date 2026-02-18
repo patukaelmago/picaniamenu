@@ -1,7 +1,11 @@
 // src/lib/types.ts
+import type { Timestamp } from "firebase/firestore";
 
 export type DietaryTag = "sin TACC" | "veggie";
 export type SpecialTag = "Especial" | "Sin stock";
+
+// Firestore suele devolver Timestamp; a veces vos lo convertís a Date.
+export type FirestoreDate = Date | Timestamp;
 
 // -------------------------
 // 🥩 MENU ITEMS
@@ -22,8 +26,8 @@ export interface MenuItem {
   allergens: string[];
   searchKeywords: string[];
   order: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: FirestoreDate;
+  updatedAt: FirestoreDate;
 }
 
 // Tipo auxiliar para formularios (crear/editar)
@@ -37,9 +41,8 @@ export interface Category {
   name: string;
   order: number;
   isVisible: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  // NUEVO: categoría padre (para subcategorías, ej. bodegas dentro de “Vinos”)
+  createdAt: FirestoreDate;
+  updatedAt: FirestoreDate;
   parentCategoryId?: string | null;
 }
 
@@ -55,5 +58,5 @@ export interface RestaurantSettings {
     secondary: string;
     accent: string;
   };
-  publishedAt: Date | null;
+  publishedAt: FirestoreDate | null;
 }

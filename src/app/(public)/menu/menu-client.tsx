@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
-import Link from "next/link";
 
 import { getFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
@@ -58,13 +57,14 @@ function fridayDescOverride(
   const n = norm(itemName);
 
   if (n === "entrada") return fridayData?.entrada ?? "";
-  if (n === "postre o cafe" || n === "postre" || n === "cafe")
-    return fridayData?.postre ?? "";
+  if (n === "postre o cafe" || n === "postre" || n === "cafe") return fridayData?.postre ?? "";
 
   return originalDesc ?? "";
 }
 
-export default function MenuClient() {
+type Props = { tenantId: string };
+
+export default function MenuClient({ tenantId }: Props) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -100,27 +100,25 @@ export default function MenuClient() {
   useEffect(() => {
     (async () => {
       try {
-        const data = await listMenuItems();
+        const data = await listMenuItems(tenantId);
         setMenuItems(data.filter((i) => i.isVisible !== false));
       } catch (e) {
         console.error("Error cargando menú desde Firestore", e);
       }
     })();
-  }, []);
+  }, [tenantId]);
 
   useEffect(() => {
     (async () => {
       try {
-        const cats = await listCategories();
-        const ordered = cats
-          .slice()
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        const cats = await listCategories(tenantId);
+        const ordered = cats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
         setCategories(ordered);
       } catch (e) {
         console.error("Error cargando categorías desde Firestore", e);
       }
     })();
-  }, []);
+  }, [tenantId]);
 
   const rootCategories = useMemo(
     () => categories.filter((c) => !c.parentCategoryId && c.isVisible !== false),
@@ -136,9 +134,7 @@ export default function MenuClient() {
       }
     });
 
-    Object.values(map).forEach((arr) =>
-      arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    );
+    Object.values(map).forEach((arr) => arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
     return map;
   }, [categories]);
 
@@ -189,9 +185,7 @@ export default function MenuClient() {
     const isSuggestion = (name: string) => norm(name) === "sugerencia del dia";
 
     if (selectedCategory !== "all") {
-      return rootCategories.filter(
-        (c) => c.id === selectedCategory && !isSuggestion(c.name)
-      );
+      return rootCategories.filter((c) => c.id === selectedCategory && !isSuggestion(c.name));
     }
 
     return rootCategories
@@ -205,6 +199,37 @@ export default function MenuClient() {
         return hasDirectItems || hasChildItems;
       });
   }, [rootCategories, childCategoriesByParent, filteredItems, selectedCategory]);
+
+  // ✅ FIX: scrollear por hash SOLO una vez (y limpiar hash para que no quede "por default" al refrescar)
+  const didHashScrollRef = useRef(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (didHashScrollRef.current) return;
+
+    const hash = window.location.hash;
+    if (!hash) return;
+
+    const id = hash.slice(1);
+    let tries = 0;
+
+    const interval = window.setInterval(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+        didHashScrollRef.current = true;
+        window.clearInterval(interval);
+
+        // Limpia el hash para que al refrescar NO te mande de nuevo ahí
+        const clean = window.location.pathname + window.location.search;
+        window.history.replaceState(null, "", clean);
+      }
+
+      tries++;
+      if (tries > 15) window.clearInterval(interval);
+    }, 100);
+
+    return () => window.clearInterval(interval);
+  }, [visibleRootCategories.length]);
 
   const carouselImages = useMemo(() => {
     const sugCat = categories.find((c) => norm(c.name) === "sugerencia del dia");
@@ -244,10 +269,11 @@ export default function MenuClient() {
     return () => window.clearInterval(id);
   }, [carouselImages, mounted]);
 
-  // ✅ si cambia el set de imágenes, reseteamos el loaded map para que no “aparezcan” antes de cargar
+  // ✅ resetear loadedSlides SOLO si cambian las URLs (no en cada render)
+  const carouselKey = useMemo(() => carouselImages.map((i) => i.src).join("|"), [carouselImages]);
   useEffect(() => {
     setLoadedSlides({});
-  }, [carouselImages]);
+  }, [carouselKey]);
 
   return (
     <main className="min-h-screen bg-background">
@@ -260,11 +286,19 @@ export default function MenuClient() {
                   <img
                     key={`${img.src}-${idx}`}
                     src={img.src}
-                    alt="" // ✅ evita que se vea “Plato”
+                    alt=""
                     data-ai-hint={img.hint}
-                    onLoad={() =>
-                      setLoadedSlides((p) => ({ ...p, [idx]: true }))
-                    }
+                    loading="eager"
+                    decoding="async"
+                    onLoad={() => setLoadedSlides((p) => ({ ...p, [idx]: true }))}
+                    onError={() => setLoadedSlides((p) => ({ ...p, [idx]: true }))}
+                    ref={(el) => {
+                      if (!el) return;
+                      // cache: a veces onLoad no dispara
+                      if (el.complete) {
+                        setLoadedSlides((p) => (p[idx] ? p : { ...p, [idx]: true }));
+                      }
+                    }}
                     className={[
                       "absolute inset-0 h-full w-full object-cover",
                       "transition-opacity duration-700 ease-out",
@@ -299,13 +333,32 @@ export default function MenuClient() {
           <div className="w-full">
             <div className="grid w-full items-center gap-3 md:grid-cols-[1fr_auto_1fr]">
               <div className="hidden md:block" />
+
               <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
                 Nuestra Carta
               </h1>
 
               <div className="flex justify-center md:justify-end py-4 md:pt-8 ">
                 <Button
-                  asChild
+                  onClick={() => {
+                    const el = document.getElementById("menu-viernes");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                      return;
+                    }
+
+                    // si todavía no renderizó (async), reintenta un toque
+                    let tries = 0;
+                    const interval = window.setInterval(() => {
+                      const e = document.getElementById("menu-viernes");
+                      if (e) {
+                        e.scrollIntoView({ behavior: "smooth", block: "start" });
+                        window.clearInterval(interval);
+                      }
+                      tries++;
+                      if (tries > 15) window.clearInterval(interval);
+                    }, 100);
+                  }}
                   className="
                     rounded-sm
                     px-5
@@ -323,10 +376,8 @@ export default function MenuClient() {
                     ease-out
                   "
                 >
-                  <Link href="/menu#menu-viernes" className="flex items-center gap-2">
-                    Almuerzo Viernes
-                    <span className="text-xs opacity-60">▾</span>
-                  </Link>
+                  Almuerzo Viernes
+                  <span className="text-xs opacity-60 ml-2">▾</span>
                 </Button>
               </div>
             </div>
@@ -367,9 +418,7 @@ export default function MenuClient() {
             const isFridayMenu =
               normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes";
 
-            const parentItems = filteredItems.filter(
-              (item) => item.categoryId === category.id
-            );
+            const parentItems = filteredItems.filter((item) => item.categoryId === category.id);
 
             return (
               <section
@@ -489,23 +538,16 @@ export default function MenuClient() {
                     )}
 
                     {childCats.map((sub) => {
-                      const itemsSub = filteredItems.filter(
-                        (item) => item.categoryId === sub.id
-                      );
+                      const itemsSub = filteredItems.filter((item) => item.categoryId === sub.id);
                       if (itemsSub.length === 0) return null;
 
                       const isIncluye = norm(sub.name) === "incluye";
                       const showSubTitle = sub.isVisible !== false;
 
                       return (
-                        <div
-                          key={sub.id}
-                          className="border-b border-[rgba(0,0,0,0.08)] pb-3"
-                        >
+                        <div key={sub.id} className="border-b border-[rgba(0,0,0,0.08)] pb-3">
                           {showSubTitle && (
-                            <p
-                              className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-[rgba(0,0,0,0.7)] dark:text-[#d9b36c]"
-                            >
+                            <p className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-[rgba(0,0,0,0.7)] dark:text-[#d9b36c]">
                               {sub.name}
                             </p>
                           )}

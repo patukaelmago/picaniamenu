@@ -12,18 +12,22 @@ import {
   serverTimestamp,
   onSnapshot,
   where,
+  type QueryConstraint,
 } from "firebase/firestore";
 import { db } from "./firebase";
 import type { MenuItem, MenuItemInput } from "./types";
 
-// Colección de Firestore
-const menuCollection = collection(db, "menuItems");
+// ✅ tenants/{tenantId}/menuItems
+function menuCollection(tenantId: string) {
+  if (!tenantId) throw new Error("menu-service: tenantId requerido");
+  return collection(db, "tenants", tenantId, "menuItems");
+}
 
 // =========================
 // Leer una vez (lista)
 // =========================
-export async function listMenuItems(): Promise<MenuItem[]> {
-  const q = query(menuCollection, orderBy("order", "asc"));
+export async function listMenuItems(tenantId: string): Promise<MenuItem[]> {
+  const q = query(menuCollection(tenantId), orderBy("order", "asc"));
   const snapshot = await getDocs(q);
 
   return snapshot.docs.map((d) => {
@@ -53,9 +57,12 @@ export async function listMenuItems(): Promise<MenuItem[]> {
 // =========================
 // CRUD
 // =========================
-export async function createMenuItem(input: MenuItemInput): Promise<string> {
+export async function createMenuItem(
+  tenantId: string,
+  input: MenuItemInput
+): Promise<string> {
   const now = serverTimestamp();
-  const docRef = await addDoc(menuCollection, {
+  const docRef = await addDoc(menuCollection(tenantId), {
     ...input,
     createdAt: now,
     updatedAt: now,
@@ -64,18 +71,19 @@ export async function createMenuItem(input: MenuItemInput): Promise<string> {
 }
 
 export async function updateMenuItem(
+  tenantId: string,
   id: string,
   input: Partial<MenuItemInput>
 ): Promise<void> {
-  const ref = doc(db, "menuItems", id);
+  const ref = doc(db, "tenants", tenantId, "menuItems", id);
   await updateDoc(ref, {
     ...input,
     updatedAt: serverTimestamp(),
   });
 }
 
-export async function deleteMenuItem(id: string): Promise<void> {
-  const ref = doc(db, "menuItems", id);
+export async function deleteMenuItem(tenantId: string, id: string): Promise<void> {
+  const ref = doc(db, "tenants", tenantId, "menuItems", id);
   await deleteDoc(ref);
 }
 
@@ -83,19 +91,18 @@ export async function deleteMenuItem(id: string): Promise<void> {
 // 🔊 Escucha en tiempo real
 // =========================
 export function listenMenuItems(
+  tenantId: string,
   cb: (items: MenuItem[]) => void,
   opts?: { onlyVisible?: boolean; onlyInStock?: boolean }
 ) {
-  let qRef = query(menuCollection, orderBy("order", "asc"));
+  const constraints: QueryConstraint[] = [];
 
-  const filters: any[] = [];
-  if (opts?.onlyVisible) filters.push(where("isVisible", "==", true));
-  if (opts?.onlyInStock) filters.push(where("inStock", "==", true));
+  if (opts?.onlyVisible) constraints.push(where("isVisible", "==", true));
+  if (opts?.onlyInStock) constraints.push(where("inStock", "==", true));
 
-  if (filters.length) {
-    // @ts-ignore — se permite spread con filtros
-    qRef = query(menuCollection, ...filters, orderBy("order", "asc"));
-  }
+  constraints.push(orderBy("order", "asc"));
+
+  const qRef = query(menuCollection(tenantId), ...constraints);
 
   const unsub = onSnapshot(qRef, (snap) => {
     const list = snap.docs.map((d) => {

@@ -1,6 +1,20 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,12 +35,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   PlusCircle,
   Pencil,
@@ -37,13 +46,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 import {
-  listCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "@/lib/categories-service";
-import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
-import {
   Sheet,
   SheetContent,
   SheetDescription,
@@ -53,28 +55,21 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
-import Image from "next/image";
+
+import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { generateSearchKeywords } from "@/ai/flows/generate-search-keywords";
 import { useToast } from "@/hooks/use-toast";
-import {
-  listMenuItems,
-  createMenuItem,
-  updateMenuItem,
-  deleteMenuItem,
-} from "@/lib/menu-service";
 
-const TENANT_ID = "picana";
+type Props = { tenantId: string };
 
-
-const formatCurrency = (price: number) => {
-  return new Intl.NumberFormat("es-AR", {
+const formatCurrency = (price: number) =>
+  new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: "ARS",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
-};
 
 const emptyItem: MenuItemInput = {
   name: "",
@@ -100,30 +95,39 @@ function arrayMove<T>(arr: T[], from: number, to: number) {
   return copy;
 }
 
+function norm(s: string) {
+  return (s ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
 
-export default function AdminMenuPage() {
+export default function MenuManager({ tenantId }: Props) {
+  const { toast } = useToast();
+
+  // ========= STATE =========
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // crear categoría
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
+
+  // expand/collapse padres
   const [openParents, setOpenParents] = useState<Record<string, boolean>>({});
+  const toggleParent = (id: string) =>
+    setOpenParents((p) => ({ ...p, [id]: !p[id] }));
 
-  function toggleParent(id: string) {
-    setOpenParents((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  }
-  
-
-  // ✅ Filtro por categoría padre (Items)
+  // filtro items por padre
   const [parentFilterId, setParentFilterId] = useState<string>("");
 
-  // Drag & drop de categorías (AHORA SOLO PADRES)
+  // drag & drop padres
   const [dragRootIndex, setDragRootIndex] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  // Modal/edición de categorías
+  // editar categoría
   const [catEditingId, setCatEditingId] = useState<string | null>(null);
   const [catModalOpen, setCatModalOpen] = useState(false);
   const [catForm, setCatForm] = useState<{
@@ -133,26 +137,122 @@ export default function AdminMenuPage() {
     parentCategoryId: string | null;
   }>({ name: "", order: 0, isVisible: true, parentCategoryId: null });
 
-  // CREAR ITEM
+  // crear item
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // EDITAR ITEM
+  // editar item
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
 
-  // Ordenamiento de items
+  // orden items
   const [sortMode, setSortMode] = useState<"auto" | "manual">("manual");
-  const [searchTerm, setSearchTerm] = useState(""); // 🔍 search admin
+  const [searchTerm, setSearchTerm] = useState("");
   const [dragItem, setDragItem] = useState<MenuItem | null>(null);
   const [isSavingItemsOrder, setIsSavingItemsOrder] = useState(false);
 
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  // ========= FIRESTORE REFS =========
+  const catsCol = useMemo(
+    () => collection(db, "tenants", tenantId, "categories"),
+    [tenantId]
+  );
+  const itemsCol = useMemo(
+    () => collection(db, "tenants", tenantId, "menuItems"),
+    [tenantId]
+  );
 
-  // ========= Indexes útiles =========
+  // ========= LOADERS =========
+  async function loadCategories() {
+    const q = query(catsCol, orderBy("order", "asc"));
+    const snap = await getDocs(q);
+
+    const data = snap.docs.map((d) => {
+      const raw: any = d.data();
+      const isVisible =
+        typeof raw.isVisible === "boolean"
+          ? raw.isVisible
+          : typeof raw.active === "boolean"
+          ? raw.active
+          : true;
+
+      return {
+        id: d.id,
+        name: raw.name ?? "",
+        order: typeof raw.order === "number" ? raw.order : Number(raw.order) || 0,
+        isVisible,
+        parentCategoryId: raw.parentCategoryId ?? null,
+      } as Category;
+    });
+
+    setCategories(data);
+
+    setParentFilterId((prev) => {
+      if (prev) return prev;
+      const fridayParent = data.find(
+        (c) =>
+          !c.parentCategoryId &&
+          (norm(c.name) === "almuerzo viernes" || norm(c.name) === "menu viernes")
+      );
+      return fridayParent?.id ?? "";
+    });
+  }
+
+  async function loadItems() {
+    const q = query(itemsCol, orderBy("order", "asc"));
+    const snap = await getDocs(q);
+
+    const data = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as any[];
+
+    setItems(
+      data.map(
+        (x: any) =>
+          ({
+            id: x.id,
+            name: x.name ?? "",
+            description: x.description ?? "",
+            price: Number(x.price ?? 0),
+            currency: x.currency ?? "ARS",
+            imageUrl: x.imageUrl ?? "",
+            imageId: x.imageId ?? "",
+            categoryId: x.categoryId ?? "",
+            isVisible: x.isVisible ?? true,
+            inStock: x.inStock ?? true,
+            isSpecial: x.isSpecial ?? false,
+            tags: x.tags ?? [],
+            allergens: x.allergens ?? [],
+            searchKeywords: x.searchKeywords ?? [],
+            order: Number(x.order ?? 0),
+          } as MenuItem)
+      )
+    );
+  }
+
+  async function reloadAll() {
+    await Promise.all([loadCategories(), loadItems()]);
+  }
+
+  useEffect(() => {
+    const run = async () => {
+      try {
+        await reloadAll();
+      } catch (e) {
+        console.error(e);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo cargar la data del tenant.",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenantId]);
+
+  // ========= INDEXES =========
   const categoryById = useMemo(() => {
     const m = new Map<string, Category>();
     categories.forEach((c) => m.set(c.id, c));
@@ -173,7 +273,6 @@ export default function AdminMenuPage() {
       m.set(c.parentCategoryId, arr);
     });
 
-    // ordenar hijos por order
     m.forEach((arr, key) => {
       m.set(
         key,
@@ -184,13 +283,11 @@ export default function AdminMenuPage() {
     return m;
   }, [categories]);
 
-  const sortedRootCategories = useMemo(() => {
-    return rootCategories
-      .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  }, [rootCategories]);
+  const sortedRootCategories = useMemo(
+    () => rootCategories.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    [rootCategories]
+  );
 
-  // ✅ Lista plana "visual" para selects (Padre + Hijos indentados)
   const categoryOptions = useMemo(() => {
     const options: Array<{
       id: string;
@@ -200,12 +297,7 @@ export default function AdminMenuPage() {
     }> = [];
 
     sortedRootCategories.forEach((parent) => {
-      options.push({
-        id: parent.id,
-        label: parent.name,
-        isChild: false,
-        parentId: null,
-      });
+      options.push({ id: parent.id, label: parent.name, isChild: false, parentId: null });
 
       const kids = childrenByParent.get(parent.id) ?? [];
       kids.forEach((child) => {
@@ -218,103 +310,20 @@ export default function AdminMenuPage() {
       });
     });
 
-    // si hay categorías huérfanas (parentId inexistente), las agregamos al final
-    const orphan = categories
-      .filter(
-        (c) =>
-          !!c.parentCategoryId && !categoryById.get(c.parentCategoryId ?? "")
-      )
-      .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-    if (orphan.length) {
-      options.push({
-        id: "__orphan_title__",
-        label: "— Subcategorías (sin padre) —",
-        isChild: false,
-        parentId: null,
-      });
-      orphan.forEach((c) => {
-        options.push({
-          id: c.id,
-          label: `↳ ${c.name}`,
-          isChild: true,
-          parentId: c.parentCategoryId ?? null,
-        });
-      });
-    }
-
     return options;
-  }, [sortedRootCategories, childrenByParent, categories, categoryById]);
+  }, [sortedRootCategories, childrenByParent]);
 
-  // Cargar platos desde Firestore al montar
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const data = await listMenuItems(TENANT_ID);
-        setItems(data);
-      } catch (e) {
-        console.error(e);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se pudieron cargar los platos desde la base.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    load();
-  }, [toast]);
+  function getItemParentId(item: MenuItem): string | null {
+    const cat = categoryById.get(item.categoryId);
+    if (!cat) return null;
+    return cat.parentCategoryId ?? cat.id;
+  }
 
-  //helper//
-  const norm = (s: string) =>
-    (s ?? "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim();
-  
-  // Cargar categorías desde Firestore al montar
-  useEffect(() => {
-    const loadCats = async () => {
-      try {
-        const cats = await listCategories(TENANT_ID);
-        setCategories(cats);
-  
-        // ✅ DEFAULT: ALMUERZO VIERNES (solo si todavía está en "Todas")
-        const fridayParent = cats.find(
-          (c) =>
-            !c.parentCategoryId &&
-            (norm(c.name) === "almuerzo viernes" || norm(c.name) === "menu viernes")
-        );
-  
-        setParentFilterId((prev) => prev || (fridayParent?.id ?? ""));
-      } catch (e) {
-        console.error(e);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "No se pudieron cargar las categorías.",
-        });
-      }
-    };
-  
-    loadCats();
-  }, [toast]);
-  
-
-  // ===== Helpers items =====
-  function onChangeCreate<K extends keyof MenuItemInput>(
-    key: K,
-    value: MenuItemInput[K]
-  ) {
+  // ========= FORM HELPERS =========
+  function onChangeCreate<K extends keyof MenuItemInput>(key: K, value: MenuItemInput[K]) {
     setCreateForm((p) => ({ ...p, [key]: value }));
   }
-  function onChangeEdit<K extends keyof MenuItemInput>(
-    key: K,
-    value: MenuItemInput[K]
-  ) {
+  function onChangeEdit<K extends keyof MenuItemInput>(key: K, value: MenuItemInput[K]) {
     setEditForm((p) => ({ ...p, [key]: value }));
   }
 
@@ -322,63 +331,48 @@ export default function AdminMenuPage() {
     setIsGenerating(true);
     try {
       const keywords = await generateSearchKeywords({
-        name: createOpen
-          ? createForm.name || "Bife de Chorizo"
-          : editForm.name || "Bife de Chorizo",
+        name: createOpen ? createForm.name || "Bife de Chorizo" : editForm.name || "Bife de Chorizo",
         tags: ["carne", "parrilla"],
         category: "Parrilla",
       });
+
       if (createOpen) {
-        setCreateForm((prev) => ({
-          ...prev,
-          searchKeywords: keywords.searchKeywords,
-        }));
+        setCreateForm((prev) => ({ ...prev, searchKeywords: keywords.searchKeywords }));
       } else {
-        setEditForm((prev) => ({
-          ...prev,
-          searchKeywords: keywords.searchKeywords,
-        }));
+        setEditForm((prev) => ({ ...prev, searchKeywords: keywords.searchKeywords }));
       }
+
       toast({
         title: "Keywords generadas",
         description: `Se generaron: ${keywords.searchKeywords.join(", ")}`,
       });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudieron generar las keywords.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudieron generar las keywords." });
     } finally {
       setIsGenerating(false);
     }
   }
 
-  async function reloadItems() {
-    const data = await listMenuItems(TENANT_ID);
-    setItems(data);
-  }
-
-  // Crear
+  // ========= ITEMS CRUD =========
   async function handleCreateItem() {
     try {
-      await createMenuItem(TENANT_ID, createForm);
+      await addDoc(itemsCol, {
+        ...createForm,
+        order: Number(createForm.order ?? 0),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
       toast({ title: "Plato creado" });
       setCreateForm(emptyItem);
       setCreateOpen(false);
-      await reloadItems();
+      await loadItems();
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo crear el plato.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo crear el plato." });
     }
   }
 
-  // Abrir edición
   function handleStartEdit(item: MenuItem) {
     setEditId(item.id);
     setEditForm({
@@ -400,75 +394,80 @@ export default function AdminMenuPage() {
     setEditOpen(true);
   }
 
-  // Guardar edición
   async function handleUpdateItem() {
     if (!editId) return;
     try {
-      await updateMenuItem(TENANT_ID, editId, editForm);
+      await updateDoc(doc(itemsCol, editId), {
+        ...editForm,
+        order: Number(editForm.order ?? 0),
+        updatedAt: serverTimestamp(),
+      });
       toast({ title: "Plato actualizado" });
       setEditOpen(false);
       setEditId(null);
       setEditForm(emptyItem);
-      await reloadItems();
+      await loadItems();
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar el plato.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el plato." });
     }
   }
 
-  async function handleDelete(id: string) {
+  async function handleDeleteItem(id: string) {
     if (!confirm("¿Eliminar este plato?")) return;
     try {
-      await deleteMenuItem(TENANT_ID, id);
+      await deleteDoc(doc(itemsCol, id));
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast({ title: "Plato eliminado" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar el plato.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar el plato." });
     }
   }
 
-  // Crear categoría (desde el dashboard)
+  async function handleToggleItem(
+    id: string,
+    field: "inStock" | "isVisible" | "isSpecial",
+    value: boolean
+  ) {
+    setItems((prev) => prev.map((it) => (it.id === id ? ({ ...it, [field]: value } as MenuItem) : it)));
+    try {
+      await updateDoc(doc(itemsCol, id), { [field]: value, updatedAt: serverTimestamp() });
+    } catch (e) {
+      console.error(e);
+      setItems((prev) => prev.map((it) => (it.id === id ? ({ ...it, [field]: !value } as MenuItem) : it)));
+      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el estado del item." });
+    }
+  }
+
+  // ========= CATEGORIES CRUD =========
   async function onCreateCategory() {
     const name = formCatName.trim();
     if (!name) return;
 
     try {
       const nextOrder =
-        categories.length === 0
-          ? 0
-          : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
+        categories.length === 0 ? 0 : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
 
-      await createCategory(TENANT_ID,{
+      await addDoc(catsCol, {
         name,
         order: nextOrder,
         isVisible: true,
         parentCategoryId: formCatParentId || null,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
       });
+
       setFormCatName("");
       setFormCatParentId("");
-      const cats = await listCategories(TENANT_ID);
-      setCategories(cats);
+      await loadCategories();
       toast({ title: "Categoría creada" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo crear la categoría.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo crear la categoría." });
     }
   }
 
-  // ====== Categorías: editar / eliminar / toggle visible ======
   function startEditCategory(cat: Category) {
     setCatEditingId(cat.id);
     setCatForm({
@@ -483,79 +482,58 @@ export default function AdminMenuPage() {
   async function saveCategoryEdit() {
     if (!catEditingId) return;
     try {
-      await updateCategory(TENANT_ID, catEditingId, {
+      await updateDoc(doc(catsCol, catEditingId), {
         name: catForm.name.trim(),
         order: Number(catForm.order) || 0,
         isVisible: catForm.isVisible,
         parentCategoryId: catForm.parentCategoryId ?? null,
+        updatedAt: serverTimestamp(),
       });
+
       setCatModalOpen(false);
       setCatEditingId(null);
-      const cats = await listCategories(TENANT_ID);
-      setCategories(cats);
+      await loadCategories();
       toast({ title: "Categoría actualizada" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar la categoría.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar la categoría." });
     }
   }
 
   async function onToggleVisible(cat: Category, value: boolean) {
-    setCategories((prev) =>
-      prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c))
-    );
+    setCategories((prev) => prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c)));
     try {
-      await updateCategory(TENANT_ID, cat.id, { isVisible: value });
+      await updateDoc(doc(catsCol, cat.id), { isVisible: value, updatedAt: serverTimestamp() });
     } catch (e) {
-      setCategories((prev) =>
-        prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c))
-      );
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo cambiar la visibilidad.",
-      });
+      setCategories((prev) => prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c)));
+      toast({ variant: "destructive", title: "Error", description: "No se pudo cambiar la visibilidad." });
     }
   }
 
   async function onDeleteCategory(cat: Category) {
     if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
     try {
-      await deleteCategory(TENANT_ID, cat.id);
+      await deleteDoc(doc(catsCol, cat.id));
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
       toast({ title: "Categoría eliminada" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo eliminar la categoría.",
-      });
+      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar la categoría." });
     }
   }
-  // ============================================================
 
-  // ====== Drag & Drop de CATEGORÍAS PADRES (orden) ======
+  // ========= DnD PADRES =========
   function handleRootDragStart(index: number) {
     setDragRootIndex(index);
   }
 
-  function handleRootDragOver(
-    e: React.DragEvent<HTMLDivElement>,
-    overIndex: number
-  ) {
+  function handleRootDragOver(e: React.DragEvent<HTMLDivElement>, overIndex: number) {
     e.preventDefault();
     if (dragRootIndex === null || dragRootIndex === overIndex) return;
 
-    // reordenamos SOLO padres (local)
     const moved = arrayMove(sortedRootCategories, dragRootIndex, overIndex);
 
-    // aplicamos el nuevo orden a categories (solo order de padres)
     setCategories((prev) => {
       const next = prev.slice();
       moved.forEach((cat, i) => {
@@ -575,71 +553,26 @@ export default function AdminMenuPage() {
     try {
       setIsSavingOrder(true);
 
-      const parents = rootCategories
-        .slice()
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-      await Promise.all(
-        parents.map((c, i) => updateCategory(TENANT_ID, c.id, { order: i }))
-      );
+      const parents = rootCategories.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      await Promise.all(parents.map((c, i) => updateDoc(doc(catsCol, c.id), { order: i, updatedAt: serverTimestamp() })));
 
       toast({ title: "Orden de categorías padre guardado" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo guardar el nuevo orden.",
-      });
-
-      const fresh = await listCategories(TENANT_ID);
-      setCategories(fresh);
+      toast({ variant: "destructive", title: "Error", description: "No se pudo guardar el nuevo orden." });
+      await loadCategories();
     } finally {
       setIsSavingOrder(false);
     }
   }
-  // ============================================================
 
-  // ✅ FUNCIÓN: handleToggleItem
-  async function handleToggleItem(
-    id: string,
-    field: "inStock" | "isVisible" | "isSpecial",
-    value: boolean
-  ) {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? ({ ...item, [field]: value } as MenuItem) : item
-      )
-    );
-
-    try {
-      await updateMenuItem(TENANT_ID, id, { [field]: value });
-    } catch (e) {
-      console.error(e);
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === id ? ({ ...item, [field]: !value } as MenuItem) : item
-        )
-      );
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar el estado del item.",
-      });
-    }
-  }
-  // ============================================================
-
-  // ====== Drag & Drop de ITEMS (orden manual) ======
+  // ========= DnD ITEMS =========
   function handleDragItemStart(item: MenuItem) {
     if (sortMode !== "manual") return;
     setDragItem(item);
   }
 
-  function handleDragItemOver(
-    e: React.DragEvent<HTMLTableRowElement>,
-    targetItem: MenuItem
-  ) {
+  function handleDragItemOver(e: React.DragEvent<HTMLTableRowElement>, targetItem: MenuItem) {
     if (sortMode !== "manual") return;
     e.preventDefault();
     if (!dragItem) return;
@@ -657,12 +590,9 @@ export default function AdminMenuPage() {
       const [moved] = updated.splice(fromIndex, 1);
       updated.splice(toIndex, 0, moved);
 
-      // recalcular orden solo dentro de esa categoría
       let orderCounter = 0;
       updated.forEach((i) => {
-        if (i.categoryId === categoryId) {
-          i.order = orderCounter++;
-        }
+        if (i.categoryId === categoryId) i.order = orderCounter++;
       });
 
       return updated;
@@ -685,59 +615,44 @@ export default function AdminMenuPage() {
 
       await Promise.all(
         affected.map((item) =>
-          updateMenuItem(TENANT_ID, item.id, { order: item.order ?? 0 })
+          updateDoc(doc(itemsCol, item.id), { order: item.order ?? 0, updatedAt: serverTimestamp() })
         )
       );
 
       toast({ title: "Orden de items guardado" });
     } catch (e) {
       console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo guardar el orden de los items.",
-      });
-      await reloadItems();
+      toast({ variant: "destructive", title: "Error", description: "No se pudo guardar el orden de los items." });
+      await loadItems();
     } finally {
       setIsSavingItemsOrder(false);
       setDragItem(null);
     }
   }
-  // ============================================================
 
-  // ====== FUNCIONES DE ORDENAMIENTO ======
+  // ========= SORT + FILTER =========
   function autoSortItems(localItems: MenuItem[], localCats: Category[]) {
     const grouped = new Map<string, MenuItem[]>();
-
     localItems.forEach((i) => {
       const arr = grouped.get(i.categoryId) ?? [];
       arr.push(i);
       grouped.set(i.categoryId, arr);
     });
 
-    const sortedCategories = localCats
-      .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedCategories = localCats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const result: MenuItem[] = [];
-
     sortedCategories.forEach((cat) => {
       const arr = grouped.get(cat.id);
       if (!arr) return;
-
       arr
         .slice()
-        .sort((a, b) =>
-          a.name.localeCompare(b.name, "es", { sensitivity: "base" })
-        )
+        .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }))
         .forEach((item) => result.push(item));
     });
 
-    // por si hay items con categoría inexistente
     localItems.forEach((item) => {
-      if (!result.find((r) => r.id === item.id)) {
-        result.push(item);
-      }
+      if (!result.find((r) => r.id === item.id)) result.push(item);
     });
 
     return result;
@@ -745,60 +660,38 @@ export default function AdminMenuPage() {
 
   function manualSortItems(localItems: MenuItem[], localCats: Category[]) {
     const grouped = new Map<string, MenuItem[]>();
-
     localItems.forEach((i) => {
       const arr = grouped.get(i.categoryId) ?? [];
       arr.push(i);
       grouped.set(i.categoryId, arr);
     });
 
-    const sortedCategories = localCats
-      .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedCategories = localCats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const result: MenuItem[] = [];
-
     sortedCategories.forEach((cat) => {
       let arr = grouped.get(cat.id);
       if (!arr) return;
 
-      arr = arr
-        .slice()
-        .sort((a, b) => {
-          const orderA = a.order ?? 0;
-          const orderB = b.order ?? 0;
-          if (orderA !== orderB) return orderA - orderB;
-          return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
-        });
+      arr = arr.slice().sort((a, b) => {
+        const oa = a.order ?? 0;
+        const ob = b.order ?? 0;
+        if (oa !== ob) return oa - ob;
+        return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+      });
 
       arr.forEach((item) => result.push(item));
     });
 
-    // items con categoría inválida al final
     localItems.forEach((item) => {
-      if (!result.find((r) => r.id === item.id)) {
-        result.push(item);
-      }
+      if (!result.find((r) => r.id === item.id)) result.push(item);
     });
 
     return result;
   }
 
-  // 1) ordenamos según modo
-  const baseSortedItems =
-    sortMode === "auto"
-      ? autoSortItems(items, categories)
-      : manualSortItems(items, categories);
-
-  // 2) aplicamos filtro de búsqueda
+  const baseSortedItems = sortMode === "auto" ? autoSortItems(items, categories) : manualSortItems(items, categories);
   const normalizedSearch = searchTerm.trim().toLowerCase();
-
-  // ✅ helper: determinar el padre de un item (por su categoría)
-  function getItemParentId(item: MenuItem): string | null {
-    const cat = categoryById.get(item.categoryId);
-    if (!cat) return null;
-    return cat.parentCategoryId ?? cat.id; // si es padre, su "padre" es ella misma
-  }
 
   const filteredBySearch = !normalizedSearch
     ? baseSortedItems
@@ -807,30 +700,21 @@ export default function AdminMenuPage() {
         const name = item.name.toLowerCase();
         const catName = (category?.name ?? "").toLowerCase();
 
-        // también buscamos por nombre del padre
         const parentId = getItemParentId(item);
-        const parentName = parentId
-          ? (categoryById.get(parentId)?.name ?? "").toLowerCase()
-          : "";
+        const parentName = parentId ? (categoryById.get(parentId)?.name ?? "").toLowerCase() : "";
 
-        return (
-          name.includes(normalizedSearch) ||
-          catName.includes(normalizedSearch) ||
-          parentName.includes(normalizedSearch)
-        );
+        return name.includes(normalizedSearch) || catName.includes(normalizedSearch) || parentName.includes(normalizedSearch);
       });
 
-  // ✅ 3) filtro por categoría padre (si está seleccionado)
-  const sortedItems = !parentFilterId
-    ? filteredBySearch
-    : filteredBySearch.filter((item) => getItemParentId(item) === parentFilterId);
+  const sortedItems = !parentFilterId ? filteredBySearch : filteredBySearch.filter((item) => getItemParentId(item) === parentFilterId);
 
+  // ========= UI =========
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
-          Agregá, editá y organizá las categorías y platos de tu restaurante.
+          Tenant: <span className="font-medium">{tenantId}</span>
         </p>
       </div>
 
@@ -847,10 +731,8 @@ export default function AdminMenuPage() {
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>Administrá todos los items de tu menú.</CardDescription>
 
-              {/* Header: buscador + filtro padre + botón agregar  */}
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-                  {/* 🔍 BUSCADOR */}
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Buscar:</Label>
                     <Input
@@ -861,7 +743,6 @@ export default function AdminMenuPage() {
                     />
                   </div>
 
-                  {/* ✅ FILTRO POR CATEGORÍA PADRE */}
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Categoría padre:</Label>
                     <select
@@ -877,14 +758,25 @@ export default function AdminMenuPage() {
                       ))}
                     </select>
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm">Orden:</Label>
+                    <select
+                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      value={sortMode}
+                      onChange={(e) => setSortMode(e.target.value as any)}
+                    >
+                      <option value="manual">Manual</option>
+                      <option value="auto">A-Z</option>
+                    </select>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-3">
                   {isSavingItemsOrder && (
-                    <span className="text-xs text-muted-foreground">
-                      Guardando orden de items…
-                    </span>
+                    <span className="text-xs text-muted-foreground">Guardando orden de items…</span>
                   )}
+
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
                     <SheetTrigger asChild>
                       <Button onClick={() => setCreateForm(emptyItem)}>
@@ -893,13 +785,10 @@ export default function AdminMenuPage() {
                       </Button>
                     </SheetTrigger>
 
-                    {/* Modal CREAR */}
                     <SheetContent className="sm:max-w-lg overflow-y-auto">
                       <SheetHeader>
                         <SheetTitle>Agregar Nuevo Item</SheetTitle>
-                        <SheetDescription>
-                          Completá los detalles del plato o bebida.
-                        </SheetDescription>
+                        <SheetDescription>Completá los detalles del plato o bebida.</SheetDescription>
                       </SheetHeader>
 
                       <div className="grid gap-4 py-4">
@@ -923,9 +812,7 @@ export default function AdminMenuPage() {
                             id="c-description"
                             className="col-span-3"
                             value={createForm.description}
-                            onChange={(e) =>
-                              onChangeCreate("description", e.target.value)
-                            }
+                            onChange={(e) => onChangeCreate("description", e.target.value)}
                           />
                         </div>
 
@@ -938,13 +825,10 @@ export default function AdminMenuPage() {
                             type="number"
                             className="col-span-3"
                             value={createForm.price}
-                            onChange={(e) =>
-                              onChangeCreate("price", Number(e.target.value))
-                            }
+                            onChange={(e) => onChangeCreate("price", Number(e.target.value))}
                           />
                         </div>
 
-                        {/* ✅ SELECT de categoría: padres + subcategorías */}
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="c-category" className="text-right">
                             Categoría
@@ -953,18 +837,14 @@ export default function AdminMenuPage() {
                             id="c-category"
                             className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
                             value={createForm.categoryId}
-                            onChange={(e) =>
-                              onChangeCreate("categoryId", e.target.value)
-                            }
+                            onChange={(e) => onChangeCreate("categoryId", e.target.value)}
                           >
                             <option value="">Elegí una categoría…</option>
-                            {categoryOptions
-                              .filter((o) => o.id !== "__orphan_title__")
-                              .map((o) => (
-                                <option key={o.id} value={o.id}>
-                                  {o.label}
-                                </option>
-                              ))}
+                            {categoryOptions.map((o) => (
+                              <option key={o.id} value={o.id}>
+                                {o.label}
+                              </option>
+                            ))}
                           </select>
                         </div>
 
@@ -981,9 +861,7 @@ export default function AdminMenuPage() {
                         </div>
 
                         <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                          {isGenerating && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          )}
+                          {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                           Generar Keywords con IA
                         </Button>
                       </div>
@@ -1021,13 +899,12 @@ export default function AdminMenuPage() {
                       <TableHead className="w-[100px]">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
+
                   <TableBody>
                     {sortedItems.map((item) => {
                       const category = categories.find((c) => c.id === item.categoryId);
                       const parentId = getItemParentId(item);
-                      const parentName = parentId
-                        ? categoryById.get(parentId)?.name
-                        : undefined;
+                      const parentName = parentId ? categoryById.get(parentId)?.name : undefined;
 
                       const image = PlaceHolderImages.find((p) => p.id === item.imageId);
 
@@ -1051,9 +928,9 @@ export default function AdminMenuPage() {
                               />
                             )}
                           </TableCell>
+
                           <TableCell className="font-medium">{item.name}</TableCell>
 
-                          {/* ✅ Mostrar Padre > Sub */}
                           <TableCell>
                             {parentName && category?.parentCategoryId ? (
                               <span className="text-sm">
@@ -1067,37 +944,31 @@ export default function AdminMenuPage() {
                           </TableCell>
 
                           <TableCell>{formatCurrency(item.price)}</TableCell>
+
                           <TableCell>
                             <Switch
-                              checked={item.isVisible}
-                              onCheckedChange={(v) =>
-                                handleToggleItem(item.id, "isVisible", v)
-                              }
+                              checked={!!item.isVisible}
+                              onCheckedChange={(v) => handleToggleItem(item.id, "isVisible", v)}
                             />
                           </TableCell>
+
                           <TableCell>
                             <Switch
-                              checked={item.isSpecial}
-                              onCheckedChange={(v) =>
-                                handleToggleItem(item.id, "isSpecial", v)
-                              }
+                              checked={!!item.isSpecial}
+                              onCheckedChange={(v) => handleToggleItem(item.id, "isSpecial", v)}
                             />
                           </TableCell>
 
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleStartEdit(item)}
-                              >
+                              <Button variant="ghost" size="icon" onClick={() => handleStartEdit(item)}>
                                 <Pencil className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="icon"
                                 className="text-destructive"
-                                onClick={() => handleDelete(item.id)}
+                                onClick={() => handleDeleteItem(item.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
@@ -1112,14 +983,12 @@ export default function AdminMenuPage() {
             </CardContent>
           </Card>
 
-          {/* Modal EDITAR (se abre con ✏️) */}
+          {/* EDIT ITEM */}
           <Sheet open={editOpen} onOpenChange={setEditOpen}>
             <SheetContent className="sm:max-w-lg overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Editar Item</SheetTitle>
-                <SheetDescription>
-                  Actualizá los datos del plato o bebida.
-                </SheetDescription>
+                <SheetDescription>Actualizá los datos del plato o bebida.</SheetDescription>
               </SheetHeader>
 
               <div className="grid gap-4 py-4">
@@ -1160,7 +1029,6 @@ export default function AdminMenuPage() {
                   />
                 </div>
 
-                {/* ✅ SELECT de categoría: padres + subcategorías */}
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="e-category" className="text-right">
                     Categoría
@@ -1172,13 +1040,11 @@ export default function AdminMenuPage() {
                     onChange={(e) => onChangeEdit("categoryId", e.target.value)}
                   >
                     <option value="">Elegí una categoría…</option>
-                    {categoryOptions
-                      .filter((o) => o.id !== "__orphan_title__")
-                      .map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.label}
-                        </option>
-                      ))}
+                    {categoryOptions.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1195,9 +1061,7 @@ export default function AdminMenuPage() {
                 </div>
 
                 <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                  {isGenerating && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Generar Keywords con IA
                 </Button>
               </div>
@@ -1212,289 +1076,233 @@ export default function AdminMenuPage() {
             </SheetContent>
           </Sheet>
         </TabsContent>
-        {/* ============ /ITEMS ============ */}
 
-       {/* ============ CATEGORÍAS ============ */}
-<TabsContent value="categories" className="mt-6">
-  <Card>
-    <CardHeader>
-      <CardTitle>Categorías del Menú</CardTitle>
-      <CardDescription>Organizá las secciones de tu menú.</CardDescription>
-    </CardHeader>
+        {/* ============ CATEGORÍAS ============ */}
+        <TabsContent value="categories" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Categorías del Menú</CardTitle>
+              <CardDescription>Organizá las secciones de tu menú.</CardDescription>
+            </CardHeader>
 
-    <CardContent>
-      {/* Formulario crear categoría */}
-      <div className="mb-4 flex flex-wrap items-end gap-3">
-        <div className="grid gap-2">
-          <Label htmlFor="new-cat-name">Nombre</Label>
-          <Input
-            id="new-cat-name"
-            placeholder="Ej: Entradas"
-            value={formCatName}
-            onChange={(e) => setFormCatName(e.target.value)}
-          />
-        </div>
+            <CardContent>
+              <div className="mb-4 flex flex-wrap items-end gap-3">
+                <div className="grid gap-2">
+                  <Label htmlFor="new-cat-name">Nombre</Label>
+                  <Input
+                    id="new-cat-name"
+                    placeholder="Ej: Entradas"
+                    value={formCatName}
+                    onChange={(e) => setFormCatName(e.target.value)}
+                  />
+                </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="new-cat-parent">Categoría padre</Label>
-          <select
-            id="new-cat-parent"
-            className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
-            value={formCatParentId}
-            onChange={(e) => setFormCatParentId(e.target.value)}
-          >
-            <option value="">Ninguna (categoría principal)</option>
-            {sortedRootCategories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="grid gap-2">
-          <Label className="invisible">.</Label>
-          <Button onClick={onCreateCategory}>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Crear
-          </Button>
-        </div>
-      </div>
-
-      {/* Lista de categorías: PADRES + HIJAS indentadas */}
-      {categories.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Aún no hay categorías. Creá la primera arriba 👆
-        </p>
-      ) : (
-        <div className="space-y-3">
-          {sortedRootCategories.map((parent, index) => {
-            const children = childrenByParent.get(parent.id) ?? [];
-
-            return (
-              <div key={parent.id} className="space-y-2">
-                {/* PADRE */}
-                <div
-                  className="flex items-center justify-between p-3 bg-secondary rounded-md cursor-pointer select-none"
-                  draggable
-                  onClick={() => toggleParent(parent.id)}
-                  onDragStart={() => handleRootDragStart(index)}
-                  onDragOver={(e) => handleRootDragOver(e, index)}
-                  onDragEnd={handleRootDragEnd}
-                >
-                  <div className="flex items-center gap-3">
-                    {openParents[parent.id] ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-
-                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-
-                    <span className="font-semibold">{parent.name}</span>
-
-                    <span className="ml-2 rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
-                      Padre
-                    </span>
-
-                    {isSavingOrder && (
-                      <span className="text-xs text-muted-foreground">
-                        Guardando…
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 👇 clave: que esto NO cierre/abra cuando tocás switch o botones */}
-                  <div
-                    className="flex items-center gap-4"
-                    onClick={(e) => e.stopPropagation()}
+                <div className="grid gap-2">
+                  <Label htmlFor="new-cat-parent">Categoría padre</Label>
+                  <select
+                    id="new-cat-parent"
+                    className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
+                    value={formCatParentId}
+                    onChange={(e) => setFormCatParentId(e.target.value)}
                   >
-                    <div className="flex items-center space-x-2">
-                      <Label
-                        htmlFor={`visible-${parent.id}`}
-                        className="text-sm"
-                      >
-                        Visible
+                    <option value="">Ninguna (categoría principal)</option>
+                    {sortedRootCategories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label className="invisible">.</Label>
+                  <Button onClick={onCreateCategory}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Crear
+                  </Button>
+                </div>
+              </div>
+
+              {categories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Aún no hay categorías.</p>
+              ) : (
+                <div className="space-y-3">
+                  {sortedRootCategories.map((parent, index) => {
+                    const children = childrenByParent.get(parent.id) ?? [];
+                    return (
+                      <div key={parent.id} className="space-y-2">
+                        <div
+                          className="flex items-center justify-between p-3 bg-secondary rounded-md cursor-pointer select-none"
+                          draggable
+                          onClick={() => toggleParent(parent.id)}
+                          onDragStart={() => handleRootDragStart(index)}
+                          onDragOver={(e) => handleRootDragOver(e, index)}
+                          onDragEnd={handleRootDragEnd}
+                        >
+                          <div className="flex items-center gap-3">
+                            {openParents[parent.id] ? (
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            ) : (
+                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            )}
+
+                            <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
+                            <span className="font-semibold">{parent.name}</span>
+
+                            {isSavingOrder && (
+                              <span className="text-xs text-muted-foreground">Guardando…</span>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center space-x-2">
+                              <Label htmlFor={`visible-${parent.id}`} className="text-sm">
+                                Visible
+                              </Label>
+                              <Switch
+                                id={`visible-${parent.id}`}
+                                checked={!!parent.isVisible}
+                                onCheckedChange={(v) => onToggleVisible(parent, v)}
+                              />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="icon" onClick={() => startEditCategory(parent)}>
+                                <Pencil className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="text-destructive"
+                                onClick={() => onDeleteCategory(parent)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {openParents[parent.id] &&
+                          children.map((child) => (
+                            <div
+                              key={child.id}
+                              className="ml-8 flex items-center justify-between p-3 bg-secondary/60 rounded-md border border-border/40"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-muted-foreground">↳</span>
+                                <span className="font-medium">{child.name}</span>
+                              </div>
+
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center space-x-2">
+                                  <Label htmlFor={`visible-${child.id}`} className="text-sm">
+                                    Visible
+                                  </Label>
+                                  <Switch
+                                    id={`visible-${child.id}`}
+                                    checked={!!child.isVisible}
+                                    onCheckedChange={(v) => onToggleVisible(child, v)}
+                                  />
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                  <Button variant="ghost" size="icon" onClick={() => startEditCategory(child)}>
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-destructive"
+                                    onClick={() => onDeleteCategory(child)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
+                <SheetContent className="sm:max-w-lg">
+                  <SheetHeader>
+                    <SheetTitle>Editar categoría</SheetTitle>
+                    <SheetDescription>Modificá el nombre, orden o visibilidad.</SheetDescription>
+                  </SheetHeader>
+
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-name" className="text-right">
+                        Nombre
                       </Label>
-                      <Switch
-                        id={`visible-${parent.id}`}
-                        checked={parent.isVisible}
-                        onCheckedChange={(v) => onToggleVisible(parent, v)}
+                      <Input
+                        id="cat-name"
+                        className="col-span-3"
+                        value={catForm.name}
+                        onChange={(e) => setCatForm((p) => ({ ...p, name: e.target.value }))}
                       />
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEditCategory(parent)}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-order" className="text-right">
+                        Orden
+                      </Label>
+                      <Input
+                        id="cat-order"
+                        type="number"
+                        className="col-span-3"
+                        value={catForm.order}
+                        onChange={(e) => setCatForm((p) => ({ ...p, order: Number(e.target.value) }))}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="cat-parent" className="text-right">
+                        Categoría padre
+                      </Label>
+                      <select
+                        id="cat-parent"
+                        className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                        value={catForm.parentCategoryId ?? ""}
+                        onChange={(e) => setCatForm((p) => ({ ...p, parentCategoryId: e.target.value || null }))}
                       >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive"
-                        onClick={() => onDeleteCategory(parent)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                        <option value="">Ninguna (categoría principal)</option>
+                        {sortedRootCategories
+                          .filter((c) => c.id !== catEditingId)
+                          .map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                              {cat.name}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label className="text-right">Visible</Label>
+                      <div className="col-span-3">
+                        <Switch
+                          checked={catForm.isVisible}
+                          onCheckedChange={(v) => setCatForm((p) => ({ ...p, isVisible: v }))}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* HIJAS (✅ se ocultan/abren con el padre) */}
-                {openParents[parent.id] &&
-                  children.map((child) => (
-                    <div
-                      key={child.id}
-                      className="ml-8 flex items-center justify-between p-3 bg-secondary/60 rounded-md border border-border/40"
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-muted-foreground">↳</span>
-                        <span className="font-medium">{child.name}</span>
-                        <span className="ml-2 rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
-                          Subcategoría
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Label
-                            htmlFor={`visible-${child.id}`}
-                            className="text-sm"
-                          >
-                            Visible
-                          </Label>
-                          <Switch
-                            id={`visible-${child.id}`}
-                            checked={child.isVisible}
-                            onCheckedChange={(v) =>
-                              onToggleVisible(child, v)
-                            }
-                          />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => startEditCategory(child)}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-destructive"
-                            onClick={() => onDeleteCategory(child)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Modal de edición de categoría */}
-      <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
-        <SheetContent className="sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle>Editar categoría</SheetTitle>
-            <SheetDescription>
-              Modificá el nombre, orden o visibilidad.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="cat-name" className="text-right">
-                Nombre
-              </Label>
-              <Input
-                id="cat-name"
-                className="col-span-3"
-                value={catForm.name}
-                onChange={(e) =>
-                  setCatForm((p) => ({ ...p, name: e.target.value }))
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="cat-order" className="text-right">
-                Orden
-              </Label>
-              <Input
-                id="cat-order"
-                type="number"
-                className="col-span-3"
-                value={catForm.order}
-                onChange={(e) =>
-                  setCatForm((p) => ({
-                    ...p,
-                    order: Number(e.target.value),
-                  }))
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="cat-parent" className="text-right">
-                Categoría padre
-              </Label>
-              <select
-                id="cat-parent"
-                className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
-                value={catForm.parentCategoryId ?? ""}
-                onChange={(e) =>
-                  setCatForm((p) => ({
-                    ...p,
-                    parentCategoryId: e.target.value || null,
-                  }))
-                }
-              >
-                <option value="">Ninguna (categoría principal)</option>
-                {sortedRootCategories
-                  .filter((c) => c.id !== catEditingId) // no se puede ser padre de sí misma
-                  .map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Visible</Label>
-              <div className="col-span-3">
-                <Switch
-                  checked={catForm.isVisible}
-                  onCheckedChange={(v) =>
-                    setCatForm((p) => ({ ...p, isVisible: v }))
-                  }
-                />
-              </div>
-            </div>
-          </div>
-
-          <SheetFooter>
-            <SheetClose asChild>
-              <Button variant="secondary">Cancelar</Button>
-            </SheetClose>
-            <Button onClick={saveCategoryEdit}>Guardar</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-    </CardContent>
-  </Card>
-</TabsContent>
-{/* ============ /CATEGORÍAS ============ */}
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Button variant="secondary">Cancelar</Button>
+                    </SheetClose>
+                    <Button onClick={saveCategoryEdit}>Guardar</Button>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

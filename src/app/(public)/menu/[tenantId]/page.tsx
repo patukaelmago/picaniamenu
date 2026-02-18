@@ -1,12 +1,13 @@
+import { notFound } from "next/navigation";
+import MenuClient from "../menu-client";
+import { isTenant } from "@/lib/tenants";
+
 export default function MenuTenantPage({
-    params,
-  }: {
-    params: { tenantId: string };
-  }) {
-    return (
-      <div style={{ padding: 40 }}>
-        <h1>Menu de {params.tenantId}</h1>
-      </div>
-    );
-  }
-  
+  params,
+}: {
+  params: { tenantId: string };
+}) {
+  if (!isTenant(params.tenantId)) return notFound();
+
+  return <MenuClient tenantId={params.tenantId} />;
+}

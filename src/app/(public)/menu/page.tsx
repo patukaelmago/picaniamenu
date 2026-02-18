@@ -1,7 +1,6 @@
-// src/app/menu/page.tsx
-import MenuClient from "../menu/menu-client";
+import { redirect } from "next/navigation";
+import { DEFAULT_TENANT } from "@/lib/tenants";
 
-export default function MenuPage() {
-  // MenuClient va a leer los platos desde Firestore
-  return <MenuClient />;
+export default function MenuIndex() {
+  redirect(`/menu/${DEFAULT_TENANT}`);
 }
