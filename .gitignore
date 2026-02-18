@@ -45,3 +45,9 @@ next-env.d.ts
 firebase-debug.log
 firestore-debug.log
 proyecto.zip
+
+# secrets
+secrets/
+**/secrets/
+*.json
+firebase-admin.json
