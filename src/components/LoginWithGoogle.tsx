@@ -29,7 +29,7 @@ export default function LoginWithGoogle() {
       console.log("Logueado:", result.user);
 
       // ✅ mandalo al admin home
-      router.replace("/admin");
+      router.replace("/admin/menu/picana");
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
 
