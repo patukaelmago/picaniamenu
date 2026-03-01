@@ -1,12 +1,9 @@
-# Firebase App Hosting configuration
-# https://firebase.google.com/docs/app-hosting/configure
-
-runConfig:
+zrunConfig:
   maxInstances: 1
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: "AIzaSyCK_WLBxq3bK2-LIc3MZEOCm1nHuEVDFey"
+    value: "AIzaSyCK_WLBxq3bK2-Lic3MZE0Cm1rHuEVDFey"
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "studio-4948282065-ea24d.firebaseapp.com"
