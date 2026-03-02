@@ -1,30 +1,40 @@
 "use client";
 
-import LoginWithGoogle from "@/components/LoginWithGoogle";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+// import { resolveTenantIdByEmail } from "@/lib/tenancy"; // si ya lo tenés
 
-export default function LoginPage() {
+export default function AdminLoginPage() {
+  const router = useRouter();
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        setChecking(false);
+        return;
+      }
+
+      // Si es single-tenant por ahora:
+      // router.replace("/admin");
+
+      // Si ya estás multitenant:
+      // const tenantId = await resolveTenantIdByEmail(user.email!);
+      // router.replace(`/admin/${tenantId}`);
+
+      router.replace("/admin/picana"); // TEMP: para probar hoy
+    });
+
+    return () => unsub();
+  }, [router]);
+
+  if (checking) return null; // o spinner
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-[#fff7e3]">
-      <div className="w-full max-w-md rounded-2xl border border-[#f0e0c0] bg-white/90 shadow-lg p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <p className="text-[11px] tracking-[0.25em] uppercase text-[#b28a4a]">
-            ADMIN 
-          </p>
-          <h1 className="text-2xl font-semibold text-[#1b3059]">
-            Iniciar sesión
-          </h1>
-          <p className="text-sm text-slate-500">
-            Usá tu cuenta de Google autorizada para administrar el menú del
-            restaurante.
-          </p>
-        </div>
-
-        <LoginWithGoogle />
-
-        <p className="text-[11px] text-center text-slate-400">
-          Al continuar aceptás el uso interno del panel de administración.
-        </p>
-      </div>
-    </div>
+    // ... tu UI de "Continuar con Google"
+    // (si ya está logueado, nunca llega acá)
+    <div />
   );
 }
