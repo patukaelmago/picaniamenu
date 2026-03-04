@@ -1,5 +1,6 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCK_WLBxq3bK2-LIc3MZEOCm1rHuEVDfeY",
@@ -10,6 +11,8 @@ const firebaseConfig = {
   appId: "1:542920346593:web:8637c324e4e1f1ad4160a0",
 };
 
-const app = initializeApp(firebaseConfig);
+// Evita “Firebase app already exists” en hot-reload
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);
+export const db = getFirestore(app);

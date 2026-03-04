@@ -8,7 +8,13 @@ import {
   setPersistence,
   browserLocalPersistence,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+} from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 
 export default function LoginWithGoogle() {
   const router = useRouter();
@@ -25,10 +31,30 @@ export default function LoginWithGoogle() {
 
       const result = await signInWithPopup(auth, provider);
 
-      console.log("Logueado:", result.user);
+      const email = (result.user.email ?? "").toLowerCase();
+      if (!email) throw new Error("No se pudo leer el email del usuario.");
 
-      // ✅ Redirige a ruta existente
-      router.replace("/admin/menu");
+      // 1) Superadmin => entra a cualquier tenant (default: picana)
+      const superSnap = await getDoc(doc(db, "superadmins", email));
+      if (superSnap.exists() && superSnap.data()?.enabled === true) {
+        router.replace("/admin/picana");
+        return;
+      }
+
+      // 2) Admin por tenant => buscamos primer tenant donde exista tenants/{id}/admins/{email}
+      const tenantsSnap = await getDocs(collection(db, "tenants"));
+
+      for (const t of tenantsSnap.docs) {
+        const tenantId = t.id;
+        const adminSnap = await getDoc(doc(db, "tenants", tenantId, "admins", email));
+        if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
+          router.replace(`/admin/${tenantId}`);
+          return;
+        }
+      }
+
+      // 3) No autorizado
+      alert("Tu correo no está autorizado para ningún restaurante.");
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
       alert(error?.message ?? "Error al iniciar sesión");
