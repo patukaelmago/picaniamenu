@@ -1,5 +1,5 @@
-import MenuManager from "@/components/admin/MenuManager";
+import { redirect } from "next/navigation";
 
 export default function AdminPicanaPage() {
-  return <MenuManager tenantId="picana" />;
+  redirect("/admin/import");
 }
