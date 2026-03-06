@@ -47,30 +47,20 @@ import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 
-/** ✅ Detecta tenant en tus rutas reales:
- * - /admin/menu/laroti
- * - /admin/qr/laroti
- * - /admin/settings/laroti
- * - /admin/laroti  (si alguna vez lo usás)
- */
 const getTenantIdFromPath = (pathname: string) => {
   const clean = (pathname || "").split("?")[0].replace(/\/+$/, "");
   const parts = clean.split("/").filter(Boolean);
 
-  // si existe, suele ser el último segmento
-  const last = parts[parts.length - 1];
-
-  // rutas conocidas sin tenant (por si cae en /admin/menu)
-  const reserved = new Set(["admin", "menu", "qr", "settings", "login"]);
-
-  if (last && !reserved.has(last)) return last;
-
-  // fallback: si tenés /admin/{tenant}
   const adminIdx = parts.indexOf("admin");
-  if (adminIdx >= 0 && parts.length > adminIdx + 1) {
-    const maybe = parts[adminIdx + 1];
-    if (maybe && !reserved.has(maybe)) return maybe;
-  }
+  if (adminIdx === -1) return "picana";
+
+  const reserved = new Set(["menu", "qr", "settings", "login"]);
+
+  const afterAdmin = parts[adminIdx + 1];
+  if (afterAdmin && !reserved.has(afterAdmin)) return afterAdmin;
+
+  const last = parts[parts.length - 1];
+  if (last && !reserved.has(last) && last !== "admin") return last;
 
   return "picana";
 };
@@ -79,18 +69,16 @@ export default function AdminSidebar() {
   const pathname = usePathname();
   const { state } = useSidebar();
 
-  // ✅ user real de Google
   const [user, setUser] = useState<User | null>(null);
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsub();
   }, []);
 
-  // ✅ tenant desde URL (AHORA BIEN)
   const tenantId = useMemo(() => getTenantIdFromPath(pathname), [pathname]);
   const ui = useMemo(() => getTenantUI(tenantId), [tenantId]);
 
-  // ✅ aplicamos colores por tenant (admin)
   useEffect(() => {
     const r = document.documentElement;
     r.style.setProperty("--nav-bg", ui.navBg);
@@ -98,11 +86,9 @@ export default function AdminSidebar() {
     r.style.setProperty("--accent", ui.accent);
   }, [ui.navBg, ui.navText, ui.accent]);
 
-  // ✅ logo por tenant + theme
   const { resolvedTheme } = useTheme();
   const logoSrc = resolvedTheme === "dark" ? ui.logoDark : ui.logoLight;
 
-  // ✅ tus rutas reales llevan tenant al final
   const navItems = useMemo(
     () =>
       [
@@ -111,9 +97,21 @@ export default function AdminSidebar() {
           label: "Almuerzo Viernes",
           icon: Sparkles,
         },
-        { href: `/admin/menu/${tenantId}`, label: "Menú", icon: UtensilsCrossed },
-        { href: `/admin/qr/${tenantId}`, label: "QR", icon: QrCode },
-        { href: `/admin/settings/${tenantId}`, label: "Ajustes", icon: Settings },
+        {
+          href: `/admin/${tenantId}/menu`,
+          label: "Menú",
+          icon: UtensilsCrossed,
+        },
+        {
+          href: `/admin/${tenantId}/qr`,
+          label: "QR",
+          icon: QrCode,
+        },
+        {
+          href: `/admin/${tenantId}/settings`,
+          label: "Ajustes",
+          icon: Settings,
+        },
       ].filter(Boolean) as Array<{
         href: string;
         label: string;
@@ -123,7 +121,6 @@ export default function AdminSidebar() {
   );
 
   const isActiveHref = (href: string) => {
-    if (href === `/admin/${tenantId}`) return pathname === `/admin/${tenantId}`;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
@@ -207,7 +204,7 @@ export default function AdminSidebar() {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="w-56 mb-2" align="end" forceMount>
+          <DropdownMenuContent className="mb-2 w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
@@ -223,15 +220,23 @@ export default function AdminSidebar() {
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
+
             <DropdownMenuItem>
               <UserIcon className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Ajustes</span>
+
+            <DropdownMenuItem asChild>
+              <Link href={`/admin/${tenantId}/settings`}>
+                <div className="flex items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Ajustes</span>
+                </div>
+              </Link>
             </DropdownMenuItem>
+
             <DropdownMenuSeparator />
+
             <DropdownMenuItem asChild>
               <Link href={`/menu/${tenantId}`}>
                 <div className="flex items-center">
