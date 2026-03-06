@@ -2,39 +2,61 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { auth } from "@/lib/firebase";
-// import { resolveTenantIdByEmail } from "@/lib/tenancy"; // si ya lo tenés
 
-export default function AdminLoginPage() {
+export default function LoginWithGoogle() {
   const router = useRouter();
   const [checking, setChecking] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
+    const unsub = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.replace("/admin/picana"); // TEMP
+      } else {
         setChecking(false);
-        return;
       }
-
-      // Si es single-tenant por ahora:
-      // router.replace("/admin");
-
-      // Si ya estás multitenant:
-      // const tenantId = await resolveTenantIdByEmail(user.email!);
-      // router.replace(`/admin/${tenantId}`);
-
-      router.replace("/admin/picana"); // TEMP: para probar hoy
     });
 
     return () => unsub();
   }, [router]);
 
-  if (checking) return null; // o spinner
+  const handleLogin = async () => {
+    try {
+      setLoading(true);
+
+      await setPersistence(auth, browserLocalPersistence);
+
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+
+      router.replace("/admin/picana"); // TEMP
+    } catch (error) {
+      console.error("Error en login:", error);
+      setLoading(false);
+    }
+  };
+
+  if (checking) {
+    return <div className="p-6">Cargando...</div>;
+  }
 
   return (
-    // ... tu UI de "Continuar con Google"
-    // (si ya está logueado, nunca llega acá)
-    <div />
+    <div className="flex min-h-screen items-center justify-center">
+      <button
+        onClick={handleLogin}
+        disabled={loading}
+        className="rounded-md bg-black px-4 py-2 text-white disabled:opacity-50"
+      >
+        {loading ? "Ingresando..." : "Continuar con Google"}
+      </button>
+    </div>
   );
 }
