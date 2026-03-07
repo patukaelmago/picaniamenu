@@ -93,7 +93,7 @@ export default function AdminSidebar() {
     () =>
       [
         ui.showFriday && {
-          href: `/admin/import`,
+          href: `/admin/`,
           label: "Almuerzo Viernes",
           icon: Sparkles,
         },
