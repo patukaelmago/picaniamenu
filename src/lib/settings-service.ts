@@ -2,25 +2,24 @@
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "./firebase";
 
-const settingsDocRef = doc(db, "settings", "restaurant");
-
 export type RestaurantSettings = {
   name: string;
   currency: string;
-  logoUrl: string; // URL final (de Storage o la que escribas a mano)
+  logoUrl: string;
 };
 
-/**
- * Lee la configuración del restaurante desde Firestore.
- * Si no existe, devuelve valores por defecto.
- */
-export async function getRestaurantSettings(): Promise<RestaurantSettings> {
-  const snap = await getDoc(settingsDocRef);
+function getSettingsDocRef(tenantId: string) {
+  return doc(db, "tenants", tenantId, "settings", "restaurant");
+}
+
+export async function getRestaurantSettings(
+  tenantId: string
+): Promise<RestaurantSettings> {
+  const snap = await getDoc(getSettingsDocRef(tenantId));
 
   if (!snap.exists()) {
-    // valores por defecto
     return {
-      name: "Picaña",
+      name: tenantId,
       currency: "ARS",
       logoUrl: "",
     };
@@ -29,21 +28,18 @@ export async function getRestaurantSettings(): Promise<RestaurantSettings> {
   const data = snap.data() as any;
 
   return {
-    name: data.name ?? "Picaña",
+    name: data.name ?? tenantId,
     currency: data.currency ?? "ARS",
     logoUrl: data.logoUrl ?? "",
   };
 }
 
-/**
- * Guarda la configuración del restaurante en Firestore.
- * NO sube archivos, solo guarda la URL resultante.
- */
 export async function saveRestaurantSettings(
+  tenantId: string,
   data: RestaurantSettings
 ): Promise<void> {
   await setDoc(
-    settingsDocRef,
+    getSettingsDocRef(tenantId),
     {
       name: data.name,
       currency: data.currency,
