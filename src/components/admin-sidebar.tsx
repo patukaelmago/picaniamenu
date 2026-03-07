@@ -54,7 +54,7 @@ const getTenantIdFromPath = (pathname: string) => {
   const adminIdx = parts.indexOf("admin");
   if (adminIdx === -1) return "picana";
 
-  const reserved = new Set(["menu", "qr", "settings", "login"]);
+  const reserved = new Set(["menu", "qr", "settings", "login", "import"]);
 
   const afterAdmin = parts[adminIdx + 1];
   if (afterAdmin && !reserved.has(afterAdmin)) return afterAdmin;
@@ -93,7 +93,7 @@ export default function AdminSidebar() {
     () =>
       [
         ui.showFriday && {
-          href: `/admin/${tenantId}`,
+          href: `/admin/import`,
           label: "Almuerzo Viernes",
           icon: Sparkles,
         },
