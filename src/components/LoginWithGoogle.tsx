@@ -1,5 +1,5 @@
 "use client";
-
+const SUPERADMINS = ["patriciouskaer@gmail.com"];
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
