@@ -1,6 +1,6 @@
 
 import { redirect } from "next/navigation";
 
-export default function LarotiRedirect() {
+export default function Redirect() {
   redirect("/admin/laroti/menu");
 }

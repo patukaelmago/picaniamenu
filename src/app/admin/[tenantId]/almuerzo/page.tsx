@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
+import { redirect } from "next/navigation";
 
 type FridayMenuData = {
   entrada: string;
@@ -25,6 +26,11 @@ export default function TenantAlmuerzoPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Solo Picaña tiene esta sección por ahora
+  if (tenantId !== "picana") {
+    redirect(`/admin/${tenantId}/menu`);
+  }
+
   useEffect(() => {
     const load = async () => {
       try {
@@ -32,7 +38,8 @@ export default function TenantAlmuerzoPage({
         const snap = await getDoc(ref);
         if (snap.exists()) {
           setData(snap.data() as FridayMenuData);
-        } else if (tenantId === "picana") {
+        } else {
+          // Fallback legacy para picana
           const legacyRef = doc(db, "menu_viernes", "data");
           const legacySnap = await getDoc(legacyRef);
           if (legacySnap.exists()) {

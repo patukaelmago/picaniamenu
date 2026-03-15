@@ -1,6 +1,6 @@
 
 import { redirect } from "next/navigation";
 
-export default function LiteralAlmuerzoRedirect() {
+export default function Redirect() {
   redirect("/admin");
 }

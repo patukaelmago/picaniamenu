@@ -1,9 +1,6 @@
-import MenuManager from "@/components/admin/MenuManager";
 
-export default function TenantMenuPage({
-  params,
-}: {
-  params: { tenantId: string };
-}) {
-  return <MenuManager tenantId={params.tenantId} />;
+import { redirect } from "next/navigation";
+
+export default function Redirect() {
+  redirect("/admin");
 }

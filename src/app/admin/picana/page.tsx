@@ -1,6 +1,6 @@
 
 import { redirect } from "next/navigation";
 
-export default function PicanaRedirect() {
+export default function Redirect() {
   redirect("/admin/picana/almuerzo");
 }
