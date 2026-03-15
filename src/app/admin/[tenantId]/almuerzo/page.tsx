@@ -1,4 +1,3 @@
-
 "use client";
 
 import { use, useEffect, useState } from "react";
@@ -9,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { toast } from "@/hooks/use-toast";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 type FridayMenuData = {
   entrada: string;
@@ -26,9 +25,9 @@ export default function TenantAlmuerzoPage({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Solo Picaña tiene esta sección por ahora
-  if (tenantId !== "picana") {
-    redirect(`/admin/${tenantId}/menu`);
+  // Lógica SaaS: Solo "picana" tiene acceso a esta sección
+  if (tenantId.toLowerCase() !== "picana") {
+    return notFound();
   }
 
   useEffect(() => {
@@ -39,7 +38,7 @@ export default function TenantAlmuerzoPage({
         if (snap.exists()) {
           setData(snap.data() as FridayMenuData);
         } else {
-          // Fallback legacy para picana
+          // Fallback legacy para picana si no existe en la nueva ruta
           const legacyRef = doc(db, "menu_viernes", "data");
           const legacySnap = await getDoc(legacyRef);
           if (legacySnap.exists()) {
@@ -76,8 +75,8 @@ export default function TenantAlmuerzoPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Configuración de Almuerzo</h1>
-        <p className="text-muted-foreground">Menú especial de los viernes para {tenantId}</p>
+        <h1 className="text-3xl font-bold font-headline text-[#1b3059]">Configuración de Almuerzo</h1>
+        <p className="text-muted-foreground">Gestión del menú especial de los viernes para Picaña</p>
       </div>
 
       <div className="grid gap-6 max-w-2xl">
@@ -103,7 +102,7 @@ export default function TenantAlmuerzoPage({
                 placeholder="Ej: Flan casero..."
               />
             </div>
-            <Button onClick={handleSave} disabled={saving} className="w-full">
+            <Button onClick={handleSave} disabled={saving} className="w-full bg-[#1b3059] hover:bg-[#1b3059]/90">
               {saving ? "Guardando..." : "Guardar Menú"}
             </Button>
           </CardContent>

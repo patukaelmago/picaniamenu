@@ -1,7 +1,6 @@
 export type TenantUI = {
     logoLight: string;
     logoDark: string;
-    // colores en HSL (sin hsl(...)) porque vos usás hsl(var(--...))
     navBg: string;
     navText: string;
     accent: string;
@@ -11,25 +10,29 @@ export type TenantUI = {
   const DEFAULT: TenantUI = {
     logoLight: "/logorecortado_azul.png",
     logoDark: "/logorecortado.png",
-    navBg: "210 52% 22%",   // azul
-    navText: "43 100% 94%", // cremita
+    navBg: "210 52% 22%",   // Azul oscuro
+    navText: "43 100% 94%", // Beige claro
     accent: "43 74% 64%",
-    showFriday: true,
+    showFriday: false,      // Por defecto desactivado para SaaS
   };
   
   const TENANTS: Record<string, Partial<TenantUI>> = {
+    picana: {
+      navBg: "210 52% 22%",
+      navText: "43 100% 94%",
+      accent: "43 74% 64%",
+      showFriday: true, // Solo Picaña tiene activado el almuerzo de viernes
+    },
     laroti: {
-      logoLight: "/laroti_logo_light.png",
-      logoDark: "/laroti_logo_dark.png",
       navBg: "40 25% 92%",
       navText: "210 35% 18%",
       accent: "18 70% 45%",
-      showFriday: false, // ✅ La Roti sin “Almuerzo Viernes”
+      showFriday: false,
     },
   };
   
   export function getTenantUI(tenantId?: string | null): TenantUI {
     const key = (tenantId ?? "").toLowerCase();
-    return { ...DEFAULT, ...(TENANTS[key] ?? {}) };
+    const config = TENANTS[key] || {};
+    return { ...DEFAULT, ...config };
   }
-  

@@ -13,36 +13,38 @@ export default function Header() {
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
         {/* LOGO CENTRADO */}
         <Link
-          href="https://picania-rosario.github.io/picania.github.io/"
+          href="/"
           className="
             absolute left-1/2 -translate-x-1/2
             flex items-center gap-3
             opacity-90
             transition-transform transition-opacity
             hover:opacity-100 hover:scale-105
-            dark:brightness-75
-  dark:hover:brightness-100
           "
         >
-          {settings?.logoUrl ? (
-            <>
-              {/* LOGO MODO CLARO (fondo nav oscuro -> logo claro) */}
-              <img
-                src="/logorecortado.png"
-                alt="Logo"
-                className="h-12 w-auto object-contain dark:hidden"
-              />
+          {/* Usamos rutas relativas a la raíz para evitar 404 en subrutas */}
+          <img
+            src="/logorecortado.png"
+            alt="Logo"
+            className="h-12 w-auto object-contain dark:hidden"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
 
-              {/* LOGO MODO OSCURO (fondo nav claro -> logo oscuro) */}
-              <img
-                src="/logorecortado_azul.png"
-                alt="Logo"
-                className="hidden h-12 w-auto object-contain dark:block"
-              />
-            </>
-          ) : (
-            <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
-          )}
+          <img
+            src="/logorecortado_azul.png"
+            alt="Logo Dark"
+            className="hidden h-12 w-auto object-contain dark:block"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+          
+          {/* Fallback si no hay imágenes o fallan */}
+          <span className="font-headline font-bold text-xl tracking-widest uppercase hidden [img:hidden~&]:block">
+            {settings?.name || "Menú"}
+          </span>
         </Link>
 
         {/* DERECHA: TOGGLE DE TEMA */}

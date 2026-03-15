@@ -1,4 +1,3 @@
-
 "use client";
 
 import { use, useEffect } from "react";
@@ -6,7 +5,7 @@ import { useRouter } from "next/navigation";
 
 /**
  * Página de inicio del admin de un tenant específico.
- * Redirige a la sección principal (Menú o Almuerzo).
+ * Redirige a la sección principal según el cliente.
  */
 export default function TenantAdminIndex({
   params,
@@ -17,8 +16,8 @@ export default function TenantAdminIndex({
   const router = useRouter();
 
   useEffect(() => {
-    // Redirección inteligente basada en el tenant
-    if (tenantId === "picana") {
+    // Redirección inteligente basada en el tenantId dinámico
+    if (tenantId.toLowerCase() === "picana") {
       router.replace(`/admin/${tenantId}/almuerzo`);
     } else {
       router.replace(`/admin/${tenantId}/menu`);
