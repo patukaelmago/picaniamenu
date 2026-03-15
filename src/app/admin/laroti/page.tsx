@@ -1,5 +1,14 @@
-import MenuManager from "@/components/admin/MenuManager";
+"use client";
 
-export default function AdminLarotiPage() {
-  return <MenuManager tenantId="laroti" />;
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+export default function LarotiRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/admin/laroti/menu");
+  }, [router]);
+
+  return null;
 }

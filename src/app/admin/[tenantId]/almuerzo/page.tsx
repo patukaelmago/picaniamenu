@@ -1,0 +1,99 @@
+"use client";
+
+import { use, useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { db } from "@/lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
+import { toast } from "@/hooks/use-toast";
+
+type FridayMenuData = {
+  entrada: string;
+  postre: string;
+};
+
+export default function TenantAlmuerzoPage({
+  params,
+}: {
+  params: Promise<{ tenantId: string }>;
+}) {
+  const { tenantId } = use(params);
+  const [data, setData] = useState<FridayMenuData>({ entrada: "", postre: "" });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        // En un SaaS real, esto podría estar dentro de la subcolección del tenant
+        // Por ahora lo mantengo compatible con tu estructura actual pero segmentado si es necesario
+        const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          setData(snap.data() as FridayMenuData);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [tenantId]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
+      await setDoc(ref, data, { merge: true });
+      toast({ title: "Menú guardado", description: "El menú de almuerzo se actualizó correctamente." });
+    } catch (e) {
+      toast({ variant: "destructive", title: "Error", description: "No se pudo guardar el menú." });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) return <p className="p-8 text-center">Cargando configuración de almuerzo...</p>;
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-3xl font-bold font-headline">Configuración de Almuerzo</h1>
+        <p className="text-muted-foreground">Especial para los viernes de {tenantId}</p>
+      </div>
+
+      <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Menú Especial</CardTitle>
+            <CardDescription>Definí la entrada y el postre rotativo.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label>Entrada del Día</Label>
+              <Input 
+                value={data.entrada} 
+                onChange={(e) => setData({ ...data, entrada: e.target.value })}
+                placeholder="Ej: Focaccia con hummus..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Postre o Café</Label>
+              <Input 
+                value={data.postre} 
+                onChange={(e) => setData({ ...data, postre: e.target.value })}
+                placeholder="Ej: Flan casero con dulce de leche..."
+              />
+            </div>
+            <Button onClick={handleSave} disabled={saving} className="w-full">
+              {saving ? "Guardando..." : "Guardar Menú de Almuerzo"}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
