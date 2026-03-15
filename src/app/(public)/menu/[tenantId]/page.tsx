@@ -1,3 +1,5 @@
+
+import { use } from "react";
 import { notFound } from "next/navigation";
 import MenuClient from "../menu-client";
 import { isTenant } from "@/lib/tenants";
@@ -5,9 +7,11 @@ import { isTenant } from "@/lib/tenants";
 export default function MenuTenantPage({
   params,
 }: {
-  params: { tenantId: string };
+  params: Promise<{ tenantId: string }>;
 }) {
-  if (!isTenant(params.tenantId)) return notFound();
+  const { tenantId } = use(params);
 
-  return <MenuClient tenantId={params.tenantId} />;
+  if (!isTenant(tenantId)) return notFound();
+
+  return <MenuClient tenantId={tenantId} />;
 }

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { use, useEffect, useState } from "react";
@@ -27,22 +28,18 @@ export default function TenantAlmuerzoPage({
   useEffect(() => {
     const load = async () => {
       try {
-        // Obtenemos los datos específicos del menú de viernes para este tenant
         const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
         const snap = await getDoc(ref);
         if (snap.exists()) {
           setData(snap.data() as FridayMenuData);
-        } else {
-          // Fallback legacy para picaña si aún no tiene su subcolección
-          if (tenantId === "picana") {
-            const legacyRef = doc(db, "menu_viernes", "data");
-            const legacySnap = await getDoc(legacyRef);
-            if (legacySnap.exists()) {
-              setData({
-                entrada: legacySnap.data().entrada ?? "",
-                postre: legacySnap.data().postre ?? "",
-              });
-            }
+        } else if (tenantId === "picana") {
+          const legacyRef = doc(db, "menu_viernes", "data");
+          const legacySnap = await getDoc(legacyRef);
+          if (legacySnap.exists()) {
+            setData({
+              entrada: legacySnap.data().entrada ?? "",
+              postre: legacySnap.data().postre ?? "",
+            });
           }
         }
       } catch (e) {
@@ -67,20 +64,20 @@ export default function TenantAlmuerzoPage({
     }
   };
 
-  if (loading) return <p className="p-8 text-center text-muted-foreground animate-pulse">Cargando configuración de almuerzo...</p>;
+  if (loading) return <p className="p-8 text-center text-muted-foreground animate-pulse">Cargando configuración...</p>;
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Configuración de Almuerzo</h1>
-        <p className="text-muted-foreground">Especial para los viernes de {tenantId}</p>
+        <p className="text-muted-foreground">Menú especial de los viernes para {tenantId}</p>
       </div>
 
       <div className="grid gap-6 max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>Menú Especial</CardTitle>
-            <CardDescription>Definí la entrada y el postre rotativo.</CardDescription>
+            <CardTitle>Menú del Viernes</CardTitle>
+            <CardDescription>Definí la entrada y el postre para este cliente.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -96,11 +93,11 @@ export default function TenantAlmuerzoPage({
               <Input 
                 value={data.postre} 
                 onChange={(e) => setData({ ...data, postre: e.target.value })}
-                placeholder="Ej: Flan casero con dulce de leche..."
+                placeholder="Ej: Flan casero..."
               />
             </div>
             <Button onClick={handleSave} disabled={saving} className="w-full">
-              {saving ? "Guardando..." : "Guardar Menú de Almuerzo"}
+              {saving ? "Guardando..." : "Guardar Menú"}
             </Button>
           </CardContent>
         </Card>
