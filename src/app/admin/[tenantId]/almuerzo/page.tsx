@@ -27,12 +27,23 @@ export default function TenantAlmuerzoPage({
   useEffect(() => {
     const load = async () => {
       try {
-        // En un SaaS real, esto podría estar dentro de la subcolección del tenant
-        // Por ahora lo mantengo compatible con tu estructura actual pero segmentado si es necesario
+        // Obtenemos los datos específicos del menú de viernes para este tenant
         const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
         const snap = await getDoc(ref);
         if (snap.exists()) {
           setData(snap.data() as FridayMenuData);
+        } else {
+          // Fallback legacy para picaña si aún no tiene su subcolección
+          if (tenantId === "picana") {
+            const legacyRef = doc(db, "menu_viernes", "data");
+            const legacySnap = await getDoc(legacyRef);
+            if (legacySnap.exists()) {
+              setData({
+                entrada: legacySnap.data().entrada ?? "",
+                postre: legacySnap.data().postre ?? "",
+              });
+            }
+          }
         }
       } catch (e) {
         console.error(e);
@@ -56,7 +67,7 @@ export default function TenantAlmuerzoPage({
     }
   };
 
-  if (loading) return <p className="p-8 text-center">Cargando configuración de almuerzo...</p>;
+  if (loading) return <p className="p-8 text-center text-muted-foreground animate-pulse">Cargando configuración de almuerzo...</p>;
 
   return (
     <div className="space-y-8">
@@ -65,7 +76,7 @@ export default function TenantAlmuerzoPage({
         <p className="text-muted-foreground">Especial para los viernes de {tenantId}</p>
       </div>
 
-      <div className="grid gap-6">
+      <div className="grid gap-6 max-w-2xl">
         <Card>
           <CardHeader>
             <CardTitle>Menú Especial</CardTitle>

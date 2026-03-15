@@ -130,7 +130,7 @@ export default function TenantSettingsPage({
     }
   }
 
-  if (isLoading) return <p className="p-8 text-center">Cargando ajustes...</p>;
+  if (isLoading) return <p className="p-8 text-center text-muted-foreground animate-pulse">Cargando ajustes...</p>;
 
   return (
     <div className="space-y-8">

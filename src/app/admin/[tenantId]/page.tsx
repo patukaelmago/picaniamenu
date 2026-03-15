@@ -3,6 +3,9 @@
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
+/**
+ * Redirección principal del tenant hacia su gestión de menú o almuerzo según corresponda.
+ */
 export default function TenantAdminIndex({
   params,
 }: {
@@ -12,9 +15,17 @@ export default function TenantAdminIndex({
   const router = useRouter();
 
   useEffect(() => {
-    // Redirigir por defecto a la gestión del menú
-    router.replace(`/admin/${tenantId}/menu`);
+    // Si es picania, mandamos a almuerzo por defecto, sino a menú
+    if (tenantId === "picana") {
+      router.replace(`/admin/${tenantId}/almuerzo`);
+    } else {
+      router.replace(`/admin/${tenantId}/menu`);
+    }
   }, [tenantId, router]);
 
-  return null;
+  return (
+    <div className="flex items-center justify-center p-10">
+      <p className="text-muted-foreground animate-pulse">Redirigiendo al panel...</p>
+    </div>
+  );
 }

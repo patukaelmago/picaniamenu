@@ -3,7 +3,10 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function PicanaRedirect() {
+/**
+ * Redirección de compatibilidad para evitar rutas literales duplicadas.
+ */
+export default function PicanaLiteralRedirect() {
   const router = useRouter();
 
   useEffect(() => {
