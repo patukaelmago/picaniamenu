@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
 
-import { getFridayData, type FridayData } from "@/lib/menu-viernes-service";
+import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems } from "@/lib/menu-service";
@@ -72,20 +72,16 @@ export default function MenuClient({ tenantId }: Props) {
     postre: "",
   });
 
+  // Suscripción en tiempo real al menú de viernes
   useEffect(() => {
     if (!ui.showFriday) return;
-    (async () => {
-      try {
-        const data = await getFridayData();
-        setFridayData({
-          entrada: data?.entrada ?? "",
-          postre: data?.postre ?? "",
-        });
-      } catch (e) {
-        console.error("Error cargando menu_viernes/data", e);
-      }
-    })();
-  }, [ui.showFriday]);
+    
+    const unsub = listenFridayData(tenantId, (data) => {
+      setFridayData(data);
+    });
+
+    return () => unsub();
+  }, [tenantId, ui.showFriday]);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
