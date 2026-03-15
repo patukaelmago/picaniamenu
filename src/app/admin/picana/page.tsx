@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation";
+import MenuManager from "@/components/admin/MenuManager";
 
 export default function AdminPicanaPage() {
-  redirect("/admin/tenantId/almuerzo");
+  return <MenuManager tenantId="picana" />;
 }
