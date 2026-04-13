@@ -72,10 +72,9 @@ export default function MenuClient({ tenantId }: Props) {
     postre: "",
   });
 
-  // Suscripción en tiempo real al menú de viernes
   useEffect(() => {
     if (!ui.showFriday) return;
-    
+
     const unsub = listenFridayData(tenantId, (data) => {
       setFridayData(data);
     });
@@ -370,7 +369,10 @@ export default function MenuClient({ tenantId }: Props) {
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
-                  <h2 className="font-headline text-[15px] md:text-base tracking-wide font-bold">
+                  <h2
+                    className="font-headline text-[15px] md:text-base tracking-wide font-bold"
+                    style={{ color: `hsl(${ui.navBg})` }} // <--- Cambiamos a navBg con hsl()
+                  >
                     {category.name}
                   </h2>
                   <div className="h-px w-full bg-border/10" />

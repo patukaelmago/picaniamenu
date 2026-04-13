@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "export",
   reactStrictMode: true,
   poweredByHeader: false,
 
@@ -21,6 +22,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
+  /* // ESTE BLOQUE SE COMENTA PORQUE 'output: export' NO PERMITE HEADERS DE SERVIDOR
   async headers() {
     return [
       {
@@ -34,6 +36,7 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  */
 };
 
 export default nextConfig;

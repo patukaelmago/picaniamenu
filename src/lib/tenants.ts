@@ -1,11 +1,7 @@
 export const DEFAULT_TENANT = "picana";
 
-export const TENANTS = {
-  picana: { name: "Picaña" },
-  laroti: { name: "La Roti" },
-  pulpo: { name: "Pulpo" },
-} as const;
+export const isTenant = (s: string): boolean => {
+  return typeof s === "string" && s.trim().length > 0;
+};
 
-export type TenantId = keyof typeof TENANTS;
-
-export const isTenant = (s: string): s is TenantId => s in TENANTS;
+export type TenantId = string;
