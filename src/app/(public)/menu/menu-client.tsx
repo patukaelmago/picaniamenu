@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
 
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
@@ -9,6 +10,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems } from "@/lib/menu-service";
 import { listCategories } from "@/lib/categories-service";
 import { getTenantUI } from "@/lib/tenant-ui";
+import { db } from "@/lib/firebase";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -72,6 +74,11 @@ export default function MenuClient({ tenantId }: Props) {
     postre: "",
   });
 
+  const [mounted, setMounted] = useState(false);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
+  const [tenantCarouselImages, setTenantCarouselImages] = useState<string[]>([]);
+
   useEffect(() => {
     if (!ui.showFriday) return;
 
@@ -82,11 +89,7 @@ export default function MenuClient({ tenantId }: Props) {
     return () => unsub();
   }, [tenantId, ui.showFriday]);
 
-  const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-
-  const [activeSlide, setActiveSlide] = useState(0);
-  const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     (async () => {
@@ -107,6 +110,32 @@ export default function MenuClient({ tenantId }: Props) {
         setCategories(ordered);
       } catch (e) {
         console.error("Error cargando categorías desde Firestore", e);
+      }
+    })();
+  }, [tenantId]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const ref = doc(db, "tenants", tenantId, "settings", "ui");
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) {
+          setTenantCarouselImages([]);
+          return;
+        }
+
+        const data = snap.data();
+        const images = Array.isArray(data?.carouselImages)
+          ? data.carouselImages.filter(
+              (img: unknown): img is string => typeof img === "string" && img.trim() !== ""
+            )
+          : [];
+
+        setTenantCarouselImages(images);
+      } catch (e) {
+        console.error("Error cargando carouselImages del tenant", e);
+        setTenantCarouselImages([]);
       }
     })();
   }, [tenantId]);
@@ -219,6 +248,14 @@ export default function MenuClient({ tenantId }: Props) {
   }, [visibleRootCategories.length]);
 
   const carouselImages = useMemo(() => {
+    if (tenantCarouselImages.length > 0) {
+      return tenantCarouselImages.map((src, idx) => ({
+        src,
+        alt: `Slide ${idx + 1}`,
+        hint: undefined,
+      }));
+    }
+
     const sugCat = categories.find((c) => norm(c.name) === "sugerencia del dia");
     const items = sugCat
       ? menuItems.filter((i) => i.categoryId === sugCat.id && i.isVisible !== false)
@@ -233,32 +270,32 @@ export default function MenuClient({ tenantId }: Props) {
       .slice(0, 6);
 
     if (imgs.length === 0) {
-      return [
-        { src: "https://picsum.photos/seed/1/600/400", alt: "Plato", hint: "food" as any },
-        { src: "https://picsum.photos/seed/2/600/400", alt: "Postre", hint: "dessert" as any },
-      ];
+      return [];
     }
 
     return imgs;
-  }, [categories, menuItems]);
+  }, [tenantCarouselImages, categories, menuItems]);
 
   useEffect(() => {
     if (!mounted) return;
-    if (!carouselImages?.length) return;
+    if (!carouselImages.length) return;
+
     const id = window.setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % carouselImages.length);
     }, 4500);
+
     return () => window.clearInterval(id);
   }, [carouselImages, mounted]);
 
   useEffect(() => {
     setLoadedSlides({});
+    setActiveSlide(0);
   }, [carouselImages]);
 
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
-        {mounted && (
+        {mounted && carouselImages.length > 0 && (
           <div className="w-full">
             <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
               <div className="relative h-[220px] md:h-[320px] w-full bg-muted/20">
@@ -266,9 +303,9 @@ export default function MenuClient({ tenantId }: Props) {
                   <img
                     key={`${img.src}-${idx}`}
                     src={img.src}
-                    alt=""
+                    alt={img.alt}
                     data-ai-hint={img.hint}
-                    loading="eager"
+                    loading={idx === 0 ? "eager" : "lazy"}
                     onLoad={() => setLoadedSlides((p) => ({ ...p, [idx]: true }))}
                     className={[
                       "absolute inset-0 h-full w-full object-cover",
@@ -287,9 +324,7 @@ export default function MenuClient({ tenantId }: Props) {
                     onClick={() => setActiveSlide(i)}
                     className={[
                       "h-1.5 w-1.5 rounded-full transition-all",
-                      i === activeSlide
-                        ? "bg-[#fff7e3]"
-                        : "bg-[#fff7e3]/50",
+                      i === activeSlide ? "bg-[#fff7e3]" : "bg-[#fff7e3]/50",
                     ].join(" ")}
                   />
                 ))}
@@ -300,7 +335,11 @@ export default function MenuClient({ tenantId }: Props) {
 
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
-            <div className={`grid w-full items-center gap-3 ${ui.showFriday ? 'md:grid-cols-[1fr_auto_1fr]' : 'md:grid-cols-1'}`}>
+            <div
+              className={`grid w-full items-center gap-3 ${
+                ui.showFriday ? "md:grid-cols-[1fr_auto_1fr]" : "md:grid-cols-1"
+              }`}
+            >
               {ui.showFriday && <div className="hidden md:block" />}
 
               <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
@@ -358,7 +397,8 @@ export default function MenuClient({ tenantId }: Props) {
             const normalizedForId = norm(category.name);
 
             const isFridayMenu =
-              (normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes") && ui.showFriday;
+              (normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes") &&
+              ui.showFriday;
 
             const parentItems = filteredItems.filter((item) => item.categoryId === category.id);
 
@@ -371,7 +411,7 @@ export default function MenuClient({ tenantId }: Props) {
                 <div className="space-y-1">
                   <h2
                     className="font-headline text-[15px] md:text-base tracking-wide font-bold"
-                    style={{ color: `hsl(${ui.navBg})` }} // <--- Cambiamos a navBg con hsl()
+                    style={{ color: `hsl(${ui.navBg})` }}
                   >
                     {category.name}
                   </h2>
@@ -386,7 +426,10 @@ export default function MenuClient({ tenantId }: Props) {
                           {item.name}
                         </span>
                         {item.isSpecial && (
-                          <Badge variant="outline" className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5">
+                          <Badge
+                            variant="outline"
+                            className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                          >
                             <SparklesIcon className="h-3 w-3" />
                             Especial
                           </Badge>
@@ -404,7 +447,11 @@ export default function MenuClient({ tenantId }: Props) {
                       {(item.tags ?? []).length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {(item.tags ?? []).map((tag) => (
-                            <Badge key={tag} variant="outline" className="flex items-center gap-1 text-[11px] px-2 py-0.5">
+                            <Badge
+                              key={tag}
+                              variant="outline"
+                              className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                            >
                               <TagIcon tag={tag} />
                               <span>{tag}</span>
                             </Badge>
@@ -450,7 +497,9 @@ export default function MenuClient({ tenantId }: Props) {
                           return (
                             <div key={item.id} className="py-3">
                               <div className="flex items-baseline gap-2">
-                                <span className="font-headline text-[15px] md:text-base tracking-wide">{item.name}</span>
+                                <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                  {item.name}
+                                </span>
                                 <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
                                 <span className="font-semibold text-sm md:text-base whitespace-nowrap">
                                   {formatCurrency(item.price)}
