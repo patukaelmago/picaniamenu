@@ -24,9 +24,9 @@ import {
   getDownloadURL,
   type UploadTask,
 } from "firebase/storage";
-import { ImagePlus, Trash2, Upload } from "lucide-react";
+import { GripVertical, ImagePlus, Trash2, Upload } from "lucide-react";
 
-const MAX_CAROUSEL_IMAGES = 6;
+const MAX_CAROUSEL_IMAGES = 10;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
 
 type CarouselDraft = {
@@ -34,6 +34,10 @@ type CarouselDraft = {
   file: File;
   previewUrl: string;
 };
+
+type CarouselItem =
+  | { kind: "saved"; id: string; url: string }
+  | { kind: "draft"; id: string; file: File; previewUrl: string };
 
 export default function TenantSettingsPage({
   params,
@@ -49,30 +53,20 @@ export default function TenantSettingsPage({
   const [logoUrlInput, setLogoUrlInput] = useState("");
   const [logoPreview, setLogoPreview] = useState<string>(DEFAULT_TENANT_LOGO);
 
-  const [carouselImages, setCarouselImages] = useState<string[]>([]);
-  const [carouselDrafts, setCarouselDrafts] = useState<CarouselDraft[]>([]);
+  const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState<number>(0);
 
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const carouselInputRef = useRef<HTMLInputElement | null>(null);
 
-  const totalCarouselCount = carouselImages.length + carouselDrafts.length;
+  const totalCarouselCount = carouselItems.length;
   const remainingSlots = MAX_CAROUSEL_IMAGES - totalCarouselCount;
-
-  const visibleCarouselPreviews = useMemo(
-    () => [
-      ...carouselImages.map((url) => ({ type: "saved" as const, url })),
-      ...carouselDrafts.map((draft) => ({
-        type: "draft" as const,
-        id: draft.id,
-        url: draft.previewUrl,
-      })),
-    ],
-    [carouselImages, carouselDrafts]
-  );
 
   useEffect(() => {
     const load = async () => {
@@ -98,9 +92,15 @@ export default function TenantSettingsPage({
               )
             : [];
 
-          setCarouselImages(images.slice(0, MAX_CAROUSEL_IMAGES));
+          setCarouselItems(
+            images.slice(0, MAX_CAROUSEL_IMAGES).map((url, index) => ({
+              kind: "saved",
+              id: `saved-${index}-${url}`,
+              url,
+            }))
+          );
         } else {
-          setCarouselImages([]);
+          setCarouselItems([]);
         }
       } catch (e) {
         console.error(e);
@@ -117,9 +117,13 @@ export default function TenantSettingsPage({
     load();
 
     return () => {
-      setCarouselDrafts((prev) => {
-        prev.forEach((draft) => URL.revokeObjectURL(draft.previewUrl));
-        return [];
+      setCarouselItems((prev) => {
+        prev.forEach((item) => {
+          if (item.kind === "draft") {
+            URL.revokeObjectURL(item.previewUrl);
+          }
+        });
+        return prev;
       });
     };
   }, [tenantId]);
@@ -145,7 +149,6 @@ export default function TenantSettingsPage({
 
   function handleCarouselFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files ?? []);
-
     if (!files.length) return;
 
     if (remainingSlots <= 0) {
@@ -167,26 +170,41 @@ export default function TenantSettingsPage({
       });
     }
 
-    const drafts: CarouselDraft[] = selected.map((file) => ({
-      id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    const drafts: CarouselItem[] = selected.map((file) => ({
+      kind: "draft",
+      id: `draft-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       file,
       previewUrl: URL.createObjectURL(file),
     }));
 
-    setCarouselDrafts((prev) => [...prev, ...drafts]);
+    setCarouselItems((prev) => [...prev, ...drafts]);
 
     if (carouselInputRef.current) carouselInputRef.current.value = "";
   }
 
-  function removeSavedCarouselImage(index: number) {
-    setCarouselImages((prev) => prev.filter((_, i) => i !== index));
+  function removeCarouselItem(id: string) {
+    setCarouselItems((prev) => {
+      const found = prev.find((item) => item.id === id);
+      if (found?.kind === "draft") {
+        URL.revokeObjectURL(found.previewUrl);
+      }
+      return prev.filter((item) => item.id !== id);
+    });
   }
 
-  function removeDraftCarouselImage(id: string) {
-    setCarouselDrafts((prev) => {
-      const found = prev.find((d) => d.id === id);
-      if (found) URL.revokeObjectURL(found.previewUrl);
-      return prev.filter((d) => d.id !== id);
+  function moveCarouselItem(fromId: string, toId: string) {
+    setCarouselItems((prev) => {
+      const fromIndex = prev.findIndex((item) => item.id === fromId);
+      const toIndex = prev.findIndex((item) => item.id === toId);
+
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+        return prev;
+      }
+
+      const copy = [...prev];
+      const [moved] = copy.splice(fromIndex, 1);
+      copy.splice(toIndex, 0, moved);
+      return copy;
     });
   }
 
@@ -225,22 +243,24 @@ export default function TenantSettingsPage({
         );
       }
 
-      const uploadedCarouselUrls: string[] = [];
+      const finalCarouselImages: string[] = [];
 
-      for (let i = 0; i < carouselDrafts.length; i++) {
-        const draft = carouselDrafts[i];
-        const ext = draft.file.name.split(".").pop() || "jpg";
+      for (let i = 0; i < carouselItems.length; i++) {
+        const item = carouselItems[i];
+
+        if (item.kind === "saved") {
+          finalCarouselImages.push(item.url);
+          continue;
+        }
+
+        const ext = item.file.name.split(".").pop() || "jpg";
         const url = await uploadFile(
-          draft.file,
+          item.file,
           `tenants/${tenantId}/carousel/carousel-${Date.now()}-${i}.${ext}`
         );
-        uploadedCarouselUrls.push(url);
-      }
 
-      const finalCarouselImages = [
-        ...carouselImages,
-        ...uploadedCarouselUrls,
-      ].slice(0, MAX_CAROUSEL_IMAGES);
+        finalCarouselImages.push(url);
+      }
 
       await saveRestaurantSettings(tenantId, {
         name: name.trim() || tenantId,
@@ -251,19 +271,30 @@ export default function TenantSettingsPage({
       await setDoc(
         doc(db, "tenants", tenantId, "settings", "ui"),
         {
-          carouselImages: finalCarouselImages,
+          carouselImages: finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES),
         },
         { merge: true }
       );
 
-      carouselDrafts.forEach((draft) => URL.revokeObjectURL(draft.previewUrl));
+      carouselItems.forEach((item) => {
+        if (item.kind === "draft") {
+          URL.revokeObjectURL(item.previewUrl);
+        }
+      });
 
       setLogoUrlInput(finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl);
       setLogoPreview(finalLogoUrl);
       setLogoFile(null);
-      setCarouselImages(finalCarouselImages);
-      setCarouselDrafts([]);
+      setCarouselItems(
+        finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES).map((url, index) => ({
+          kind: "saved",
+          id: `saved-${index}-${url}`,
+          url,
+        }))
+      );
       setProgress(0);
+      setDraggedId(null);
+      setDragOverId(null);
 
       if (fileInputRef.current) fileInputRef.current.value = "";
       if (carouselInputRef.current) carouselInputRef.current.value = "";
@@ -283,6 +314,16 @@ export default function TenantSettingsPage({
       setIsSaving(false);
     }
   }
+
+  const previewItems = useMemo(
+    () =>
+      carouselItems.map((item) => ({
+        id: item.id,
+        url: item.kind === "saved" ? item.url : item.previewUrl,
+        kind: item.kind,
+      })),
+    [carouselItems]
+  );
 
   if (isLoading) {
     return (
@@ -346,7 +387,7 @@ export default function TenantSettingsPage({
 
             <div className="space-y-2">
               <Label>Vista previa</Label>
-              <div className="flex h-28 items-center justify-center rounded-md border bg-muted/30 p-4 overflow-hidden">
+              <div className="flex h-24 items-center justify-center rounded-md border bg-muted/30 p-4 overflow-hidden">
                 <img
                   src={logoPreview}
                   alt="Preview logo"
@@ -361,7 +402,7 @@ export default function TenantSettingsPage({
           <CardHeader>
             <CardTitle>Carrusel</CardTitle>
             <CardDescription>
-              Hasta {MAX_CAROUSEL_IMAGES} imágenes. Se pueden cargar varias de una vez.
+              Hasta {MAX_CAROUSEL_IMAGES} imágenes. Podés cargar varias y arrastrarlas para ordenar.
             </CardDescription>
           </CardHeader>
 
@@ -383,42 +424,72 @@ export default function TenantSettingsPage({
               </p>
             </div>
 
-            {visibleCarouselPreviews.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4">
-                {visibleCarouselPreviews.map((item, index) => (
-                  <div
-                    key={item.type === "saved" ? `${item.url}-${index}` : item.id}
-                    className="space-y-2"
-                  >
-                    <div className="overflow-hidden rounded-md border bg-muted/30 aspect-[16/10]">
-                      <img
-                        src={item.url}
-                        alt={`Carousel ${index + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+            {previewItems.length > 0 ? (
+              <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                {previewItems.map((item, index) => {
+                  const isDragging = draggedId === item.id;
+                  const isDragOver = dragOverId === item.id && draggedId !== item.id;
 
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => {
-                        if (item.type === "saved") {
-                          removeSavedCarouselImage(index);
-                        } else {
-                          removeDraftCarouselImage(item.id);
-                        }
+                  return (
+                    <div
+                      key={item.id}
+                      draggable
+                      onDragStart={() => {
+                        setDraggedId(item.id);
                       }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setDragOverId(item.id);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        if (draggedId && draggedId !== item.id) {
+                          moveCarouselItem(draggedId, item.id);
+                        }
+                        setDraggedId(null);
+                        setDragOverId(null);
+                      }}
+                      onDragEnd={() => {
+                        setDraggedId(null);
+                        setDragOverId(null);
+                      }}
+                      className={[
+                        "rounded-md border bg-background p-2 transition-all",
+                        isDragging ? "opacity-50" : "opacity-100",
+                        isDragOver ? "ring-2 ring-primary" : "",
+                      ].join(" ")}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Quitar
-                    </Button>
-                  </div>
-                ))}
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <GripVertical className="h-3.5 w-3.5" />
+                          {index + 1}
+                        </div>
+                      </div>
+
+                      <div className="overflow-hidden rounded-md border bg-muted/30 aspect-square">
+                        <img
+                          src={item.url}
+                          alt={`Carousel ${index + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full text-xs py-1 h-auto mt-2"
+                        onClick={() => removeCarouselItem(item.id)}
+                      >
+                        <Trash2 className="mr-1 h-3.5 w-3.5" />
+                        Quitar
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
             ) : (
-              <div className="flex min-h-40 flex-col items-center justify-center rounded-md border border-dashed bg-muted/20 text-muted-foreground">
-                <ImagePlus className="mb-2 h-8 w-8 opacity-60" />
+              <div className="flex min-h-32 flex-col items-center justify-center rounded-md border border-dashed bg-muted/20 text-muted-foreground">
+                <ImagePlus className="mb-2 h-7 w-7 opacity-60" />
                 <p className="text-sm">Todavía no hay imágenes en el carrusel.</p>
               </div>
             )}
