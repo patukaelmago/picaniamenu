@@ -119,19 +119,25 @@ export default function MenuClient({ tenantId }: Props) {
       try {
         const ref = doc(db, "tenants", tenantId, "settings", "ui");
         const snap = await getDoc(ref);
-
+  
+        console.log("SNAP:", snap.data());
+  
         if (!snap.exists()) {
           setTenantCarouselImages([]);
           return;
         }
-
+  
         const data = snap.data();
+  
         const images = Array.isArray(data?.carouselImages)
           ? data.carouselImages.filter(
-              (img: unknown): img is string => typeof img === "string" && img.trim() !== ""
+              (img: unknown): img is string =>
+                typeof img === "string" && img.trim() !== ""
             )
           : [];
-
+  
+        console.log("IMAGES:", images);
+  
         setTenantCarouselImages(images);
       } catch (e) {
         console.error("Error cargando carouselImages del tenant", e);
