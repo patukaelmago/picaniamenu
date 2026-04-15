@@ -374,15 +374,12 @@ export default function MenuClient({ tenantId }: Props) {
     px-5
     py-2
     border
-    bg-black
-    text-white
-    border-black
+    bg-[hsl(var(--foreground))]
+    text-[hsl(var(--background))]
+    border-[hsl(var(--foreground))]
     opacity-90
     hover:scale-[1.03]
     transition-all
-    dark:bg-[hsl(var(--nav-text))]
-    dark:text-black
-    dark:border-[hsl(var(--nav-text))]
   "
                   >
                     Almuerzo Viernes
