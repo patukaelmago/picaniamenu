@@ -418,8 +418,7 @@ export default function MenuClient({ tenantId }: Props) {
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-[15px] md:text-base tracking-wide font-bold"
-                    style={{ color: `hsl(var(--accent))` }}
+                    className="font-headline text-[15px] md:text-base tracking-wide font-bold text-black dark:text-[hsl(var(--accent))]"
                   >
                     {category.name}
                   </h2>
