@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -40,7 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { onAuthStateChanged, type User } from "firebase/auth";
+import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { useEffect, useMemo, useState } from "react";
 
@@ -74,6 +74,7 @@ const getTenantIdFromPath = (pathname: string) => {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { state } = useSidebar();
 
   const [user, setUser] = useState<User | null>(null);
@@ -141,6 +142,21 @@ export default function AdminSidebar() {
     const b = (parts[1]?.[0] || "D").toUpperCase();
     return a + b;
   }, [displayName]);
+
+  async function handleLogout() {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.error("Error cerrando sesión", e);
+    } finally {
+      const r = document.documentElement;
+      r.style.removeProperty("--nav-bg");
+      r.style.removeProperty("--nav-text");
+      r.style.removeProperty("--accent");
+
+      window.location.href = `/menu/${tenantId}`;
+    }
+  }
 
   return (
     <Sidebar>
@@ -244,13 +260,9 @@ export default function AdminSidebar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem asChild>
-              <Link href={`/menu/${tenantId}`}>
-                <div className="flex items-center">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Salir</span>
-                </div>
-              </Link>
+            <DropdownMenuItem onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Salir</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
