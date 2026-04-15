@@ -426,12 +426,11 @@ export default function MenuClient({ tenantId }: Props) {
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
-                  <h2
-                    className="font-headline text-[15px] md:text-base tracking-wide font-bold"
-                    style={{ color: `hsl(${ui.navBg})` }}
-                  >
-                    {category.name}
-                  </h2>
+                <h2
+  className="font-headline text-[15px] md:text-base tracking-wide font-bold text-black dark:text-[hsl(var(--nav-text))]"
+>
+  {category.name}
+</h2>
                   <div className="h-px w-full bg-border/10" />
                 </div>
 
