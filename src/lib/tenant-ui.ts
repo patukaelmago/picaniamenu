@@ -9,27 +9,26 @@ export type TenantUI = {
 
 const DEFAULT: TenantUI = {
   logoLight: "/logorecortado_azul.png",
-  logoDark: "/logorecortado.png",
-
-  // ⚠️ NEUTRO para evitar flash
-  navBg: "0 0% 0%",        // negro
-  navText: "0 0% 100%",    // blanco
-  accent: "43 74% 64%",
-
+  logoDark: "/logorecortado_azul.png",
+  navBg: "222 51% 23%",
+  navText: "0 0% 100%",
+  accent: "222 51% 23%",
   showFriday: false,
 };
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
   picana: {
-    navBg: "210 52% 22%",
-    navText: "43 100% 94%",
-    accent: "43 74% 64%",
+    logoLight: "/logorecortado_azul.png",
+    logoDark: "/logorecortado_azul.png",
+    navBg: "222 51% 23%",
+    navText: "0 0% 100%",
+    accent: "222 51% 23%",
     showFriday: true,
   },
   laroti: {
-    navBg: "40 25% 92%",
-    navText: "210 35% 18%",
-    accent: "18 70% 45%",
+    navBg: "222 51% 23%",
+    navText: "0 0% 100%",
+    accent: "222 51% 23%",
     showFriday: false,
   },
 };
