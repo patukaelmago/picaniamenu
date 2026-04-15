@@ -140,9 +140,9 @@ export default function MenuClient({ tenantId }: Props) {
 
         const images = Array.isArray(data?.carouselImages)
           ? data.carouselImages.filter(
-              (img: unknown): img is string =>
-                typeof img === "string" && img.trim() !== ""
-            )
+            (img: unknown): img is string =>
+              typeof img === "string" && img.trim() !== ""
+          )
           : [];
 
         setTenantCarouselImages(images);
@@ -353,9 +353,8 @@ export default function MenuClient({ tenantId }: Props) {
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
             <div
-              className={`grid w-full items-center gap-3 ${
-                ui.showFriday ? "md:grid-cols-[1fr_auto_1fr]" : "md:grid-cols-1"
-              }`}
+              className={`grid w-full items-center gap-3 ${ui.showFriday ? "md:grid-cols-[1fr_auto_1fr]" : "md:grid-cols-1"
+                }`}
             >
               {ui.showFriday && <div className="hidden md:block" />}
 
@@ -395,15 +394,7 @@ export default function MenuClient({ tenantId }: Props) {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por plato, ingrediente..."
-              className="
-                pl-9
-                bg-transparent
-                text-foreground
-                border-border/30
-                focus-visible:ring-0
-              "
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              className="border-[hsl(var(--nav-bg))] focus-visible:ring-[hsl(var(--nav-bg))] dark:border-[hsl(var(--nav-text))]"
             />
           </div>
         </div>
@@ -426,11 +417,11 @@ export default function MenuClient({ tenantId }: Props) {
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
-                <h2
-  className="font-headline text-[15px] md:text-base tracking-wide font-bold text-black dark:text-[hsl(var(--nav-text))]"
->
-  {category.name}
-</h2>
+                  <h2
+                    className="font-headline text-[15px] md:text-base tracking-wide font-bold text-black dark:text-[hsl(var(--nav-text))]"
+                  >
+                    {category.name}
+                  </h2>
                   <div className="h-px w-full bg-border/10" />
                 </div>
 
