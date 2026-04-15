@@ -370,17 +370,20 @@ export default function MenuClient({ tenantId }: Props) {
                       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
                     }}
                     className="
-                      rounded-sm
-                      px-5
-                      py-2
-                      border
-                      bg-[hsl(var(--nav-bg))]
-                      text-[hsl(var(--nav-text))]
-                      border-[hsl(var(--nav-bg))]
-                      opacity-90
-                      hover:scale-[1.03]
-                      transition-all
-                    "
+    rounded-sm
+    px-5
+    py-2
+    border
+    bg-black
+    text-white
+    border-black
+    opacity-90
+    hover:scale-[1.03]
+    transition-all
+    dark:bg-[hsl(var(--nav-text))]
+    dark:text-black
+    dark:border-[hsl(var(--nav-text))]
+  "
                   >
                     Almuerzo Viernes
                     <span className="text-xs opacity-60 ml-2">▾</span>
