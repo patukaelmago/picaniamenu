@@ -55,7 +55,9 @@ function fridayDescOverride(
   const n = norm(itemName);
 
   if (n === "entrada") return fridayData?.entrada ?? "";
-  if (n === "postre o cafe" || n === "postre" || n === "cafe") return fridayData?.postre ?? "";
+  if (n === "postre o cafe" || n === "postre" || n === "cafe") {
+    return fridayData?.postre ?? "";
+  }
 
   return originalDesc ?? "";
 }
@@ -67,7 +69,9 @@ export default function MenuClient({ tenantId }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
-  const ui = useMemo(() => getTenantUI(tenantId), [tenantId]);
+
+  const [ui, setUi] = useState(getTenantUI(""));
+  const [uiReady, setUiReady] = useState(false);
 
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
@@ -80,6 +84,13 @@ export default function MenuClient({ tenantId }: Props) {
   const [tenantCarouselImages, setTenantCarouselImages] = useState<string[]>([]);
 
   useEffect(() => {
+    if (!tenantId) return;
+    setUi(getTenantUI(tenantId));
+    setUiReady(true);
+  }, [tenantId]);
+
+  useEffect(() => {
+    if (!uiReady) return;
     if (!ui.showFriday) return;
 
     const unsub = listenFridayData(tenantId, (data) => {
@@ -87,7 +98,7 @@ export default function MenuClient({ tenantId }: Props) {
     });
 
     return () => unsub();
-  }, [tenantId, ui.showFriday]);
+  }, [tenantId, uiReady, ui.showFriday]);
 
   useEffect(() => setMounted(true), []);
 
@@ -119,25 +130,21 @@ export default function MenuClient({ tenantId }: Props) {
       try {
         const ref = doc(db, "tenants", tenantId, "settings", "ui");
         const snap = await getDoc(ref);
-  
-        console.log("SNAP:", snap.data());
-  
+
         if (!snap.exists()) {
           setTenantCarouselImages([]);
           return;
         }
-  
+
         const data = snap.data();
-  
+
         const images = Array.isArray(data?.carouselImages)
           ? data.carouselImages.filter(
               (img: unknown): img is string =>
                 typeof img === "string" && img.trim() !== ""
             )
           : [];
-  
-        console.log("IMAGES:", images);
-  
+
         setTenantCarouselImages(images);
       } catch (e) {
         console.error("Error cargando carouselImages del tenant", e);
@@ -153,6 +160,7 @@ export default function MenuClient({ tenantId }: Props) {
 
   const childCategoriesByParent = useMemo(() => {
     const map: Record<string, Category[]> = {};
+
     categories.forEach((c) => {
       if (c.parentCategoryId) {
         if (!map[c.parentCategoryId]) map[c.parentCategoryId] = [];
@@ -160,7 +168,10 @@ export default function MenuClient({ tenantId }: Props) {
       }
     });
 
-    Object.values(map).forEach((arr) => arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+    Object.values(map).forEach((arr) =>
+      arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    );
+
     return map;
   }, [categories]);
 
@@ -275,9 +286,7 @@ export default function MenuClient({ tenantId }: Props) {
       })
       .slice(0, 6);
 
-    if (imgs.length === 0) {
-      return [];
-    }
+    if (imgs.length === 0) return [];
 
     return imgs;
   }, [tenantCarouselImages, categories, menuItems]);
@@ -297,6 +306,8 @@ export default function MenuClient({ tenantId }: Props) {
     setLoadedSlides({});
     setActiveSlide(0);
   }, [carouselImages]);
+
+  if (!uiReady) return null;
 
   return (
     <main className="min-h-screen bg-background">
@@ -348,12 +359,12 @@ export default function MenuClient({ tenantId }: Props) {
             >
               {ui.showFriday && <div className="hidden md:block" />}
 
-              <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center ">
+              <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center">
                 Nuestra Carta
               </h1>
 
               {ui.showFriday && (
-                <div className="flex justify-center md:justify-end py-4 md:pt-8 ">
+                <div className="flex justify-center md:justify-end py-4 md:pt-8">
                   <Button
                     onClick={() => {
                       const el = document.getElementById("menu-viernes");
@@ -445,11 +456,13 @@ export default function MenuClient({ tenantId }: Props) {
                           {formatCurrency(item.price)}
                         </span>
                       </div>
+
                       {item.description && (
                         <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
                           {item.description}
                         </p>
                       )}
+
                       {(item.tags ?? []).length > 0 && (
                         <div className="mt-1 flex flex-wrap gap-1">
                           {(item.tags ?? []).map((tag) => (
@@ -482,6 +495,7 @@ export default function MenuClient({ tenantId }: Props) {
                           {sub.name}
                         </p>
                       )}
+
                       <div className="divide-y divide-border/10">
                         {itemsSub.map((item) => {
                           const shownDesc =
@@ -511,6 +525,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   {formatCurrency(item.price)}
                                 </span>
                               </div>
+
                               {shownDesc && (
                                 <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
                                   {shownDesc}
