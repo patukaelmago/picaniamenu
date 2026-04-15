@@ -394,7 +394,7 @@ export default function MenuClient({ tenantId }: Props) {
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar por plato, ingrediente..."
-              className="border-[hsl(var(--nav-bg))] focus-visible:ring-[hsl(var(--nav-bg))] dark:border-[hsl(var(--nav-text))]"
+              className="pl-10 border border-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-muted-foreground dark:border-muted-foreground/50"
             />
           </div>
         </div>
