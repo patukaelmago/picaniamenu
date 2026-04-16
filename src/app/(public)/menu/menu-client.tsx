@@ -309,6 +309,8 @@ export default function MenuClient({ tenantId }: Props) {
 
   if (!uiReady) return null;
 
+
+
   return (
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
@@ -391,11 +393,13 @@ export default function MenuClient({ tenantId }: Props) {
           </div>
 
           <div className="relative w-full max-w-xl mb-4">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar por plato, ingrediente..."
-              className="pl-10 border border-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-muted-foreground dark:border-muted-foreground/50"
-            />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  placeholder="Buscar por plato, ingrediente..."
+  className="pl-10 border border-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-muted-foreground dark:border-muted-foreground/50"
+/>
           </div>
         </div>
 
