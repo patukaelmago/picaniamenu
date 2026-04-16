@@ -30,8 +30,11 @@ body {
     --secondary-foreground: 0 0% 4.3%;
     --muted: 40 10% 85%;
     --muted-foreground: 0 0% 40%;
+
+    /* Azul en claro */
     --accent: 222 50% 23%;
     --accent-foreground: 0 0% 98%;
+
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 80%;
@@ -76,13 +79,15 @@ body {
     --muted: 0 0% 10%;
     --muted-foreground: 40 33% 70%;
 
-    --accent: 222 50% 23%;
-    --accent-foreground: 0 0% 98%;
+    /* Dorado / cremita en oscuro */
+    --accent: 43 74% 64%;
+    --accent-foreground: 0 0% 4.3%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 222 50% 23%;
+    --ring: 43 74% 64%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
