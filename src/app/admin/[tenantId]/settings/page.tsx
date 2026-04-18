@@ -29,12 +29,6 @@ import { GripVertical, ImagePlus, Trash2, Upload } from "lucide-react";
 const MAX_CAROUSEL_IMAGES = 10;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
 
-type CarouselDraft = {
-  id: string;
-  file: File;
-  previewUrl: string;
-};
-
 type CarouselItem =
   | { kind: "saved"; id: string; url: string }
   | { kind: "draft"; id: string; file: File; previewUrl: string };
@@ -94,7 +88,7 @@ export default function TenantSettingsPage({
 
           setCarouselItems(
             images.slice(0, MAX_CAROUSEL_IMAGES).map((url, index) => ({
-              kind: "saved",
+              kind: "saved" as const,
               id: `saved-${index}-${url}`,
               url,
             }))
@@ -208,27 +202,36 @@ export default function TenantSettingsPage({
     });
   }
 
-  async function uploadFile(file: File, path: string) {
+  async function uploadFile(file: File, path: string): Promise<string> {
     const storageReference = ref(storage, path);
     const task: UploadTask = uploadBytesResumable(storageReference, file);
 
-    return await new Promise<string>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       task.on(
         "state_changed",
         (snap) => {
           if (snap.totalBytes > 0) {
-            setProgress(
-              Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
-            );
+            setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
           }
         },
-        (err) => reject(err),
-        async () => resolve(await getDownloadURL(task.snapshot.ref))
+        (error) => {
+          reject(error);
+        },
+        async () => {
+          try {
+            const url = await getDownloadURL(task.snapshot.ref);
+            resolve(url);
+          } catch (error) {
+            reject(error);
+          }
+        }
       );
     });
   }
 
   async function handleSave() {
+    if (isSaving) return;
+
     setIsSaving(true);
     setProgress(0);
 
@@ -287,7 +290,7 @@ export default function TenantSettingsPage({
       setLogoFile(null);
       setCarouselItems(
         finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES).map((url, index) => ({
-          kind: "saved",
+          kind: "saved" as const,
           id: `saved-${index}-${url}`,
           url,
         }))
