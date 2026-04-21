@@ -287,7 +287,7 @@ export default function TenantSettingsPage({
         logoUrl: finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl,
         showLogo,
         showName,
-      } as RestaurantSettingsExtra);
+      } as any);
 
       await setDoc(
         doc(db, "tenants", tenantId, "settings", "ui"),

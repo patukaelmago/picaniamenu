@@ -5,9 +5,11 @@ import { doc, onSnapshot } from "firebase/firestore";
 import { useParams } from "next/navigation";
 
 export type RestaurantSettings = {
-  name?: string;
-  currency?: string;
-  logoUrl?: string;
+  name: string;
+  currency: string;
+  logoUrl: string;
+  showLogo?: boolean;
+  showName?: boolean;
 };
 
 export function useRestaurantSettings() {
@@ -21,7 +23,19 @@ export function useRestaurantSettings() {
     const ref = doc(db, "tenants", tenantId, "settings", "restaurant");
 
     const unsub = onSnapshot(ref, (snap) => {
-      setData((snap.data() as RestaurantSettings) ?? null);
+      const raw = snap.data() as Partial<RestaurantSettings> | undefined;
+
+      setData(
+        raw
+          ? {
+              name: raw.name ?? "",
+              currency: raw.currency ?? "ARS",
+              logoUrl: raw.logoUrl ?? "",
+              showLogo: raw.showLogo ?? true,
+              showName: raw.showName ?? true,
+            }
+          : null
+      );
     });
 
     return () => unsub();
