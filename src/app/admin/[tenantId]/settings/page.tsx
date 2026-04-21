@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { db, storage } from "@/lib/firebase";
 import {
@@ -33,6 +34,14 @@ type CarouselItem =
   | { kind: "saved"; id: string; url: string }
   | { kind: "draft"; id: string; file: File; previewUrl: string };
 
+type RestaurantSettingsExtra = {
+  name?: string;
+  currency?: string;
+  logoUrl?: string;
+  showLogo?: boolean;
+  showName?: boolean;
+};
+
 export default function TenantSettingsPage({
   params,
 }: {
@@ -42,6 +51,9 @@ export default function TenantSettingsPage({
 
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("ARS");
+
+  const [showLogo, setShowLogo] = useState(true);
+  const [showName, setShowName] = useState(true);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState("");
@@ -65,10 +77,14 @@ export default function TenantSettingsPage({
   useEffect(() => {
     const load = async () => {
       try {
-        const settings = await getRestaurantSettings(tenantId);
+        const settings = (await getRestaurantSettings(
+          tenantId
+        )) as RestaurantSettingsExtra;
 
         setName(settings.name || tenantId);
         setCurrency(settings.currency || "ARS");
+        setShowLogo(settings.showLogo ?? true);
+        setShowName(settings.showName ?? true);
 
         const initialLogo = settings.logoUrl?.trim() || DEFAULT_TENANT_LOGO;
         setLogoUrlInput(settings.logoUrl?.trim() || "");
@@ -268,8 +284,10 @@ export default function TenantSettingsPage({
       await saveRestaurantSettings(tenantId, {
         name: name.trim() || tenantId,
         currency: currency.trim() || "ARS",
-        logoUrl: finalLogoUrl,
-      });
+        logoUrl: finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl,
+        showLogo,
+        showName,
+      } as RestaurantSettingsExtra);
 
       await setDoc(
         doc(db, "tenants", tenantId, "settings", "ui"),
@@ -362,6 +380,34 @@ export default function TenantSettingsPage({
               />
             </div>
 
+            <div className="flex items-center justify-between rounded-md border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-logo">Mostrar logo</Label>
+                <p className="text-sm text-muted-foreground">
+                  Muestra u oculta la imagen del logo en el navbar.
+                </p>
+              </div>
+              <Switch
+                id="show-logo"
+                checked={showLogo}
+                onCheckedChange={setShowLogo}
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-md border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-name">Mostrar nombre</Label>
+                <p className="text-sm text-muted-foreground">
+                  Muestra u oculta el texto junto al logo en el navbar.
+                </p>
+              </div>
+              <Switch
+                id="show-name"
+                checked={showName}
+                onCheckedChange={setShowName}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="logo-file">Logo</Label>
               <Input
@@ -391,11 +437,17 @@ export default function TenantSettingsPage({
             <div className="space-y-2">
               <Label>Vista previa</Label>
               <div className="flex h-24 items-center justify-center rounded-md border bg-muted/30 p-4 overflow-hidden">
-                <img
-                  src={logoPreview}
-                  alt="Preview logo"
-                  className="max-h-full max-w-full object-contain"
-                />
+                {showLogo ? (
+                  <img
+                    src={logoPreview}
+                    alt="Preview logo"
+                    className="max-h-full max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Logo oculto
+                  </span>
+                )}
               </div>
             </div>
           </CardContent>
