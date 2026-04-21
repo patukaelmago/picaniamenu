@@ -1,6 +1,5 @@
 "use client";
 
-import { Utensils } from "lucide-react";
 import Link from "next/link";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -11,10 +10,12 @@ export default function Header() {
   const params = useParams();
   const tenantId = params?.tenantId as string;
 
+  const showLogo = settings?.showLogo ?? true;
+  const showName = settings?.showName ?? true;
+
   return (
     <header className="sticky top-0 z-40 border-b bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
-        {/* LOGO CENTRADO */}
         <Link
           href={tenantId ? `/menu/${tenantId}` : "/"}
           className="
@@ -25,44 +26,43 @@ export default function Header() {
             hover:opacity-100 hover:scale-105
           "
         >
-          {/* Logo dinámico del tenant si existe en settings, sino usa los locales */}
-          {settings?.logoUrl ? (
-            <img
-              src={settings.logoUrl}
-              alt={settings.name || "Logo"}
-              className="h-12 w-auto object-contain"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          ) : (
+          {/* LOGO */}
+          {showLogo && (
             <>
-              <img
-                src="/logorecortado.png"
-                alt="Logo Light"
-                className="h-12 w-auto object-contain dark:hidden"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-              <img
-                src="/logorecortado_azul.png"
-                alt="Logo Dark"
-                className="hidden h-12 w-auto object-contain dark:block"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
+              {settings?.logoUrl ? (
+                <img
+                  src={settings.logoUrl}
+                  alt={settings.name || "Logo"}
+                  className="h-12 w-auto object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <>
+                  <img
+                    src="/logorecortado.png"
+                    alt="Logo Light"
+                    className="h-12 w-auto object-contain dark:hidden"
+                  />
+                  <img
+                    src="/logorecortado_azul.png"
+                    alt="Logo Dark"
+                    className="hidden h-12 w-auto object-contain dark:block"
+                  />
+                </>
+              )}
             </>
           )}
-          
-          {/* Fallback de texto: Solo se muestra si las imágenes fallan o no hay logoUrl */}
-          <span className="font-headline font-bold text-lg md:text-xl tracking-widest uppercase [img:not([style*='display: none']):block]:hidden">
-            {settings?.name || "Nuestra Carta"}
-          </span>
+
+          {/* NOMBRE */}
+          {showName && (
+            <span className="font-headline font-bold text-lg md:text-xl tracking-widest uppercase">
+              {settings?.name || "Nuestra Carta"}
+            </span>
+          )}
         </Link>
 
-        {/* DERECHA: TOGGLE DE TEMA */}
         <div className="ml-auto flex items-center">
           <ThemeToggle />
         </div>
