@@ -25,7 +25,14 @@ import {
   getDownloadURL,
   type UploadTask,
 } from "firebase/storage";
-import { GripVertical, ImagePlus, Trash2, Upload } from "lucide-react";
+import {
+  GripVertical,
+  ImagePlus,
+  Trash2,
+  Upload,
+  ImageUp,
+  X,
+} from "lucide-react";
 
 const MAX_CAROUSEL_IMAGES = 10;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
@@ -58,6 +65,7 @@ export default function TenantSettingsPage({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState("");
   const [logoPreview, setLogoPreview] = useState<string>(DEFAULT_TENANT_LOGO);
+  const [isLogoDragging, setIsLogoDragging] = useState(false);
 
   const [carouselItems, setCarouselItems] = useState<CarouselItem[]>([]);
 
@@ -138,16 +146,30 @@ export default function TenantSettingsPage({
     };
   }, [tenantId]);
 
-  function handleLogoFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0] ?? null;
+  function setLogoFromFile(file: File | null) {
     setLogoFile(file);
 
     if (file) {
       const objectUrl = URL.createObjectURL(file);
       setLogoPreview(objectUrl);
+      setLogoUrlInput("");
     } else {
       setLogoPreview(logoUrlInput.trim() || DEFAULT_TENANT_LOGO);
     }
+  }
+
+  function handleLogoFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0] ?? null;
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast({
+        variant: "destructive",
+        title: "Archivo inválido",
+        description: "Solo podés cargar imágenes para el logo.",
+      });
+      return;
+    }
+    setLogoFromFile(file);
   }
 
   function handleLogoUrlChange(value: string) {
@@ -155,6 +177,32 @@ export default function TenantSettingsPage({
     if (!logoFile) {
       setLogoPreview(value.trim() || DEFAULT_TENANT_LOGO);
     }
+  }
+
+  function handleLogoDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setIsLogoDragging(false);
+
+    const file = e.dataTransfer.files?.[0] ?? null;
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        variant: "destructive",
+        title: "Archivo inválido",
+        description: "Solo podés arrastrar imágenes al logo.",
+      });
+      return;
+    }
+
+    setLogoFromFile(file);
+  }
+
+  function clearLogoSelection() {
+    setLogoFile(null);
+    setLogoUrlInput("");
+    setLogoPreview(DEFAULT_TENANT_LOGO);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   function handleCarouselFilesChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -227,7 +275,9 @@ export default function TenantSettingsPage({
         "state_changed",
         (snap) => {
           if (snap.totalBytes > 0) {
-            setProgress(Math.round((snap.bytesTransferred / snap.totalBytes) * 100));
+            setProgress(
+              Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
+            );
           }
         },
         (error) => {
@@ -408,15 +458,70 @@ export default function TenantSettingsPage({
               />
             </div>
 
+            <input
+              ref={fileInputRef}
+              id="logo-file"
+              type="file"
+              accept="image/png,image/webp,image/jpeg,image/svg+xml"
+              className="hidden"
+              onChange={handleLogoFileChange}
+            />
+
             <div className="space-y-2">
-              <Label htmlFor="logo-file">Logo</Label>
-              <Input
-                id="logo-file"
-                type="file"
-                ref={fileInputRef}
-                onChange={handleLogoFileChange}
-                accept="image/png,image/webp,image/jpeg,image/svg+xml"
-              />
+              <Label>Logo</Label>
+
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  setIsLogoDragging(true);
+                }}
+                onDragLeave={() => setIsLogoDragging(false)}
+                onDrop={handleLogoDrop}
+                className={[
+                  "relative flex min-h-40 cursor-pointer items-center justify-center rounded-md border-2 border-dashed p-4 transition-all overflow-hidden",
+                  isLogoDragging
+                    ? "border-primary bg-muted/40"
+                    : "border-border bg-muted/20 hover:bg-muted/30",
+                ].join(" ")}
+              >
+                {showLogo ? (
+                  <img
+                    src={logoPreview}
+                    alt="Preview logo"
+                    className="max-h-24 max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Logo oculto
+                  </span>
+                )}
+
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-2 border-t bg-background/85 px-3 py-2 text-xs text-muted-foreground backdrop-blur-sm">
+                  <ImageUp className="h-4 w-4" />
+                  <span>Click o arrastrá tu logo acá</span>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Cambiar logo
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={clearLogoSelection}
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Quitar
+                </Button>
+              </div>
+
               {progress > 0 && isSaving && (
                 <p className="text-xs text-muted-foreground">
                   Subiendo: {progress}%
@@ -432,23 +537,6 @@ export default function TenantSettingsPage({
                 onChange={(e) => handleLogoUrlChange(e.target.value)}
                 placeholder="https://..."
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label>Vista previa</Label>
-              <div className="flex h-24 items-center justify-center rounded-md border bg-muted/30 p-4 overflow-hidden">
-                {showLogo ? (
-                  <img
-                    src={logoPreview}
-                    alt="Preview logo"
-                    className="max-h-full max-w-full object-contain"
-                  />
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    Logo oculto
-                  </span>
-                )}
-              </div>
             </div>
           </CardContent>
         </Card>
