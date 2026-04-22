@@ -28,37 +28,20 @@ export default function Header() {
           "
         >
           {/* LOGO */}
-          {showLogo && (
-            <>
-              {settings?.logoUrl ? (
-                <img
-                  src={settings.logoUrl}
-                  alt={settings.name || "Logo"}
-                  className="h-10 md:h-12 w-auto object-contain"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
-              ) : (
-                <>
-                  <img
-                    src="/logorecortado.png"
-                    alt="Logo Light"
-                    className="h-10 md:h-12 w-auto object-contain dark:hidden"
-                  />
-                  <img
-                    src="/logorecortado_azul.png"
-                    alt="Logo Dark"
-                    className="hidden h-10 md:h-12 w-auto object-contain dark:block"
-                  />
-                </>
-              )}
-            </>
+          {showLogo && settings?.logoUrl && (
+            <img
+              src={settings.logoUrl}
+              alt={settings.name || "Logo"}
+              className="h-10 md:h-12 w-auto object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
           )}
 
           {/* NOMBRE */}
           {showName && (
-            <span className="font-headline font-bold text-sm md:text-lg tracking-wide uppercase">
+            <span className="font-headline font-bold text-base md:text-xl tracking-wide uppercase">
               {settings?.name || "Nuestra Carta"}
             </span>
           )}
