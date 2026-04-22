@@ -6,6 +6,8 @@ export type RestaurantSettings = {
   name: string;
   currency: string;
   logoUrl: string;
+  showLogo: boolean;
+  showName: boolean;
 };
 
 function getSettingsDocRef(tenantId: string) {
@@ -22,6 +24,8 @@ export async function getRestaurantSettings(
       name: tenantId,
       currency: "ARS",
       logoUrl: "",
+      showLogo: true,
+      showName: true,
     };
   }
 
@@ -31,6 +35,8 @@ export async function getRestaurantSettings(
     name: data.name ?? tenantId,
     currency: data.currency ?? "ARS",
     logoUrl: data.logoUrl ?? "",
+    showLogo: data.showLogo ?? true,
+    showName: data.showName ?? true,
   };
 }
 
@@ -44,6 +50,8 @@ export async function saveRestaurantSettings(
       name: data.name,
       currency: data.currency,
       logoUrl: data.logoUrl,
+      showLogo: data.showLogo,
+      showName: data.showName,
       updatedAt: serverTimestamp(),
     },
     { merge: true }
