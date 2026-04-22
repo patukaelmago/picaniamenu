@@ -40,7 +40,7 @@ export default function Header() {
 
           {/* NOMBRE */}
           {showName && (
-            <span className="font-headline font-bold text-base md:text-xl tracking-wide uppercase">
+            <span className="font-headline font-bold text-base md:text-2xl tracking-wide uppercase">
               {settings?.name || "Nuestra Carta"}
             </span>
           )}
