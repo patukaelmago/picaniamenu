@@ -360,8 +360,8 @@ export default function MenuClient({ tenantId }: Props) {
             >
               {ui.showFriday && <div className="hidden md:block" />}
 
-              <h1 className="pt-8 text-md md:text-xl xl:text-3xl font-headline tracking-[0.3em] uppercase text-center">
-                Nuestra Carta
+              <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
+                NUESTRA CARTA
               </h1>
 
               {ui.showFriday && (
@@ -422,7 +422,7 @@ export default function MenuClient({ tenantId }: Props) {
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-2xl md:text-3xl lg:text-4xl tracking-widest font-bold mb-6"
+                    className="font-headline text-xl md:text-2xl lg:text-3xl tracking-widest font-bold mb-4"
                     style={{ color: "hsl(var(--muted-foreground))" }}
                   >
                     {category.name}
