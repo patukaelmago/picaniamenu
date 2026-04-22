@@ -393,13 +393,13 @@ export default function MenuClient({ tenantId }: Props) {
           </div>
 
           <div className="relative w-full max-w-xl mb-4">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  placeholder="Buscar por plato, ingrediente..."
-  className="pl-10 border border-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-muted-foreground dark:border-muted-foreground/50"
-/>
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por plato, ingrediente..."
+              className="pl-10 border border-muted-foreground/40 focus-visible:ring-1 focus-visible:ring-muted-foreground dark:border-muted-foreground/50"
+            />
           </div>
         </div>
 
@@ -422,7 +422,7 @@ export default function MenuClient({ tenantId }: Props) {
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-[15px] md:text-base tracking-wide font-bold"
+                    className="font-headline text-2xl md:text-3xl lg:text-4xl tracking-widest font-bold mb-6"
                     style={{ color: "hsl(var(--muted-foreground))" }}
                   >
                     {category.name}
