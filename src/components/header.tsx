@@ -18,7 +18,6 @@ export default function Header() {
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
         <Link
           href="https://picania-rosario.github.io/picania.github.io/"
-          target="_blank"
           className="
             absolute left-1/2 -translate-x-1/2
             flex items-center gap-3
