@@ -3,12 +3,9 @@
 import Link from "next/link";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { useParams } from "next/navigation";
 
 export default function Header() {
   const settings = useRestaurantSettings();
-  const params = useParams();
-  const tenantId = params?.tenantId as string;
 
   const showLogo = settings?.showLogo ?? true;
   const showName = settings?.showName ?? true;
@@ -17,7 +14,9 @@ export default function Header() {
     <header className="sticky top-0 z-40 border-b bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]">
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
         <Link
-          href={tenantId ? `/menu/${tenantId}` : "/"}
+          href="https://picania-rosario.github.io/picania.github.io/"
+          target="_blank"
+          rel="noopener noreferrer"
           className="
             absolute left-1/2 -translate-x-1/2
             flex items-center gap-3
@@ -26,7 +25,6 @@ export default function Header() {
             hover:opacity-100 hover:scale-105
           "
         >
-          {/* LOGO */}
           {showLogo && (
             <>
               {settings?.logoUrl ? (
@@ -55,7 +53,6 @@ export default function Header() {
             </>
           )}
 
-          {/* NOMBRE */}
           {showName && (
             <span className="font-headline font-bold text-lg md:text-xl tracking-widest uppercase">
               {settings?.name || "Nuestra Carta"}
