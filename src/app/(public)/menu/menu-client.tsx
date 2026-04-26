@@ -313,7 +313,7 @@ export default function MenuClient({ tenantId }: Props) {
   };
 
   const categoryNavItems = [
-    ...(ui.showFriday ? [{ id: "menu-viernes", name: "Almuerzo Viernes" }] : []),
+    ...(ui.showFriday ? [{ id: "menu-viernes", name: "ALMUERZO VIERNES" }] : []),
     ...visibleRootCategories
       .filter((cat) => {
         const n = norm(cat.name);
