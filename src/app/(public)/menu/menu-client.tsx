@@ -392,7 +392,7 @@ export default function MenuClient({ tenantId }: Props) {
               </h1>
 
               {categoryNavItems.length > 0 && (
-                <div className="relative flex items-center justify-center md:justify-end py-4 md:pt-8">
+                  <div className="relative flex w-full items-center justify-center py-2">
                   <button
                     type="button"
                     onClick={() => moveCategoryNav("left")}
@@ -404,8 +404,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                   <div
                     ref={navScrollRef}
-                    className="flex max-w-full gap-2 overflow-x-auto scroll-smooth px-1 no-scrollbar md:max-w-[360px]"
-                  >
+                    className="flex max-w-[280px] gap-2 overflow-x-auto scroll-smooth px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] md:max-w-[340px]"                  >
                     {categoryNavItems.map((item, index) => (
                       <Button
                         key={item.id}
@@ -413,9 +412,10 @@ export default function MenuClient({ tenantId }: Props) {
                         className="
             shrink-0
             rounded-sm
-            px-5
-            py-2
+            px-3
+            py-1.5
             border
+            text-xs
             bg-[hsl(var(--foreground))]
             text-[hsl(var(--background))]
             border-[hsl(var(--foreground))]
