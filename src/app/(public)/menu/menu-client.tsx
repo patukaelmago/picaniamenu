@@ -409,10 +409,11 @@ export default function MenuClient({ tenantId }: Props) {
                         className="
             shrink-0
             rounded-sm
-            px-3
-            py-1.5
+            px-2
+            py-1
             border
             text-xs
+            tracking-wide
             bg-[hsl(var(--foreground))]
             text-[hsl(var(--background))]
             border-[hsl(var(--foreground))]
