@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
@@ -307,6 +307,33 @@ export default function MenuClient({ tenantId }: Props) {
     setActiveSlide(0);
   }, [carouselImages]);
 
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const categoryNavItems = [
+    ...(ui.showFriday ? [{ id: "menu-viernes", name: "Almuerzo Viernes" }] : []),
+    ...visibleRootCategories
+      .filter((cat) => {
+        const n = norm(cat.name);
+        return n !== "menu viernes" && n !== "almuerzo viernes";
+      })
+      .map((cat) => ({
+        id: `cat-${cat.id}`,
+        name: cat.name,
+      })),
+  ];
+
+  const navScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const moveCategoryNav = (dir: "left" | "right") => {
+    navScrollRef.current?.scrollBy({
+      left: dir === "left" ? -220 : 220,
+      behavior: "smooth",
+    });
+  };
+
   if (!uiReady) return null;
 
 
@@ -364,29 +391,53 @@ export default function MenuClient({ tenantId }: Props) {
                 NUESTRA CARTA
               </h1>
 
-              {ui.showFriday && (
-                <div className="flex justify-center md:justify-end py-4 md:pt-8">
-                  <Button
-                    onClick={() => {
-                      const el = document.getElementById("menu-viernes");
-                      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-                    }}
-                    className="
-    rounded-sm
-    px-5
-    py-2
-    border
-    bg-[hsl(var(--foreground))]
-    text-[hsl(var(--background))]
-    border-[hsl(var(--foreground))]
-    opacity-90
-    hover:scale-[1.03]
-    transition-all
-  "
+              {categoryNavItems.length > 0 && (
+                <div className="relative flex items-center justify-center md:justify-end py-4 md:pt-8">
+                  <button
+                    type="button"
+                    onClick={() => moveCategoryNav("left")}
+                    className="hidden md:flex mr-2 h-9 w-9 items-center justify-center rounded-sm border bg-[hsl(var(--foreground))] text-[hsl(var(--background))] opacity-90"
+                    aria-label="Categoría anterior"
                   >
-                    Almuerzo Viernes
-                    <span className="text-xs opacity-60 ml-2">▾</span>
-                  </Button>
+                    <ChevronLeft className="h-4 w-4" />
+                  </button>
+
+                  <div
+                    ref={navScrollRef}
+                    className="flex max-w-full gap-2 overflow-x-auto scroll-smooth px-1 no-scrollbar md:max-w-[360px]"
+                  >
+                    {categoryNavItems.map((item, index) => (
+                      <Button
+                        key={item.id}
+                        onClick={() => scrollToSection(item.id)}
+                        className="
+            shrink-0
+            rounded-sm
+            px-5
+            py-2
+            border
+            bg-[hsl(var(--foreground))]
+            text-[hsl(var(--background))]
+            border-[hsl(var(--foreground))]
+            opacity-90
+            hover:scale-[1.03]
+            transition-all
+          "
+                      >
+                        {item.name}
+                        {index === 0 && <span className="text-xs opacity-60 ml-2">▾</span>}
+                      </Button>
+                    ))}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => moveCategoryNav("right")}
+                    className="hidden md:flex ml-2 h-9 w-9 items-center justify-center rounded-sm border bg-[hsl(var(--foreground))] text-[hsl(var(--background))] opacity-90"
+                    aria-label="Categoría siguiente"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
                 </div>
               )}
             </div>
@@ -416,7 +467,7 @@ export default function MenuClient({ tenantId }: Props) {
 
             return (
               <section
-                id={isFridayMenu ? "menu-viernes" : undefined}
+                id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
                 key={category.id}
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
