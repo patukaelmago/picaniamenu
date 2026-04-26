@@ -381,10 +381,7 @@ export default function MenuClient({ tenantId }: Props) {
 
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
-            <div
-              className={`grid w-full items-center gap-3 ${ui.showFriday ? "md:grid-cols-[1fr_auto_1fr]" : "md:grid-cols-1"
-                }`}
-            >
+          <div className="flex flex-col items-center gap-3 w-full">
               {ui.showFriday && <div className="hidden md:block" />}
 
               <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
