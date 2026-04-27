@@ -424,7 +424,7 @@ export default function MenuClient({ tenantId }: Props) {
                      "
                    >
                      {item.name}
-                     {index === 0 && <span className="text-[10px] opacity-60 ml-2">▾</span>}
+                    
                    </Button>
                     ))}
                   </div>
