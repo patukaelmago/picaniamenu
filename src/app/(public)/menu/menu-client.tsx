@@ -405,28 +405,27 @@ export default function MenuClient({ tenantId }: Props) {
                     [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"                  
                     >
                     {categoryNavItems.map((item, index) => (
-                      <Button
-                        key={item.id}
-                        onClick={() => scrollToSection(item.id)}
-                        className="
-            shrink-0
-            rounded-sm
-            px-2
-            py-1
-            border
-            text-xs
-            tracking-wide
-            bg-[hsl(var(--foreground))]
-            text-[hsl(var(--background))]
-            border-[hsl(var(--foreground))]
-            opacity-90
-            hover:scale-[1.03]
-            transition-all
-          "
-                      >
-                        {item.name}
-                        {index === 0 && <span className="text-xs opacity-60 ml-2"></span>}
-                      </Button>
+                     <Button
+                     key={item.id}
+                     onClick={() => scrollToSection(item.id)}
+                     className="
+                       shrink-0
+                       rounded-sm
+                       px-2
+                       py-1
+                       text-[10px]
+                       tracking-wide
+                       border
+                       bg-transparent
+                       border-[hsl(var(--foreground))]
+                       text-[hsl(var(--foreground))]
+                       hover:bg-[hsl(var(--foreground)/0.08)]
+                       transition-all
+                     "
+                   >
+                     {item.name}
+                     {index === 0 && <span className="text-[10px] opacity-60 ml-2">▾</span>}
+                   </Button>
                     ))}
                   </div>
 
