@@ -381,7 +381,7 @@ export default function MenuClient({ tenantId }: Props) {
 
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
-          <div className="flex flex-col items-center gap-3 w-full">
+            <div className="flex flex-col items-center gap-3 w-full">
               {ui.showFriday && <div className="hidden md:block" />}
 
               <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
@@ -389,11 +389,11 @@ export default function MenuClient({ tenantId }: Props) {
               </h1>
 
               {categoryNavItems.length > 0 && (
-                  <div className="relative flex w-full items-center justify-center py-2">
+                <div className="relative flex w-full items-center justify-center py-2">
                   <button
                     type="button"
                     onClick={() => moveCategoryNav("left")}
-                    className="hidden md:flex mr-2 h-9 w-9 items-center justify-center rounded-sm border bg-[hsl(var(--foreground))] text-[hsl(var(--background))] opacity-90"
+                    className="hidden md:flex ml-2 items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                     aria-label="Categoría anterior"
                   >
                     <ChevronLeft className="h-4 w-4" />
@@ -401,7 +401,9 @@ export default function MenuClient({ tenantId }: Props) {
 
                   <div
                     ref={navScrollRef}
-                    className="flex max-w-[280px] gap-2 overflow-x-auto scroll-smooth px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] md:max-w-[340px]"                  >
+                    className="flex w-[150px] gap-2 overflow-x-auto scroll-smooth px-1 
+                    [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"                  
+                    >
                     {categoryNavItems.map((item, index) => (
                       <Button
                         key={item.id}
@@ -431,7 +433,7 @@ export default function MenuClient({ tenantId }: Props) {
                   <button
                     type="button"
                     onClick={() => moveCategoryNav("right")}
-                    className="hidden md:flex ml-2 h-9 w-9 items-center justify-center rounded-sm border bg-[hsl(var(--foreground))] text-[hsl(var(--background))] opacity-90"
+                    className="hidden md:flex mr-2 items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                     aria-label="Categoría siguiente"
                   >
                     <ChevronRight className="h-4 w-4" />
