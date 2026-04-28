@@ -406,6 +406,8 @@ export default function MenuClient({ tenantId }: Props) {
                   <Button
                     onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
                     className="
+                    w-[140px] 
+                    text-center
     px-1
     py-0.5
     text-[11px]
@@ -414,7 +416,7 @@ export default function MenuClient({ tenantId }: Props) {
     border-none
     shadow-none
     text-[hsl(var(--foreground))]
-    hover:underline
+    hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
     transition-all
   "
                   >
