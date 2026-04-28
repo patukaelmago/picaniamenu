@@ -65,6 +65,8 @@ function fridayDescOverride(
 type Props = { tenantId: string };
 
 export default function MenuClient({ tenantId }: Props) {
+  const [categoryNavIndex, setCategoryNavIndex] = useState(0);
+
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -328,9 +330,9 @@ export default function MenuClient({ tenantId }: Props) {
   const navScrollRef = useRef<HTMLDivElement | null>(null);
 
   const moveCategoryNav = (dir: "left" | "right") => {
-    navScrollRef.current?.scrollBy({
-      left: dir === "left" ? -220 : 220,
-      behavior: "smooth",
+    setCategoryNavIndex((prev) => {
+      if (dir === "left") return Math.max(prev - 1, 0);
+      return Math.min(prev + 1, categoryNavItems.length - 1);
     });
   };
 
@@ -390,56 +392,51 @@ export default function MenuClient({ tenantId }: Props) {
 
               {categoryNavItems.length > 0 && (
                 <div className="relative flex w-full items-center justify-center py-2">
+                {categoryNavIndex > 0 && (
                   <button
                     type="button"
                     onClick={() => moveCategoryNav("left")}
-                    className="hidden md:flex ml-2 items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                    className="mr-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                     aria-label="Categoría anterior"
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-
-                  <div
-                    ref={navScrollRef}
-                    className="flex w-[150px] gap-2 overflow-x-auto scroll-smooth px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"                  
-                    >
-                    {categoryNavItems.map((item, index) => (
-                     <Button
-                     key={item.id}
-                     onClick={() => scrollToSection(item.id)}
-                     className="
-                       shrink-0 w-[112px]
-                       rounded-sm
-                       px-2
-                       py-1
-                       text-[10px]
-                       tracking-wide
-                       border
-                       bg-transparent
-                       border-[hsl(var(--foreground))]
-                       text-[hsl(var(--foreground))]
-                       hover:bg-[hsl(var(--foreground)/0.08)]
-                       transition-all
-                     "
-                   >
-                     {item.name}
-                    
-                   </Button>
-                    ))}
-                  </div>
-
+                )}
+              
+                <Button
+                  onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
+                  className="
+                    w-[112px]
+                    rounded-sm
+                    px-2
+                    py-1
+                    text-[10px]
+                    tracking-wide
+                    border
+                    bg-transparent
+                    border-[hsl(var(--foreground))]
+                    text-[hsl(var(--foreground))]
+                    hover:bg-[hsl(var(--foreground)/0.08)]
+                    transition-all
+                  "
+                >
+                  {categoryNavItems[categoryNavIndex].name}
+                </Button>
+              
+                {categoryNavIndex < categoryNavItems.length - 1 && (
                   <button
                     type="button"
                     onClick={() => moveCategoryNav("right")}
-                    className="hidden md:flex mr-2 items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                    className="ml-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                     aria-label="Categoría siguiente"
                   >
                     <ChevronRight className="h-4 w-4" />
                   </button>
-                </div>
+                )}
+              </div>
               )}
-            </div>
-          </div>
+              </div>
+              </div>
 
           <div className="relative w-full max-w-xl mb-4">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
