@@ -401,15 +401,14 @@ export default function MenuClient({ tenantId }: Props) {
 
                   <div
                     ref={navScrollRef}
-                    className="flex w-[150px] gap-2 overflow-x-auto scroll-smooth px-1 
-                    [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"                  
+                    className="flex w-[150px] gap-2 overflow-x-auto scroll-smooth px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"                  
                     >
                     {categoryNavItems.map((item, index) => (
                      <Button
                      key={item.id}
                      onClick={() => scrollToSection(item.id)}
                      className="
-                       shrink-0
+                       shrink-0 w-[112px]
                        rounded-sm
                        px-2
                        py-1
