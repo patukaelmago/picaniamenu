@@ -392,51 +392,49 @@ export default function MenuClient({ tenantId }: Props) {
 
               {categoryNavItems.length > 0 && (
                 <div className="relative flex w-full items-center justify-center py-2">
-                {categoryNavIndex > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => moveCategoryNav("left")}
-                    className="mr-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                    aria-label="Categoría anterior"
+                  {categoryNavIndex > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => moveCategoryNav("left")}
+                      className="mr-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      aria-label="Categoría anterior"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                  )}
+
+                  <Button
+                    onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
+                    className="
+    px-1
+    py-0.5
+    text-[11px]
+    tracking-wide
+    bg-transparent
+    border-none
+    shadow-none
+    text-[hsl(var(--foreground))]
+    hover:underline
+    transition-all
+  "
                   >
-                    <ChevronLeft className="h-4 w-4" />
-                  </button>
-                )}
-              
-                <Button
-                  onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
-                  className="
-                    w-[112px]
-                    rounded-sm
-                    px-2
-                    py-1
-                    text-[10px]
-                    tracking-wide
-                    border
-                    bg-transparent
-                    border-[hsl(var(--foreground))]
-                    text-[hsl(var(--foreground))]
-                    hover:bg-[hsl(var(--foreground)/0.08)]
-                    transition-all
-                  "
-                >
-                  {categoryNavItems[categoryNavIndex].name}
-                </Button>
-              
-                {categoryNavIndex < categoryNavItems.length - 1 && (
-                  <button
-                    type="button"
-                    onClick={() => moveCategoryNav("right")}
-                    className="ml-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                    aria-label="Categoría siguiente"
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
+                    {categoryNavItems[categoryNavIndex].name}
+                  </Button>
+
+                  {categoryNavIndex < categoryNavItems.length - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => moveCategoryNav("right")}
+                      className="ml-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      aria-label="Categoría siguiente"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               )}
-              </div>
-              </div>
+            </div>
+          </div>
 
           <div className="relative w-full max-w-xl mb-4">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -468,8 +466,7 @@ export default function MenuClient({ tenantId }: Props) {
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4"
-                    style={{ color: "hsl(var(--muted-foreground))" }}
+                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[#1d2f59] dark:text-[hsl(var(--muted-foreground))]"
                   >
                     {category.name}
                   </h2>
