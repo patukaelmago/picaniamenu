@@ -423,7 +423,7 @@ export default function MenuClient({ tenantId }: Props) {
   text-[13px]
   tracking-wide
   bg-transparent
-  border-none
+  border-b-2
   shadow-none
   ring-0
   focus:ring-0
