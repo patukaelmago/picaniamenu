@@ -402,7 +402,7 @@ export default function MenuClient({ tenantId }: Props) {
                       <ChevronLeft className="
   h-7 w-7
   flex items-center justify-center
-  rounded-full
+  rounded-sm
   border
   border-b-2
   text-[hsl(var(--foreground))]
@@ -449,7 +449,7 @@ export default function MenuClient({ tenantId }: Props) {
                       <ChevronRight className="
   h-7 w-7
   flex items-center justify-center
-  rounded-full
+  rounded-sm
   border
   border-b-2
   text-[hsl(var(--foreground))]
