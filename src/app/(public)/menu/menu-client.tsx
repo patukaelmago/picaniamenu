@@ -400,7 +400,7 @@ export default function MenuClient({ tenantId }: Props) {
                       aria-label="Categoría anterior"
                     >
                       <ChevronLeft className="
-  h-5 w-5
+  h-7 w-7
   flex items-center justify-center
   rounded-full
   border
@@ -447,7 +447,7 @@ export default function MenuClient({ tenantId }: Props) {
                       aria-label="Categoría siguiente"
                     >
                       <ChevronRight className="
-  h-5 w-5
+  h-7 w-7
   flex items-center justify-center
   rounded-full
   border
