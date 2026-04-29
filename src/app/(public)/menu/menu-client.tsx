@@ -413,6 +413,7 @@ export default function MenuClient({ tenantId }: Props) {
   focus-visible:ring-0
   focus-visible:outline-none
   text-[hsl(var(--foreground))]
+  tracking-wide
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
   transition-all
@@ -467,6 +468,7 @@ export default function MenuClient({ tenantId }: Props) {
   focus-visible:ring-0
   focus-visible:outline-none
   text-[hsl(var(--foreground))]
+  tracking-wide
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
   transition-all
