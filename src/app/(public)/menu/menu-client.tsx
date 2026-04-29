@@ -410,7 +410,7 @@ export default function MenuClient({ tenantId }: Props) {
   text-center
   px-1
   py-0.5
-  text-[11px]
+  text-[13px]
   tracking-wide
   bg-transparent
   border-none
