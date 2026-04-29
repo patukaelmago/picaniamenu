@@ -404,7 +404,7 @@ export default function MenuClient({ tenantId }: Props) {
   flex items-center justify-center
   rounded-full
   border
-  border-[hsl(var(--foreground))]
+  border-b-2
   text-[hsl(var(--foreground))]
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
@@ -451,7 +451,7 @@ export default function MenuClient({ tenantId }: Props) {
   flex items-center justify-center
   rounded-full
   border
-  border-[hsl(var(--foreground))]
+  border-b-2
   text-[hsl(var(--foreground))]
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
