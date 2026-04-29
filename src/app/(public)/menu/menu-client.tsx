@@ -400,8 +400,7 @@ export default function MenuClient({ tenantId }: Props) {
                       aria-label="Categoría anterior"
                     >
                       <ChevronLeft className="
-  h-7 
-  w-7
+  h-7 w-7
   px-1
   py-0.5
   flex items-center justify-center
@@ -425,8 +424,7 @@ export default function MenuClient({ tenantId }: Props) {
                   <Button
                     onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
                     className="
-  h-7
-  w-7
+  w-[140px]
   text-center
   px-1
   py-0.5
