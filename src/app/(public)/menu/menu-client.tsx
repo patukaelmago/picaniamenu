@@ -406,19 +406,25 @@ export default function MenuClient({ tenantId }: Props) {
                   <Button
                     onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
                     className="
-                    w-[140px] 
-                    text-center
-    px-1
-    py-0.5
-    text-[11px]
-    tracking-wide
-    bg-transparent
-    border-none
-    shadow-none
-    text-[hsl(var(--foreground))]
-    hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
-    transition-all
-  "
+  w-[140px]
+  text-center
+  px-1
+  py-0.5
+  text-[11px]
+  tracking-wide
+  bg-transparent
+  border-none
+  shadow-none
+  ring-0
+  focus:ring-0
+  focus-visible:ring-0
+  focus-visible:outline-none
+  hover:bg-transparent
+  hover:shadow-none
+  text-[hsl(var(--foreground))]
+  hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
+  transition-colors
+"
                   >
                     {categoryNavItems[categoryNavIndex].name}
                   </Button>
