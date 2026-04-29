@@ -405,7 +405,6 @@ export default function MenuClient({ tenantId }: Props) {
   py-0.5
   flex items-center justify-center
   rounded-sm
-  border
   border-b-2
   shadow-none
   ring-0
@@ -460,7 +459,6 @@ export default function MenuClient({ tenantId }: Props) {
   py-0.5
   flex items-center justify-center
   rounded-sm
-  border
   border-b-2
   shadow-none
   ring-0
@@ -470,7 +468,8 @@ export default function MenuClient({ tenantId }: Props) {
   text-[hsl(var(--foreground))]
   tracking-wide
   bg-transparent
-  hover:bg-[hsl(var(--foreground)/0.08)]
+  hover:bg-transparent
+  hover:shadow-none
   transition-all
 " />
                     </button>
