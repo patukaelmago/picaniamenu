@@ -399,7 +399,17 @@ export default function MenuClient({ tenantId }: Props) {
                       className="mr-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría anterior"
                     >
-                      <ChevronLeft className="h-4 w-4 border-b-2" />
+                      <ChevronLeft className="
+  h-7 w-7
+  flex items-center justify-center
+  rounded-full
+  border
+  border-[hsl(var(--foreground))]
+  text-[hsl(var(--foreground))]
+  bg-transparent
+  hover:bg-[hsl(var(--foreground)/0.08)]
+  transition-all
+" />
                     </button>
                   )}
 
@@ -436,7 +446,17 @@ export default function MenuClient({ tenantId }: Props) {
                       className="ml-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría siguiente"
                     >
-                      <ChevronRight className="h-4 w-4" />
+                      <ChevronRight className="
+  h-7 w-7
+  flex items-center justify-center
+  rounded-full
+  border
+  border-[hsl(var(--foreground))]
+  text-[hsl(var(--foreground))]
+  bg-transparent
+  hover:bg-[hsl(var(--foreground)/0.08)]
+  transition-all
+" />
                     </button>
                   )}
                 </div>
