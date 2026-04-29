@@ -424,7 +424,7 @@ export default function MenuClient({ tenantId }: Props) {
                   <Button
                     onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
                     className="
-  h-[70px]
+  
   w-[140px]
   text-center
   px-1
