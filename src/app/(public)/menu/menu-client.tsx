@@ -401,10 +401,17 @@ export default function MenuClient({ tenantId }: Props) {
                     >
                       <ChevronLeft className="
   h-7 w-7
+  px-1
+  py-0.5
   flex items-center justify-center
   rounded-sm
   border
   border-b-2
+  shadow-none
+  ring-0
+  focus:ring-0
+  focus-visible:ring-0
+  focus-visible:outline-none
   text-[hsl(var(--foreground))]
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
@@ -448,10 +455,17 @@ export default function MenuClient({ tenantId }: Props) {
                     >
                       <ChevronRight className="
   h-7 w-7
+  px-1
+  py-0.5
   flex items-center justify-center
   rounded-sm
   border
   border-b-2
+  shadow-none
+  ring-0
+  focus:ring-0
+  focus-visible:ring-0
+  focus-visible:outline-none
   text-[hsl(var(--foreground))]
   bg-transparent
   hover:bg-[hsl(var(--foreground)/0.08)]
