@@ -396,7 +396,7 @@ export default function MenuClient({ tenantId }: Props) {
                     <button
                       type="button"
                       onClick={() => moveCategoryNav("left")}
-                      className="mr-5 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría anterior"
                     >
                       <ChevronLeft className="h-10 w-10 text-[hsl(var(--foreground))]" />
@@ -443,7 +443,7 @@ export default function MenuClient({ tenantId }: Props) {
                     <button
                       type="button"
                       onClick={() => moveCategoryNav("right")}
-                      className="ml-5 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría siguiente"
                     >
                       <ChevronRight className="h-10 w-10 text-[hsl(var(--foreground))]" />
