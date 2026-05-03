@@ -364,7 +364,7 @@ export default function MenuClient({ tenantId }: Props) {
                   />
                 ))}
               </div>
-
+  
               <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                 {carouselImages.map((_, i) => (
                   <button
@@ -380,114 +380,80 @@ export default function MenuClient({ tenantId }: Props) {
             </div>
           </div>
         )}
-
+  
         <div className="flex flex-col gap-4 items-center text-center">
           <div className="w-full">
             <div className="flex flex-col items-center gap-3 w-full">
               {ui.showFriday && <div className="hidden md:block" />}
-
+  
               <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
                 NUESTRA CARTA
               </h1>
-
+  
               {categoryNavItems.length > 0 && (
                 <div className="relative flex w-full items-center justify-center py-2">
                   {categoryNavIndex > 0 && (
                     <button
                       type="button"
                       onClick={() => moveCategoryNav("left")}
-                      className="mr-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      className="mr-5 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría anterior"
                     >
-                      <ChevronLeft className="
-  h-10 w-10
-  px-1
-  py-0.5
-  flex items-center justify-center
-  rounded-sm
-  border-b-2
-  shadow-none
-  ring-0
-  focus:ring-0
-  focus-visible:ring-0
-  focus-visible:outline-none
-  text-[hsl(var(--foreground))]
-  tracking-wide
-  bg-transparent
-  hover:bg-transparent
-  hover:shadow-none
-  transition-all
-" />
+                      <ChevronLeft className="h-10 w-10 text-[hsl(var(--foreground))]" />
                     </button>
                   )}
-
-<Button
-  onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
-  className="
-    w-[160px]
-    text-center
-    px-2
-    py-1
-
-    font-headline
-    uppercase
-    tracking-[0.3em]
-
-    text-[14px]
-
-    bg-transparent
-    border-b-2
-    shadow-none
-    ring-0
-    focus:ring-0
-    focus-visible:ring-0
-    focus-visible:outline-none
-
-    hover:bg-transparent
-    hover:shadow-none
-
-    text-[hsl(var(--foreground))]
-    hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
-
-    transition-colors
-  "
->
-  {categoryNavItems[categoryNavIndex].name}
-</Button>
-
+  
+                  <Button
+                    onClick={() =>
+                      scrollToSection(categoryNavItems[categoryNavIndex].id)
+                    }
+                    className="
+                      w-[160px]
+                      text-center
+                      px-2
+                      py-1
+  
+                      font-headline
+                      uppercase
+                      tracking-[0.3em]
+  
+                      text-[14px]
+  
+                      bg-transparent
+                      border-b-2
+                      shadow-none
+                      ring-0
+                      focus:ring-0
+                      focus-visible:ring-0
+                      focus-visible:outline-none
+  
+                      hover:bg-transparent
+                      hover:shadow-none
+  
+                      text-[hsl(var(--foreground))]
+                      hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
+  
+                      transition-colors
+                    "
+                  >
+                    {categoryNavItems[categoryNavIndex].name}
+                  </Button>
+  
                   {categoryNavIndex < categoryNavItems.length - 1 && (
                     <button
                       type="button"
                       onClick={() => moveCategoryNav("right")}
-                      className="ml-2 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      className="ml-5 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría siguiente"
                     >
-                      <ChevronRight className="
-  h-10 w-10
-  px-1
-  py-0.5
-  flex items-center justify-center
-  rounded-sm
-  border-b-2
-  shadow-none
-  ring-0
-  focus:ring-0
-  focus-visible:ring-0
-  focus-visible:outline-none
-  text-[hsl(var(--foreground))]
-  tracking-wide
-  bg-transparent
-  hover:bg-transparent
-  hover:shadow-none
-  transition-all
-" />
+                      <ChevronRight className="h-10 w-10 text-[hsl(var(--foreground))]" />
                     </button>
                   )}
                 </div>
               )}
             </div>
           </div>
-
+  
           <div className="relative w-full max-w-xl mb-4">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -498,18 +464,20 @@ export default function MenuClient({ tenantId }: Props) {
             />
           </div>
         </div>
-
+  
         <div className="space-y-10">
           {visibleRootCategories.map((category) => {
             const childCats = childCategoriesByParent[category.id] ?? [];
             const normalizedForId = norm(category.name);
-
+  
             const isFridayMenu =
-              (normalizedForId === "menu viernes" || normalizedForId === "almuerzo viernes") &&
+              (normalizedForId === "menu viernes" ||
+                normalizedForId === "almuerzo viernes") &&
               ui.showFriday;
-
-            const parentItems = filteredItems.filter((item) => item.categoryId === category.id);
-
+  
+            const parentItems = filteredItems.filter(
+              (item) => item.categoryId === category.id
+            );
             return (
               <section
                 id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
