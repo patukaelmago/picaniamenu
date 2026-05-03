@@ -421,32 +421,39 @@ export default function MenuClient({ tenantId }: Props) {
                     </button>
                   )}
 
-                  <Button
-                    onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
-                    className="
-  
-  w-[140px]
-  text-center
-  px-1
-  py-0.5
-  text-[13px]
-  tracking-wide
-  bg-transparent
-  border-b-2
-  shadow-none
-  ring-0
-  focus:ring-0
-  focus-visible:ring-0
-  focus-visible:outline-none
-  hover:bg-transparent
-  hover:shadow-none
-  text-[hsl(var(--foreground))]
-  hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
-  transition-colors
-"
-                  >
-                    {categoryNavItems[categoryNavIndex].name}
-                  </Button>
+<Button
+  onClick={() => scrollToSection(categoryNavItems[categoryNavIndex].id)}
+  className="
+    w-[140px]
+    text-center
+    px-1
+    py-0.5
+
+    font-headline
+    uppercase
+    tracking-[0.3em]
+
+    text-[13px]
+
+    bg-transparent
+    border-b-2
+    shadow-none
+    ring-0
+    focus:ring-0
+    focus-visible:ring-0
+    focus-visible:outline-none
+
+    hover:bg-transparent
+    hover:shadow-none
+
+    text-[hsl(var(--foreground))]
+    hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
+
+    transition-colors
+  "
+>
+  {categoryNavItems[categoryNavIndex].name}
+</Button>
 
                   {categoryNavIndex < categoryNavItems.length - 1 && (
                     <button
