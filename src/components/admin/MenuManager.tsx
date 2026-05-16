@@ -5,6 +5,7 @@ import Image from "next/image";
 import {
   collection,
   getDocs,
+  getDoc,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -106,28 +107,23 @@ function norm(s: string) {
 export default function MenuManager({ tenantId }: Props) {
   const { toast } = useToast();
 
-  // ========= STATE =========
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tenantName, setTenantName] = useState("");
 
-  // crear categoría
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
 
-  // expand/collapse padres
   const [openParents, setOpenParents] = useState<Record<string, boolean>>({});
   const toggleParent = (id: string) =>
     setOpenParents((p) => ({ ...p, [id]: !p[id] }));
 
-  // filtro items por padre
   const [parentFilterId, setParentFilterId] = useState<string>("");
 
-  // drag & drop padres
   const [dragRootIndex, setDragRootIndex] = useState<number | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
-  // editar categoría
   const [catEditingId, setCatEditingId] = useState<string | null>(null);
   const [catModalOpen, setCatModalOpen] = useState(false);
   const [catForm, setCatForm] = useState<{
@@ -137,33 +133,43 @@ export default function MenuManager({ tenantId }: Props) {
     parentCategoryId: string | null;
   }>({ name: "", order: 0, isVisible: true, parentCategoryId: null });
 
-  // crear item
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // editar item
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
 
-  // orden items
   const [sortMode, setSortMode] = useState<"auto" | "manual">("manual");
   const [searchTerm, setSearchTerm] = useState("");
   const [dragItem, setDragItem] = useState<MenuItem | null>(null);
   const [isSavingItemsOrder, setIsSavingItemsOrder] = useState(false);
 
-  // ========= FIRESTORE REFS =========
   const catsCol = useMemo(
     () => collection(db, "tenants", tenantId, "categories"),
     [tenantId]
   );
+
   const itemsCol = useMemo(
     () => collection(db, "tenants", tenantId, "menuItems"),
     [tenantId]
   );
 
-  // ========= LOADERS =========
+  async function loadTenantName() {
+    const snap = await getDoc(doc(db, "tenants", tenantId));
+    const data: any = snap.exists() ? snap.data() : {};
+
+    setTenantName(
+      data?.brandName ||
+        data?.commercialName ||
+        data?.businessName ||
+        data?.displayName ||
+        data?.name ||
+        tenantId
+    );
+  }
+
   async function loadCategories() {
     const q = query(catsCol, orderBy("order", "asc"));
     const snap = await getDocs(q);
@@ -203,7 +209,10 @@ export default function MenuManager({ tenantId }: Props) {
     const q = query(itemsCol, orderBy("order", "asc"));
     const snap = await getDocs(q);
 
-    const data = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) })) as any[];
+    const data = snap.docs.map((d) => ({
+      id: d.id,
+      ...(d.data() as any),
+    })) as any[];
 
     setItems(
       data.map(
@@ -230,7 +239,7 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function reloadAll() {
-    await Promise.all([loadCategories(), loadItems()]);
+    await Promise.all([loadTenantName(), loadCategories(), loadItems()]);
   }
 
   useEffect(() => {
@@ -248,11 +257,11 @@ export default function MenuManager({ tenantId }: Props) {
         setLoading(false);
       }
     };
+
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
 
-  // ========= INDEXES =========
   const categoryById = useMemo(() => {
     const m = new Map<string, Category>();
     categories.forEach((c) => m.set(c.id, c));
@@ -266,6 +275,7 @@ export default function MenuManager({ tenantId }: Props) {
 
   const childrenByParent = useMemo(() => {
     const m = new Map<string, Category[]>();
+
     categories.forEach((c) => {
       if (!c.parentCategoryId) return;
       const arr = m.get(c.parentCategoryId) ?? [];
@@ -297,7 +307,12 @@ export default function MenuManager({ tenantId }: Props) {
     }> = [];
 
     sortedRootCategories.forEach((parent) => {
-      options.push({ id: parent.id, label: parent.name, isChild: false, parentId: null });
+      options.push({
+        id: parent.id,
+        label: parent.name,
+        isChild: false,
+        parentId: null,
+      });
 
       const kids = childrenByParent.get(parent.id) ?? [];
       kids.forEach((child) => {
@@ -319,27 +334,42 @@ export default function MenuManager({ tenantId }: Props) {
     return cat.parentCategoryId ?? cat.id;
   }
 
-  // ========= FORM HELPERS =========
-  function onChangeCreate<K extends keyof MenuItemInput>(key: K, value: MenuItemInput[K]) {
+  function onChangeCreate<K extends keyof MenuItemInput>(
+    key: K,
+    value: MenuItemInput[K]
+  ) {
     setCreateForm((p) => ({ ...p, [key]: value }));
   }
-  function onChangeEdit<K extends keyof MenuItemInput>(key: K, value: MenuItemInput[K]) {
+
+  function onChangeEdit<K extends keyof MenuItemInput>(
+    key: K,
+    value: MenuItemInput[K]
+  ) {
     setEditForm((p) => ({ ...p, [key]: value }));
   }
 
   async function handleGenerateKeywords() {
     setIsGenerating(true);
+
     try {
       const keywords = await generateSearchKeywords({
-        name: createOpen ? createForm.name || "Bife de Chorizo" : editForm.name || "Bife de Chorizo",
+        name: createOpen
+          ? createForm.name || "Bife de Chorizo"
+          : editForm.name || "Bife de Chorizo",
         tags: ["carne", "parrilla"],
         category: "Parrilla",
       });
 
       if (createOpen) {
-        setCreateForm((prev) => ({ ...prev, searchKeywords: keywords.searchKeywords }));
+        setCreateForm((prev) => ({
+          ...prev,
+          searchKeywords: keywords.searchKeywords,
+        }));
       } else {
-        setEditForm((prev) => ({ ...prev, searchKeywords: keywords.searchKeywords }));
+        setEditForm((prev) => ({
+          ...prev,
+          searchKeywords: keywords.searchKeywords,
+        }));
       }
 
       toast({
@@ -348,13 +378,16 @@ export default function MenuManager({ tenantId }: Props) {
       });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudieron generar las keywords." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudieron generar las keywords.",
+      });
     } finally {
       setIsGenerating(false);
     }
   }
 
-  // ========= ITEMS CRUD =========
   async function handleCreateItem() {
     try {
       await addDoc(itemsCol, {
@@ -363,13 +396,18 @@ export default function MenuManager({ tenantId }: Props) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
+
       toast({ title: "Plato creado" });
       setCreateForm(emptyItem);
       setCreateOpen(false);
       await loadItems();
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo crear el plato." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo crear el plato.",
+      });
     }
   }
 
@@ -391,17 +429,20 @@ export default function MenuManager({ tenantId }: Props) {
       searchKeywords: item.searchKeywords ?? [],
       order: item.order ?? 0,
     });
+
     setEditOpen(true);
   }
 
   async function handleUpdateItem() {
     if (!editId) return;
+
     try {
       await updateDoc(doc(itemsCol, editId), {
         ...editForm,
         order: Number(editForm.order ?? 0),
         updatedAt: serverTimestamp(),
       });
+
       toast({ title: "Plato actualizado" });
       setEditOpen(false);
       setEditId(null);
@@ -409,19 +450,28 @@ export default function MenuManager({ tenantId }: Props) {
       await loadItems();
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el plato." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el plato.",
+      });
     }
   }
 
   async function handleDeleteItem(id: string) {
     if (!confirm("¿Eliminar este plato?")) return;
+
     try {
       await deleteDoc(doc(itemsCol, id));
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast({ title: "Plato eliminado" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar el plato." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo eliminar el plato.",
+      });
     }
   }
 
@@ -430,24 +480,41 @@ export default function MenuManager({ tenantId }: Props) {
     field: "inStock" | "isVisible" | "isSpecial",
     value: boolean
   ) {
-    setItems((prev) => prev.map((it) => (it.id === id ? ({ ...it, [field]: value } as MenuItem) : it)));
+    setItems((prev) =>
+      prev.map((it) => (it.id === id ? ({ ...it, [field]: value } as MenuItem) : it))
+    );
+
     try {
-      await updateDoc(doc(itemsCol, id), { [field]: value, updatedAt: serverTimestamp() });
+      await updateDoc(doc(itemsCol, id), {
+        [field]: value,
+        updatedAt: serverTimestamp(),
+      });
     } catch (e) {
       console.error(e);
-      setItems((prev) => prev.map((it) => (it.id === id ? ({ ...it, [field]: !value } as MenuItem) : it)));
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar el estado del item." });
+
+      setItems((prev) =>
+        prev.map((it) =>
+          it.id === id ? ({ ...it, [field]: !value } as MenuItem) : it
+        )
+      );
+
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar el estado del item.",
+      });
     }
   }
 
-  // ========= CATEGORIES CRUD =========
   async function onCreateCategory() {
     const name = formCatName.trim();
     if (!name) return;
 
     try {
       const nextOrder =
-        categories.length === 0 ? 0 : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
+        categories.length === 0
+          ? 0
+          : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
 
       await addDoc(catsCol, {
         name,
@@ -464,7 +531,11 @@ export default function MenuManager({ tenantId }: Props) {
       toast({ title: "Categoría creada" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo crear la categoría." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo crear la categoría.",
+      });
     }
   }
 
@@ -476,11 +547,13 @@ export default function MenuManager({ tenantId }: Props) {
       isVisible: !!cat.isVisible,
       parentCategoryId: cat.parentCategoryId ?? null,
     });
+
     setCatModalOpen(true);
   }
 
   async function saveCategoryEdit() {
     if (!catEditingId) return;
+
     try {
       await updateDoc(doc(catsCol, catEditingId), {
         name: catForm.name.trim(),
@@ -496,50 +569,75 @@ export default function MenuManager({ tenantId }: Props) {
       toast({ title: "Categoría actualizada" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo actualizar la categoría." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar la categoría.",
+      });
     }
   }
 
   async function onToggleVisible(cat: Category, value: boolean) {
-    setCategories((prev) => prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c)));
+    setCategories((prev) =>
+      prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c))
+    );
+
     try {
-      await updateDoc(doc(catsCol, cat.id), { isVisible: value, updatedAt: serverTimestamp() });
+      await updateDoc(doc(catsCol, cat.id), {
+        isVisible: value,
+        updatedAt: serverTimestamp(),
+      });
     } catch (e) {
       console.error(e);
-      setCategories((prev) => prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c)));
-      toast({ variant: "destructive", title: "Error", description: "No se pudo cambiar la visibilidad." });
+
+      setCategories((prev) =>
+        prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c))
+      );
+
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo cambiar la visibilidad.",
+      });
     }
   }
 
   async function onDeleteCategory(cat: Category) {
     if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
+
     try {
       await deleteDoc(doc(catsCol, cat.id));
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
       toast({ title: "Categoría eliminada" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo eliminar la categoría." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo eliminar la categoría.",
+      });
     }
   }
 
-  // ========= DnD PADRES =========
   function handleRootDragStart(index: number) {
     setDragRootIndex(index);
   }
 
   function handleRootDragOver(e: React.DragEvent<HTMLDivElement>, overIndex: number) {
     e.preventDefault();
+
     if (dragRootIndex === null || dragRootIndex === overIndex) return;
 
     const moved = arrayMove(sortedRootCategories, dragRootIndex, overIndex);
 
     setCategories((prev) => {
       const next = prev.slice();
+
       moved.forEach((cat, i) => {
         const idx = next.findIndex((c) => c.id === cat.id);
         if (idx !== -1) next[idx] = { ...next[idx], order: i };
       });
+
       return next;
     });
 
@@ -548,33 +646,52 @@ export default function MenuManager({ tenantId }: Props) {
 
   async function handleRootDragEnd() {
     if (dragRootIndex === null) return;
+
     setDragRootIndex(null);
 
     try {
       setIsSavingOrder(true);
 
-      const parents = rootCategories.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-      await Promise.all(parents.map((c, i) => updateDoc(doc(catsCol, c.id), { order: i, updatedAt: serverTimestamp() })));
+      const parents = rootCategories
+        .slice()
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      await Promise.all(
+        parents.map((c, i) =>
+          updateDoc(doc(catsCol, c.id), {
+            order: i,
+            updatedAt: serverTimestamp(),
+          })
+        )
+      );
 
       toast({ title: "Orden de categorías padre guardado" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo guardar el nuevo orden." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el nuevo orden.",
+      });
       await loadCategories();
     } finally {
       setIsSavingOrder(false);
     }
   }
 
-  // ========= DnD ITEMS =========
   function handleDragItemStart(item: MenuItem) {
     if (sortMode !== "manual") return;
     setDragItem(item);
   }
 
-  function handleDragItemOver(e: React.DragEvent<HTMLTableRowElement>, targetItem: MenuItem) {
+  function handleDragItemOver(
+    e: React.DragEvent<HTMLTableRowElement>,
+    targetItem: MenuItem
+  ) {
     if (sortMode !== "manual") return;
+
     e.preventDefault();
+
     if (!dragItem) return;
     if (dragItem.id === targetItem.id) return;
     if (dragItem.categoryId !== targetItem.categoryId) return;
@@ -585,6 +702,7 @@ export default function MenuManager({ tenantId }: Props) {
       const updated = [...prev];
       const fromIndex = updated.findIndex((i) => i.id === dragItem.id);
       const toIndex = updated.findIndex((i) => i.id === targetItem.id);
+
       if (fromIndex === -1 || toIndex === -1) return prev;
 
       const [moved] = updated.splice(fromIndex, 1);
@@ -607,6 +725,7 @@ export default function MenuManager({ tenantId }: Props) {
 
     try {
       setIsSavingItemsOrder(true);
+
       const categoryId = dragItem.categoryId;
 
       const affected = items
@@ -615,14 +734,21 @@ export default function MenuManager({ tenantId }: Props) {
 
       await Promise.all(
         affected.map((item) =>
-          updateDoc(doc(itemsCol, item.id), { order: item.order ?? 0, updatedAt: serverTimestamp() })
+          updateDoc(doc(itemsCol, item.id), {
+            order: item.order ?? 0,
+            updatedAt: serverTimestamp(),
+          })
         )
       );
 
       toast({ title: "Orden de items guardado" });
     } catch (e) {
       console.error(e);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo guardar el orden de los items." });
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el orden de los items.",
+      });
       await loadItems();
     } finally {
       setIsSavingItemsOrder(false);
@@ -630,21 +756,25 @@ export default function MenuManager({ tenantId }: Props) {
     }
   }
 
-  // ========= SORT + FILTER =========
   function autoSortItems(localItems: MenuItem[], localCats: Category[]) {
     const grouped = new Map<string, MenuItem[]>();
+
     localItems.forEach((i) => {
       const arr = grouped.get(i.categoryId) ?? [];
       arr.push(i);
       grouped.set(i.categoryId, arr);
     });
 
-    const sortedCategories = localCats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedCategories = localCats
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const result: MenuItem[] = [];
+
     sortedCategories.forEach((cat) => {
       const arr = grouped.get(cat.id);
       if (!arr) return;
+
       arr
         .slice()
         .sort((a, b) => a.name.localeCompare(b.name, "es", { sensitivity: "base" }))
@@ -660,15 +790,19 @@ export default function MenuManager({ tenantId }: Props) {
 
   function manualSortItems(localItems: MenuItem[], localCats: Category[]) {
     const grouped = new Map<string, MenuItem[]>();
+
     localItems.forEach((i) => {
       const arr = grouped.get(i.categoryId) ?? [];
       arr.push(i);
       grouped.set(i.categoryId, arr);
     });
 
-    const sortedCategories = localCats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    const sortedCategories = localCats
+      .slice()
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     const result: MenuItem[] = [];
+
     sortedCategories.forEach((cat) => {
       let arr = grouped.get(cat.id);
       if (!arr) return;
@@ -676,7 +810,9 @@ export default function MenuManager({ tenantId }: Props) {
       arr = arr.slice().sort((a, b) => {
         const oa = a.order ?? 0;
         const ob = b.order ?? 0;
+
         if (oa !== ob) return oa - ob;
+
         return a.name.localeCompare(b.name, "es", { sensitivity: "base" });
       });
 
@@ -690,7 +826,11 @@ export default function MenuManager({ tenantId }: Props) {
     return result;
   }
 
-  const baseSortedItems = sortMode === "auto" ? autoSortItems(items, categories) : manualSortItems(items, categories);
+  const baseSortedItems =
+    sortMode === "auto"
+      ? autoSortItems(items, categories)
+      : manualSortItems(items, categories);
+
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
   const filteredBySearch = !normalizedSearch
@@ -701,20 +841,42 @@ export default function MenuManager({ tenantId }: Props) {
         const catName = (category?.name ?? "").toLowerCase();
 
         const parentId = getItemParentId(item);
-        const parentName = parentId ? (categoryById.get(parentId)?.name ?? "").toLowerCase() : "";
+        const parentName = parentId
+          ? (categoryById.get(parentId)?.name ?? "").toLowerCase()
+          : "";
 
-        return name.includes(normalizedSearch) || catName.includes(normalizedSearch) || parentName.includes(normalizedSearch);
+        return (
+          name.includes(normalizedSearch) ||
+          catName.includes(normalizedSearch) ||
+          parentName.includes(normalizedSearch)
+        );
       });
 
-  const sortedItems = !parentFilterId ? filteredBySearch : filteredBySearch.filter((item) => getItemParentId(item) === parentFilterId);
+  const hiddenFixedFridayItems = ["bebida", "entrada", "postre"];
 
-  // ========= UI =========
+  const visibleAdminItems = filteredBySearch.filter((item) => {
+    const category = categories.find((c) => c.id === item.categoryId);
+    const parentId = getItemParentId(item);
+    const parentName = parentId ? categoryById.get(parentId)?.name : "";
+
+    const isFixedFridayItem =
+      norm(parentName ?? "") === "almuerzo viernes" &&
+      norm(category?.name ?? "") === "incluye" &&
+      hiddenFixedFridayItems.includes(norm(item.name));
+
+    return !isFixedFridayItem;
+  });
+
+  const sortedItems = !parentFilterId
+    ? visibleAdminItems
+    : visibleAdminItems.filter((item) => getItemParentId(item) === parentFilterId);
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
-          Tenant: <span className="font-medium">{tenantId}</span>
+          Tenant: <span className="font-medium">{tenantName || tenantId}</span>
         </p>
       </div>
 
@@ -724,7 +886,6 @@ export default function MenuManager({ tenantId }: Props) {
           <TabsTrigger value="categories">Categorías</TabsTrigger>
         </TabsList>
 
-        {/* ============ ITEMS ============ */}
         <TabsContent value="items" className="mt-6">
           <Card>
             <CardHeader>
@@ -774,7 +935,9 @@ export default function MenuManager({ tenantId }: Props) {
 
                 <div className="flex items-center gap-3">
                   {isSavingItemsOrder && (
-                    <span className="text-xs text-muted-foreground">Guardando orden de items…</span>
+                    <span className="text-xs text-muted-foreground">
+                      Guardando orden de items…
+                    </span>
                   )}
 
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
@@ -788,7 +951,9 @@ export default function MenuManager({ tenantId }: Props) {
                     <SheetContent className="sm:max-w-lg overflow-y-auto">
                       <SheetHeader>
                         <SheetTitle>Agregar Nuevo Item</SheetTitle>
-                        <SheetDescription>Completá los detalles del plato o bebida.</SheetDescription>
+                        <SheetDescription>
+                          Completá los detalles del plato o bebida.
+                        </SheetDescription>
                       </SheetHeader>
 
                       <div className="grid gap-4 py-4">
@@ -812,7 +977,9 @@ export default function MenuManager({ tenantId }: Props) {
                             id="c-description"
                             className="col-span-3"
                             value={createForm.description}
-                            onChange={(e) => onChangeCreate("description", e.target.value)}
+                            onChange={(e) =>
+                              onChangeCreate("description", e.target.value)
+                            }
                           />
                         </div>
 
@@ -825,7 +992,9 @@ export default function MenuManager({ tenantId }: Props) {
                             type="number"
                             className="col-span-3"
                             value={createForm.price}
-                            onChange={(e) => onChangeCreate("price", Number(e.target.value))}
+                            onChange={(e) =>
+                              onChangeCreate("price", Number(e.target.value))
+                            }
                           />
                         </div>
 
@@ -837,7 +1006,9 @@ export default function MenuManager({ tenantId }: Props) {
                             id="c-category"
                             className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
                             value={createForm.categoryId}
-                            onChange={(e) => onChangeCreate("categoryId", e.target.value)}
+                            onChange={(e) =>
+                              onChangeCreate("categoryId", e.target.value)
+                            }
                           >
                             <option value="">Elegí una categoría…</option>
                             {categoryOptions.map((o) => (
@@ -861,7 +1032,9 @@ export default function MenuManager({ tenantId }: Props) {
                         </div>
 
                         <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                          {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          {isGenerating && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          )}
                           Generar Keywords con IA
                         </Button>
                       </div>
@@ -904,7 +1077,9 @@ export default function MenuManager({ tenantId }: Props) {
                     {sortedItems.map((item) => {
                       const category = categories.find((c) => c.id === item.categoryId);
                       const parentId = getItemParentId(item);
-                      const parentName = parentId ? categoryById.get(parentId)?.name : undefined;
+                      const parentName = parentId
+                        ? categoryById.get(parentId)?.name
+                        : undefined;
 
                       const image = PlaceHolderImages.find((p) => p.id === item.imageId);
 
@@ -934,7 +1109,9 @@ export default function MenuManager({ tenantId }: Props) {
                           <TableCell>
                             {parentName && category?.parentCategoryId ? (
                               <span className="text-sm">
-                                <span className="text-muted-foreground">{parentName}</span>
+                                <span className="text-muted-foreground">
+                                  {parentName}
+                                </span>
                                 <span className="text-muted-foreground"> {" > "} </span>
                                 <span>{category?.name}</span>
                               </span>
@@ -948,22 +1125,31 @@ export default function MenuManager({ tenantId }: Props) {
                           <TableCell>
                             <Switch
                               checked={!!item.isVisible}
-                              onCheckedChange={(v) => handleToggleItem(item.id, "isVisible", v)}
+                              onCheckedChange={(v) =>
+                                handleToggleItem(item.id, "isVisible", v)
+                              }
                             />
                           </TableCell>
 
                           <TableCell>
                             <Switch
                               checked={!!item.isSpecial}
-                              onCheckedChange={(v) => handleToggleItem(item.id, "isSpecial", v)}
+                              onCheckedChange={(v) =>
+                                handleToggleItem(item.id, "isSpecial", v)
+                              }
                             />
                           </TableCell>
 
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="icon" onClick={() => handleStartEdit(item)}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleStartEdit(item)}
+                              >
                                 <Pencil className="h-4 w-4" />
                               </Button>
+
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -983,7 +1169,6 @@ export default function MenuManager({ tenantId }: Props) {
             </CardContent>
           </Card>
 
-          {/* EDIT ITEM */}
           <Sheet open={editOpen} onOpenChange={setEditOpen}>
             <SheetContent className="sm:max-w-lg overflow-y-auto">
               <SheetHeader>
@@ -1061,7 +1246,9 @@ export default function MenuManager({ tenantId }: Props) {
                 </div>
 
                 <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                  {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isGenerating && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
                   Generar Keywords con IA
                 </Button>
               </div>
@@ -1077,7 +1264,6 @@ export default function MenuManager({ tenantId }: Props) {
           </Sheet>
         </TabsContent>
 
-        {/* ============ CATEGORÍAS ============ */}
         <TabsContent value="categories" className="mt-6">
           <Card>
             <CardHeader>
@@ -1124,11 +1310,14 @@ export default function MenuManager({ tenantId }: Props) {
               </div>
 
               {categories.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aún no hay categorías.</p>
+                <p className="text-sm text-muted-foreground">
+                  Aún no hay categorías.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {sortedRootCategories.map((parent, index) => {
                     const children = childrenByParent.get(parent.id) ?? [];
+
                     return (
                       <div key={parent.id} className="space-y-2">
                         <div
@@ -1150,11 +1339,16 @@ export default function MenuManager({ tenantId }: Props) {
                             <span className="font-semibold">{parent.name}</span>
 
                             {isSavingOrder && (
-                              <span className="text-xs text-muted-foreground">Guardando…</span>
+                              <span className="text-xs text-muted-foreground">
+                                Guardando…
+                              </span>
                             )}
                           </div>
 
-                          <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                          <div
+                            className="flex items-center gap-4"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <div className="flex items-center space-x-2">
                               <Label htmlFor={`visible-${parent.id}`} className="text-sm">
                                 Visible
@@ -1167,9 +1361,14 @@ export default function MenuManager({ tenantId }: Props) {
                             </div>
 
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="icon" onClick={() => startEditCategory(parent)}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => startEditCategory(parent)}
+                              >
                                 <Pencil className="h-4 w-4" />
                               </Button>
+
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -1195,7 +1394,10 @@ export default function MenuManager({ tenantId }: Props) {
 
                               <div className="flex items-center gap-4">
                                 <div className="flex items-center space-x-2">
-                                  <Label htmlFor={`visible-${child.id}`} className="text-sm">
+                                  <Label
+                                    htmlFor={`visible-${child.id}`}
+                                    className="text-sm"
+                                  >
                                     Visible
                                   </Label>
                                   <Switch
@@ -1206,9 +1408,14 @@ export default function MenuManager({ tenantId }: Props) {
                                 </div>
 
                                 <div className="flex items-center gap-2">
-                                  <Button variant="ghost" size="icon" onClick={() => startEditCategory(child)}>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => startEditCategory(child)}
+                                  >
                                     <Pencil className="h-4 w-4" />
                                   </Button>
+
                                   <Button
                                     variant="ghost"
                                     size="icon"
@@ -1231,7 +1438,9 @@ export default function MenuManager({ tenantId }: Props) {
                 <SheetContent className="sm:max-w-lg">
                   <SheetHeader>
                     <SheetTitle>Editar categoría</SheetTitle>
-                    <SheetDescription>Modificá el nombre, orden o visibilidad.</SheetDescription>
+                    <SheetDescription>
+                      Modificá el nombre, orden o visibilidad.
+                    </SheetDescription>
                   </SheetHeader>
 
                   <div className="grid gap-4 py-4">
@@ -1243,7 +1452,9 @@ export default function MenuManager({ tenantId }: Props) {
                         id="cat-name"
                         className="col-span-3"
                         value={catForm.name}
-                        onChange={(e) => setCatForm((p) => ({ ...p, name: e.target.value }))}
+                        onChange={(e) =>
+                          setCatForm((p) => ({ ...p, name: e.target.value }))
+                        }
                       />
                     </div>
 
@@ -1256,7 +1467,12 @@ export default function MenuManager({ tenantId }: Props) {
                         type="number"
                         className="col-span-3"
                         value={catForm.order}
-                        onChange={(e) => setCatForm((p) => ({ ...p, order: Number(e.target.value) }))}
+                        onChange={(e) =>
+                          setCatForm((p) => ({
+                            ...p,
+                            order: Number(e.target.value),
+                          }))
+                        }
                       />
                     </div>
 
@@ -1268,7 +1484,12 @@ export default function MenuManager({ tenantId }: Props) {
                         id="cat-parent"
                         className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
                         value={catForm.parentCategoryId ?? ""}
-                        onChange={(e) => setCatForm((p) => ({ ...p, parentCategoryId: e.target.value || null }))}
+                        onChange={(e) =>
+                          setCatForm((p) => ({
+                            ...p,
+                            parentCategoryId: e.target.value || null,
+                          }))
+                        }
                       >
                         <option value="">Ninguna (categoría principal)</option>
                         {sortedRootCategories
@@ -1286,7 +1507,9 @@ export default function MenuManager({ tenantId }: Props) {
                       <div className="col-span-3">
                         <Switch
                           checked={catForm.isVisible}
-                          onCheckedChange={(v) => setCatForm((p) => ({ ...p, isVisible: v }))}
+                          onCheckedChange={(v) =>
+                            setCatForm((p) => ({ ...p, isVisible: v }))
+                          }
                         />
                       </div>
                     </div>
@@ -1296,6 +1519,7 @@ export default function MenuManager({ tenantId }: Props) {
                     <SheetClose asChild>
                       <Button variant="secondary">Cancelar</Button>
                     </SheetClose>
+
                     <Button onClick={saveCategoryEdit}>Guardar</Button>
                   </SheetFooter>
                 </SheetContent>
