@@ -404,11 +404,13 @@ export default function TenantSettingsPage({
     );
   }
 
+  
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Ajustes del Cliente</h1>
-        <p className="text-muted-foreground">Configuración para {tenantId}</p>
+        <p className="text-muted-foreground">Configuración para {name}</p>
       </div>
 
       <div className="grid gap-8 xl:grid-cols-2">
