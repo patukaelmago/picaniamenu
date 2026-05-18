@@ -281,31 +281,37 @@ export default function TenantAlmuerzoPage({
   }
 
   async function handleUpdateItem(item: LunchItem) {
-    const newName = prompt("Nombre del item", item.name);
+    const newName = window.prompt("Nombre del item", item.name);
     if (newName === null) return;
-
-    const newPrice = prompt("Precio", String(item.price));
+  
+    const newPrice = window.prompt("Precio", String(item.price));
     if (newPrice === null) return;
-
+  
     try {
       await updateDoc(doc(db, "tenants", tenantId, "menuItems", item.id), {
         name: newName.trim(),
         price: Number(newPrice) || 0,
         updatedAt: serverTimestamp(),
       });
-
+  
       setItems((prev) =>
         prev.map((i) =>
           i.id === item.id
-            ? { ...i, name: newName.trim(), price: Number(newPrice) || 0 }
+            ? {
+                ...i,
+                name: newName.trim(),
+                price: Number(newPrice) || 0,
+              }
             : i
         )
       );
-
-      toast({ title: "Item actualizado" });
+  
+      toast({
+        title: "Item actualizado",
+      });
     } catch (e) {
       console.error(e);
-
+  
       toast({
         variant: "destructive",
         title: "Error",
