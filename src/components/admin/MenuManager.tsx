@@ -196,12 +196,17 @@ export default function MenuManager({ tenantId }: Props) {
 
     setParentFilterId((prev) => {
       if (prev) return prev;
-      const fridayParent = data.find(
+      const suggestionsParent = data.find(
         (c) =>
           !c.parentCategoryId &&
-          (norm(c.name) === "almuerzo viernes" || norm(c.name) === "menu viernes")
+          (
+            norm(c.name) === "sugerencias del dia" ||
+            norm(c.name) === "sugerencia del dia" ||
+            norm(c.name) === "sugerencias" ||
+            norm(c.name) === "sugerencia"
+          )
       );
-      return fridayParent?.id ?? "";
+      return suggestionsParent?.id ?? "";
     });
   }
 
