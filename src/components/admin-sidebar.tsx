@@ -41,7 +41,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+
 import { useEffect, useMemo, useState } from "react";
 
 import { useTheme } from "next-themes";
@@ -77,6 +79,7 @@ export default function AdminSidebar() {
   const { state } = useSidebar();
 
   const [user, setUser] = useState<User | null>(null);
+  const [tenantLogo, setTenantLogo] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
@@ -88,17 +91,43 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     const r = document.documentElement;
+
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
     r.style.setProperty("--accent", ui.accent);
   }, [ui.navBg, ui.navText, ui.accent]);
 
+  useEffect(() => {
+    async function loadTenantLogo() {
+      try {
+        const snap = await getDoc(doc(db, "tenants", tenantId));
+
+        if (!snap.exists()) return;
+
+        const data: any = snap.data();
+
+        setTenantLogo(
+          data?.logoLight ||
+            data?.logoDark ||
+            data?.logoUrl ||
+            data?.logo ||
+            ""
+        );
+      } catch (e) {
+        console.error("Error cargando logo del tenant", e);
+      }
+    }
+
+    loadTenantLogo();
+  }, [tenantId]);
+
   const { resolvedTheme } = useTheme();
 
   const logoSrc =
-    resolvedTheme === "dark"
+    tenantLogo ||
+    (resolvedTheme === "dark"
       ? ui.logoDark || ui.logoLight
-      : ui.logoLight || ui.logoDark;
+      : ui.logoLight || ui.logoDark);
 
   const navItems = useMemo(
     () =>
@@ -153,6 +182,7 @@ export default function AdminSidebar() {
       console.error("Error cerrando sesión", e);
     } finally {
       const r = document.documentElement;
+
       r.style.removeProperty("--nav-bg");
       r.style.removeProperty("--nav-text");
       r.style.removeProperty("--accent");
