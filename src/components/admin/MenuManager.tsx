@@ -196,17 +196,7 @@ export default function MenuManager({ tenantId }: Props) {
 
     setParentFilterId((prev) => {
       if (prev) return prev;
-      const suggestionsParent = data.find(
-        (c) =>
-          !c.parentCategoryId &&
-          (
-            norm(c.name) === "sugerencias del dia" ||
-            norm(c.name) === "sugerencia del dia" ||
-            norm(c.name) === "sugerencias" ||
-            norm(c.name) === "sugerencia"
-          )
-      );
-      return suggestionsParent?.id ?? "";
+      return "";
     });
   }
 
