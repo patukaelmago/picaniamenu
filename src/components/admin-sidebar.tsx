@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -74,7 +74,6 @@ const getTenantIdFromPath = (pathname: string) => {
 
 export default function AdminSidebar() {
   const pathname = usePathname();
-  const router = useRouter();
   const { state } = useSidebar();
 
   const [user, setUser] = useState<User | null>(null);
@@ -95,7 +94,11 @@ export default function AdminSidebar() {
   }, [ui.navBg, ui.navText, ui.accent]);
 
   const { resolvedTheme } = useTheme();
-  const logoSrc = resolvedTheme === "dark" ? ui.logoDark : ui.logoLight;
+
+  const logoSrc =
+    resolvedTheme === "dark"
+      ? ui.logoDark || ui.logoLight
+      : ui.logoLight || ui.logoDark;
 
   const navItems = useMemo(
     () =>
@@ -159,8 +162,20 @@ export default function AdminSidebar() {
   }
 
   return (
-    <Sidebar>
-      <SidebarHeader className="py-4">
+    <Sidebar
+      className="border-r-0"
+      style={{
+        backgroundColor: "#1b3059",
+        color: "#fff7e3",
+      }}
+    >
+      <SidebarHeader
+        className="py-4"
+        style={{
+          backgroundColor: "#1b3059",
+          color: "#fff7e3",
+        }}
+      >
         <div className="flex items-center justify-center px-2">
           <Image
             src={logoSrc}
@@ -173,14 +188,14 @@ export default function AdminSidebar() {
         </div>
 
         <div className="mt-3 flex items-center justify-between px-3">
-          <span className="text-sm text-muted-foreground">Tema</span>
+          <span className="text-sm text-[#fff7e3]/80">Tema</span>
           <ThemeToggle />
         </div>
 
-        <Separator className="mt-3" />
+        <Separator className="mt-3 bg-white/10" />
       </SidebarHeader>
 
-      <SidebarContent className="p-2">
+      <SidebarContent className="bg-[#1b3059] p-2 text-[#fff7e3]">
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
@@ -188,7 +203,7 @@ export default function AdminSidebar() {
                 asChild
                 isActive={isActiveHref(item.href)}
                 tooltip={item.label}
-                className="justify-start"
+                className="justify-start text-[#fff7e3] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
               >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
@@ -200,14 +215,14 @@ export default function AdminSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter>
-        <Separator className="my-2" />
+      <SidebarFooter className="bg-[#1b3059] text-[#fff7e3]">
+        <Separator className="my-2 bg-white/10" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex h-auto w-full items-center justify-between p-2"
+              className="flex h-auto w-full items-center justify-between p-2 text-[#fff7e3] hover:bg-white/10 hover:text-white"
             >
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
@@ -218,7 +233,7 @@ export default function AdminSidebar() {
                 {state === "expanded" && (
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">{displayName}</span>
-                    <span className="text-xs text-muted-foreground">{email}</span>
+                    <span className="text-xs text-[#fff7e3]/70">{email}</span>
                   </div>
                 )}
               </div>
@@ -237,7 +252,9 @@ export default function AdminSidebar() {
 
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">{displayName}</p>
-                  <p className="text-xs leading-none text-muted-foreground">{email}</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {email}
+                  </p>
                 </div>
               </div>
             </DropdownMenuLabel>
