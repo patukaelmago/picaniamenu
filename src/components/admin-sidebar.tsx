@@ -107,8 +107,7 @@ export default function AdminSidebar() {
         const data: any = snap.data();
 
         setTenantLogo(
-          data?.logoLight ||
-            data?.logoDark ||
+          data?.settings?.logoUrl ||
             data?.logoUrl ||
             data?.logo ||
             ""
