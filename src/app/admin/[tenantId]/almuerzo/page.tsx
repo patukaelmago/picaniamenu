@@ -23,6 +23,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 import {
   Table,
   TableBody,
@@ -48,10 +58,18 @@ type Category = {
 type LunchItem = {
   id: string;
   name: string;
+  description: string;
   price: number;
+  currency: string;
+  imageUrl: string;
+  imageId: string;
   categoryId: string;
   isVisible: boolean;
+  inStock: boolean;
   isSpecial: boolean;
+  tags: string[];
+  allergens: string[];
+  searchKeywords: string[];
   order: number;
 };
 
@@ -83,10 +101,13 @@ export default function TenantAlmuerzoPage({
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<LunchItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   const [newItemName, setNewItemName] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<LunchItem>>({});
 
   if (tenantId.toLowerCase() !== "picana") {
     return notFound();
@@ -116,6 +137,14 @@ export default function TenantAlmuerzoPage({
         c.parentCategoryId === lunchParent.id &&
         (norm(c.name) === "principales" || norm(c.name) === "principal")
     );
+  }, [categories, lunchParent]);
+
+  const categoryOptions = useMemo(() => {
+    if (!lunchParent) return [];
+
+    return categories
+      .filter((c) => c.id === lunchParent.id || c.parentCategoryId === lunchParent.id)
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   }, [categories, lunchParent]);
 
   function getItemParentId(item: LunchItem) {
@@ -201,10 +230,18 @@ export default function TenantAlmuerzoPage({
         return {
           id: d.id,
           name: raw.name ?? "",
+          description: raw.description ?? "",
           price: Number(raw.price ?? 0),
+          currency: raw.currency ?? "ARS",
+          imageUrl: raw.imageUrl ?? "",
+          imageId: raw.imageId ?? "",
           categoryId: raw.categoryId ?? "",
           isVisible: raw.isVisible ?? true,
+          inStock: raw.inStock ?? true,
           isSpecial: raw.isSpecial ?? false,
+          tags: raw.tags ?? [],
+          allergens: raw.allergens ?? [],
+          searchKeywords: raw.searchKeywords ?? [],
           order: Number(raw.order ?? 0),
         };
       })
@@ -231,16 +268,14 @@ export default function TenantAlmuerzoPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
 
-  const handleSaveFridayMenu = async () => {
-    setSaving(true);
-
+  async function autosaveFridayMenu(nextData: FridayMenuData) {
     try {
       const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
-      await setDoc(ref, data, { merge: true });
+      await setDoc(ref, nextData, { merge: true });
 
       toast({
-        title: "Menú guardado",
-        description: "El menú de almuerzo se actualizó correctamente.",
+        title: "Guardado automático",
+        description: "Entrada y postre actualizados.",
       });
     } catch (e) {
       console.error(e);
@@ -248,12 +283,10 @@ export default function TenantAlmuerzoPage({
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo guardar el menú.",
+        description: "No se pudo guardar entrada y postre.",
       });
-    } finally {
-      setSaving(false);
     }
-  };
+  }
 
   async function handleToggleItem(id: string, value: boolean) {
     setItems((prev) =>
@@ -280,38 +313,81 @@ export default function TenantAlmuerzoPage({
     }
   }
 
-  async function handleUpdateItem(item: LunchItem) {
-    const newName = window.prompt("Nombre del item", item.name);
-    if (newName === null) return;
-  
-    const newPrice = window.prompt("Precio", String(item.price));
-    if (newPrice === null) return;
-  
+  function handleStartEdit(item: LunchItem) {
+    setEditId(item.id);
+    setEditForm({
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      currency: item.currency,
+      imageUrl: item.imageUrl,
+      imageId: item.imageId,
+      categoryId: item.categoryId,
+      isVisible: item.isVisible,
+      inStock: item.inStock,
+      isSpecial: item.isSpecial,
+      tags: item.tags ?? [],
+      allergens: item.allergens ?? [],
+      searchKeywords: item.searchKeywords ?? [],
+      order: item.order ?? 0,
+    });
+    setEditOpen(true);
+  }
+
+  async function handleUpdateItem() {
+    if (!editId) return;
+
     try {
-      await updateDoc(doc(db, "tenants", tenantId, "menuItems", item.id), {
-        name: newName.trim(),
-        price: Number(newPrice) || 0,
+      await updateDoc(doc(db, "tenants", tenantId, "menuItems", editId), {
+        name: editForm.name ?? "",
+        description: editForm.description ?? "",
+        price: Number(editForm.price ?? 0),
+        currency: editForm.currency ?? "ARS",
+        imageUrl: editForm.imageUrl ?? "",
+        imageId: editForm.imageId ?? "",
+        categoryId: editForm.categoryId ?? "",
+        isVisible: editForm.isVisible ?? true,
+        inStock: editForm.inStock ?? true,
+        isSpecial: editForm.isSpecial ?? false,
+        tags: editForm.tags ?? [],
+        allergens: editForm.allergens ?? [],
+        searchKeywords: editForm.searchKeywords ?? [],
+        order: Number(editForm.order ?? 0),
         updatedAt: serverTimestamp(),
       });
-  
+
       setItems((prev) =>
         prev.map((i) =>
-          i.id === item.id
+          i.id === editId
             ? {
                 ...i,
-                name: newName.trim(),
-                price: Number(newPrice) || 0,
+                name: editForm.name ?? "",
+                description: editForm.description ?? "",
+                price: Number(editForm.price ?? 0),
+                currency: editForm.currency ?? "ARS",
+                imageUrl: editForm.imageUrl ?? "",
+                imageId: editForm.imageId ?? "",
+                categoryId: editForm.categoryId ?? "",
+                isVisible: editForm.isVisible ?? true,
+                inStock: editForm.inStock ?? true,
+                isSpecial: editForm.isSpecial ?? false,
+                tags: editForm.tags ?? [],
+                allergens: editForm.allergens ?? [],
+                searchKeywords: editForm.searchKeywords ?? [],
+                order: Number(editForm.order ?? 0),
               }
             : i
         )
       );
-  
-      toast({
-        title: "Item actualizado",
-      });
+
+      setEditOpen(false);
+      setEditId(null);
+      setEditForm({});
+
+      toast({ title: "Item actualizado" });
     } catch (e) {
       console.error(e);
-  
+
       toast({
         variant: "destructive",
         title: "Error",
@@ -381,10 +457,18 @@ export default function TenantAlmuerzoPage({
         {
           id: ref.id,
           name,
+          description: "",
           price: Number(newItemPrice) || 0,
+          currency: "ARS",
+          imageUrl: "",
+          imageId: "",
           categoryId: principalesCategory.id,
           isVisible: true,
+          inStock: true,
           isSpecial: false,
+          tags: [],
+          allergens: [],
+          searchKeywords: [],
           order: nextOrder,
         },
       ]);
@@ -428,7 +512,7 @@ export default function TenantAlmuerzoPage({
           <CardHeader>
             <CardTitle>Menú del Viernes</CardTitle>
             <CardDescription>
-              Definí la entrada y el postre para este cliente.
+              Entrada y postre se guardan automáticamente al salir del campo.
             </CardDescription>
           </CardHeader>
 
@@ -438,6 +522,7 @@ export default function TenantAlmuerzoPage({
               <Input
                 value={data.entrada}
                 onChange={(e) => setData({ ...data, entrada: e.target.value })}
+                onBlur={() => autosaveFridayMenu(data)}
                 placeholder="Ej: Focaccia con hummus..."
               />
             </div>
@@ -447,17 +532,10 @@ export default function TenantAlmuerzoPage({
               <Input
                 value={data.postre}
                 onChange={(e) => setData({ ...data, postre: e.target.value })}
+                onBlur={() => autosaveFridayMenu(data)}
                 placeholder="Ej: Flan casero..."
               />
             </div>
-
-            <Button
-              onClick={handleSaveFridayMenu}
-              disabled={saving}
-              className="w-full bg-[#1b3059] hover:bg-[#1b3059]/90"
-            >
-              {saving ? "Guardando..." : "Guardar Menú"}
-            </Button>
           </CardContent>
         </Card>
 
@@ -522,7 +600,7 @@ export default function TenantAlmuerzoPage({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleUpdateItem(item)}
+                          onClick={() => handleStartEdit(item)}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -552,6 +630,103 @@ export default function TenantAlmuerzoPage({
           </CardContent>
         </Card>
       </div>
+
+      <Sheet open={editOpen} onOpenChange={setEditOpen}>
+        <SheetContent className="sm:max-w-lg overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle>Editar Item</SheetTitle>
+            <SheetDescription>Actualizá los datos del plato.</SheetDescription>
+          </SheetHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="e-name" className="text-right">
+                Nombre
+              </Label>
+              <Input
+                id="e-name"
+                className="col-span-3"
+                value={editForm.name ?? ""}
+                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="e-description" className="text-right">
+                Descripción
+              </Label>
+              <Textarea
+                id="e-description"
+                className="col-span-3"
+                value={editForm.description ?? ""}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, description: e.target.value }))
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="e-price" className="text-right">
+                Precio (ARS)
+              </Label>
+              <Input
+                id="e-price"
+                type="number"
+                className="col-span-3"
+                value={editForm.price ?? 0}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, price: Number(e.target.value) }))
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="e-category" className="text-right">
+                Categoría
+              </Label>
+              <select
+                id="e-category"
+                className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                value={editForm.categoryId ?? ""}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, categoryId: e.target.value }))
+                }
+              >
+                <option value="">Elegí una categoría…</option>
+                {categoryOptions.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.parentCategoryId ? `↳ ${cat.name}` : cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="e-imageId" className="text-right">
+                Imagen ID
+              </Label>
+              <Input
+                id="e-imageId"
+                className="col-span-3"
+                value={editForm.imageId ?? ""}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, imageId: e.target.value }))
+                }
+              />
+            </div>
+          </div>
+
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button variant="secondary">Cancelar</Button>
+            </SheetClose>
+
+            <Button type="button" onClick={handleUpdateItem}>
+              Guardar Cambios
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
