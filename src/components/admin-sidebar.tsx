@@ -107,7 +107,11 @@ export default function AdminSidebar() {
         const data: any = snap.data();
 
         setTenantLogo(
-          data?.settings?.logoUrl ||
+          data?.settings?.logoLight ||
+            data?.settings?.logoDark ||
+            data?.settings?.logoUrl ||
+            data?.logoLight ||
+            data?.logoDark ||
             data?.logoUrl ||
             data?.logo ||
             ""
@@ -206,14 +210,16 @@ export default function AdminSidebar() {
         }}
       >
         <div className="flex items-center justify-center px-2">
-          <Image
-            src={logoSrc}
-            alt={tenantId}
-            width={180}
-            height={60}
-            priority
-            className="h-auto w-[180px] object-contain"
-          />
+          {logoSrc && (
+            <Image
+              src={logoSrc}
+              alt={tenantId}
+              width={180}
+              height={60}
+              priority
+              className="h-auto w-[180px] object-contain"
+            />
+          )}
         </div>
 
         <div className="mt-3 flex items-center justify-between px-3">
@@ -280,7 +286,9 @@ export default function AdminSidebar() {
                 </Avatar>
 
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-sm font-medium leading-none">
+                    {displayName}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
                     {email}
                   </p>
