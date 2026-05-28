@@ -30,9 +30,8 @@ export default function AdminLayout({
         <AdminSidebar />
 
         <SidebarInset>
-          <div className="sticky top-0 z-40 flex items-center gap-2 border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
-            <SidebarTrigger />
-            <span className="text-sm font-medium">Menú</span>
+          <div className="sticky top-0 z-40 flex items-center bg-background/80 px-4 py-3 backdrop-blur md:hidden">
+            <SidebarTrigger className="h-9 w-9" />
           </div>
 
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
