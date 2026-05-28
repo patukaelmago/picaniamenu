@@ -8,8 +8,8 @@ export type TenantUI = {
 };
 
 const DEFAULT: TenantUI = {
-  logoLight: "/logorecortado_azul.png",
-  logoDark: "/logorecortado_azul.png",
+  logoLight: "",
+  logoDark: "",
   navBg: "222 51% 23%",
   navText: "0 0% 100%",
   accent: "222 51% 23%",
@@ -18,14 +18,16 @@ const DEFAULT: TenantUI = {
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
   picana: {
-    logoLight: "/logorecortado_azul.png",
-    logoDark: "/logorecortado_azul.png",
+    logoLight: "",
+    logoDark: "",
     navBg: "222 51% 23%",
     navText: "0 0% 100%",
     accent: "222 51% 23%",
     showFriday: true,
   },
   laroti: {
+    logoLight: "",
+    logoDark: "",
     navBg: "222 51% 23%",
     navText: "0 0% 100%",
     accent: "222 51% 23%",

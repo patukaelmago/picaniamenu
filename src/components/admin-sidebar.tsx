@@ -46,7 +46,6 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { useEffect, useMemo, useState } from "react";
 
-import { useTheme } from "next-themes";
 import Image from "next/image";
 
 const getTenantIdFromPath = (pathname: string) => {
@@ -100,37 +99,28 @@ export default function AdminSidebar() {
   useEffect(() => {
     async function loadTenantLogo() {
       try {
-        const snap = await getDoc(doc(db, "tenants", tenantId));
+        const snap = await getDoc(
+          doc(db, "tenants", tenantId, "settings", "restaurant")
+        );
 
-        if (!snap.exists()) return;
+        if (!snap.exists()) {
+          setTenantLogo("");
+          return;
+        }
 
         const data: any = snap.data();
 
-        setTenantLogo(
-          data?.settings?.logoLight ||
-            data?.settings?.logoDark ||
-            data?.settings?.logoUrl ||
-            data?.logoLight ||
-            data?.logoDark ||
-            data?.logoUrl ||
-            data?.logo ||
-            ""
-        );
+        setTenantLogo(data?.logoUrl || "");
       } catch (e) {
         console.error("Error cargando logo del tenant", e);
+        setTenantLogo("");
       }
     }
 
     loadTenantLogo();
   }, [tenantId]);
 
-  const { resolvedTheme } = useTheme();
-
-  const logoSrc =
-    tenantLogo ||
-    (resolvedTheme === "dark"
-      ? ui.logoDark || ui.logoLight
-      : ui.logoLight || ui.logoDark);
+  const logoSrc = tenantLogo;
 
   const navItems = useMemo(
     () =>
@@ -210,7 +200,7 @@ export default function AdminSidebar() {
         }}
       >
         <div className="flex items-center justify-center px-2">
-          {logoSrc && (
+          {logoSrc ? (
             <Image
               src={logoSrc}
               alt={tenantId}
@@ -219,7 +209,7 @@ export default function AdminSidebar() {
               priority
               className="h-auto w-[180px] object-contain"
             />
-          )}
+          ) : null}
         </div>
 
         <div className="mt-3 flex items-center justify-between px-3">
