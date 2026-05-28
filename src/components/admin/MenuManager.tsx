@@ -162,11 +162,11 @@ export default function MenuManager({ tenantId }: Props) {
 
     setTenantName(
       data?.brandName ||
-        data?.commercialName ||
-        data?.businessName ||
-        data?.displayName ||
-        data?.name ||
-        tenantId
+      data?.commercialName ||
+      data?.businessName ||
+      data?.displayName ||
+      data?.name ||
+      tenantId
     );
   }
 
@@ -180,8 +180,8 @@ export default function MenuManager({ tenantId }: Props) {
         typeof raw.isVisible === "boolean"
           ? raw.isVisible
           : typeof raw.active === "boolean"
-          ? raw.active
-          : true;
+            ? raw.active
+            : true;
 
       return {
         id: d.id,
@@ -212,23 +212,23 @@ export default function MenuManager({ tenantId }: Props) {
     setItems(
       data.map(
         (x: any) =>
-          ({
-            id: x.id,
-            name: x.name ?? "",
-            description: x.description ?? "",
-            price: Number(x.price ?? 0),
-            currency: x.currency ?? "ARS",
-            imageUrl: x.imageUrl ?? "",
-            imageId: x.imageId ?? "",
-            categoryId: x.categoryId ?? "",
-            isVisible: x.isVisible ?? true,
-            inStock: x.inStock ?? true,
-            isSpecial: x.isSpecial ?? false,
-            tags: x.tags ?? [],
-            allergens: x.allergens ?? [],
-            searchKeywords: x.searchKeywords ?? [],
-            order: Number(x.order ?? 0),
-          } as MenuItem)
+        ({
+          id: x.id,
+          name: x.name ?? "",
+          description: x.description ?? "",
+          price: Number(x.price ?? 0),
+          currency: x.currency ?? "ARS",
+          imageUrl: x.imageUrl ?? "",
+          imageId: x.imageId ?? "",
+          categoryId: x.categoryId ?? "",
+          isVisible: x.isVisible ?? true,
+          inStock: x.inStock ?? true,
+          isSpecial: x.isSpecial ?? false,
+          tags: x.tags ?? [],
+          allergens: x.allergens ?? [],
+          searchKeywords: x.searchKeywords ?? [],
+          order: Number(x.order ?? 0),
+        } as MenuItem)
       )
     );
   }
@@ -831,21 +831,21 @@ export default function MenuManager({ tenantId }: Props) {
   const filteredBySearch = !normalizedSearch
     ? baseSortedItems
     : baseSortedItems.filter((item) => {
-        const category = categories.find((c) => c.id === item.categoryId);
-        const name = item.name.toLowerCase();
-        const catName = (category?.name ?? "").toLowerCase();
+      const category = categories.find((c) => c.id === item.categoryId);
+      const name = item.name.toLowerCase();
+      const catName = (category?.name ?? "").toLowerCase();
 
-        const parentId = getItemParentId(item);
-        const parentName = parentId
-          ? (categoryById.get(parentId)?.name ?? "").toLowerCase()
-          : "";
+      const parentId = getItemParentId(item);
+      const parentName = parentId
+        ? (categoryById.get(parentId)?.name ?? "").toLowerCase()
+        : "";
 
-        return (
-          name.includes(normalizedSearch) ||
-          catName.includes(normalizedSearch) ||
-          parentName.includes(normalizedSearch)
-        );
-      });
+      return (
+        name.includes(normalizedSearch) ||
+        catName.includes(normalizedSearch) ||
+        parentName.includes(normalizedSearch)
+      );
+    });
 
   const hiddenFixedFridayItems = ["bebida", "entrada", "postre"];
 
@@ -871,7 +871,7 @@ export default function MenuManager({ tenantId }: Props) {
       <div>
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
-        <span className="font-medium">{tenantName || tenantId}</span>
+          <span className="font-medium">{tenantName || tenantId}</span>
         </p>
       </div>
 
@@ -1055,111 +1055,115 @@ export default function MenuManager({ tenantId }: Props) {
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[80px]">Imagen</TableHead>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Categoría</TableHead>
-                      <TableHead>Precio</TableHead>
-                      <TableHead>Visible</TableHead>
-                      <TableHead>Especial</TableHead>
-                      <TableHead className="w-[100px]">Acciones</TableHead>
-                    </TableRow>
-                  </TableHeader>
-
-                  <TableBody>
-                    {sortedItems.map((item) => {
-                      const category = categories.find((c) => c.id === item.categoryId);
-                      const parentId = getItemParentId(item);
-                      const parentName = parentId
-                        ? categoryById.get(parentId)?.name
-                        : undefined;
-
-                      const image = PlaceHolderImages.find((p) => p.id === item.imageId);
-
-                      return (
-                        <TableRow
-                          key={item.id}
-                          draggable={sortMode === "manual"}
-                          onDragStart={() => handleDragItemStart(item)}
-                          onDragOver={(e) => handleDragItemOver(e, item)}
-                          onDragEnd={handleDragItemEnd}
-                        >
-                          <TableCell>
-                            {image && (
-                              <Image
-                                src={image.imageUrl}
-                                alt={item.name}
-                                width={50}
-                                height={50}
-                                className="rounded-md object-cover"
-                                data-ai-hint={image.imageHint}
-                              />
-                            )}
-                          </TableCell>
-
-                          <TableCell className="font-medium">{item.name}</TableCell>
-
-                          <TableCell>
-                            {parentName && category?.parentCategoryId ? (
-                              <span className="text-sm">
-                                <span className="text-muted-foreground">
-                                  {parentName}
-                                </span>
-                                <span className="text-muted-foreground"> {" > "} </span>
-                                <span>{category?.name}</span>
-                              </span>
-                            ) : (
-                              <span>{category?.name}</span>
-                            )}
-                          </TableCell>
-
-                          <TableCell>{formatCurrency(item.price)}</TableCell>
-
-                          <TableCell>
-                            <Switch
-                              checked={!!item.isVisible}
-                              onCheckedChange={(v) =>
-                                handleToggleItem(item.id, "isVisible", v)
-                              }
-                            />
-                          </TableCell>
-
-                          <TableCell>
-                            <Switch
-                              checked={!!item.isSpecial}
-                              onCheckedChange={(v) =>
-                                handleToggleItem(item.id, "isSpecial", v)
-                              }
-                            />
-                          </TableCell>
-
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => handleStartEdit(item)}
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </Button>
-
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive"
-                                onClick={() => handleDeleteItem(item.id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[900px]">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[80px]">Imagen</TableHead>
+                          <TableHead>Nombre</TableHead>
+                          <TableHead>Categoría</TableHead>
+                          <TableHead>Precio</TableHead>
+                          <TableHead>Visible</TableHead>
+                          <TableHead>Especial</TableHead>
+                          <TableHead className="w-[100px]">Acciones</TableHead>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
+                      </TableHeader>
+
+                      <TableBody>
+                        {sortedItems.map((item) => {
+                          const category = categories.find((c) => c.id === item.categoryId);
+                          const parentId = getItemParentId(item);
+                          const parentName = parentId
+                            ? categoryById.get(parentId)?.name
+                            : undefined;
+
+                          const image = PlaceHolderImages.find((p) => p.id === item.imageId);
+
+                          return (
+                            <TableRow
+                              key={item.id}
+                              draggable={sortMode === "manual"}
+                              onDragStart={() => handleDragItemStart(item)}
+                              onDragOver={(e) => handleDragItemOver(e, item)}
+                              onDragEnd={handleDragItemEnd}
+                            >
+                              <TableCell>
+                                {image && (
+                                  <Image
+                                    src={image.imageUrl}
+                                    alt={item.name}
+                                    width={50}
+                                    height={50}
+                                    className="rounded-md object-cover"
+                                    data-ai-hint={image.imageHint}
+                                  />
+                                )}
+                              </TableCell>
+
+                              <TableCell className="font-medium">{item.name}</TableCell>
+
+                              <TableCell>
+                                {parentName && category?.parentCategoryId ? (
+                                  <span className="text-sm">
+                                    <span className="text-muted-foreground">
+                                      {parentName}
+                                    </span>
+                                    <span className="text-muted-foreground"> {" > "} </span>
+                                    <span>{category?.name}</span>
+                                  </span>
+                                ) : (
+                                  <span>{category?.name}</span>
+                                )}
+                              </TableCell>
+
+                              <TableCell>{formatCurrency(item.price)}</TableCell>
+
+                              <TableCell>
+                                <Switch
+                                  checked={!!item.isVisible}
+                                  onCheckedChange={(v) =>
+                                    handleToggleItem(item.id, "isVisible", v)
+                                  }
+                                />
+                              </TableCell>
+
+                              <TableCell>
+                                <Switch
+                                  checked={!!item.isSpecial}
+                                  onCheckedChange={(v) =>
+                                    handleToggleItem(item.id, "isSpecial", v)
+                                  }
+                                />
+                              </TableCell>
+
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleStartEdit(item)}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-destructive"
+                                    onClick={() => handleDeleteItem(item.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
