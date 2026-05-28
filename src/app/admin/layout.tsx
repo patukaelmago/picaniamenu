@@ -1,5 +1,11 @@
 "use client";
-import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
+
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+
 import AdminSidebar from "@/components/admin-sidebar";
 import { usePathname } from "next/navigation";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,9 +28,16 @@ export default function AdminLayout({
     <AdminAuthGuard>
       <SidebarProvider>
         <AdminSidebar />
+
         <SidebarInset>
+          <div className="sticky top-0 z-40 flex items-center gap-2 border-b bg-background/80 px-4 py-3 backdrop-blur md:hidden">
+            <SidebarTrigger />
+            <span className="text-sm font-medium">Menú</span>
+          </div>
+
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
         </SidebarInset>
+
         <Toaster />
       </SidebarProvider>
     </AdminAuthGuard>
