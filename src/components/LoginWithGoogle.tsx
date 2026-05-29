@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -16,7 +15,6 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
-import { DEFAULT_TENANT } from "@/lib/tenants";
 
 export default function LoginWithGoogle() {
   const router = useRouter();
@@ -36,10 +34,10 @@ export default function LoginWithGoogle() {
       const email = (result.user.email ?? "").toLowerCase();
       if (!email) throw new Error("No se pudo leer el email del usuario.");
 
-      // 1) Superadmin => entra al tenant por defecto
+      // 1) Superadmin => selector de tenant
       const superSnap = await getDoc(doc(db, "superadmins", email));
       if (superSnap.exists() && superSnap.data()?.enabled === true) {
-        router.replace(`/admin/${DEFAULT_TENANT}/menu`);
+        router.replace("/select-tenant");
         return;
       }
 
@@ -48,7 +46,10 @@ export default function LoginWithGoogle() {
 
       for (const t of tenantsSnap.docs) {
         const tenantId = t.id;
-        const adminSnap = await getDoc(doc(db, "tenants", tenantId, "admins", email));
+        const adminSnap = await getDoc(
+          doc(db, "tenants", tenantId, "admins", email)
+        );
+
         if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
           router.replace(`/admin/${tenantId}/menu`);
           return;
@@ -80,7 +81,11 @@ export default function LoginWithGoogle() {
         disabled:opacity-60 disabled:cursor-not-allowed
       "
     >
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
+      <img
+        src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+        alt="Google"
+        className="h-5 w-5"
+      />
       {loading ? "Conectando..." : "Continuar con Google"}
     </button>
   );
