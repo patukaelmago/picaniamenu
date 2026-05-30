@@ -431,7 +431,7 @@ export default function MenuClient({ tenantId }: Props) {
                       hover:shadow-none
   
                       text-[hsl(var(--foreground))]
-                      hover:text-[#1d2f59] dark:hover:text-[#fff7e3]
+                      hover:text-[#375a7e] dark:hover:text-[#fff7e3]
   
                       transition-colors
                     "
@@ -486,7 +486,7 @@ export default function MenuClient({ tenantId }: Props) {
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[#1d2f59] dark:text-[hsl(var(--muted-foreground))]"
+                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[#375a7e] dark:text-[hsl(var(--muted-foreground))]"
                   >
                     {category.name}
                   </h2>
