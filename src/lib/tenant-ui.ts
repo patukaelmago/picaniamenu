@@ -38,7 +38,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
   pulpo: {
     logoLight: "",
     logoDark: "",
-    navBg: "210 39% 36%",
+    navBg: "220 50% 23%",
     navText: "0 0% 100%",
     accent: "14 84% 53%",
     showFriday: false,
