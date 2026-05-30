@@ -408,7 +408,7 @@ export default function MenuClient({ tenantId }: Props) {
                       scrollToSection(categoryNavItems[categoryNavIndex].id)
                     }
                     className="
-                      w-[160px]
+                      w-[320px]
                       text-center
                       px-2
                       py-1
