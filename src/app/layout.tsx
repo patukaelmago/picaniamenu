@@ -5,7 +5,7 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Picaña | Restaurante",
+  title: "Carta-Online",
   description: "El menú de Picaña Restaurante, Rosario, AR.",
 };
 
