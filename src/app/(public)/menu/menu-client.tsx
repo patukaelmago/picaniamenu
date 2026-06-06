@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
+import { useTheme } from "next-themes";
 
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
@@ -65,6 +66,13 @@ function fridayDescOverride(
 type Props = { tenantId: string };
 
 export default function MenuClient({ tenantId }: Props) {
+  const { setTheme } = useTheme();
+
+useEffect(() => {
+  if (tenantId === "picania") {
+    setTheme("dark");
+  }
+}, [tenantId, setTheme]);
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
