@@ -67,6 +67,8 @@ type Props = { tenantId: string };
 
 export default function MenuClient({ tenantId }: Props) {
   const { setTheme, resolvedTheme } = useTheme();
+  console.log("TENANT:", tenantId);
+console.log("THEME:", resolvedTheme);
 
   useEffect(() => {
     if (tenantId === "picania" && resolvedTheme !== "dark") {
