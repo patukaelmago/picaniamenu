@@ -349,6 +349,7 @@ export default function MenuClient({ tenantId }: Props) {
 
 
   return (
+    <div className={tenantId === "picania" ? "dark" : ""}>
     <main className="min-h-screen bg-background">
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
         {mounted && carouselImages.length > 0 && (
@@ -616,5 +617,6 @@ export default function MenuClient({ tenantId }: Props) {
         </div>
       </section>
     </main>
+    </div>
   );
 }
