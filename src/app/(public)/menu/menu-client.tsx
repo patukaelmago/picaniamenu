@@ -66,13 +66,13 @@ function fridayDescOverride(
 type Props = { tenantId: string };
 
 export default function MenuClient({ tenantId }: Props) {
-  const { setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
 
-useEffect(() => {
-  if (tenantId === "picania") {
-    setTheme("dark");
-  }
-}, [tenantId, setTheme]);
+  useEffect(() => {
+    if (tenantId === "picania" && resolvedTheme !== "dark") {
+      setTheme("dark");
+    }
+  }, [tenantId, resolvedTheme, setTheme]);
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
