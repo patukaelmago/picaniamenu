@@ -220,7 +220,7 @@ export default function AdminSidebar() {
         <Separator className="mt-3 bg-white/10" />
       </SidebarHeader>
 
-      <SidebarContent className="bg-[#1b3059] p-2 text-[#fff7e3]">
+      <SidebarContent className="p-2 text-[hsl(var(--nav-text))]">
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
