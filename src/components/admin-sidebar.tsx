@@ -228,7 +228,7 @@ export default function AdminSidebar() {
                 asChild
                 isActive={isActiveHref(item.href)}
                 tooltip={item.label}
-                className="justify-start text-[#fff7e3] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
+                className="justify-starttext-[hsl(var(--nav-text))] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
               >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
@@ -247,7 +247,7 @@ export default function AdminSidebar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex h-auto w-full items-center justify-between p-2 text-[#fff7e3] hover:bg-white/10 hover:text-white"
+              className="flex h-auto w-full items-center justify-between p-2 text-[hsl(var(--nav-text))] hover:bg-white/10 hover:text-white"
             >
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
@@ -258,7 +258,7 @@ export default function AdminSidebar() {
                 {state === "expanded" && (
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">{displayName}</span>
-                    <span className="text-xs text-[#fff7e3]/70">{email}</span>
+                    <span className="text-xs text-[hsl(var(--nav-text))]/70">{email}</span>
                   </div>
                 )}
               </div>
