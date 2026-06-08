@@ -43,6 +43,15 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     accent: "14 84% 53%",
     showFriday: false,
   },
+
+  sucre: {
+    logoLight: "",
+    logoDark: "",
+    navBg: "178 73% 25%",
+    navText: "45 33% 63%",
+    accent: "45 33% 63%",
+    showFriday: false,
+  },
 };
 
 export function getTenantUI(tenantId?: string | null): TenantUI {
