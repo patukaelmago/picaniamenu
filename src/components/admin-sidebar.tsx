@@ -188,14 +188,14 @@ export default function AdminSidebar() {
     <Sidebar
       className="border-r-0"
       style={{
-        backgroundColor: "#1b3059",
+        backgroundColor: "hsl(var(--nav-bg))",
         color: "#fff7e3",
       }}
     >
       <SidebarHeader
         className="py-4"
         style={{
-          backgroundColor: "#1b3059",
+          backgroundColor: "hsl(var(--nav-bg))",
           color: "#fff7e3",
         }}
       >
