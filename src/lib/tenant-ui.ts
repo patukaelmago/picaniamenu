@@ -20,9 +20,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
   picana: {
     logoLight: "",
     logoDark: "",
-    navBg: "222 51% 23%",
-    navText: "0 0% 100%",
-    accent: "222 51% 23%",
+    navBg: "43 100% 94%",
+    navText: "210 52% 22%",
+    accent: "210 52% 22%",
     showFriday: true,
   },
 
