@@ -213,7 +213,7 @@ export default function AdminSidebar() {
         </div>
 
         <div className="mt-3 flex items-center justify-between px-3">
-          <span className="text-sm text-[#fff7e3]/80">Tema</span>
+          
           <ThemeToggle />
         </div>
 
