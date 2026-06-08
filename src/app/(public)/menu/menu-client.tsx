@@ -98,6 +98,20 @@ console.log("THEME:", resolvedTheme);
   }, [tenantId]);
 
   useEffect(() => {
+    const r = document.documentElement;
+  
+    r.style.setProperty("--nav-bg", ui.navBg);
+    r.style.setProperty("--nav-text", ui.navText);
+    r.style.setProperty("--accent", ui.accent);
+  
+    return () => {
+      r.style.removeProperty("--nav-bg");
+      r.style.removeProperty("--nav-text");
+      r.style.removeProperty("--accent");
+    };
+  }, [ui.navBg, ui.navText, ui.accent]);
+
+  useEffect(() => {
     if (!uiReady) return;
     if (!ui.showFriday) return;
 
