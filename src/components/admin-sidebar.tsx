@@ -240,7 +240,7 @@ export default function AdminSidebar() {
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="bg-[#1b3059] text-[#fff7e3]">
+      <SidebarFooter className="text-[hsl(var(--nav-text))]">
         <Separator className="my-2 bg-white/10" />
 
         <DropdownMenu>
