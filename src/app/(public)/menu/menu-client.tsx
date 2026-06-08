@@ -70,11 +70,7 @@ export default function MenuClient({ tenantId }: Props) {
   console.log("TENANT:", tenantId);
 console.log("THEME:", resolvedTheme);
 
-  useEffect(() => {
-    if (tenantId === "picana" && resolvedTheme !== "dark") {
-      setTheme("dark");
-    }
-  }, [tenantId, resolvedTheme, setTheme]);
+ 
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
