@@ -483,8 +483,8 @@ export default function TenantSettingsPage({
                 className={[
                   "relative flex min-h-40 cursor-pointer items-center justify-center rounded-md border-2 border-dashed p-4 transition-all overflow-hidden",
                   isLogoDragging
-                    ? "border-primary bg-muted/40"
-                    : "border-border bg-muted/20 hover:bg-muted/30",
+  ? "border-[hsl(var(--nav-text))] bg-[hsl(var(--nav-bg))]"
+  : "border-[hsl(var(--nav-text))]/30 bg-[hsl(var(--nav-bg))] hover:bg-[hsl(var(--nav-bg))]",
                 ].join(" ")}
               >
                 {showLogo ? (
