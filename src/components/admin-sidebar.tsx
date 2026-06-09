@@ -228,8 +228,7 @@ export default function AdminSidebar() {
                 asChild
                 isActive={isActiveHref(item.href)}
                 tooltip={item.label}
-                className="justify-starttext-[hsl(var(--nav-text))] hover:bg-white/10 hover:text-white data-[active=true]:bg-white/15 data-[active=true]:text-white"
-              >
+                className="justify-start text-[hsl(var(--nav-text))] hover:bg-white/10 hover:text-[hsl(var(--nav-text))] data-[active=true]:bg-white/15 data-[active=true]:text-[hsl(var(--nav-text))]"              >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
