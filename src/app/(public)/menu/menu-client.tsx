@@ -481,7 +481,7 @@ console.log("THEME:", resolvedTheme);
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por plato, ingrediente..."
-              className="pl-10 border border-[hsl(var(--nav-text))]/40 text-[hsl(var(--nav-text))] placeholder:text-[hsl(var(--nav-text))]/70 focus-visible:ring-1 focus-visible:ring-[hsl(var(--nav-text))]"            />
+              className="pl-10 border border-[hsl(var(--nav-text))]/40 text-[hsl(var(--nav-text))] placeholder:!text-[hsl(var(--nav-text))] placeholder:opacity-80 focus-visible:ring-1 focus-visible:ring-[hsl(var(--nav-text))]"            />
           </div>
         </div>
   
