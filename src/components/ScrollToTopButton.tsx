@@ -36,13 +36,11 @@ export default function ScrollToTopButton() {
         z-50
         p-3
         rounded-full
-        bg-black
-        text-white
+        bg-[hsl(var(--nav-bg))]
+        text-[hsl(var(--nav-text))]
         shadow-lg
         hover:scale-110
         transition-all
-        dark:bg-[hsl(var(--nav-text))]
-        dark:text-black
       "
     >
       <ArrowUp className="w-5 h-5" />
