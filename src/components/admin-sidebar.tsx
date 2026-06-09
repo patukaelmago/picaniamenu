@@ -188,7 +188,7 @@ export default function AdminSidebar() {
     <Sidebar
       className="border-r-0"
       style={{
-        backgroundColor: "hsl(var(--nav-bg))",
+        backgroundColor: "#fff7e3",
         color: "#fff7e3",
       }}
     >
