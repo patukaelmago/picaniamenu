@@ -476,7 +476,7 @@ console.log("THEME:", resolvedTheme);
           </div>
   
           <div className="relative w-full max-w-xl mb-4">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[hsl(var(--nav-text))]" />
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
