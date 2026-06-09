@@ -499,7 +499,7 @@ export default function TenantAlmuerzoPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline text-[#1b3059]">
+      <h1 className="text-3xl font-bold font-headline text-[hsl(var(--nav-text))]">
           Configuración de Almuerzo
         </h1>
         <p className="text-muted-foreground">
