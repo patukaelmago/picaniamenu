@@ -508,7 +508,7 @@ console.log("THEME:", resolvedTheme);
               >
                 <div className="space-y-1">
                   <h2
-                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[#375a7e] dark:text-[hsl(var(--muted-foreground))]"
+                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[hsl(var(--nav-text))] dark:text-[hsl(var(--muted-foreground))]"
                   >
                     {category.name}
                   </h2>
