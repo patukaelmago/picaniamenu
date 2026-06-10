@@ -103,11 +103,13 @@ console.log("THEME:", resolvedTheme);
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
     r.style.setProperty("--accent", ui.accent);
+    r.style.setProperty("--search-icon", ui.searchIcon);
   
     return () => {
       r.style.removeProperty("--nav-bg");
       r.style.removeProperty("--nav-text");
       r.style.removeProperty("--accent");
+      r.style.removeProperty("--search-icon");
     };
   }, [ui.navBg, ui.navText, ui.accent]);
 
