@@ -4,6 +4,7 @@ export type TenantUI = {
   navBg: string;
   navText: string;
   accent: string;
+  searchIcon: string;
   showFriday: boolean;
 };
 
@@ -13,6 +14,7 @@ const DEFAULT: TenantUI = {
   navBg: "222 51% 23%",
   navText: "0 0% 100%",
   accent: "222 51% 23%",
+  searchIcon: "0 0% 100%",
   showFriday: false,
 };
 
@@ -32,6 +34,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navBg: "222 51% 23%",
     navText: "0 0% 100%",
     accent: "222 51% 23%",
+    searchIcon: "0 0% 100%",
     showFriday: false,
   },
 
@@ -41,6 +44,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navBg: "220 50% 23%",
     navText: "0 0% 100%",
     accent: "14 84% 53%",
+    searchIcon: "0 0% 100%",
     showFriday: false,
   },
 
@@ -50,6 +54,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navBg: "178 73% 25%",
     navText: "45 33% 63%",
     accent: "45 33% 63%",
+    searchIcon: "45 33% 63%",
     showFriday: false,
   },
 };
