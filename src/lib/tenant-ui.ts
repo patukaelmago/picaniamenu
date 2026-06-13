@@ -5,6 +5,8 @@ export type TenantUI = {
   navText: string;
   accent: string;
   searchIcon: string;
+  background: string;
+  foreground: string;
   showFriday: boolean;
 };
 
@@ -15,6 +17,8 @@ const DEFAULT: TenantUI = {
   navText: "0 0% 100%",
   accent: "222 51% 23%",
   searchIcon: "0 0% 100%",
+  background: "0 0% 100%",
+  foreground: "222 51% 23%",
   showFriday: false,
 };
 
@@ -25,16 +29,21 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navBg: "43 100% 94%",
     navText: "210 52% 22%",
     accent: "210 52% 22%",
+    searchIcon: "210 52% 22%",
+    background: "220 50% 23%",
+    foreground: "43 100% 94%",
     showFriday: true,
   },
 
   laroti: {
     logoLight: "",
     logoDark: "",
-    navBg: "222 51% 23%",
-    navText: "0 0% 100%",
-    accent: "222 51% 23%",
-    searchIcon: "0 0% 100%",
+    navBg: "45 85% 55%",
+    navText: "0 0% 0%",
+    accent: "45 85% 55%",
+    searchIcon: "45 85% 55%",
+    background: "0 0% 0%",
+    foreground: "45 85% 55%",
     showFriday: false,
   },
 
@@ -45,6 +54,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navText: "0 0% 100%",
     accent: "14 84% 53%",
     searchIcon: "0 0% 100%",
+    background: "43 100% 94%",
+    foreground: "220 50% 23%",
     showFriday: false,
   },
 
@@ -55,6 +66,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navText: "45 33% 63%",
     accent: "45 33% 63%",
     searchIcon: "45 33% 63%",
+    background: "45 33% 63%",
+    foreground: "178 73% 25%",
     showFriday: false,
   },
 };
