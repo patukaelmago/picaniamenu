@@ -364,7 +364,7 @@ console.log("THEME:", resolvedTheme);
 
   return (
     <div className={tenantId === "picania" ? "dark" : ""}>
-    <main className="min-h-screen bg-background">
+    <main className={`min-h-screen ${tenantId === "picania" ? "bg-[#1d2f59]" : "bg-background"}`}>
       <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
         {mounted && carouselImages.length > 0 && (
           <div className="w-full">
