@@ -8,6 +8,7 @@ export type TenantUI = {
   searchText: string;
   background: string;
   foreground: string;
+  categoryTitle: string;
   showFriday: boolean;
 };
 
@@ -21,6 +22,7 @@ const DEFAULT: TenantUI = {
   searchText: "0 0% 100%",
   background: "0 0% 100%",
   foreground: "222 51% 23%",
+  categoryTitle: "222 51% 23%",
   showFriday: false,
 };
 
@@ -33,8 +35,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     accent: "210 52% 22%",
     searchIcon: "43 100% 94%",
     searchText: "43 100% 94%",
-    background: "0 0% 0%",
+    background: "210 39% 35%",
     foreground: "43 100% 94%",
+    categoryTitle: "43 59% 56%",
     showFriday: true,
   },
 
@@ -48,6 +51,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     searchText: "45 85% 55%",
     background: "45 85% 55%",
     foreground: "0 0% 0%",
+    categoryTitle: "222 51% 23%",
     showFriday: false,
   },
 
@@ -61,6 +65,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     searchText: "220 50% 23%",
     background: "43 100% 94%",
     foreground: "220 50% 23%",
+    categoryTitle: "222 51% 23%",
     showFriday: false,
   },
 
@@ -74,6 +79,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     searchText: "178 73% 25%",
     background: "45 33% 63%",
     foreground: "178 73% 25%",
+    categoryTitle: "222 51% 23%",
     showFriday: false,
   },
 };
