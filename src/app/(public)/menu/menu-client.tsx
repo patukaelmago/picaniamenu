@@ -483,14 +483,18 @@ console.log("THEME:", resolvedTheme);
             </div>
           </div>
   
-          <div className="relative w-full max-w-xl mb-4">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[hsl(var(--nav-text))]" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por plato, ingrediente..."
-              className="pl-10 border border-[#fff7e3]/40 text-[#fff7e3] placeholder:!text-[#fff7e3] placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"              />
-          </div>
+          <Search
+  className="absolute left-3 top-2.5 h-4 w-4"
+  style={{ color: `hsl(${ui.searchIcon})` }}
+/>
+
+<Input
+  value={search}
+  onChange={(e) => setSearch(e.target.value)}
+  placeholder="Buscar por plato, ingrediente..."
+  style={{ color: `hsl(${ui.searchText})` }}
+  className="pl-10 border border-[#fff7e3]/40 placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"
+/>
         </div>
   
         <div className="space-y-10">
