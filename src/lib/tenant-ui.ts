@@ -11,6 +11,7 @@ export type TenantUI = {
   categoryTitle: string;
   categoryNav: string;
   descriptionText: string;
+  categoryNavHover: string;
   showFriday: boolean;
 
 };
@@ -28,6 +29,7 @@ const DEFAULT: TenantUI = {
   categoryTitle: "222 51% 23%",
   categoryNav: "0 0% 100%",
   descriptionText: "0 0% 100%",
+  categoryNavHover: "0 0% 100%",
   showFriday: false,
 };
 
@@ -46,6 +48,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryTitle: "43 100% 94%",
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
+    categoryNavHover: "0 0% 100%",
+    
     showFriday: true,
   },
 
@@ -62,6 +66,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryTitle: "222 51% 23%",
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
+    categoryNavHover: "0 0% 100%",
     showFriday: false,
   },
 
@@ -78,6 +83,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryTitle: "222 51% 23%",
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
+    categoryNavHover: "0 0% 100%",
     showFriday: false,
   },
 
@@ -94,6 +100,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryTitle: "222 51% 23%",
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
+    categoryNavHover: "0 0% 100%",
     showFriday: false,
   },
 };

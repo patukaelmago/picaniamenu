@@ -461,7 +461,15 @@ console.log("THEME:", resolvedTheme);
 
     transition-colors
   "
-  style={{ color: `hsl(${ui.categoryNav})` }}
+  style={{
+    color: `hsl(${ui.categoryNav})`,
+  }}
+  onMouseEnter={(e) =>
+    (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
+  }
+  onMouseLeave={(e) =>
+    (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
+  }
 >
                     {categoryNavItems[categoryNavIndex].name}
                   </Button>
