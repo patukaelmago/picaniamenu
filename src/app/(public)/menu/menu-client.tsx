@@ -432,39 +432,37 @@ console.log("THEME:", resolvedTheme);
                     </button>
                   )}
   
-                  <Button
-                    onClick={() =>
-                      scrollToSection(categoryNavItems[categoryNavIndex].id)
-                    }
-                    className="
-                      w-[320px]
-                      text-center
-                      px-2
-                      py-1
-  
-                      font-headline
-                      uppercase
-                      tracking-[0.3em]
-  
-                      text-[14px]
-  
-                      bg-transparent
-                      border-b-2
-                      shadow-none
-                      ring-0
-                      focus:ring-0
-                      focus-visible:ring-0
-                      focus-visible:outline-none
-  
-                      hover:bg-transparent
-                      hover:shadow-none
-  
-                      text-[hsl(var(--foreground))]
-                      hover:text-[#375a7e] dark:hover:text-[#fff7e3]
-  
-                      transition-colors
-                    "
-                  >
+  <Button
+  onClick={() =>
+    scrollToSection(categoryNavItems[categoryNavIndex].id)
+  }
+  className="
+    w-[320px]
+    text-center
+    px-2
+    py-1
+
+    font-headline
+    uppercase
+    tracking-[0.3em]
+
+    text-[14px]
+
+    bg-transparent
+    border-b-2
+    shadow-none
+    ring-0
+    focus:ring-0
+    focus-visible:ring-0
+    focus-visible:outline-none
+
+    hover:bg-transparent
+    hover:shadow-none
+
+    transition-colors
+  "
+  style={{ color: `hsl(${ui.categoryNav})` }}
+>
                     {categoryNavItems[categoryNavIndex].name}
                   </Button>
   
@@ -517,9 +515,10 @@ console.log("THEME:", resolvedTheme);
                 className="space-y-4 scroll-mt-24 md:scroll-mt-28"
               >
                 <div className="space-y-1">
-                  <h2
-                    className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4 text-[#375a7e] dark:text-[hsl(var(--muted-foreground))]"
-                  >
+                <h2
+  className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4"
+  style={{ color: `hsl(${ui.categoryTitle})` }}
+>
                     {category.name}
                   </h2>
                   <div className="h-px w-full bg-border/10" />
@@ -548,7 +547,10 @@ console.log("THEME:", resolvedTheme);
                       </div>
 
                       {item.description && (
-                        <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
+                       <p
+                       className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
+                       style={{ color: `hsl(${ui.descriptionText})` }}
+                     >
                           {item.description}
                         </p>
                       )}

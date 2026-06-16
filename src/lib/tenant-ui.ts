@@ -9,7 +9,10 @@ export type TenantUI = {
   background: string;
   foreground: string;
   categoryTitle: string;
+  categoryNav: string;
+  descriptionText: string;
   showFriday: boolean;
+
 };
 
 const DEFAULT: TenantUI = {
@@ -23,10 +26,13 @@ const DEFAULT: TenantUI = {
   background: "0 0% 100%",
   foreground: "222 51% 23%",
   categoryTitle: "222 51% 23%",
+  categoryNav: "0 0% 100%",
+  descriptionText: "0 0% 100%",
   showFriday: false,
 };
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
+
   picana: {
     logoLight: "",
     logoDark: "",
@@ -38,6 +44,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     background: "210 39% 35%",
     foreground: "43 100% 94%",
     categoryTitle: "43 100% 94%",
+    categoryNav: "0 0% 100%",
+    descriptionText: "0 0% 100%",
     showFriday: true,
   },
 
@@ -52,6 +60,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     background: "45 85% 55%",
     foreground: "0 0% 0%",
     categoryTitle: "222 51% 23%",
+    categoryNav: "0 0% 100%",
+    descriptionText: "0 0% 100%",
     showFriday: false,
   },
 
@@ -66,6 +76,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     background: "43 100% 94%",
     foreground: "220 50% 23%",
     categoryTitle: "222 51% 23%",
+    categoryNav: "0 0% 100%",
+    descriptionText: "0 0% 100%",
     showFriday: false,
   },
 
@@ -80,6 +92,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     background: "45 33% 63%",
     foreground: "178 73% 25%",
     categoryTitle: "222 51% 23%",
+    categoryNav: "0 0% 100%",
+    descriptionText: "0 0% 100%",
     showFriday: false,
   },
 };
