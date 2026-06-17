@@ -358,11 +358,17 @@ export default function MenuClient({ tenantId }: Props) {
 
   const moveCategoryNav = (dir: "left" | "right") => {
     setCategoryNavIndex((prev) => {
-      if (dir === "left") return Math.max(prev - 1, 0);
-      return Math.min(prev + 1, categoryNavItems.length - 1);
+      if (dir === "left") {
+        return prev === 0
+          ? categoryNavItems.length - 1
+          : prev - 1;
+      }
+  
+      return prev === categoryNavItems.length - 1
+        ? 0
+        : prev + 1;
     });
   };
-
   if (!uiReady) return null;
 
 
@@ -425,77 +431,74 @@ export default function MenuClient({ tenantId }: Props) {
                 </h1>
 
                 {categoryNavItems.length > 0 && (
-                  <div className="relative flex w-full items-center justify-center py-2">
-                    {categoryNavIndex > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => moveCategoryNav("left")}
-                        className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                        aria-label="Categoría anterior"
-                      >
-                        <ChevronLeft className="h-10 w-10"
-                          style={{ color: `hsl(${ui.foreground})` }} />
-                      </button>
-                    )}
+  <div className="relative flex w-full items-center justify-center py-2">
+    <button
+      type="button"
+      onClick={() => moveCategoryNav("left")}
+      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+      aria-label="Categoría anterior"
+    >
+      <ChevronLeft
+        className="h-10 w-10"
+        style={{ color: `hsl(${ui.foreground})` }}
+      />
+    </button>
 
-                    <Button
-                      onClick={() =>
-                        scrollToSection(categoryNavItems[categoryNavIndex].id)
-                      }
-                      className="
-    w-[320px]
-    text-center
-    px-2
-    py-1
+    <Button
+      onClick={() =>
+        scrollToSection(categoryNavItems[categoryNavIndex].id)
+      }
+      className="
+        w-[320px]
+        text-center
+        px-2
+        py-1
 
-    font-headline
-    uppercase
-    tracking-[0.3em]
+        font-headline
+        uppercase
+        tracking-[0.3em]
 
-    text-[14px]
+        text-[14px]
 
-    bg-transparent
-    border-b-2
-    shadow-none
-    ring-0
-    focus:ring-0
-    focus-visible:ring-0
-    focus-visible:outline-none
+        bg-transparent
+        border-b-2
+        shadow-none
+        ring-0
+        focus:ring-0
+        focus-visible:ring-0
+        focus-visible:outline-none
 
-    hover:bg-transparent
-    hover:shadow-none
+        hover:bg-transparent
+        hover:shadow-none
 
-    transition-colors
-  "
-                      style={{
-                        color: `hsl(${ui.categoryNav})`,
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
-                      }
-                    >
-                      {categoryNavItems[categoryNavIndex]?.name ?? ""}
-                    </Button>
+        transition-colors
+      "
+      style={{
+        color: `hsl(${ui.categoryNav})`,
+      }}
+      onMouseEnter={(e) =>
+        (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
+      }
+      onMouseLeave={(e) =>
+        (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
+      }
+    >
+      {categoryNavItems[categoryNavIndex]?.name ?? ""}
+    </Button>
 
-                    {categoryNavIndex < categoryNavItems.length - 1 && (
-                      <button
-                        type="button"
-                        onClick={() => moveCategoryNav("right")}
-                        className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                        aria-label="Categoría siguiente"
-                      >
-                        <ChevronRight className="h-10 w-10"
-                          style={{ color: `hsl(${ui.foreground})` }} />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
+    <button
+      type="button"
+      onClick={() => moveCategoryNav("right")}
+      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+      aria-label="Categoría siguiente"
+    >
+      <ChevronRight
+        className="h-10 w-10"
+        style={{ color: `hsl(${ui.foreground})` }}
+      />
+    </button>
+  </div>
+)}
             <Search
               className="absolute left-3 top-2.5 h-4 w-4"
               style={{ color: `hsl(${ui.searchIcon})` }}
