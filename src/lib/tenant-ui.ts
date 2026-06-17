@@ -53,7 +53,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     foreground: "43 100% 94%",
     categoryTitle: "43 100% 94%",
     categoryNav: "0 0% 100%",
-    descriptionText: "0 0% 100%",
+    descriptionText: "43 100% 94%",
     categoryNavHover: "43 100% 94%",
     specialBadgeText: "0 0% 0%",
     specialBadgeBorder: "24 100% 56%",
