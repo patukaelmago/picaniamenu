@@ -55,7 +55,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "43 100% 94%",
-    specialBadgeText: "24 100% 56%",
+    specialBadgeText: "0 0% 0%",
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
     showFriday: true,
