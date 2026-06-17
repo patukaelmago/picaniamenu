@@ -608,14 +608,14 @@ export default function MenuClient({ tenantId }: Props) {
 
                     return (
                       <div key={sub.id} className="border-b border-border/10 pb-3">
-  {showSubTitle && (
-    <p
-      className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
-      style={{ color: `hsl(${ui.subCategoryTitle})` }}
-    >
-      {sub.name}
-    </p>
-  )}
+                        {showSubTitle && (
+                          <p
+                            className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
+                            style={{ color: `hsl(${ui.subCategoryTitle})` }}
+                          >
+                            {sub.name}
+                          </p>
+                        )}
 
                         <div className="divide-y divide-border/10">
                           {itemsSub.map((item) => {
@@ -628,7 +628,12 @@ export default function MenuClient({ tenantId }: Props) {
                               return (
                                 <div key={item.id} className="py-3">
                                   <p className="font-headline text-[15px] md:text-base tracking-wide">
-                                    <span className="font-headline text-[15px] md:text-base tracking-wide text-foreground">{item.name}:</span>{" "}
+                                    <span
+                                      className="font-headline text-[15px] md:text-base tracking-wide"
+                                      style={{ color: "#FFF7E3" }}
+                                    >
+                                      {item.name}:
+                                    </span>{" "}
                                     <span style={{ color: `hsl(${ui.descriptionText})` }}>
                                       {shownDesc || "—"}
                                     </span>
