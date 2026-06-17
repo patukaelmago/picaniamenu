@@ -556,7 +556,7 @@ style={{ color: `hsl(${ui.foreground})` }} />
             }}
           >
             <SparklesIcon className="h-3 w-3" />
-            Especial
+            Sugerencia
           </Badge>
         )}
 
