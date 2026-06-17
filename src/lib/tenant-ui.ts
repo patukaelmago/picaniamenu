@@ -12,6 +12,9 @@ export type TenantUI = {
   categoryNav: string;
   descriptionText: string;
   categoryNavHover: string;
+  specialBadgeText: string;
+  specialBadgeBorder: string;
+  specialBadgeBg: string;
   showFriday: boolean;
 
 };
@@ -30,6 +33,9 @@ const DEFAULT: TenantUI = {
   categoryNav: "0 0% 100%",
   descriptionText: "0 0% 100%",
   categoryNavHover: "0 0% 100%",
+  specialBadgeText: "24 100% 56%",
+  specialBadgeBorder: "24 100% 56%",
+  specialBadgeBg: "24 100% 56%",
   showFriday: false,
 };
 
@@ -41,7 +47,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navBg: "43 100% 94%",
     navText: "210 52% 22%",
     accent: "210 52% 22%",
-    searchIcon:  "43 100% 94%",
+    searchIcon: "43 100% 94%",
     searchText: "220 50% 23%",
     background: "222 50% 23%",
     foreground: "43 100% 94%",
@@ -49,6 +55,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "43 100% 94%",
+    specialBadgeText: "24 100% 56%",
+    specialBadgeBorder: "24 100% 56%",
+    specialBadgeBg: "24 100% 56%",
     showFriday: true,
   },
 
@@ -66,6 +75,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "0 0% 100%",
+    specialBadgeText: "24 100% 56%",
+    specialBadgeBorder: "24 100% 56%",
+    specialBadgeBg: "24 100% 56%",
     showFriday: false,
   },
 
@@ -83,6 +95,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "0 0% 100%",
+    specialBadgeText: "24 100% 56%",
+    specialBadgeBorder: "24 100% 56%",
+    specialBadgeBg: "24 100% 56%",
     showFriday: false,
   },
 
@@ -100,6 +115,9 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "0 0% 100%",
+    specialBadgeText: "24 100% 56%",
+    specialBadgeBorder: "24 100% 56%",
+    specialBadgeBg: "24 100% 56%",
     showFriday: false,
   },
 };
