@@ -42,7 +42,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     navText: "210 52% 22%",
     accent: "210 52% 22%",
     searchIcon:  "43 100% 94%",
-    searchText: "43 100% 94%",
+    searchText: "220 50% 23%",
     background: "222 50% 23%",
     foreground: "43 100% 94%",
     categoryTitle: "43 100% 94%",
