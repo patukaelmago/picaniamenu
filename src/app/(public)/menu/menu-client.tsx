@@ -608,11 +608,14 @@ export default function MenuClient({ tenantId }: Props) {
 
                     return (
                       <div key={sub.id} className="border-b border-border/10 pb-3">
-                        {showSubTitle && (
-                          <p className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-muted-foreground">
-                            {sub.name}
-                          </p>
-                        )}
+  {showSubTitle && (
+    <p
+      className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
+      style={{ color: `hsl(${ui.subCategoryTitle})` }}
+    >
+      {sub.name}
+    </p>
+  )}
 
                         <div className="divide-y divide-border/10">
                           {itemsSub.map((item) => {
