@@ -428,7 +428,8 @@ console.log("THEME:", resolvedTheme);
                       className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría anterior"
                     >
-                      <ChevronLeft className="h-10 w-10 text-[hsl(var(--foreground))]" />
+                      <ChevronLeft className="h-10 w-10"
+style={{ color: `hsl(${ui.foreground})` }} />
                     </button>
                   )}
   
@@ -481,7 +482,8 @@ console.log("THEME:", resolvedTheme);
                       className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
                       aria-label="Categoría siguiente"
                     >
-                      <ChevronRight className="h-10 w-10 text-[hsl(var(--foreground))]" />
+                      <ChevronRight className="h-10 w-10"
+style={{ color: `hsl(${ui.foreground})` }} />
                     </button>
                   )}
                 </div>
