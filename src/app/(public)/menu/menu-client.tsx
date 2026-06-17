@@ -68,9 +68,9 @@ type Props = { tenantId: string };
 export default function MenuClient({ tenantId }: Props) {
   const { setTheme, resolvedTheme } = useTheme();
   console.log("TENANT:", tenantId);
-console.log("THEME:", resolvedTheme);
+  console.log("THEME:", resolvedTheme);
 
- 
+
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -99,12 +99,12 @@ console.log("THEME:", resolvedTheme);
 
   useEffect(() => {
     const r = document.documentElement;
-  
+
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
     r.style.setProperty("--accent", ui.accent);
     r.style.setProperty("--search-icon", ui.searchIcon);
-  
+
     return () => {
       r.style.removeProperty("--nav-bg");
       r.style.removeProperty("--nav-text");
@@ -348,7 +348,7 @@ console.log("THEME:", resolvedTheme);
         name: cat.name,
       })),
   ];
-  
+
   useEffect(() => {
     if (categoryNavIndex >= categoryNavItems.length) {
       setCategoryNavIndex(0);
@@ -369,80 +369,80 @@ console.log("THEME:", resolvedTheme);
 
   return (
     <div className={tenantId === "picania" ? "dark" : ""}>
-    <main
-  className="min-h-screen"
-  style={{
-    backgroundColor: `hsl(${ui.background})`,
-    color: `hsl(${ui.foreground})`,
-  }}
->
-      <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
-        {mounted && carouselImages.length > 0 && (
-          <div className="w-full">
-            <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
-              <div className="relative h-[220px] md:h-[320px] w-full bg-muted/20">
-                {carouselImages.map((img, idx) => (
-                  <img
-                    key={`${img.src}-${idx}`}
-                    src={img.src}
-                    alt={img.alt}
-                    data-ai-hint={img.hint}
-                    loading={idx === 0 ? "eager" : "lazy"}
-                    onLoad={() => setLoadedSlides((p) => ({ ...p, [idx]: true }))}
-                    className={[
-                      "absolute inset-0 h-full w-full object-cover",
-                      "transition-opacity duration-700 ease-out",
-                      idx === activeSlide ? "opacity-100" : "opacity-0",
-                      loadedSlides[idx] ? "visible" : "invisible",
-                    ].join(" ")}
-                  />
-                ))}
-              </div>
-  
-              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
-                {carouselImages.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveSlide(i)}
-                    className={[
-                      "h-1.5 w-1.5 rounded-full transition-all",
-                      i === activeSlide ? "bg-[#fff7e3]" : "bg-[#fff7e3]/50",
-                    ].join(" ")}
-                  />
-                ))}
+      <main
+        className="min-h-screen"
+        style={{
+          backgroundColor: `hsl(${ui.background})`,
+          color: `hsl(${ui.foreground})`,
+        }}
+      >
+        <section className="mx-auto max-w-5xl px-4 pt-8 pb-8 space-y-6">
+          {mounted && carouselImages.length > 0 && (
+            <div className="w-full">
+              <div className="relative overflow-hidden rounded-xl border border-[rgba(0,0,0,0.08)] dark:border-[#fff7e3]/20 shadow-sm">
+                <div className="relative h-[220px] md:h-[320px] w-full bg-muted/20">
+                  {carouselImages.map((img, idx) => (
+                    <img
+                      key={`${img.src}-${idx}`}
+                      src={img.src}
+                      alt={img.alt}
+                      data-ai-hint={img.hint}
+                      loading={idx === 0 ? "eager" : "lazy"}
+                      onLoad={() => setLoadedSlides((p) => ({ ...p, [idx]: true }))}
+                      className={[
+                        "absolute inset-0 h-full w-full object-cover",
+                        "transition-opacity duration-700 ease-out",
+                        idx === activeSlide ? "opacity-100" : "opacity-0",
+                        loadedSlides[idx] ? "visible" : "invisible",
+                      ].join(" ")}
+                    />
+                  ))}
+                </div>
+
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
+                  {carouselImages.map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveSlide(i)}
+                      className={[
+                        "h-1.5 w-1.5 rounded-full transition-all",
+                        i === activeSlide ? "bg-[#fff7e3]" : "bg-[#fff7e3]/50",
+                      ].join(" ")}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-  
-        <div className="flex flex-col gap-4 items-center text-center">
-          <div className="w-full">
-            <div className="flex flex-col items-center gap-3 w-full">
-              {ui.showFriday && <div className="hidden md:block" />}
-  
-              <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
-                NUESTRA CARTA
-              </h1>
-  
-              {categoryNavItems.length > 0 && (
-                <div className="relative flex w-full items-center justify-center py-2">
-                  {categoryNavIndex > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => moveCategoryNav("left")}
-                      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label="Categoría anterior"
-                    >
-                      <ChevronLeft className="h-10 w-10"
-style={{ color: `hsl(${ui.foreground})` }} />
-                    </button>
-                  )}
-  
-  <Button
-  onClick={() =>
-    scrollToSection(categoryNavItems[categoryNavIndex].id)
-  }
-  className="
+          )}
+
+          <div className="flex flex-col gap-4 items-center text-center">
+            <div className="w-full">
+              <div className="flex flex-col items-center gap-3 w-full">
+                {ui.showFriday && <div className="hidden md:block" />}
+
+                <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
+                  NUESTRA CARTA
+                </h1>
+
+                {categoryNavItems.length > 0 && (
+                  <div className="relative flex w-full items-center justify-center py-2">
+                    {categoryNavIndex > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => moveCategoryNav("left")}
+                        className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                        aria-label="Categoría anterior"
+                      >
+                        <ChevronLeft className="h-10 w-10"
+                          style={{ color: `hsl(${ui.foreground})` }} />
+                      </button>
+                    )}
+
+                    <Button
+                      onClick={() =>
+                        scrollToSection(categoryNavItems[categoryNavIndex].id)
+                      }
+                      className="
     w-[320px]
     text-center
     px-2
@@ -467,209 +467,212 @@ style={{ color: `hsl(${ui.foreground})` }} />
 
     transition-colors
   "
-  style={{
-    color: `hsl(${ui.categoryNav})`,
-  }}
-  onMouseEnter={(e) =>
-    (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
-  }
-  onMouseLeave={(e) =>
-    (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
-  }
->
-                  {categoryNavItems[categoryNavIndex]?.name ?? ""}
-                  </Button>
-  
-                  {categoryNavIndex < categoryNavItems.length - 1 && (
-                    <button
-                      type="button"
-                      onClick={() => moveCategoryNav("right")}
-                      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label="Categoría siguiente"
+                      style={{
+                        color: `hsl(${ui.categoryNav})`,
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
+                      }
                     >
-                      <ChevronRight className="h-10 w-10"
-style={{ color: `hsl(${ui.foreground})` }} />
-                    </button>
-                  )}
-                </div>
-              )}
+                      {categoryNavItems[categoryNavIndex]?.name ?? ""}
+                    </Button>
+
+                    {categoryNavIndex < categoryNavItems.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => moveCategoryNav("right")}
+                        className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                        aria-label="Categoría siguiente"
+                      >
+                        <ChevronRight className="h-10 w-10"
+                          style={{ color: `hsl(${ui.foreground})` }} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
+
+            <Search
+              className="absolute left-3 top-2.5 h-4 w-4"
+              style={{ color: `hsl(${ui.searchIcon})` }}
+            />
+
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Buscar por plato, ingrediente..."
+              style={{
+                color: `hsl(${ui.searchText})`,
+                caretColor: `hsl(${ui.searchText})`,
+              }}
+              className="pl-10 border border-[#fff7e3]/40 placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"
+            />
           </div>
-  
-          <Search
-  className="absolute left-3 top-2.5 h-4 w-4"
-  style={{ color: `hsl(${ui.searchIcon})` }}
-/>
 
-<Input
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  placeholder="Buscar por plato, ingrediente..."
-  style={{
-    color: `hsl(${ui.searchText})`,
-    caretColor: `hsl(${ui.searchText})`,
-  }}
-  className="pl-10 border border-[#fff7e3]/40 placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"
-/>
-        </div>
-  
-        <div className="space-y-10">
-          {visibleRootCategories.map((category) => {
-            const childCats = childCategoriesByParent[category.id] ?? [];
-            const normalizedForId = norm(category.name);
-  
-            const isFridayMenu =
-              (normalizedForId === "menu viernes" ||
-                normalizedForId === "almuerzo viernes") &&
-              ui.showFriday;
-  
-            const parentItems = filteredItems.filter(
-              (item) => item.categoryId === category.id
-            );
-            return (
-              <section
-                id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
-                key={category.id}
-                className="space-y-4 scroll-mt-24 md:scroll-mt-28"
-              >
-                <div className="space-y-1">
-                <h2
-  className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4"
-  style={{ color: `hsl(${ui.categoryTitle})` }}
->
-                    {category.name}
-                  </h2>
-                  <div className="h-px w-full bg-border/10" />
-                </div>
+          <div className="space-y-10">
+            {visibleRootCategories.map((category) => {
+              const childCats = childCategoriesByParent[category.id] ?? [];
+              const normalizedForId = norm(category.name);
 
-                <div className="divide-y divide-border/10">
-  {parentItems.map((item) => (
-    <div key={item.id} className="py-3">
-      <div className="flex items-baseline gap-2">
-        <span className="font-headline text-[15px] md:text-base tracking-wide">
-          {item.name}
-        </span>
+              const isFridayMenu =
+                (normalizedForId === "menu viernes" ||
+                  normalizedForId === "almuerzo viernes") &&
+                ui.showFriday;
 
-        {item.isSpecial && (
-          <Badge
-            variant="outline"
-            className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
-            style={{
-              color: `hsl(${ui.specialBadgeText})`,
-              borderColor: `hsl(${ui.specialBadgeBorder})`,
-              backgroundColor: `hsl(${ui.specialBadgeBg})`,
-            }}
-          >
-            <SparklesIcon className="h-3 w-3" />
-            Sugerencia
-          </Badge>
-        )}
+              const parentItems = filteredItems.filter(
+                (item) => item.categoryId === category.id
+              );
+              return (
+                <section
+                  id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
+                  key={category.id}
+                  className="space-y-4 scroll-mt-24 md:scroll-mt-28"
+                >
+                  <div className="space-y-1">
+                    <h2
+                      className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4"
+                      style={{ color: `hsl(${ui.categoryTitle})` }}
+                    >
+                      {category.name}
+                    </h2>
+                    <div className="h-px w-full bg-border/10" />
+                  </div>
 
-        <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+                  <div className="divide-y divide-border/10">
+                    {parentItems.map((item) => (
+                      <div key={item.id} className="py-3">
+                        <div className="flex items-baseline gap-2">
+                          <span className="font-headline text-[15px] md:text-base tracking-wide">
+                            {item.name}
+                          </span>
 
-        <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-          {formatCurrency(item.price)}
-        </span>
-      </div>
+                          {item.isSpecial && (
+                            <Badge
+                              variant="outline"
+                              className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                              style={{
+                                color: `hsl(${ui.specialBadgeText})`,
+                                borderColor: `hsl(${ui.specialBadgeBorder})`,
+                                backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                              }}
+                            >
+                              <SparklesIcon className="h-3 w-3" />
+                              Sugerencia
+                            </Badge>
+                          )}
 
-      {item.description && (
-        <p
-          className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
-          style={{ color: `hsl(${ui.descriptionText})` }}
-        >
-          {item.description}
-        </p>
-      )}
+                          <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
 
-      {(item.tags ?? []).length > 0 && (
-        <div className="mt-1 flex flex-wrap gap-1">
-          {(item.tags ?? []).map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="flex items-center gap-1 text-[11px] px-2 py-0.5"
-            >
-              <TagIcon tag={tag} />
-              <span>{tag}</span>
-            </Badge>
-          ))}
-        </div>
-      )}
-    </div>
-  ))}
-</div>
+                          <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                            {formatCurrency(item.price)}
+                          </span>
+                        </div>
 
-                {childCats.map((sub) => {
-                  const itemsSub = filteredItems.filter((item) => item.categoryId === sub.id);
-                  if (itemsSub.length === 0) return null;
+                        {item.description && (
+                          <p
+                            className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
+                            style={{ color: `hsl(${ui.descriptionText})` }}
+                          >
+                            {item.description}
+                          </p>
+                        )}
 
-                  const isIncluye = norm(sub.name) === "incluye";
-                  const showSubTitle = sub.isVisible !== false;
+                        {(item.tags ?? []).length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {(item.tags ?? []).map((tag) => (
+                              <Badge
+                                key={tag}
+                                variant="outline"
+                                className="flex items-center gap-1 text-[11px] px-2 py-0.5"
+                              >
+                                <TagIcon tag={tag} />
+                                <span>{tag}</span>
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
 
-                  return (
-                    <div key={sub.id} className="border-b border-border/10 pb-3">
-                      {showSubTitle && (
-                        <p className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-muted-foreground">
-                          {sub.name}
-                        </p>
-                      )}
+                  {childCats.map((sub) => {
+                    const itemsSub = filteredItems.filter((item) => item.categoryId === sub.id);
+                    if (itemsSub.length === 0) return null;
 
-                      <div className="divide-y divide-border/10">
-                        {itemsSub.map((item) => {
-                          const shownDesc =
-                            isFridayMenu && isIncluye
-                              ? fridayDescOverride(item.name, item.description, fridayData)
-                              : item.description ?? "";
+                    const isIncluye = norm(sub.name) === "incluye";
+                    const showSubTitle = sub.isVisible !== false;
 
-                          if (isFridayMenu && isIncluye) {
+                    return (
+                      <div key={sub.id} className="border-b border-border/10 pb-3">
+                        {showSubTitle && (
+                          <p className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2 text-muted-foreground">
+                            {sub.name}
+                          </p>
+                        )}
+
+                        <div className="divide-y divide-border/10">
+                          {itemsSub.map((item) => {
+                            const shownDesc =
+                              isFridayMenu && isIncluye
+                                ? fridayDescOverride(item.name, item.description, fridayData)
+                                : item.description ?? "";
+
+                            if (isFridayMenu && isIncluye) {
+                              return (
+                                <div key={item.id} className="py-3">
+                                  <p className="font-headline text-[15px] md:text-base tracking-wide">
+                                    <span className="font-headline text-[15px] md:text-base tracking-wide text-foreground">{item.name}:</span>{" "}
+                                    <span style={{ color: `hsl(${ui.descriptionText})` }}>
+                                      {shownDesc || "—"}
+                                    </span>
+                                  </p>
+                                </div>
+                              );
+                            }
+
                             return (
                               <div key={item.id} className="py-3">
-                                <p className="font-headline text-[15px] md:text-base tracking-wide">
-                                  <span className="font-headline text-[15px] md:text-base tracking-wide text-foreground">{item.name}:</span>{" "}
-                                  <span style={{ color: `hsl(${ui.descriptionText})` }}>
-  {shownDesc || "—"}
-</span>
-                                </p>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                    {item.name}
+                                  </span>
+                                  <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                </div>
+
+                                {shownDesc && (
+                                  <p
+                                    className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
+                                    style={{ color: `hsl(${ui.descriptionText})` }}
+                                  >
+                                    {shownDesc}
+                                  </p>
+                                )}
                               </div>
                             );
-                          }
-
-                          return (
-                            <div key={item.id} className="py-3">
-                              <div className="flex items-baseline gap-2">
-                                <span className="font-headline text-[15px] md:text-base tracking-wide">
-                                  {item.name}
-                                </span>
-                                <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
-                                <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                                  {formatCurrency(item.price)}
-                                </span>
-                              </div>
-
-                              {shownDesc && (
-                                <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-snug max-w-3xl">
-                                  {shownDesc}
-                                </p>
-                              )}
-                            </div>
-                          );
-                        })}
+                          })}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </section>
-            );
-          })}
+                    );
+                  })}
+                </section>
+              );
+            })}
 
-          {filteredItems.length === 0 && (
-            <p className="text-sm text-center opacity-70">
-              No encontramos platos que coincidan con la búsqueda.
-            </p>
-          )}
-        </div>
-      </section>
-    </main>
+            {filteredItems.length === 0 && (
+              <p className="text-sm text-center opacity-70">
+                No encontramos platos que coincidan con la búsqueda.
+              </p>
+            )}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
