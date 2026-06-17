@@ -16,6 +16,7 @@ export type TenantUI = {
   specialBadgeBorder: string;
   specialBadgeBg: string;
   subCategoryTitle: string;
+  itemPrice: string;
   showFriday: boolean;
 
 };
@@ -38,6 +39,7 @@ const DEFAULT: TenantUI = {
   specialBadgeBorder: "24 100% 56%",
   specialBadgeBg: "24 100% 56%",
   subCategoryTitle: "43 100% 94%",
+  itemPrice: "43 100% 94%",
   showFriday: false,
 };
 
@@ -55,12 +57,13 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     foreground: "43 100% 94%",
     categoryTitle: "43 100% 94%",
     categoryNav: "0 0% 100%",
-    descriptionText: "43 100% 94%",
+    descriptionText: "0 0% 100%",
     categoryNavHover: "43 100% 94%",
     specialBadgeText: "0 0% 0%",
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
     subCategoryTitle: "43 100% 94%",
+    itemPrice: "43 100% 94%",
     showFriday: true,
   },
 
@@ -82,6 +85,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
     subCategoryTitle: "43 100% 94%",
+    itemPrice: "43 100% 94%",
     showFriday: false,
   },
 
@@ -103,6 +107,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
     subCategoryTitle: "43 100% 94%",
+    itemPrice: "43 100% 94%",
     showFriday: false,
   },
 
@@ -124,6 +129,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
     subCategoryTitle: "43 100% 94%",
+    itemPrice: "43 100% 94%",
     showFriday: false,
   },
 };
