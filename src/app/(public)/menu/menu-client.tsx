@@ -500,7 +500,10 @@ style={{ color: `hsl(${ui.foreground})` }} />
   value={search}
   onChange={(e) => setSearch(e.target.value)}
   placeholder="Buscar por plato, ingrediente..."
-  style={{ color: `hsl(${ui.searchText})` }}
+  style={{
+    color: `hsl(${ui.searchText})`,
+    caretColor: `hsl(${ui.searchText})`,
+  }}
   className="pl-10 border border-[#fff7e3]/40 placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"
 />
         </div>
