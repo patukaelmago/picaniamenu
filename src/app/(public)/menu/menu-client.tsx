@@ -348,7 +348,12 @@ console.log("THEME:", resolvedTheme);
         name: cat.name,
       })),
   ];
-
+  
+  useEffect(() => {
+    if (categoryNavIndex >= categoryNavItems.length) {
+      setCategoryNavIndex(0);
+    }
+  }, [categoryNavItems.length, categoryNavIndex]);
   const navScrollRef = useRef<HTMLDivElement | null>(null);
 
   const moveCategoryNav = (dir: "left" | "right") => {
