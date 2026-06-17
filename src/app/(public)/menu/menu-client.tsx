@@ -476,12 +476,12 @@ export default function MenuClient({ tenantId }: Props) {
       style={{
         color: `hsl(${ui.categoryNav})`,
       }}
-      onMouseEnter={(e) =>
-        (e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`)
-      }
-      onMouseLeave={(e) =>
-        (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
-      }
+      onMouseEnter={(e) => {
+        e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.color = `hsl(${ui.categoryNav})`;
+      }}
     >
       {categoryNavItems[categoryNavIndex]?.name ?? ""}
     </Button>
@@ -499,6 +499,8 @@ export default function MenuClient({ tenantId }: Props) {
     </button>
   </div>
 )}
+</div>
+</div>
             <Search
               className="absolute left-3 top-2.5 h-4 w-4"
               style={{ color: `hsl(${ui.searchIcon})` }}
