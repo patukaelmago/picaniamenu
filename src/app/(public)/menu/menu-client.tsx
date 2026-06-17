@@ -477,7 +477,7 @@ style={{ color: `hsl(${ui.foreground})` }} />
     (e.currentTarget.style.color = `hsl(${ui.categoryNav})`)
   }
 >
-                    {categoryNavItems[categoryNavIndex].name}
+                  {categoryNavItems[categoryNavIndex]?.name ?? ""}
                   </Button>
   
                   {categoryNavIndex < categoryNavItems.length - 1 && (
