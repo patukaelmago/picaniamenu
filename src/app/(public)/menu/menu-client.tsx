@@ -621,7 +621,9 @@ style={{ color: `hsl(${ui.foreground})` }} />
                               <div key={item.id} className="py-3">
                                 <p className="font-headline text-[15px] md:text-base tracking-wide">
                                   <span className="font-headline text-[15px] md:text-base tracking-wide text-foreground">{item.name}:</span>{" "}
-                                  <span className="opacity-80">{shownDesc || "—"}</span>
+                                  <span style={{ color: `hsl(${ui.descriptionText})` }}>
+  {shownDesc || "—"}
+</span>
                                 </p>
                               </div>
                             );
