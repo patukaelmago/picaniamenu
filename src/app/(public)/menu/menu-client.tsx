@@ -621,7 +621,7 @@ export default function MenuClient({ tenantId }: Props) {
                             {sub.name}
                             {sub.description && (
   <p
-    className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em] pb-2"
+    className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em] pb-2 pt-1"
     style={{ color: `hsl(${ui.descriptionText})` }}
   >
     {sub.description}
