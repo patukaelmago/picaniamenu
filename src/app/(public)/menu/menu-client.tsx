@@ -551,7 +551,7 @@ export default function MenuClient({ tenantId }: Props) {
                     {parentItems.map((item) => (
                       <div key={item.id} className="py-3">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-headline text-[15px] md:text-base tracking-wide">
+                          <span className="font-headline text-[13px] md:text-base tracking-wide">
                             {item.name}
                           </span>
 
@@ -615,7 +615,7 @@ export default function MenuClient({ tenantId }: Props) {
                       <div key={sub.id} className="border-b border-border/10 pb-3">
                         {showSubTitle && (
                           <p
-                            className="font-headline uppercase text-[15px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
+                            className="font-headline uppercase text-[15px] md:text-[18px] font-semibold tracking-[0.16em] pt-4 pb-2"
                             style={{ color: `hsl(${ui.subCategoryTitle})` }}
                           >
                             {sub.name}
@@ -643,7 +643,7 @@ export default function MenuClient({ tenantId }: Props) {
                                 <div key={item.id} className="py-3">
                                   <p className="font-headline text-[13px] md:text-base tracking-wide">
                                     <span
-                                      className="font-headline text-[13px] md:text-base tracking-wide"
+                                      className="font-headline text-[11px] md:text-[12px] tracking-wide"
                                       style={{ color: "#FFF7E3" }}
                                     >
                                       {item.name}:
@@ -659,7 +659,7 @@ export default function MenuClient({ tenantId }: Props) {
                             return (
                               <div key={item.id} className="py-3">
                                 <div className="flex items-baseline gap-2">
-                                  <span className="font-headline text-[15px] md:text-base tracking-wide">
+                                  <span className="font-headline text-[15px] md:text-[13px] tracking-wide">
                                     {item.name}
                                   </span>
                                   <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
