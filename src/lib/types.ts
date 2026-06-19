@@ -39,6 +39,7 @@ export type MenuItemInput = Omit<MenuItem, "id" | "createdAt" | "updatedAt">;
 export interface Category {
   id: string;
   name: string;
+  description?: string;
   order: number;
   isVisible: boolean;
   createdAt: FirestoreDate;
