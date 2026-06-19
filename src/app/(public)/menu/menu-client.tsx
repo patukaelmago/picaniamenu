@@ -619,6 +619,15 @@ export default function MenuClient({ tenantId }: Props) {
                             style={{ color: `hsl(${ui.subCategoryTitle})` }}
                           >
                             {sub.name}
+                            {sub.description && (
+  <p
+    className="text-sm pb-2"
+    style={{ color: `hsl(${ui.descriptionText})` }}
+  >
+    {sub.description}
+  </p>
+)}
+
                           </p>
                         )}
 
