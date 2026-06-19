@@ -615,7 +615,7 @@ export default function MenuClient({ tenantId }: Props) {
                       <div key={sub.id} className="border-b border-border/10 pb-3">
                         {showSubTitle && (
                           <p
-                            className="font-headline uppercase text-[11px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
+                            className="font-headline uppercase text-[15px] md:text-xs font-semibold tracking-[0.16em] pt-4 pb-2"
                             style={{ color: `hsl(${ui.subCategoryTitle})` }}
                           >
                             {sub.name}
@@ -641,9 +641,9 @@ export default function MenuClient({ tenantId }: Props) {
                             if (isFridayMenu && isIncluye) {
                               return (
                                 <div key={item.id} className="py-3">
-                                  <p className="font-headline text-[15px] md:text-base tracking-wide">
+                                  <p className="font-headline text-[13px] md:text-base tracking-wide">
                                     <span
-                                      className="font-headline text-[15px] md:text-base tracking-wide"
+                                      className="font-headline text-[13px] md:text-base tracking-wide"
                                       style={{ color: "#FFF7E3" }}
                                     >
                                       {item.name}:
