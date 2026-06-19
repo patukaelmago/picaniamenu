@@ -28,6 +28,7 @@ function mapCategory(d: any): Category {
   return {
     id: d.id,
     name: data.name,
+    description: data.description ?? "",
     order: typeof data.order === "number" ? data.order : Number(data.order) || 0,
     isVisible: data.isVisible ?? true,
     parentCategoryId: data.parentCategoryId ?? null,
