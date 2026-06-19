@@ -128,10 +128,17 @@ export default function MenuManager({ tenantId }: Props) {
   const [catModalOpen, setCatModalOpen] = useState(false);
   const [catForm, setCatForm] = useState<{
     name: string;
+    description: string;
     order: number;
     isVisible: boolean;
     parentCategoryId: string | null;
-  }>({ name: "", order: 0, isVisible: true, parentCategoryId: null });
+  }>({
+    name: "",
+    description: "",
+    order: 0,
+    isVisible: true,
+    parentCategoryId: null,
+  });
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
@@ -511,14 +518,15 @@ export default function MenuManager({ tenantId }: Props) {
           ? 0
           : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
 
-      await addDoc(catsCol, {
-        name,
-        order: nextOrder,
-        isVisible: true,
-        parentCategoryId: formCatParentId || null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
+          await addDoc(catsCol, {
+            name,
+            description: "",
+            order: nextOrder,
+            isVisible: true,
+            parentCategoryId: formCatParentId || null,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          });
 
       setFormCatName("");
       setFormCatParentId("");
@@ -538,6 +546,7 @@ export default function MenuManager({ tenantId }: Props) {
     setCatEditingId(cat.id);
     setCatForm({
       name: cat.name,
+      description: cat.description ?? "",
       order: cat.order ?? 0,
       isVisible: !!cat.isVisible,
       parentCategoryId: cat.parentCategoryId ?? null,
@@ -552,6 +561,7 @@ export default function MenuManager({ tenantId }: Props) {
     try {
       await updateDoc(doc(catsCol, catEditingId), {
         name: catForm.name.trim(),
+        description: catForm.description?.trim() ?? "",
         order: Number(catForm.order) || 0,
         isVisible: catForm.isVisible,
         parentCategoryId: catForm.parentCategoryId ?? null,
