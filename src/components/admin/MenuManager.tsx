@@ -193,6 +193,7 @@ export default function MenuManager({ tenantId }: Props) {
       return {
         id: d.id,
         name: raw.name ?? "",
+        description: raw.description ?? "",
         order: typeof raw.order === "number" ? raw.order : Number(raw.order) || 0,
         isVisible,
         parentCategoryId: raw.parentCategoryId ?? null,
