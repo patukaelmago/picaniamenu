@@ -551,7 +551,7 @@ export default function MenuClient({ tenantId }: Props) {
                     {parentItems.map((item) => (
                       <div key={item.id} className="py-3">
                         <div className="flex items-baseline gap-2">
-                          <span className="font-headline text-[13px] md:text-base tracking-wide">
+                          <span className="font-headline text-[15px] md:text-[13px]tracking-wide">
                             {item.name}
                           </span>
 
@@ -662,7 +662,7 @@ export default function MenuClient({ tenantId }: Props) {
                             return (
                               <div key={item.id} className="py-3">
                                 <div className="flex items-baseline gap-2">
-                                  <span className="font-headline  text-[13px] md:text-base tracking-wide">
+                                  <span className="font-headline text-[15px] md:text-[13px] tracking-wide">
                                     {item.name}
                                   </span>
                                   <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
