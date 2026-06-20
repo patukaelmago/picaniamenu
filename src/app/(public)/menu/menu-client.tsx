@@ -649,7 +649,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       {item.name}:
                                     </span>{" "}
                                     <span
-                                      className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em]"
+                                      className="font-normal normal-case text-[9px] md:text-xs tracking-wide"
                                       style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
                                       {shownDesc || "—"}
