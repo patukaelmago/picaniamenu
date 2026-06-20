@@ -621,7 +621,7 @@ export default function MenuClient({ tenantId }: Props) {
                             {sub.name}
                             {sub.description && (
                               <p
-                                className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em] pb-2 pt-1"
+                                className="font-normal normal-case text-xs md:text-sm tracking-[0.16em] pb-2 pt-1"
                                 style={{ color: `hsl(${ui.descriptionText})` }}
                               >
                                 {sub.description}
@@ -649,7 +649,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       {item.name}:
                                     </span>{" "}
                                     <span
-                                      className="font-normal normal-case text-[9px] md:text-xs tracking-wide"
+                                      className="font-normal normal-case text-xs md:text-sm tracking-wide"
                                       style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
                                       {shownDesc || "—"}
