@@ -363,7 +363,7 @@ export default function MenuClient({ tenantId }: Props) {
           ? categoryNavItems.length - 1
           : prev - 1;
       }
-  
+
       return prev === categoryNavItems.length - 1
         ? 0
         : prev + 1;
@@ -431,24 +431,24 @@ export default function MenuClient({ tenantId }: Props) {
                 </h1>
 
                 {categoryNavItems.length > 0 && (
-  <div className="relative flex w-full items-center justify-center py-2">
-    <button
-      type="button"
-      onClick={() => moveCategoryNav("left")}
-      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-      aria-label="Categoría anterior"
-    >
-      <ChevronLeft
-        className="h-10 w-10"
-        style={{ color: `hsl(${ui.foreground})` }}
-      />
-    </button>
+                  <div className="relative flex w-full items-center justify-center py-2">
+                    <button
+                      type="button"
+                      onClick={() => moveCategoryNav("left")}
+                      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      aria-label="Categoría anterior"
+                    >
+                      <ChevronLeft
+                        className="h-10 w-10"
+                        style={{ color: `hsl(${ui.foreground})` }}
+                      />
+                    </button>
 
-    <Button
-      onClick={() =>
-        scrollToSection(categoryNavItems[categoryNavIndex].id)
-      }
-      className="
+                    <Button
+                      onClick={() =>
+                        scrollToSection(categoryNavItems[categoryNavIndex].id)
+                      }
+                      className="
         w-[320px]
         text-center
         px-2
@@ -473,34 +473,34 @@ export default function MenuClient({ tenantId }: Props) {
 
         transition-colors
       "
-      style={{
-        color: `hsl(${ui.categoryNav})`,
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.color = `hsl(${ui.categoryNav})`;
-      }}
-    >
-      {categoryNavItems[categoryNavIndex]?.name ?? ""}
-    </Button>
+                      style={{
+                        color: `hsl(${ui.categoryNav})`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = `hsl(${ui.categoryNav})`;
+                      }}
+                    >
+                      {categoryNavItems[categoryNavIndex]?.name ?? ""}
+                    </Button>
 
-    <button
-      type="button"
-      onClick={() => moveCategoryNav("right")}
-      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-      aria-label="Categoría siguiente"
-    >
-      <ChevronRight
-        className="h-10 w-10"
-        style={{ color: `hsl(${ui.foreground})` }}
-      />
-    </button>
-  </div>
-)}
-</div>
-</div>
+                    <button
+                      type="button"
+                      onClick={() => moveCategoryNav("right")}
+                      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
+                      aria-label="Categoría siguiente"
+                    >
+                      <ChevronRight
+                        className="h-10 w-10"
+                        style={{ color: `hsl(${ui.foreground})` }}
+                      />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
             <Search
               className="absolute left-3 top-2.5 h-4 w-4"
               style={{ color: `hsl(${ui.searchIcon})` }}
@@ -620,13 +620,13 @@ export default function MenuClient({ tenantId }: Props) {
                           >
                             {sub.name}
                             {sub.description && (
-  <p
-    className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em] pb-2 pt-1"
-    style={{ color: `hsl(${ui.descriptionText})` }}
-  >
-    {sub.description}
-  </p>
-)}
+                              <p
+                                className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em] pb-2 pt-1"
+                                style={{ color: `hsl(${ui.descriptionText})` }}
+                              >
+                                {sub.description}
+                              </p>
+                            )}
 
                           </p>
                         )}
@@ -648,7 +648,10 @@ export default function MenuClient({ tenantId }: Props) {
                                     >
                                       {item.name}:
                                     </span>{" "}
-                                    <span style={{ color: `hsl(${ui.descriptionText})` }}>
+                                    <span
+                                      className="font-normal normal-case text-[9px] md:text-xs tracking-[0.16em]"
+                                      style={{ color: `hsl(${ui.descriptionText})` }}
+                                    >
                                       {shownDesc || "—"}
                                     </span>
                                   </p>
