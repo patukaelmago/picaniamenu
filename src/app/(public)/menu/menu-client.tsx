@@ -641,7 +641,7 @@ export default function MenuClient({ tenantId }: Props) {
                             if (isFridayMenu && isIncluye) {
                               return (
                                 <div key={item.id} className="py-3">
-                                  <p className="font-headline text-[13px] md:text-base tracking-wide">
+                                  <p>
                                     <span
                                       className="font-headline text-[11px] md:text-[12px] tracking-wide"
                                       style={{ color: "#FFF7E3" }}
@@ -670,7 +670,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                                 {shownDesc && (
                                   <p
-                                    className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
+                                    className="mt-1 text-[10px] md:text-[11px] leading-snug max-w-3xl"
                                     style={{ color: `hsl(${ui.descriptionText})` }}
                                   >
                                     {shownDesc}
