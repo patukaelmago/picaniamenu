@@ -673,7 +673,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                                 {shownDesc && (
                                   <p
-                                    className="mt-1 text-xs md:text-sm leading-snug max-w-3xl"
+                                    className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
                                     style={{ color: `hsl(${ui.descriptionText})` }}
                                   >
                                     {shownDesc}
