@@ -643,13 +643,13 @@ export default function MenuClient({ tenantId }: Props) {
                                 <div key={item.id} className="py-3">
                                   <p>
                                     <span
-                                      className="font-headline text-[11px] md:text-[12px] tracking-wide"
+                                      className="font-headline text-[13px] md:text-[15px] tracking-wide"
                                       style={{ color: "#FFF7E3" }}
                                     >
                                       {item.name}:
                                     </span>{" "}
                                     <span
-                                      className="font-normal normal-case text-xs md:text-sm tracking-wide"
+                                      className="font-normal text-[13px] md:text-[15px] tracking-wide"
                                       style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
                                       {shownDesc || "—"}
