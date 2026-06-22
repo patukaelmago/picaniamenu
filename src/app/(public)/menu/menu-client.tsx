@@ -130,7 +130,16 @@ export default function MenuClient({ tenantId }: Props) {
     (async () => {
       try {
         const data = await listMenuItems(tenantId);
-        console.log(data);
+  
+        console.log(
+          "ITEMS",
+          data.map((i) => ({
+            name: i.name,
+            categoryId: i.categoryId,
+            isSpecial: i.isSpecial,
+          }))
+        );
+  
         setMenuItems(data.filter((i) => i.isVisible !== false));
       } catch (e) {
         console.error("Error cargando menú desde Firestore", e);
