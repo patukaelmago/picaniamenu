@@ -702,18 +702,32 @@ export default function TenantAlmuerzoPage({
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-imageId" className="text-right">
-                Imagen ID
-              </Label>
-              <Input
-                id="e-imageId"
-                className="col-span-3"
-                value={editForm.imageId ?? ""}
-                onChange={(e) =>
-                  setEditForm((p) => ({ ...p, imageId: e.target.value }))
-                }
-              />
-            </div>
+  <Label htmlFor="e-imageId" className="text-right">
+    Imagen ID
+  </Label>
+  <Input
+    id="e-imageId"
+    className="col-span-3"
+    value={editForm.imageId ?? ""}
+    onChange={(e) =>
+      setEditForm((p) => ({ ...p, imageId: e.target.value }))
+    }
+  />
+</div>
+
+<div className="grid grid-cols-4 items-center gap-4">
+  <Label className="text-right">
+    Sugerencia
+  </Label>
+  <div className="col-span-3">
+    <Switch
+      checked={!!editForm.isSpecial}
+      onCheckedChange={(v) =>
+        setEditForm((p) => ({ ...p, isSpecial: v }))
+      }
+    />
+  </div>
+</div>
           </div>
 
           <SheetFooter>
