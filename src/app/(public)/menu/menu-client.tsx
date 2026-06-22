@@ -638,26 +638,39 @@ export default function MenuClient({ tenantId }: Props) {
                                 ? fridayDescOverride(item.name, item.description, fridayData)
                                 : item.description ?? "";
 
-                            if (isFridayMenu && isIncluye) {
-                              return (
-                                <div key={item.id} className="py-3">
-                                  <p>
-                                    <span
-                                      className="font-headline text-[13px] md:text-[15px] tracking-wide"
-                                      style={{ color: "#FFF7E3" }}
-                                    >
-                                      {item.name}:
-                                    </span>{" "}
-                                    <span
-                                      className="font-normal text-[13px] md:text-[15px] tracking-wide"
-                                      style={{ color: `hsl(${ui.descriptionText})` }}
-                                    >
-                                      {shownDesc || "—"}
-                                    </span>
-                                  </p>
-                                </div>
-                              );
-                            }
+                                if (isFridayMenu && isIncluye) {
+                                  return (
+                                    <div key={item.id} className="py-3">
+                                      <p>
+                                        <span
+                                          className="font-headline text-[13px] md:text-[15px] tracking-wide"
+                                          style={{ color: "#FFF7E3" }}
+                                        >
+                                          {item.name}
+                                        </span>
+                                
+                                        {item.isSpecial && (
+                                          <Badge
+                                            variant="outline"
+                                            className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                          >
+                                            <SparklesIcon className="h-3 w-3" />
+                                            Sugerencia
+                                          </Badge>
+                                        )}
+                                
+                                        {": "}
+                                
+                                        <span
+                                          className="font-normal text-[13px] md:text-[15px] tracking-wide"
+                                          style={{ color: `hsl(${ui.descriptionText})` }}
+                                        >
+                                          {shownDesc || "—"}
+                                        </span>
+                                      </p>
+                                    </div>
+                                  );
+                                }
 
                             return (
                               <div key={item.id} className="py-3">
