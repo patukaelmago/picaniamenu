@@ -534,13 +534,19 @@ export default function MenuClient({ tenantId }: Props) {
               const normalizedForId = norm(category.name);
 
               const isFridayMenu =
-                (normalizedForId === "menu viernes" ||
-                  normalizedForId === "almuerzo viernes") &&
-                ui.showFriday;
+  (normalizedForId === "menu viernes" ||
+    normalizedForId === "almuerzo viernes") &&
+  ui.showFriday;
 
-              const parentItems = filteredItems.filter(
-                (item) => item.categoryId === category.id
-              );
+const parentItems = filteredItems.filter(
+  (item) => item.categoryId === category.id
+);
+
+console.log(
+  "FRIDAY CATEGORY:",
+  category.name,
+  parentItems.filter((item) => item.isSpecial)
+);
               return (
                 <section
                   id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
