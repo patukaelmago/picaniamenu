@@ -188,15 +188,15 @@ export default function AdminSidebar() {
     <Sidebar
       className="border-r-0"
       style={{
-        backgroundColor: "hsl(var(--nav-bg))",
-        color: "#fff7e3",
+        backgroundColor: `hsl(${ui.navBg})`,
+        color: `hsl(${ui.navText})`,
       }}
     >
       <SidebarHeader
         className="py-4"
         style={{
-          backgroundColor: "hsl(var(--nav-bg))",
-          color: "#fff7e3",
+          backgroundColor: `hsl(${ui.navBg})`,
+          color: `hsl(${ui.navText})`,
         }}
       >
         <div className="flex items-center justify-center px-2">
@@ -211,19 +211,18 @@ export default function AdminSidebar() {
             />
           ) : null}
         </div>
-
+  
         <div className="mt-3 flex items-center justify-between px-3">
-          
           <ThemeToggle />
         </div>
-
+  
         <Separator className="mt-3 bg-white/10" />
       </SidebarHeader>
-
+  
       <SidebarContent
-  className="p-2 text-[hsl(var(--nav-text))]"
-  style={{ backgroundColor: "hsl(var(--nav-bg))" }}
->
+        className="p-2 text-[hsl(var(--nav-text))]"
+        style={{ backgroundColor: `hsl(${ui.navBg})` }}
+      >
         <SidebarMenu>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
@@ -231,7 +230,8 @@ export default function AdminSidebar() {
                 asChild
                 isActive={isActiveHref(item.href)}
                 tooltip={item.label}
-                className="justify-start text-[hsl(var(--nav-text))] hover:bg-[#fff7e3] hover:text-[#1d2f59] data-[active=true]:bg-[#fff7e3] data-[active=true]:text-[#1d2f59]"  >
+                className="justify-start text-[hsl(var(--nav-text))] hover:bg-[#fff7e3] hover:text-[#1d2f59] data-[active=true]:bg-[#fff7e3] data-[active=true]:text-[#1d2f59]"
+              >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
@@ -241,11 +241,11 @@ export default function AdminSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-
+  
       <SidebarFooter
-  className="text-[hsl(var(--nav-text))]"
-  style={{ backgroundColor: "hsl(var(--nav-bg))" }}
->
+        className="text-[hsl(var(--nav-text))]"
+        style={{ backgroundColor: `hsl(${ui.navBg})` }}
+      >
         <Separator className="my-2 bg-white/10" />
 
         <DropdownMenu>
