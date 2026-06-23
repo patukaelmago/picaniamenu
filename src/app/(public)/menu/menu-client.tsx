@@ -545,7 +545,10 @@ const parentItems = filteredItems.filter(
 console.log(
   "FRIDAY CATEGORY:",
   category.name,
-  parentItems.filter((item) => item.isSpecial)
+  parentItems.map(i => ({
+    name: i.name,
+    isSpecial: i.isSpecial
+  }))
 );
               return (
                 <section
