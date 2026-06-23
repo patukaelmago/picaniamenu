@@ -90,11 +90,12 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     const r = document.documentElement;
-
+  
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
     r.style.setProperty("--accent", ui.accent);
-  }, [ui.navBg, ui.navText, ui.accent]);
+    r.style.setProperty("--background", ui.background);
+  }, [ui.navBg, ui.navText, ui.accent, ui.background]);
 
   useEffect(() => {
     async function loadTenantLogo() {
