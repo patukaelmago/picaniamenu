@@ -130,7 +130,7 @@ export default function MenuClient({ tenantId }: Props) {
     (async () => {
       try {
         const data = await listMenuItems(tenantId);
-  
+
         console.log(
           "ITEMS",
           data.map((i) => ({
@@ -139,7 +139,7 @@ export default function MenuClient({ tenantId }: Props) {
             isSpecial: i.isSpecial,
           }))
         );
-  
+
         setMenuItems(data.filter((i) => i.isVisible !== false));
       } catch (e) {
         console.error("Error cargando menú desde Firestore", e);
@@ -534,22 +534,22 @@ export default function MenuClient({ tenantId }: Props) {
               const normalizedForId = norm(category.name);
 
               const isFridayMenu =
-  (normalizedForId === "menu viernes" ||
-    normalizedForId === "almuerzo viernes") &&
-  ui.showFriday;
+                (normalizedForId === "menu viernes" ||
+                  normalizedForId === "almuerzo viernes") &&
+                ui.showFriday;
 
-const parentItems = filteredItems.filter(
-  (item) => item.categoryId === category.id
-);
+              const parentItems = filteredItems.filter(
+                (item) => item.categoryId === category.id
+              );
 
-console.log(
-  "FRIDAY CATEGORY:",
-  category.name,
-  parentItems.map(i => ({
-    name: i.name,
-    isSpecial: i.isSpecial
-  }))
-);
+              console.log(
+                "FRIDAY CATEGORY:",
+                category.name,
+                parentItems.map(i => ({
+                  name: i.name,
+                  isSpecial: i.isSpecial
+                }))
+              );
               return (
                 <section
                   id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
@@ -657,78 +657,78 @@ console.log(
                                 ? fridayDescOverride(item.name, item.description, fridayData)
                                 : item.description ?? "";
 
-                                if (isFridayMenu && isIncluye) {
-                                  return (
-                                    <div key={item.id} className="py-3">
-                                      <p>
-                                        <span
-                                          className="font-headline text-[13px] md:text-[15px] tracking-wide"
-                                          style={{ color: "#FFF7E3" }}
-                                        >
-                                          {item.name}
-                                        </span>
-                                
-                                        {item.isSpecial && (
-                                          <Badge
-                                            variant="outline"
-                                            className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                          >
-                                            <SparklesIcon className="h-3 w-3" />
-                                            Sugerencia
-                                          </Badge>
-                                        )}
-                                
-                                        {": "}
-                                
-                                        <span
-                                          className="font-normal text-[13px] md:text-[15px] tracking-wide"
-                                          style={{ color: `hsl(${ui.descriptionText})` }}
-                                        >
-                                          {shownDesc || "—"}
-                                        </span>
-                                      </p>
-                                    </div>
-                                  );
-                                }
+                            if (isFridayMenu && isIncluye) {
+                              return (
+                                <div key={item.id} className="py-3">
+                                  <p>
+                                    <span
+                                      className="font-headline text-[13px] md:text-[15px] tracking-wide"
+                                      style={{ color: "#FFF7E3" }}
+                                    >
+                                      {item.name}
+                                    </span>
+
+                                    {item.isSpecial && (
+                                      <Badge
+                                        variant="outline"
+                                        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                      >
+                                        <SparklesIcon className="h-3 w-3" />
+                                        Sugerencia
+                                      </Badge>
+                                    )}
+
+                                    {": "}
+
+                                    <span
+                                      className="font-normal text-[13px] md:text-[15px] tracking-wide"
+                                      style={{ color: `hsl(${ui.descriptionText})` }}
+                                    >
+                                      {shownDesc || "—"}
+                                    </span>
+                                  </p>
+                                </div>
+                              );
+                            }
 
                             return (
                               <div key={item.id} className="py-3">
-  <div className="flex items-baseline gap-2">
-    <span className="font-headline text-[13px] md:text-base tracking-wide">
-      {item.name}
-    </span>
+                                <div className="flex items-baseline gap-2">
+                                  <span className="font-headline text-[13px] md:text-base tracking-wide">
+                                    {item.name}
+                                  </span>
 
-    {item.isSpecial && (
-      <Badge
-        variant="outline"
-        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
-        style={{
-          color: `hsl(${ui.specialBadgeText})`,
-          borderColor: `hsl(${ui.specialBadgeBorder})`,
-          backgroundColor: `hsl(${ui.specialBadgeBg})`,
-        }}
-      >
-        <SparklesIcon className="h-3 w-3" />
-        Sugerencia
-      </Badge>
-    )}
+                                  {item.isSpecial && (
+                                    <Badge
+                                      variant="outline"
+                                      className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                      style={{
+                                        color: `hsl(${ui.specialBadgeText})`,
+                                        borderColor: `hsl(${ui.specialBadgeBorder})`,
+                                        backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                                      }}
+                                    >
+                                      <SparklesIcon className="h-3 w-3" />
+                                      Sugerencia
+                                    </Badge>
+                                  )}
 
-    <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+                                  <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
 
-    <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-      {formatCurrency(item.price)}
-    </span>
-  </div>
+                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                </div>
 
-  {shownDesc && (
-    <p
-      className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
-      style={{ color: `hsl(${ui.descriptionText})` }}
-    >
-      {shownDesc}
-    </p>
-  )}
-</div>
+                                {shownDesc && (
+                                  <p
+                                    className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
+                                    style={{ color: `hsl(${ui.descriptionText})` }}
+                                  >
+                                    {shownDesc}
+                                  </p>
+                                )}
+                              </div>
                             );
                           })}
                         </div>
