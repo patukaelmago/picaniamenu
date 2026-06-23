@@ -693,25 +693,42 @@ console.log(
 
                             return (
                               <div key={item.id} className="py-3">
-                                <div className="flex items-baseline gap-2">
-                                  <span className="font-headline  text-[13px] md:text-base tracking-wide">
-                                    {item.name}
-                                  </span>
-                                  <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
-                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                                    {formatCurrency(item.price)}
-                                  </span>
-                                </div>
+  <div className="flex items-baseline gap-2">
+    <span className="font-headline text-[13px] md:text-base tracking-wide">
+      {item.name}
+    </span>
 
-                                {shownDesc && (
-                                  <p
-                                    className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
-                                    style={{ color: `hsl(${ui.descriptionText})` }}
-                                  >
-                                    {shownDesc}
-                                  </p>
-                                )}
-                              </div>
+    {item.isSpecial && (
+      <Badge
+        variant="outline"
+        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+        style={{
+          color: `hsl(${ui.specialBadgeText})`,
+          borderColor: `hsl(${ui.specialBadgeBorder})`,
+          backgroundColor: `hsl(${ui.specialBadgeBg})`,
+        }}
+      >
+        <SparklesIcon className="h-3 w-3" />
+        Sugerencia
+      </Badge>
+    )}
+
+    <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+
+    <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+      {formatCurrency(item.price)}
+    </span>
+  </div>
+
+  {shownDesc && (
+    <p
+      className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
+      style={{ color: `hsl(${ui.descriptionText})` }}
+    >
+      {shownDesc}
+    </p>
+  )}
+</div>
                             );
                           })}
                         </div>
