@@ -51,16 +51,16 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     logoLight: "",
     logoDark: "",
 
-    navBg: "220 50% 23%", // Fondo sidebar
-    navText: "43 100% 94%", // Texto sidebar
+    navBg: "43 100% 94%", // Fondo sidebar
+    navText: "220 50% 23%", // Texto sidebar
 
     accent: "220 50% 23%",
 
     searchIcon: "220 50% 23%",
     searchText: "220 50% 23%",
 
-    background: "43 100% 94%", // Fondo principal crema
-    foreground: "220 50% 23%", // Texto principal azul
+    background: "220 50% 23%", // Fondo principal crema
+    foreground: "43 100% 94%", // Texto principal azul
 
     categoryTitle: "220 50% 23%",
     categoryNav: "220 50% 23%",
