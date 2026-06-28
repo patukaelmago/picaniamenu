@@ -128,6 +128,14 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     itemPrice: "0 0% 0%",
 
     showFriday: false,
+
+    adminBackground: "0 0% 8%",
+    adminForeground: "45 85% 55%",
+
+    adminSidebarBg: "0 0% 0%",
+    adminSidebarText: "45 85% 55%",
+
+    adminAccent: "45 85% 55%",
   },
 
   // ==================================================
@@ -162,6 +170,14 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     itemPrice: "220 50% 23%",
 
     showFriday: false,
+
+    adminBackground: "43 100% 94%",
+    adminForeground: "220 50% 23%",
+
+    adminSidebarBg: "220 50% 23%",
+    adminSidebarText: "43 100% 94%",
+
+    adminAccent: "14 84% 53%",
   },
 
   // ==================================================
@@ -196,6 +212,14 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     itemPrice: "178 73% 25%",
 
     showFriday: false,
+
+    adminBackground: "45 33% 63%",
+    adminForeground: "178 73% 25%",
+
+    adminSidebarBg: "178 73% 25%",
+    adminSidebarText: "45 33% 63%",
+
+    adminAccent: "45 33% 63%",
   },
 };
 
