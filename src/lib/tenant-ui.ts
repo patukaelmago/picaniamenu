@@ -58,43 +58,50 @@ const DEFAULT: TenantUI = {
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
   // ==================================================
-  // PICAÑA
-  // Azul oscuro + crema
-  // ==================================================
-  picana: {
-    logoLight: "",
-    logoDark: "",
+// PICAÑA
+// Azul oscuro + crema
+// ==================================================
+picana: {
+  logoLight: "",
+  logoDark: "",
 
-    navBg: "43 100% 94%", // Fondo sidebar
-    navText: "220 50% 23%", // Texto sidebar
+  // ===== MENÚ PÚBLICO =====
 
-    accent: "220 50% 23%",
+  navBg: "43 100% 94%", // Fondo de la barra de navegación
+  navText: "220 50% 23%", // Texto e íconos de la barra de navegación
 
-    searchIcon: "220 50% 23%",
-    searchText: "220 50% 23%",
-    background: "222 50% 23%",
-    foreground: "43 100% 94%",
-    categoryTitle: "43 100% 94%",
-    categoryNav: "0 0% 100%",
-    descriptionText: "0 0% 100%",
-    categoryNavHover: "43 100% 94%",
-    specialBadgeText: "0 0% 0%",
-    specialBadgeBorder: "24 100% 56%",
-    specialBadgeBg: "24 100% 56%",
+  accent: "220 50% 23%", // Botones, links y elementos destacados
 
-    subCategoryTitle: "0 0% 100%",
-    itemPrice: "220 50% 23%",
+  searchIcon: "220 50% 23%", // Ícono de búsqueda
+  searchText: "220 50% 23%", // Texto del buscador
 
-    showFriday: true,
+  background: "222 50% 23%", // Fondo general del menú público
+  foreground: "43 100% 94%", // Texto general del menú público
 
-    adminBackground: "220 50% 23%",
-    adminForeground: "0 84% 60%",
+  categoryTitle: "43 100% 94%", // Título de las categorías
+  categoryNav: "0 0% 100%", // Subcategorías / navegación
+  descriptionText: "0 0% 100%", // Descripción de los productos
+  categoryNavHover: "43 100% 94%", // Hover de categorías
 
-    adminSidebarBg: "120 55% 28%",
-    adminSidebarText: "0 0% 100%",
+  specialBadgeText: "0 0% 0%", // Texto de la etiqueta "Sugerencia"
+  specialBadgeBorder: "24 100% 56%", // Borde de la etiqueta
+  specialBadgeBg: "24 100% 56%", // Fondo de la etiqueta
 
-    adminAccent: "120 55% 40%",
-  },
+  subCategoryTitle: "0 0% 100%", // Título de subcategorías
+  itemPrice: "220 50% 23%", // Precio del producto
+
+  showFriday: true,
+
+  // ===== ADMIN =====
+
+  adminBackground: "220 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
+  adminForeground: "0 84% 60%", // Texto principal del admin y de las tarjetas
+
+  adminSidebarBg: "120 55% 28%", // Fondo del menú lateral del admin
+  adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
+
+  adminAccent: "120 55% 40%", // Botones, switches, enlaces y elementos destacados del admin
+},
 
   // ==================================================
   // LA ROTI
