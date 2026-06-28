@@ -100,9 +100,9 @@ picana: {
   navBg: "43 100% 94%", // Fondo de la barra de navegación
   navText: "222 50% 23%", // Texto e íconos de la barra de navegación
 
-  accent: "220 50% 23%", // Botones, links y elementos destacados
+  accent: "222 50% 23%", // Botones, links y elementos destacados
 
-  searchIcon: "220 50% 23%", // Ícono de búsqueda
+  searchIcon: "222 50% 23%", // Ícono de búsqueda
   searchText: "222 50% 23%", // Texto del buscador
 
   background: "222 50% 23%", // Fondo general del menú público
