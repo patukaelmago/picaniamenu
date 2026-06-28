@@ -58,15 +58,12 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
 
     searchIcon: "220 50% 23%",
     searchText: "220 50% 23%",
-
-    background: "220 50% 23%", // Fondo principal crema
-    foreground: "43 100% 94%", // Texto principal azul
-
-    categoryTitle: "220 50% 23%",
-    categoryNav: "220 50% 23%",
-    descriptionText: "220 50% 23%",
-    categoryNavHover: "220 50% 23%",
-
+    background: "222 50% 23%",
+    foreground: "43 100% 94%",
+    categoryTitle: "43 100% 94%",
+    categoryNav: "0 0% 100%",
+    descriptionText: "0 0% 100%",
+    categoryNavHover: "43 100% 94%",
     specialBadgeText: "0 0% 0%",
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
