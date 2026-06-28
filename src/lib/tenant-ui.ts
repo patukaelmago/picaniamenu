@@ -87,8 +87,8 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
 
     showFriday: true,
 
-    adminBackground: "120 20% 95%",
-    adminForeground: "120 50% 15%",
+    adminBackground: "220 50% 23%",
+    adminForeground: "0 84% 60%",
 
     adminSidebarBg: "120 55% 28%",
     adminSidebarText: "0 0% 100%",
