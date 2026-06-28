@@ -31,7 +31,7 @@ export default function AdminLayout({
 
         <SidebarInset
           style={{
-            backgroundColor: "#fff7e3",
+            backgroundColor: "hsl(var(--background))",
           }}
         >
           <div className="sticky top-0 z-40 flex items-center bg-background/80 px-4 py-3 backdrop-blur md:hidden">
