@@ -18,6 +18,13 @@ export type TenantUI = {
   subCategoryTitle: string;
   itemPrice: string;
   showFriday: boolean;
+  adminBackground: string;
+  adminForeground: string;
+
+  adminSidebarBg: string;
+  adminSidebarText: string;
+
+  adminAccent: string;
 };
 
 const DEFAULT: TenantUI = {
@@ -40,6 +47,13 @@ const DEFAULT: TenantUI = {
   subCategoryTitle: "43 100% 94%",
   itemPrice: "43 100% 94%",
   showFriday: false,
+  adminBackground: "0 0% 100%",
+  adminForeground: "222 51% 23%",
+
+  adminSidebarBg: "0 0% 100%",
+  adminSidebarText: "222 51% 23%",
+
+  adminAccent: "222 51% 23%",
 };
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
@@ -72,6 +86,14 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     itemPrice: "220 50% 23%",
 
     showFriday: true,
+
+    adminBackground: "120 20% 95%",
+    adminForeground: "120 50% 15%",
+
+    adminSidebarBg: "120 55% 28%",
+    adminSidebarText: "0 0% 100%",
+
+    adminAccent: "120 55% 40%",
   },
 
   // ==================================================

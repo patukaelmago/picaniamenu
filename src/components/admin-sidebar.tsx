@@ -91,25 +91,29 @@ export default function AdminSidebar() {
   useEffect(() => {
     const r = document.documentElement;
   
+    // Menú público
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
   
-    r.style.setProperty("--background", ui.background);
-    r.style.setProperty("--foreground", ui.foreground);
+    // Admin
+    r.style.setProperty("--background", ui.adminBackground);
+    r.style.setProperty("--foreground", ui.adminForeground);
   
-    r.style.setProperty("--accent", ui.accent);
+    r.style.setProperty("--accent", ui.adminAccent);
   
-    r.style.setProperty("--card", ui.background);
-    r.style.setProperty("--card-foreground", ui.foreground);
+    r.style.setProperty("--card", ui.adminBackground);
+    r.style.setProperty("--card-foreground", ui.adminForeground);
   
-    r.style.setProperty("--sidebar-background", ui.navBg);
-    r.style.setProperty("--sidebar-foreground", ui.navText);
+    r.style.setProperty("--sidebar-background", ui.adminSidebarBg);
+    r.style.setProperty("--sidebar-foreground", ui.adminSidebarText);
   }, [
     ui.navBg,
     ui.navText,
-    ui.background,
-    ui.foreground,
-    ui.accent,
+    ui.adminBackground,
+    ui.adminForeground,
+    ui.adminAccent,
+    ui.adminSidebarBg,
+    ui.adminSidebarText,
   ]);
   useEffect(() => {
     async function loadTenantLogo() {
