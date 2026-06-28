@@ -93,10 +93,24 @@ export default function AdminSidebar() {
   
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
-    r.style.setProperty("--accent", ui.accent);
+  
     r.style.setProperty("--background", ui.background);
-  }, [ui.navBg, ui.navText, ui.accent, ui.background]);
-
+    r.style.setProperty("--foreground", ui.foreground);
+  
+    r.style.setProperty("--accent", ui.accent);
+  
+    r.style.setProperty("--card", ui.background);
+    r.style.setProperty("--card-foreground", ui.foreground);
+  
+    r.style.setProperty("--sidebar-background", ui.navBg);
+    r.style.setProperty("--sidebar-foreground", ui.navText);
+  }, [
+    ui.navBg,
+    ui.navText,
+    ui.background,
+    ui.foreground,
+    ui.accent,
+  ]);
   useEffect(() => {
     async function loadTenantLogo() {
       try {
