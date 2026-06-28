@@ -74,7 +74,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     searchText: "220 50% 23%",
     background: "222 50% 23%",
     foreground: "43 100% 94%",
-    categoryTitle: "220 50% 23%",
+    categoryTitle: "43 100% 94%",
     categoryNav: "0 0% 100%",
     descriptionText: "0 0% 100%",
     categoryNavHover: "43 100% 94%",
@@ -82,7 +82,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
 
-    subCategoryTitle: "220 50% 23%",
+    subCategoryTitle: "0 0% 100%",
     itemPrice: "220 50% 23%",
 
     showFriday: true,
