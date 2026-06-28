@@ -95,7 +95,7 @@ picana: {
   // ===== ADMIN =====
 
   adminBackground: "0 0% 100%", // Fondo principal del admin y de las tarjetas (bg-card)
-  adminForeground: "43 100% 94%", // Texto principal del admin y de las tarjetas
+  adminForeground: "220 50% 23%", // Texto principal del admin y de las tarjetas
 
   adminSidebarBg: "220 50% 23%", // Fondo del menú lateral del admin
   adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
