@@ -1,3 +1,33 @@
+// ===============================
+// PALETA DE COLORES (HSL)
+// ===============================
+
+// ⚪ Blanco ............. 0 0% 100%
+
+// 🟨 Crema (Picaña) .... 43 100% 94%
+
+// 🔵 Azul Picaña ....... 220 50% 23%
+
+// ⚫ Negro .............. 0 0% 0%
+
+// ⚪ Gris claro ......... 0 0% 90%
+
+// ⚫ Gris medio ......... 0 0% 50%
+
+// ⚫ Gris oscuro ........ 0 0% 20%
+
+// 🟢 Verde oscuro ...... 120 55% 28%
+
+// 🟢 Verde medio ....... 120 55% 40%
+
+// 🟢 Verde claro ....... 120 55% 70%
+
+// 🔴 Rojo ............... 0 84% 60%
+
+// 🟠 Naranja ............ 24 100% 56%
+
+// 🟡 Dorado ............. 45 85% 55%
+
 export type TenantUI = {
   logoLight: string;
   logoDark: string;
@@ -68,12 +98,12 @@ picana: {
   // ===== MENÚ PÚBLICO =====
 
   navBg: "43 100% 94%", // Fondo de la barra de navegación
-  navText: "220 50% 23%", // Texto e íconos de la barra de navegación
+  navText: "222 50% 23%", // Texto e íconos de la barra de navegación
 
   accent: "220 50% 23%", // Botones, links y elementos destacados
 
   searchIcon: "220 50% 23%", // Ícono de búsqueda
-  searchText: "220 50% 23%", // Texto del buscador
+  searchText: "222 50% 23%", // Texto del buscador
 
   background: "222 50% 23%", // Fondo general del menú público
   foreground: "43 100% 94%", // Texto general del menú público
@@ -94,10 +124,10 @@ picana: {
 
   // ===== ADMIN =====
 
-  adminBackground: "220 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
-  adminForeground: "14 84% 53%", // Texto principal del admin y de las tarjetas
+  adminBackground: "222 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
+  adminForeground: "0 0% 100%", // Texto principal del admin y de las tarjetas
 
-  adminSidebarBg: "220 50% 23%", // Fondo del menú lateral del admin
+  adminSidebarBg: "14 84% 53%", // Fondo del menú lateral del admin
   adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
 
   adminAccent: "220 50% 23%", // Botones, switches, enlaces y elementos destacados del admin
