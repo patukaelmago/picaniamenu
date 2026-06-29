@@ -144,35 +144,35 @@ picana: {
     navBg: "45 85% 55%",
     navText: "0 0% 50%",
 
-    accent: "14 84% 53%",
+    accent: "24 100% 56%",
 
-    searchIcon: "45 85% 55%",
-    searchText: "0 0% 0%",
+    searchIcon: "0 0% 50%",
+    searchText: "45 85% 55%",
 
-    background: "45 85% 55%",
-    foreground: "0 0% 0%",
+    background: "0 0% 50%",
+    foreground: "45 85% 55%",
 
-    categoryTitle: "0 0% 0%",
-    categoryNav: "0 0% 0%",
-    descriptionText: "0 0% 0%",
-    categoryNavHover: "0 0% 0%",
+    categoryTitle: "45 85% 55%",
+    categoryNav: "45 85% 55%",
+    descriptionText: "45 85% 55%",
+    categoryNavHover: "45 85% 55%",
 
-    specialBadgeText: "0 0% 0%",
+    specialBadgeText: "45 85% 55%",
     specialBadgeBorder: "24 100% 56%",
     specialBadgeBg: "24 100% 56%",
 
-    subCategoryTitle: "0 0% 0%",
-    itemPrice: "0 0% 0%",
+    subCategoryTitle: "45 85% 55%",
+    itemPrice: "45 85% 55%",
 
     showFriday: false,
 
     adminBackground: "0 0% 8%",
-    adminForeground: "45 85% 55%",
+    adminForeground: "0 0% 50%",
 
-    adminSidebarBg: "0 0% 0%",
-    adminSidebarText: "45 85% 55%",
+    adminSidebarBg: "45 85% 55%",
+    adminSidebarText: "0 0% 50%",
 
-    adminAccent: "45 85% 55%",
+    adminAccent: "0 0% 50%",
   },
 
   // ==================================================
