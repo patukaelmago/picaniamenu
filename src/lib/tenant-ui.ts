@@ -141,10 +141,10 @@ picana: {
     logoLight: "",
     logoDark: "",
 
-    navBg: "0 0% 0%",
-    navText: "45 85% 55%",
+    navBg: "45 85% 55%",
+    navText: "0 0% 50%",
 
-    accent: "45 85% 55%",
+    accent: "14 84% 53%",
 
     searchIcon: "45 85% 55%",
     searchText: "0 0% 0%",
