@@ -347,11 +347,11 @@ export default function MenuClient({ tenantId }: Props) {
   };
 
   const categoryNavItems = [
-    ...(ui.showFriday ? [{ id: "menu-viernes", name: "ALMUERZO VIERNES" }] : []),
+    ...(ui.showFriday ? [{ id: "menu-viernes", name: "ALMUERZO EJECUTIVO" }] : []),
     ...visibleRootCategories
       .filter((cat) => {
         const n = norm(cat.name);
-        return n !== "menu viernes" && n !== "almuerzo viernes";
+        return n !== "menu viernes" && n !== "almuerzo ejecutivo";
       })
       .map((cat) => ({
         id: `cat-${cat.id}`,
@@ -535,7 +535,7 @@ export default function MenuClient({ tenantId }: Props) {
 
               const isFridayMenu =
                 (normalizedForId === "menu viernes" ||
-                  normalizedForId === "almuerzo viernes") &&
+                  normalizedForId === "almuerzo ejecutivo") &&
                 ui.showFriday;
 
               const parentItems = filteredItems.filter(

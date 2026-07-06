@@ -124,7 +124,7 @@ export default function TenantAlmuerzoPage({
       categories.find(
         (c) =>
           !c.parentCategoryId &&
-          (norm(c.name) === "almuerzo viernes" || norm(c.name) === "menu viernes")
+          (norm(c.name) === "almuerzo ejecutivo" || norm(c.name) === "menu viernes")
       ),
     [categories]
   );
@@ -419,7 +419,7 @@ export default function TenantAlmuerzoPage({
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se encontró la categoría Principales dentro de Almuerzo Viernes.",
+        description: "No se encontró la categoría Principales dentro de Almuerzo Ejecutivo.",
       });
       return;
     }
@@ -543,7 +543,7 @@ export default function TenantAlmuerzoPage({
           <CardHeader>
             <CardTitle>Items del Almuerzo</CardTitle>
             <CardDescription>
-              Administrá los platos principales del almuerzo viernes.
+              Administrá los platos principales del almuerzo ejecutivo.
             </CardDescription>
           </CardHeader>
 
@@ -621,7 +621,7 @@ export default function TenantAlmuerzoPage({
                 {lunchItems.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={4} className="text-muted-foreground">
-                      No hay items cargados para el almuerzo viernes.
+                      No hay items cargados para el almuerzo ejecutivo.
                     </TableCell>
                   </TableRow>
                 )}

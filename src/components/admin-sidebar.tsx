@@ -146,7 +146,7 @@ export default function AdminSidebar() {
       [
         ui.showFriday && {
           href: `/admin/${tenantId}/almuerzo`,
-          label: "Almuerzo Viernes",
+          label: "Almuerzo Ejecutivo",
           icon: Sparkles,
         },
         {

@@ -866,7 +866,7 @@ export default function MenuManager({ tenantId }: Props) {
     const parentName = parentId ? categoryById.get(parentId)?.name : "";
 
     const isFixedFridayItem =
-      norm(parentName ?? "") === "almuerzo viernes" &&
+      norm(parentName ?? "") === "almuerzo ejecutivo" &&
       norm(category?.name ?? "") === "incluye" &&
       hiddenFixedFridayItems.includes(norm(item.name));
 
