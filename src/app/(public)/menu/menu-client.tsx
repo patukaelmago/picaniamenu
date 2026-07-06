@@ -8,7 +8,7 @@ import { useTheme } from "next-themes";
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { listMenuItems } from "@/lib/menu-service";
+import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories } from "@/lib/categories-service";
 import { getTenantUI } from "@/lib/tenant-ui";
 import { db } from "@/lib/firebase";
@@ -127,24 +127,13 @@ export default function MenuClient({ tenantId }: Props) {
   useEffect(() => setMounted(true), []);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const data = await listMenuItems(tenantId);
-
-        console.log(
-          "ITEMS",
-          data.map((i) => ({
-            name: i.name,
-            categoryId: i.categoryId,
-            isSpecial: i.isSpecial,
-          }))
-        );
-
-        setMenuItems(data.filter((i) => i.isVisible !== false));
-      } catch (e) {
-        console.error("Error cargando menú desde Firestore", e);
-      }
-    })();
+    return listenMenuItems(
+      tenantId,
+      (items) => {
+        setMenuItems(items.filter((i) => i.isVisible !== false));
+      },
+      { onlyVisible: true }
+    );
   }, [tenantId]);
 
   useEffect(() => {
