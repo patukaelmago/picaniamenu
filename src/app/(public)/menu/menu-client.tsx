@@ -9,7 +9,7 @@ import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
 import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
-import { listCategories } from "@/lib/categories-service";
+import { listCategories, listenCategories } from "@/lib/categories-service";
 import { getTenantUI } from "@/lib/tenant-ui";
 import { db } from "@/lib/firebase";
 
@@ -137,15 +137,9 @@ export default function MenuClient({ tenantId }: Props) {
   }, [tenantId]);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const cats = await listCategories(tenantId);
-        const ordered = cats.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-        setCategories(ordered);
-      } catch (e) {
-        console.error("Error cargando categorías desde Firestore", e);
-      }
-    })();
+    return listenCategories(tenantId, (cats) => {
+      setCategories(cats);
+    });
   }, [tenantId]);
 
   useEffect(() => {
