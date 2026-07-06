@@ -516,6 +516,8 @@ export default function MenuClient({ tenantId }: Props) {
               const childCats = childCategoriesByParent[category.id] ?? [];
               const normalizedForId = norm(category.name);
 
+              console.log(category.name, category.description);
+
               const isFridayMenu =
                 (normalizedForId === "menu viernes" ||
                   normalizedForId === "almuerzo ejecutivo") &&
