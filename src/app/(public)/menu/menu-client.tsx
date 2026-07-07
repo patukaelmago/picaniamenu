@@ -542,22 +542,23 @@ export default function MenuClient({ tenantId }: Props) {
                   className="space-y-4 scroll-mt-24 md:scroll-mt-28"
                 >
                   <div className="space-y-1">
-                    <h2
-                      className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold mb-4"
-                      style={{ color: `hsl(${ui.categoryTitle})` }}
-                    >
-                      <>
+                    <div className="mb-4">
+                      <h2
+                        className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold"
+                        style={{ color: `hsl(${ui.categoryTitle})` }}
+                      >
                         {category.name}
-                        {category.description && (
-                          <p
-                            className="mt-1 text-sm"
-                            style={{ color: `hsl(${ui.descriptionText})` }}
-                          >
-                            {category.description}
-                          </p>
-                        )}
-                      </>
-                    </h2>
+                      </h2>
+
+                      {category.description && (
+                        <p
+                          className="mt-1 text-sm"
+                          style={{ color: `hsl(${ui.descriptionText})` }}
+                        >
+                          {category.description}
+                        </p>
+                      )}
+                    </div>
                     <div className="h-px w-full bg-border/10" />
                   </div>
 
