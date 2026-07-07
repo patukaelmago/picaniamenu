@@ -548,12 +548,14 @@ export default function MenuClient({ tenantId }: Props) {
                     >
                       <>
                         {category.name}
-                        <p
-                          className="mt-1 text-sm"
-                          style={{ color: "red" }}
-                        >
-                          {category.description || "SIN DESCRIPCIÓN"}
-                        </p>
+                        {category.description && (
+                          <p
+                            className="mt-1 text-sm"
+                            style={{ color: `hsl(${ui.descriptionText})` }}
+                          >
+                            {category.description}
+                          </p>
+                        )}
                       </>
                     </h2>
                     <div className="h-px w-full bg-border/10" />
