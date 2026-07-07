@@ -503,14 +503,14 @@ export default function TenantAlmuerzoPage({
           Configuración de Almuerzo
         </h1>
         <p className="text-muted-foreground">
-          Gestión del menú especial de los viernes para {tenantName || tenantId}
+          Gestión para los jueves y viernes para {tenantName || tenantId}
         </p>
       </div>
 
       <div className="grid gap-6 max-w-5xl">
         <Card>
           <CardHeader>
-            <CardTitle>Menú del Viernes</CardTitle>
+            <CardTitle>Almuerzo Jueves y Viernes</CardTitle>
             <CardDescription>
               Entrada y postre se guardan automáticamente al salir del campo.
             </CardDescription>
