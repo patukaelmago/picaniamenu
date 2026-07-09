@@ -90,20 +90,20 @@ export default function AdminSidebar() {
 
   useEffect(() => {
     const r = document.documentElement;
-  
+
     // Menú público
     r.style.setProperty("--nav-bg", ui.navBg);
     r.style.setProperty("--nav-text", ui.navText);
-  
+
     // Admin
     r.style.setProperty("--background", ui.adminBackground);
     r.style.setProperty("--foreground", ui.adminForeground);
-  
+
     r.style.setProperty("--accent", ui.adminAccent);
-  
+
     r.style.setProperty("--card", ui.adminBackground);
     r.style.setProperty("--card-foreground", ui.adminForeground);
-  
+
     r.style.setProperty("--sidebar-background", ui.adminSidebarBg);
     r.style.setProperty("--sidebar-foreground", ui.adminSidebarText);
   }, [
@@ -230,17 +230,20 @@ export default function AdminSidebar() {
             />
           ) : null}
         </div>
-  
+
         <div className="mt-3 flex items-center justify-between px-3">
           <ThemeToggle />
         </div>
-  
+
         <Separator className="mt-3 bg-white/10" />
       </SidebarHeader>
-  
+
       <SidebarContent
-        className="p-2 text-[hsl(var(--nav-text))]"
-        style={{ backgroundColor: `hsl(${ui.navBg})` }}
+        className="p-2"
+        style={{
+          backgroundColor: `hsl(${ui.adminSidebarBg})`,
+          color: `hsl(${ui.adminSidebarText})`,
+        }}
       >
         <SidebarMenu>
           {navItems.map((item) => (
@@ -260,7 +263,7 @@ export default function AdminSidebar() {
           ))}
         </SidebarMenu>
       </SidebarContent>
-  
+
       <SidebarFooter
         className="text-[hsl(var(--nav-text))]"
         style={{ backgroundColor: `hsl(${ui.navBg})` }}
