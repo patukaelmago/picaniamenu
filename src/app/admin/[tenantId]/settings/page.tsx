@@ -34,7 +34,7 @@ import {
   X,
 } from "lucide-react";
 
-const MAX_CAROUSEL_IMAGES = 10;
+const MAX_CAROUSEL_IMAGES = 20;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
 
 type CarouselItem =
