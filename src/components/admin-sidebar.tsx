@@ -235,7 +235,7 @@ export default function AdminSidebar() {
           <ThemeToggle />
         </div>
 
-        <Separator className="mt-3 bg-white/10" />
+        <Separator className="mt-3 bg-black/10" />
       </SidebarHeader>
 
       <SidebarContent
