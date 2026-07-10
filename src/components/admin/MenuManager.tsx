@@ -948,7 +948,13 @@ export default function MenuManager({ tenantId }: Props) {
 
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
                     <SheetTrigger asChild>
-                      <Button onClick={() => setCreateForm(emptyItem)}>
+                      <Button
+                        onClick={() => setCreateForm(emptyItem)}
+                        style={{
+                          backgroundColor: "hsl(24 100% 56%)",
+                          color: "hsl(0 0% 0%)",
+                        }}
+                      >
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Agregar Item
                       </Button>
