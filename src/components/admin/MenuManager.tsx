@@ -1271,7 +1271,15 @@ export default function MenuManager({ tenantId }: Props) {
 
               <SheetFooter>
                 <SheetClose asChild>
-                  <Button type="button" onClick={handleUpdateItem} disabled={!editId}>
+                  <Button
+                    type="button"
+                    onClick={handleUpdateItem}
+                    disabled={!editId}
+                    style={{
+                      backgroundColor: "hsl(43 100% 94%)",
+                      color: "hsl(220 50% 23%)",
+                    }}
+                  >
                     Guardar Cambios
                   </Button>
                 </SheetClose>
