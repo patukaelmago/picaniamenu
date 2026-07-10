@@ -127,7 +127,7 @@ picana: {
   adminBackground: "222 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
   adminForeground: "0 0% 100%", // Texto principal del admin y de las tarjetas
 
-  adminSidebarBg: "14 84% 53%", // Fondo del menú lateral del admin
+  adminSidebarBg: "222 50% 23%", // Fondo del menú lateral del admin
   adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
 
   adminAccent: "220 50% 23%", // Botones, switches, enlaces y elementos destacados del admin
