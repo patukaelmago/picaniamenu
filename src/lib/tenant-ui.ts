@@ -83,7 +83,7 @@ const DEFAULT: TenantUI = {
   adminSidebarBg: "0 0% 100%",
   adminSidebarText: "222 51% 23%",
 
-  adminAccent: "222 51% 23%",
+  adminAccent: "24 100% 56%",
 };
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
