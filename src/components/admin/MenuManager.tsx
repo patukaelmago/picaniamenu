@@ -1279,8 +1279,8 @@ export default function MenuManager({ tenantId }: Props) {
                     onClick={handleUpdateItem}
                     disabled={!editId}
                     style={{
-                      backgroundColor: "hsl(43 100% 94%)",
-                      color: "hsl(220 50% 23%)",
+                      backgroundColor: `hsl(${ui.navBg})`,
+                      color: `hsl(${ui.navText})`,
                     }}
                   >
                     Guardar Cambios
