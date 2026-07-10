@@ -15,6 +15,8 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
+import { getTenantUI } from "@/lib/tenant-ui";
+
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import {
@@ -105,6 +107,7 @@ function norm(s: string) {
 }
 
 export default function MenuManager({ tenantId }: Props) {
+  const ui = getTenantUI(tenantId);
   const { toast } = useToast();
 
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -951,8 +954,8 @@ export default function MenuManager({ tenantId }: Props) {
                       <Button
                         onClick={() => setCreateForm(emptyItem)}
                         style={{
-                          backgroundColor: "hsl(43 100% 94%)",
-                          color: "hsl(220 50% 23%)",
+                          backgroundColor: `hsl(${ui.navBg})`,
+                          color: `hsl(${ui.navText})`,
                         }}
                       >
                         <PlusCircle className="mr-2 h-4 w-4" />
