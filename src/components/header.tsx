@@ -15,8 +15,6 @@ export default function Header() {
       <div className="relative container mx-auto flex h-20 items-center px-4 md:px-6">
         <Link
           href={settings?.websiteUrl || "#"}
-          target="_blank"
-          rel="noopener noreferrer"
           className="
             absolute left-1/2 -translate-x-1/2
             flex items-center gap-3
