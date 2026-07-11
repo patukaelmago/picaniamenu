@@ -6,6 +6,7 @@ export type RestaurantSettings = {
   name: string;
   currency: string;
   logoUrl: string;
+  websiteUrl: string;
   showLogo: boolean;
   showName: boolean;
 };
@@ -24,6 +25,7 @@ export async function getRestaurantSettings(
       name: tenantId,
       currency: "ARS",
       logoUrl: "",
+      websiteUrl: "",
       showLogo: true,
       showName: true,
     };
@@ -35,6 +37,7 @@ export async function getRestaurantSettings(
     name: data.name ?? tenantId,
     currency: data.currency ?? "ARS",
     logoUrl: data.logoUrl ?? "",
+    websiteUrl: data.websiteUrl ?? "",
     showLogo: data.showLogo ?? true,
     showName: data.showName ?? true,
   };
@@ -50,6 +53,7 @@ export async function saveRestaurantSettings(
       name: data.name,
       currency: data.currency,
       logoUrl: data.logoUrl,
+      websiteUrl: data.websiteUrl,
       showLogo: data.showLogo,
       showName: data.showName,
       updatedAt: serverTimestamp(),
