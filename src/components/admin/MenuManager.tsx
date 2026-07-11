@@ -1329,7 +1329,13 @@ export default function MenuManager({ tenantId }: Props) {
 
                 <div className="grid gap-2">
                   <Label className="invisible">.</Label>
-                  <Button onClick={onCreateCategory}>
+                  <Button
+                    onClick={onCreateCategory}
+                    style={{
+                      backgroundColor: `hsl(${ui.navBg})`,
+                      color: `hsl(${ui.navText})`,
+                    }}
+                  >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Crear
                   </Button>
