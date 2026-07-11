@@ -43,13 +43,14 @@ type CarouselItem =
   | { kind: "saved"; id: string; url: string }
   | { kind: "draft"; id: string; file: File; previewUrl: string };
 
-type RestaurantSettingsExtra = {
-  name?: string;
-  currency?: string;
-  logoUrl?: string;
-  showLogo?: boolean;
-  showName?: boolean;
-};
+  type RestaurantSettingsExtra = {
+    name?: string;
+    currency?: string;
+    logoUrl?: string;
+    websiteUrl?: string;
+    showLogo?: boolean;
+    showName?: boolean;
+  };
 
 export default function TenantSettingsPage({
   params,
