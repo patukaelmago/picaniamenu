@@ -178,11 +178,11 @@ export default function TenantAlmuerzoPage({
       const tenantData: any = tenantSnap.data();
       setTenantName(
         tenantData?.brandName ||
-          tenantData?.commercialName ||
-          tenantData?.businessName ||
-          tenantData?.displayName ||
-          tenantData?.name ||
-          tenantId
+        tenantData?.commercialName ||
+        tenantData?.businessName ||
+        tenantData?.displayName ||
+        tenantData?.name ||
+        tenantId
       );
     } else {
       setTenantName(tenantId);
@@ -363,22 +363,22 @@ export default function TenantAlmuerzoPage({
         prev.map((i) =>
           i.id === editId
             ? {
-                ...i,
-                name: editForm.name ?? "",
-                description: editForm.description ?? "",
-                price: Number(editForm.price ?? 0),
-                currency: editForm.currency ?? "ARS",
-                imageUrl: editForm.imageUrl ?? "",
-                imageId: editForm.imageId ?? "",
-                categoryId: editForm.categoryId ?? "",
-                isVisible: editForm.isVisible ?? true,
-                inStock: editForm.inStock ?? true,
-                isSpecial: editForm.isSpecial ?? false,
-                tags: editForm.tags ?? [],
-                allergens: editForm.allergens ?? [],
-                searchKeywords: editForm.searchKeywords ?? [],
-                order: Number(editForm.order ?? 0),
-              }
+              ...i,
+              name: editForm.name ?? "",
+              description: editForm.description ?? "",
+              price: Number(editForm.price ?? 0),
+              currency: editForm.currency ?? "ARS",
+              imageUrl: editForm.imageUrl ?? "",
+              imageId: editForm.imageId ?? "",
+              categoryId: editForm.categoryId ?? "",
+              isVisible: editForm.isVisible ?? true,
+              inStock: editForm.inStock ?? true,
+              isSpecial: editForm.isSpecial ?? false,
+              tags: editForm.tags ?? [],
+              allergens: editForm.allergens ?? [],
+              searchKeywords: editForm.searchKeywords ?? [],
+              order: Number(editForm.order ?? 0),
+            }
             : i
         )
       );
@@ -502,7 +502,7 @@ export default function TenantAlmuerzoPage({
   return (
     <div className="space-y-8">
       <div>
-      <h1 className="text-3xl font-bold font-headline text-[hsl(var(--nav-text))]">
+        <h1 className="text-3xl font-bold font-headline text-[hsl(var(--nav-text))]">
           Configuración de Almuerzo
         </h1>
         <p className="text-muted-foreground">
@@ -571,7 +571,13 @@ export default function TenantAlmuerzoPage({
                 />
               </div>
 
-              <Button onClick={handleCreateItem} className="bg-black hover:bg-black/90">
+              <Button
+                onClick={handleCreateItem}
+                style={{
+                  backgroundColor: `hsl(${ui.navBg})`,
+                  color: `hsl(${ui.navText})`,
+                }}
+              >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Agregar
               </Button>
@@ -705,49 +711,49 @@ export default function TenantAlmuerzoPage({
             </div>
 
             <div className="grid grid-cols-4 items-center gap-4">
-  <Label htmlFor="e-imageId" className="text-right">
-    Imagen ID
-  </Label>
-  <Input
-    id="e-imageId"
-    className="col-span-3"
-    value={editForm.imageId ?? ""}
-    onChange={(e) =>
-      setEditForm((p) => ({ ...p, imageId: e.target.value }))
-    }
-  />
-</div>
+              <Label htmlFor="e-imageId" className="text-right">
+                Imagen ID
+              </Label>
+              <Input
+                id="e-imageId"
+                className="col-span-3"
+                value={editForm.imageId ?? ""}
+                onChange={(e) =>
+                  setEditForm((p) => ({ ...p, imageId: e.target.value }))
+                }
+              />
+            </div>
 
-<div className="grid grid-cols-4 items-center gap-4">
-  <Label className="text-right">
-    Sugerencia
-  </Label>
-  <div className="col-span-3">
-    <Switch
-      checked={!!editForm.isSpecial}
-      onCheckedChange={(v) =>
-        setEditForm((p) => ({ ...p, isSpecial: v }))
-      }
-    />
-  </div>
-</div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">
+                Sugerencia
+              </Label>
+              <div className="col-span-3">
+                <Switch
+                  checked={!!editForm.isSpecial}
+                  onCheckedChange={(v) =>
+                    setEditForm((p) => ({ ...p, isSpecial: v }))
+                  }
+                />
+              </div>
+            </div>
           </div>
           <SheetFooter>
-  <SheetClose asChild>
-    <Button variant="secondary">Cancelar</Button>
-  </SheetClose>
+            <SheetClose asChild>
+              <Button variant="secondary">Cancelar</Button>
+            </SheetClose>
 
-  <Button
-    type="button"
-    onClick={handleUpdateItem}
-    style={{
-      backgroundColor: `hsl(${ui.navBg})`,
-      color: `hsl(${ui.navText})`,
-    }}
-  >
-    Guardar Cambios
-  </Button>
-</SheetFooter>
+            <Button
+              type="button"
+              onClick={handleUpdateItem}
+              style={{
+                backgroundColor: `hsl(${ui.navBg})`,
+                color: `hsl(${ui.navText})`,
+              }}
+            >
+              Guardar Cambios
+            </Button>
+          </SheetFooter>
         </SheetContent>
       </Sheet>
     </div>
