@@ -101,6 +101,7 @@ export default function TenantSettingsPage({
 
         const initialLogo = settings.logoUrl?.trim() || DEFAULT_TENANT_LOGO;
         setLogoUrlInput(settings.logoUrl?.trim() || "");
+        setWebsiteUrl(settings.websiteUrl?.trim() || "");
         setLogoPreview(initialLogo);
 
         const uiRef = doc(db, "tenants", tenantId, "settings", "ui");
