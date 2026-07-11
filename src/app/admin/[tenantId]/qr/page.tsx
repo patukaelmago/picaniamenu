@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useEffect, useRef, useState } from "react";
+import { getTenantUI } from "@/lib/tenant-ui";
 import { QRCode } from "react-qrcode-logo";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Share2 } from "lucide-react";
@@ -12,6 +13,8 @@ export default function TenantQrPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
+  const ui = getTenantUI(tenantId);
+
   const [menuUrl, setMenuUrl] = useState("");
   const qrRef = useRef<HTMLDivElement | null>(null);
 
@@ -86,25 +89,28 @@ export default function TenantQrPage({
       </Card>
 
       <div className="flex gap-4">
-        <Button
-          onClick={downloadQR}
-          size="lg"
-          className="bg-accent hover:bg-accent/90 text-accent-foreground"
-        >
-          <Download className="mr-2 h-5 w-5" />
-          Descargar PNG
-        </Button>
+  <Button
+    onClick={downloadQR}
+    size="lg"
+    style={{
+      backgroundColor: `hsl(${ui.navBg})`,
+      color: `hsl(${ui.navText})`,
+    }}
+  >
+    <Download className="mr-2 h-5 w-5" />
+    Descargar PNG
+  </Button>
 
-        <Button
-          onClick={shareMenu}
-          size="lg"
-          variant="outline"
-          className="border-accent text-accent hover:bg-accent/10"
-        >
-          <Share2 className="mr-2 h-5 w-5" />
-          Compartir menú
-        </Button>
-      </div>
+  <Button
+    onClick={shareMenu}
+    size="lg"
+    variant="outline"
+    className="border-accent text-accent hover:bg-accent/10"
+  >
+    <Share2 className="mr-2 h-5 w-5" />
+    Compartir menú
+  </Button>
+</div>
     </div>
   );
 }
