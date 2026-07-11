@@ -14,22 +14,6 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-6xl px-4 py-4 md:px-6">
         <div className="flex flex-col items-center gap-2">
 
-          {/* LOGO */}
-          {/*<Link
-            href="https://picania-rosario.github.io/picania.github.io/"
-            className="flex items-center gap-3 mt-1 opacity-90 transition-transform transition-opacity hover:opacity-100 hover:scale-105"
-          >
-            {settings?.logoUrl ? (
-              <img
-                src="/logorecortado.png"
-                alt="Logo Picaña"
-                className="h-8 w-auto object-contain"
-              />
-            ) : (
-              <Utensils className="h-8 w-8 text-[hsl(var(--nav-text))]" />
-            )}
-          </Link>*/}
-
           {/* MÉTODOS DE PAGO */}
           <div className="flex flex-col items-center gap-0">
             {/*<span className="text-xs tracking-[0.2em] uppercase text-[hsl(var(--nav-text))]/70 mb-1">
