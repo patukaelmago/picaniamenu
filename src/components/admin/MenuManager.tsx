@@ -1121,7 +1121,12 @@ export default function MenuManager({ tenantId }: Props) {
                                 )}
                               </TableCell>
 
-                              <TableCell className="font-medium">{item.name}</TableCell>
+                              <TableCell
+                                className="font-medium"
+                                style={{ color: `hsl(${ui.adminForeground})` }}
+                              >
+                                {item.name}
+                              </TableCell>
 
                               <TableCell>
                                 {parentName && category?.parentCategoryId ? (
