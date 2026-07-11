@@ -1,5 +1,7 @@
 "use client";
 
+import { getTenantUI } from "@/lib/tenant-ui";
+
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +57,7 @@ export default function TenantSettingsPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
+  const ui = getTenantUI(tenantId);
 
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("ARS");
@@ -105,9 +108,9 @@ export default function TenantSettingsPage({
           const data = uiSnap.data();
           const images = Array.isArray(data?.carouselImages)
             ? data.carouselImages.filter(
-                (img: unknown): img is string =>
-                  typeof img === "string" && img.trim() !== ""
-              )
+              (img: unknown): img is string =>
+                typeof img === "string" && img.trim() !== ""
+            )
             : [];
 
           setCarouselItems(
@@ -404,7 +407,7 @@ export default function TenantSettingsPage({
     );
   }
 
-  
+
 
   return (
     <div className="space-y-8">
@@ -483,8 +486,8 @@ export default function TenantSettingsPage({
                 className={[
                   "relative flex min-h-40 cursor-pointer items-center justify-center rounded-md border-2 border-dashed p-4 transition-all overflow-hidden",
                   isLogoDragging
-  ? "border-[hsl(var(--nav-text))] bg-[hsl(var(--background))]"
-  : "border-[hsl(var(--nav-text))]/30 bg-[hsl(var(--nav-bg))] hover:bg-[hsl(var(--nav-bg))]",
+                    ? "border-[hsl(var(--nav-text))] bg-[hsl(var(--background))]"
+                    : "border-[hsl(var(--nav-text))]/30 bg-[hsl(var(--nav-bg))] hover:bg-[hsl(var(--nav-bg))]",
                 ].join(" ")}
               >
                 {showLogo ? (
@@ -643,7 +646,14 @@ export default function TenantSettingsPage({
       </div>
 
       <div className="flex justify-start">
-        <Button onClick={handleSave} disabled={isSaving}>
+        <Button
+          onClick={handleSave}
+          disabled={isSaving}
+          style={{
+            backgroundColor: `hsl(${ui.navBg})`,
+            color: `hsl(${ui.navText})`,
+          }}
+        >
           <Upload className="mr-2 h-4 w-4" />
           {isSaving ? "Guardando..." : "Guardar cambios"}
         </Button>
