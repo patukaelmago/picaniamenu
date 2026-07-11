@@ -17,6 +17,8 @@ import {
 import { notFound } from "next/navigation";
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
 
+import { getTenantUI } from "@/lib/tenant-ui";
+
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -95,6 +97,7 @@ export default function TenantAlmuerzoPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
+  const ui = getTenantUI(tenantId);
 
   const [data, setData] = useState<FridayMenuData>({ entrada: "", postre: "" });
   const [tenantName, setTenantName] = useState("");
@@ -729,16 +732,22 @@ export default function TenantAlmuerzoPage({
   </div>
 </div>
           </div>
-
           <SheetFooter>
-            <SheetClose asChild>
-              <Button variant="secondary">Cancelar</Button>
-            </SheetClose>
+  <SheetClose asChild>
+    <Button variant="secondary">Cancelar</Button>
+  </SheetClose>
 
-            <Button type="button" onClick={handleUpdateItem}>
-              Guardar Cambios
-            </Button>
-          </SheetFooter>
+  <Button
+    type="button"
+    onClick={handleUpdateItem}
+    style={{
+      backgroundColor: `hsl(${ui.navBg})`,
+      color: `hsl(${ui.navText})`,
+    }}
+  >
+    Guardar Cambios
+  </Button>
+</SheetFooter>
         </SheetContent>
       </Sheet>
     </div>
