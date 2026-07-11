@@ -68,6 +68,7 @@ export default function TenantSettingsPage({
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState("");
+  const [websiteUrl, setWebsiteUrl] = useState("");
   const [logoPreview, setLogoPreview] = useState<string>(DEFAULT_TENANT_LOGO);
   const [isLogoDragging, setIsLogoDragging] = useState(false);
 
