@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { db } from "@/lib/firebase";
 import { doc, onSnapshot } from "firebase/firestore";
@@ -8,6 +9,7 @@ export type RestaurantSettings = {
   name: string;
   currency: string;
   logoUrl: string;
+  websiteUrl: string;
   showLogo?: boolean;
   showName?: boolean;
 };
@@ -31,6 +33,7 @@ export function useRestaurantSettings() {
               name: raw.name ?? "",
               currency: raw.currency ?? "ARS",
               logoUrl: raw.logoUrl ?? "",
+              websiteUrl: raw.websiteUrl ?? "",
               showLogo: raw.showLogo ?? true,
               showName: raw.showName ?? true,
             }
