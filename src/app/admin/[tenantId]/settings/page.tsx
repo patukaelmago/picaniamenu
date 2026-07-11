@@ -341,6 +341,7 @@ export default function TenantSettingsPage({
         name: name.trim() || tenantId,
         currency: currency.trim() || "ARS",
         logoUrl: finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl,
+        websiteUrl: websiteUrl.trim(),
         showLogo,
         showName,
       } as any);
