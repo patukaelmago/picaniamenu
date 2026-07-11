@@ -43,14 +43,14 @@ type CarouselItem =
   | { kind: "saved"; id: string; url: string }
   | { kind: "draft"; id: string; file: File; previewUrl: string };
 
-  type RestaurantSettingsExtra = {
-    name?: string;
-    currency?: string;
-    logoUrl?: string;
-    websiteUrl?: string;
-    showLogo?: boolean;
-    showName?: boolean;
-  };
+type RestaurantSettingsExtra = {
+  name?: string;
+  currency?: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  showLogo?: boolean;
+  showName?: boolean;
+};
 
 export default function TenantSettingsPage({
   params,
@@ -544,6 +544,16 @@ export default function TenantSettingsPage({
                 id="logo-url"
                 value={logoUrlInput}
                 onChange={(e) => handleLogoUrlChange(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="website-url">Link del logo</Label>
+              <Input
+                id="website-url"
+                value={websiteUrl}
+                onChange={(e) => setWebsiteUrl(e.target.value)}
                 placeholder="https://..."
               />
             </div>
