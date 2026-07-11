@@ -1567,7 +1567,15 @@ export default function MenuManager({ tenantId }: Props) {
                       <Button variant="secondary">Cancelar</Button>
                     </SheetClose>
 
-                    <Button onClick={saveCategoryEdit}>Guardar</Button>
+                    <Button
+                      onClick={saveCategoryEdit}
+                      style={{
+                        backgroundColor: `hsl(${ui.navBg})`,
+                        color: `hsl(${ui.navText})`,
+                      }}
+                    >
+                      Guardar
+                    </Button>
                   </SheetFooter>
                 </SheetContent>
               </Sheet>
