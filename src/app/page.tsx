@@ -86,7 +86,7 @@ export default function Home() {
 
       {/* HERO */}
       <section className="relative overflow-hidden">
-        <div className="absolute right-[-160px] top-10 h-[500px] w-[500px] rounded-full bg-[#FF94DB]/20 blur-3xl" />
+        <div className="absolute right-[-160px] top-10 h-[500px] w-[500px] rounded-full bg-[#FF7A00]/20 blur-3xl" />
         <div className="absolute left-[-150px] top-40 h-[400px] w-[400px] rounded-full bg-[#E5F0FE] blur-3xl" />
 
         <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-14 px-6 py-20 lg:grid-cols-2">
@@ -116,7 +116,7 @@ export default function Home() {
 
               <Link
                 href="/menu/picania"
-                className="rounded-xl border-2 border-[#FF94DB] px-6 py-4 font-semibold text-[#515367] transition hover:bg-[#FF94DB]/15"
+                className="rounded-xl border-2 border-[#FF7A00] px-6 py-4 font-semibold text-[#515367] transition hover:bg-[#FF7A00]/15"
               >
                 Ver demostración
               </Link>
@@ -165,7 +165,7 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div className="mt-6 rounded-2xl bg-[#FF94DB] p-5 text-white">
+                <div className="mt-6 rounded-2xl bg-[#FF7A00] p-5 text-white">
                   <p className="text-sm font-bold uppercase">Nuestra carta</p>
                   <p className="mt-2 text-2xl font-bold">
                     Sabores que se comparten
@@ -200,7 +200,7 @@ export default function Home() {
       <section id="funciones" className="bg-[#E5F0FE]/55 py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="font-bold uppercase tracking-wider text-[#FF94DB]">
+            <p className="font-bold uppercase tracking-wider text-[#FF7A00]">
               Todo en un solo lugar
             </p>
 
@@ -215,8 +215,8 @@ export default function Home() {
                 key={title}
                 className="rounded-3xl border border-[#515367]/10 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF94DB]/20">
-                  <Icon className="h-6 w-6 text-[#FF94DB]" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF7A00]/20">
+                  <Icon className="h-6 w-6 text-[#FF7A00]" />
                 </div>
 
                 <h3 className="mt-5 text-lg font-bold text-[#515367]">
@@ -268,7 +268,7 @@ export default function Home() {
           </div>
 
           <div>
-            <span className="inline-flex rounded-full bg-[#FF94DB]/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FF94DB]">
+            <span className="inline-flex rounded-full bg-[#FF7A00]/20 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#FF7A00]">
               Panel intuitivo
             </span>
 
@@ -312,7 +312,7 @@ export default function Home() {
 
           <Link
             href="/login"
-            className="rounded-xl bg-[#FF94DB] px-7 py-4 font-bold text-[#515367] transition hover:bg-white"
+            className="rounded-xl bg-[#FF7A00] px-7 py-4 font-bold text-[#515367] transition hover:bg-white"
           >
             Comenzar ahora
           </Link>
@@ -347,8 +347,8 @@ function MiniBenefit({
 }) {
   return (
     <div>
-      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FF94DB]/20">
-        <Icon className="h-5 w-5 text-[#FF94DB]" />
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#FF7A00]/20">
+        <Icon className="h-5 w-5 text-[#FF7A00]" />
       </div>
 
       <p className="mt-3 text-sm font-bold">{title}</p>
@@ -379,8 +379,8 @@ function Stat({ number, label }: { number: string; label: string }) {
 function CheckItem({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF94DB]/20">
-        <Check className="h-4 w-4 text-[#FF94DB]" />
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FF7A00]/20">
+        <Check className="h-4 w-4 text-[#FF7A00]" />
       </div>
 
       <span className="font-medium">{text}</span>
