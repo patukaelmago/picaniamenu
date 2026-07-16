@@ -115,7 +115,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/menu/picania"
+                href="/menu/picana"
                 className="rounded-xl border-2 border-[#FF7A00] px-6 py-4 font-semibold text-[#515367] transition hover:bg-[#FF7A00]/15"
               >
                 Ver demostración
