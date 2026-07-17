@@ -152,8 +152,8 @@ picana: {
     background: "0 0% 10%",
     foreground: "43 100% 94%",
 
-    categoryTitle: "45 85% 55%",
-    categoryNav: "45 85% 55%",
+    categoryTitle: "0 0% 100%",
+    categoryNav: "0 0% 80%",
     descriptionText: "45 85% 55%",
     categoryNavHover: "45 85% 55%",
 
