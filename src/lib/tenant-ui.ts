@@ -150,7 +150,7 @@ picana: {
     searchText: "45 85% 55%",
 
     background: "0 0% 10%",
-    foreground: "45 85% 55%",
+    foreground: "43 100% 94%",
 
     categoryTitle: "45 85% 55%",
     categoryNav: "45 85% 55%",
