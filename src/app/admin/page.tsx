@@ -19,31 +19,43 @@ export default function AdminRootPage() {
       const email = user.email.toLowerCase();
 
       try {
-        // 1. Superadmin => selector de tenant
+        // Superadmin
         const superSnap = await getDoc(doc(db, "superadmins", email));
+
         if (superSnap.exists() && superSnap.data()?.enabled === true) {
-          router.replace("/select-tenant");
+          router.replace("/admin/select-tenant");
           return;
         }
 
-        // 2. Buscar tenant habilitado para admins normales
+        // Buscar todos los tenants donde el usuario es admin
         const tenantsSnap = await getDocs(collection(db, "tenants"));
 
-        for (const t of tenantsSnap.docs) {
-          const tenantId = t.id;
+        const allowedTenants: string[] = [];
+
+        for (const tenant of tenantsSnap.docs) {
+          const tenantId = tenant.id;
 
           const adminSnap = await getDoc(
             doc(db, "tenants", tenantId, "admins", email)
           );
 
           if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
-            router.replace(`/admin/${tenantId}/menu`);
-            return;
+            allowedTenants.push(tenantId);
           }
         }
 
-        // 3. Sin acceso
-        router.replace("/no-access");
+        if (allowedTenants.length === 0) {
+          router.replace("/no-access");
+          return;
+        }
+
+        if (allowedTenants.length === 1) {
+          router.replace(`/admin/${allowedTenants[0]}/menu`);
+          return;
+        }
+
+        // Tiene acceso a más de un restaurante
+        router.replace("/admin/select-tenant");
       } catch (e) {
         console.error("Error redirecting admin:", e);
         router.replace("/admin/login");
