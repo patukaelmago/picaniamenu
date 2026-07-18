@@ -147,7 +147,7 @@ picana: {
     accent: "24 100% 56%",
 
     searchIcon: "0 0% 50%",
-    searchText: "45 85% 55%",
+    searchText: "0 0% 50%",
 
     background: "0 0% 10%",
     foreground: "43 100% 94%",
