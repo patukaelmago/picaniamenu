@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 type Tenant = {
   id: string;
@@ -15,30 +16,57 @@ export default function SelectTenantPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadTenants = async () => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user?.email) {
+        setLoading(false);
+        return;
+      }
+
+      const email = user.email.toLowerCase();
+
       try {
+        const superSnap = await getDoc(doc(db, "superadmins", email));
+
         const snap = await getDocs(collection(db, "tenants"));
 
-        const data = snap.docs
-          .filter((doc) => doc.data()?.active === true)
-          .map((doc) => ({
-            id: doc.id,
-            name: doc.data()?.name || doc.id,
-          }));
+        const visibles: Tenant[] = [];
 
-        setTenants(data);
+        for (const tenant of snap.docs) {
+          if (tenant.data()?.active !== true) continue;
+
+          if (superSnap.exists() && superSnap.data()?.enabled === true) {
+            visibles.push({
+              id: tenant.id,
+              name: tenant.data()?.name || tenant.id,
+            });
+            continue;
+          }
+
+          const adminSnap = await getDoc(
+            doc(db, "tenants", tenant.id, "admins", email)
+          );
+
+          if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
+            visibles.push({
+              id: tenant.id,
+              name: tenant.data()?.name || tenant.id,
+            });
+          }
+        }
+
+        setTenants(visibles);
       } finally {
         setLoading(false);
       }
-    };
+    });
 
-    loadTenants();
+    return () => unsub();
   }, []);
 
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        Cargando tenants...
+        Cargando restaurantes...
       </div>
     );
   }
