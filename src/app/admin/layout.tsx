@@ -18,12 +18,10 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
 
-  // Si estamos en la página de login, no envolvemos con el guard
   if (pathname === "/admin/login") {
     return <div className="bg-secondary min-h-screen">{children}</div>;
   }
 
-  // Para todas las demás rutas del admin, aplicamos el guard
   return (
     <AdminAuthGuard>
       <SidebarProvider>
