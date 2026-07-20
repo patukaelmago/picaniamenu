@@ -157,9 +157,9 @@ picana: {
     descriptionText: "45 85% 55%",
     categoryNavHover: "45 85% 55%",
 
-    specialBadgeText: "45 85% 55%",
-    specialBadgeBorder: "24 100% 56%",
-    specialBadgeBg: "24 100% 56%",
+    specialBadgeText: "0 0% 0%",
+    specialBadgeBorder: "0 0% 0%",
+    specialBadgeBg: "45 85% 55%",
 
     subCategoryTitle: "45 85% 55%",
     itemPrice: "45 85% 55%",
