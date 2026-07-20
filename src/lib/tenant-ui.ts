@@ -142,12 +142,12 @@ picana: {
     logoDark: "",
 
     navBg: "45 85% 55%",
-    navText: "0 0% 50%",
+    navText: "0 0% 0%",
 
     accent: "24 100% 56%",
 
-    searchIcon: "0 0% 50%",
-    searchText: "0 0% 50%",
+    searchIcon: "0 0% 0%",
+    searchText: "0 0% 0%",
 
     background: "0 0% 10%",
     foreground: "43 100% 94%",
@@ -166,13 +166,13 @@ picana: {
 
     showFriday: false,
 
-    adminBackground: "0 0% 8%",
-    adminForeground: "0 0% 50%",
+    adminBackground: "0 0% 90%",
+    adminForeground: "0 0% 0%",
 
     adminSidebarBg: "45 85% 55%",
-    adminSidebarText: "0 0% 50%",
+    adminSidebarText: "0 0% 0%",
 
-    adminAccent: "0 0% 50%",
+    adminAccent: "0 0% 0%",
   },
 
   // ==================================================
