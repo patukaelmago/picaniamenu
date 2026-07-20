@@ -92,6 +92,7 @@ export default function TenantQrPage({
         <Button
           onClick={downloadQR}
           size="lg"
+          variant="outline"
           style={{
             backgroundColor: `hsl(${ui.navBg})`,
             color: `hsl(${ui.navText})`,
