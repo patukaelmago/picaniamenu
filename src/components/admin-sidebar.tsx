@@ -294,7 +294,7 @@ export default function AdminSidebar() {
                 {state === "expanded" && (
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium">{displayName}</span>
-                    <span className="text-xs text-[hsl(var(--nav-text))]/70">{email}</span>
+                    <span className="text-xs ">{email}</span>
                   </div>
                 )}
               </div>
