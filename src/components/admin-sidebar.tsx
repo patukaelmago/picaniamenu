@@ -247,22 +247,22 @@ export default function AdminSidebar() {
         }}
       >
         <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-  asChild
-  isActive={isActiveHref(item.href)}
-  tooltip={item.label}
-  className="justify-start transition-colors hover:bg-[hsl(var(--nav-bg))]/80"
-  style={{
-    color: isActiveHref(item.href)
-      ? `hsl(${ui.navText})`
-      : `hsl(${ui.adminSidebarText})`,
-    backgroundColor: isActiveHref(item.href)
-      ? `hsl(${ui.navBg})`
-      : "transparent",
-  }}
->
+  {navItems.map((item) => (
+    <SidebarMenuItem key={item.href}>
+      <SidebarMenuButton
+        asChild
+        isActive={isActiveHref(item.href)}
+        tooltip={item.label}
+        className="justify-start transition-colors hover:bg-black hover:text-white"
+        style={{
+          color: isActiveHref(item.href)
+            ? "white"
+            : `hsl(${ui.adminSidebarText})`,
+          backgroundColor: isActiveHref(item.href)
+            ? "black"
+            : "transparent",
+        }}
+      >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
                   <span>{item.label}</span>
