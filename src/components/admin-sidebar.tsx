@@ -253,7 +253,7 @@ export default function AdminSidebar() {
   asChild
   isActive={isActiveHref(item.href)}
   tooltip={item.label}
-  className="justify-start transition-colors"
+  className="justify-start transition-colors hover:bg-[hsl(var(--nav-bg))]/80"
   style={{
     color: isActiveHref(item.href)
       ? `hsl(${ui.navText})`
