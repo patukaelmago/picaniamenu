@@ -78,7 +78,7 @@ export default function MenuClient({ tenantId }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
 
-  const [ui, setUi] = useState(getTenantUI(""));
+  const [ui, setUi] = useState(() => getTenantUI(tenantId));
   const [uiReady, setUiReady] = useState(false);
 
   const [fridayData, setFridayData] = useState<FridayData>({
