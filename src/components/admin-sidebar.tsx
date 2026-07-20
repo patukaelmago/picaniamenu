@@ -253,7 +253,7 @@ export default function AdminSidebar() {
         asChild
         isActive={isActiveHref(item.href)}
         tooltip={item.label}
-        className="justify-start transition-colors hover:bg-black hover:text-white"
+        className="justify-start transition-colors hover:brightness-75 hover:text-white"
         style={{
           color: isActiveHref(item.href)
             ? "white"
@@ -283,7 +283,7 @@ export default function AdminSidebar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="flex h-auto w-full items-center justify-between p-2 text-[hsl(var(--nav-text))] hover:bg-white/10 hover:text-white"
+              className="flex h-auto w-full items-center justify-between p-2 text-[hsl(var(--nav-text))] hover:brightness-75 hover:text-white"
             >
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
