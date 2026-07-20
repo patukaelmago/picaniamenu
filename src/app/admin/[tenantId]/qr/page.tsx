@@ -106,11 +106,11 @@ export default function TenantQrPage({
           size="lg"
           variant="outline"
           style={{
-            borderColor: `hsl(${ui.navBg})`,
-            color: `hsl(${ui.navBg})`,
+            backgroundColor: `hsl(${ui.navBg})`,
+            color: `hsl(${ui.navText})`,
           }}
         >
-          <Share2 className="mr-2 h-5 w-5" />
+          <Share2 className="mr-2 h-5 w-5 " />
           Compartir menú
         </Button>
       </div>
