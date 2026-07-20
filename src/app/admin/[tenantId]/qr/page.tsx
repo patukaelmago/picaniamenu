@@ -89,31 +89,31 @@ export default function TenantQrPage({
       </Card>
 
       <div className="flex gap-4">
-        <Button
-          onClick={downloadQR}
-          size="lg"
-          variant="outline"
-          style={{
-            backgroundColor: `hsl(${ui.navBg})`,
-            color: `hsl(${ui.navText})`,
-          }}
-        >
-          <Download className="mr-2 h-5 w-5" />
-          Descargar PNG
-        </Button>
+  <Button
+    onClick={downloadQR}
+    size="lg"
+    variant="outline"
+    style={{
+      backgroundColor: `hsl(${ui.navBg})`,
+      color: `hsl(${ui.navText})`,
+    }}
+  >
+    <Download className="mr-2 h-5 w-5" />
+    Descargar PNG
+  </Button>
 
-        <Button
-          onClick={shareMenu}
-          size="lg"
-          variant="outline"
-          style={{
-            backgroundColor: `hsl(${ui.navBg})`,
-            color: `hsl(${ui.navText})`,
-          }}
-        >
-          <Share2 className="mr-2 h-5 w-5 " />
-          Compartir menú
-        </Button>
+  <Button
+    onClick={shareMenu}
+    size="lg"
+    variant="outline"
+    style={{
+      backgroundColor: `hsl(${ui.navBg})`,
+      color: `hsl(${ui.navText})`,
+    }}
+  >
+    <Share2 className="mr-2 h-5 w-5" />
+    Compartir menú
+  </Button>
       </div>
     </div>
   );
