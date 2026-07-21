@@ -31,8 +31,15 @@ export default function LoginWithGoogle() {
 
       // 2. Supervisor
       const supervisorSnap = await getDoc(doc(db, "supervisors", lowEmail));
+
+      console.log("EMAIL:", lowEmail);
+      console.log("SUPERVISOR EXISTE:", supervisorSnap.exists());
+      console.log("SUPERVISOR DATA:", supervisorSnap.data());
+
       if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
         const tenants = supervisorSnap.data()?.tenants || [];
+
+        console.log("TENANTS:", tenants);
 
         if (tenants.length === 0) {
           router.replace("/no-access");
