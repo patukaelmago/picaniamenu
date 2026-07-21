@@ -22,45 +22,14 @@ export default function LoginWithGoogle() {
     try {
       const lowEmail = email.toLowerCase();
 
-      // 1. Superadmin
+      // Superadmin
       const superSnap = await getDoc(doc(db, "superadmins", lowEmail));
       if (superSnap.exists() && superSnap.data()?.enabled === true) {
         router.replace(`/admin/${DEFAULT_TENANT}/menu`);
         return;
       }
 
-      // 2. Supervisor
-      const supervisorSnap = await getDoc(doc(db, "supervisors", lowEmail));
-
-      console.log("EMAIL:", lowEmail);
-      console.log("SUPERVISOR EXISTE:", supervisorSnap.exists());
-      console.log("SUPERVISOR DATA:", supervisorSnap.data());
-
-      if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
-        const tenants = supervisorSnap.data()?.tenants || [];
-
-        console.log("TENANTS:", tenants);
-
-        if (tenants.length === 0) {
-          router.replace("/no-access");
-          return;
-        }
-
-        if (tenants.length === 1) {
-          router.replace(`/admin/${tenants[0]}/menu`);
-          return;
-        }
-
-        sessionStorage.setItem(
-          "supervisorTenants",
-          JSON.stringify(tenants)
-        );
-
-        router.replace("/admin/select-tenant");
-        return;
-      }
-
-      // 3. Admin normal
+      // Admin normal
       const tenantsSnap = await getDocs(collection(db, "tenants"));
 
       for (const t of tenantsSnap.docs) {
@@ -76,7 +45,7 @@ export default function LoginWithGoogle() {
         }
       }
 
-      // 4. Sin acceso
+      // Sin acceso
       router.replace("/no-access");
     } catch (error) {
       console.error("Error al buscar tenant autorizado:", error);
