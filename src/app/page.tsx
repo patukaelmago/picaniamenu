@@ -70,7 +70,7 @@ export default function Home() {
               Panel
             </a>
 
-            <Link href="/menu/picania" className="hover:text-[#4B75FF]">
+            <Link href="/menu/picana" className="hover:text-[#4B75FF]">
               Demo
             </Link>
           </nav>
