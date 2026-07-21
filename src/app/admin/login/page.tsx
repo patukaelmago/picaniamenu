@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,26 +21,55 @@ export default function LoginWithGoogle() {
   const findAuthorizedTenantAndRedirect = async (email: string) => {
     try {
       const lowEmail = email.toLowerCase();
-      
-      // 1. Verificar si es Superadmin
+
+      // 1. Superadmin
       const superSnap = await getDoc(doc(db, "superadmins", lowEmail));
       if (superSnap.exists() && superSnap.data()?.enabled === true) {
         router.replace(`/admin/${DEFAULT_TENANT}/menu`);
         return;
       }
 
-      // 2. Buscar en qué tenant es admin
+      // 2. Supervisor
+      const supervisorSnap = await getDoc(doc(db, "supervisors", lowEmail));
+      if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
+        const tenants = supervisorSnap.data()?.tenants || [];
+
+        if (tenants.length === 0) {
+          router.replace("/no-access");
+          return;
+        }
+
+        if (tenants.length === 1) {
+          router.replace(`/admin/${tenants[0]}/menu`);
+          return;
+        }
+
+        sessionStorage.setItem(
+          "supervisorTenants",
+          JSON.stringify(tenants)
+        );
+
+        router.replace("/admin/select-tenant");
+        return;
+      }
+
+      // 3. Admin normal
       const tenantsSnap = await getDocs(collection(db, "tenants"));
+
       for (const t of tenantsSnap.docs) {
         const tenantId = t.id;
-        const adminSnap = await getDoc(doc(db, "tenants", tenantId, "admins", lowEmail));
+
+        const adminSnap = await getDoc(
+          doc(db, "tenants", tenantId, "admins", lowEmail)
+        );
+
         if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
           router.replace(`/admin/${tenantId}/menu`);
           return;
         }
       }
 
-      // 3. Si no tiene acceso a nada
+      // 4. Sin acceso
       router.replace("/no-access");
     } catch (error) {
       console.error("Error al buscar tenant autorizado:", error);
@@ -67,6 +95,7 @@ export default function LoginWithGoogle() {
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
+
       const result = await signInWithPopup(auth, provider);
 
       if (result.user.email) {
@@ -81,7 +110,9 @@ export default function LoginWithGoogle() {
   if (checking) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-secondary">
-        <p className="animate-pulse text-muted-foreground">Comprobando sesión...</p>
+        <p className="animate-pulse text-muted-foreground">
+          Comprobando sesión...
+        </p>
       </div>
     );
   }
@@ -90,16 +121,24 @@ export default function LoginWithGoogle() {
     <div className="flex min-h-screen items-center justify-center bg-secondary p-6">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl text-center">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold font-headline">Panel de Control</h1>
-          <p className="text-muted-foreground text-sm">Iniciá sesión para gestionar tu menú</p>
+          <h1 className="text-3xl font-bold font-headline">
+            Panel de Control
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Iniciá sesión para gestionar tu menú
+          </p>
         </div>
-        
+
         <button
           onClick={handleLogin}
           disabled={loading}
           className="w-full flex items-center justify-center gap-3 rounded-lg border bg-white px-4 py-3 text-sm font-medium shadow-sm transition-all hover:bg-slate-50 disabled:opacity-50"
         >
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
+          <img
+            src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+            alt="Google"
+            className="h-5 w-5"
+          />
           {loading ? "Ingresando..." : "Continuar con Google"}
         </button>
       </div>
