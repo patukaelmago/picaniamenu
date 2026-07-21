@@ -26,21 +26,50 @@ export default function SelectTenantPage() {
 
       try {
         const superSnap = await getDoc(doc(db, "superadmins", email));
+        const supervisorSnap = await getDoc(doc(db, "supervisors", email));
 
         const snap = await getDocs(collection(db, "tenants"));
 
         const visibles: Tenant[] = [];
 
-        for (const tenant of snap.docs) {
-          if (tenant.data()?.active !== true) continue;
+        // Superadmin
+        if (superSnap.exists() && superSnap.data()?.enabled === true) {
+          for (const tenant of snap.docs) {
+            if (tenant.data()?.active !== true) continue;
 
-          if (superSnap.exists() && superSnap.data()?.enabled === true) {
             visibles.push({
               id: tenant.id,
               name: tenant.data()?.name || tenant.id,
             });
-            continue;
           }
+
+          setTenants(visibles);
+          return;
+        }
+
+        // Supervisor
+        if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
+          const allowedTenants: string[] =
+            supervisorSnap.data()?.tenants ?? [];
+
+          for (const tenant of snap.docs) {
+            if (tenant.data()?.active !== true) continue;
+
+            if (allowedTenants.includes(tenant.id)) {
+              visibles.push({
+                id: tenant.id,
+                name: tenant.data()?.name || tenant.id,
+              });
+            }
+          }
+
+          setTenants(visibles);
+          return;
+        }
+
+        // Admin normal
+        for (const tenant of snap.docs) {
+          if (tenant.data()?.active !== true) continue;
 
           const adminSnap = await getDoc(
             doc(db, "tenants", tenant.id, "admins", email)

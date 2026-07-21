@@ -34,18 +34,34 @@ export default function LoginWithGoogle() {
       const email = (result.user.email ?? "").toLowerCase();
       if (!email) throw new Error("No se pudo leer el email del usuario.");
 
-      // 1) Superadmin => selector de tenant
+      // 1) Superadmin (NO TOCAR)
       const superSnap = await getDoc(doc(db, "superadmins", email));
       if (superSnap.exists() && superSnap.data()?.enabled === true) {
         router.replace("/select-tenant");
         return;
       }
 
-      // 2) Admin por tenant => buscamos en qué restaurante está habilitado
+      // 2) Supervisor (NUEVO)
+      const supervisorSnap = await getDoc(doc(db, "supervisors", email));
+
+      if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
+        const tenants: string[] = supervisorSnap.data()?.tenants ?? [];
+
+        if (tenants.length === 1) {
+          router.replace(`/admin/${tenants[0]}/menu`);
+        } else {
+          router.replace("/select-tenant");
+        }
+
+        return;
+      }
+
+      // 3) Admin por tenant (NO TOCAR)
       const tenantsSnap = await getDocs(collection(db, "tenants"));
 
       for (const t of tenantsSnap.docs) {
         const tenantId = t.id;
+
         const adminSnap = await getDoc(
           doc(db, "tenants", tenantId, "admins", email)
         );
@@ -56,7 +72,7 @@ export default function LoginWithGoogle() {
         }
       }
 
-      // 3) No autorizado
+      // 4) No autorizado
       router.replace("/no-access");
     } catch (error: any) {
       console.error("Error al iniciar sesión:", error);
