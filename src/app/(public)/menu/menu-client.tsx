@@ -612,41 +612,45 @@ export default function MenuClient({ tenantId }: Props) {
                   <div className="divide-y divide-border/10">
                     {parentItems.map((item) => (
                       <div key={item.id} className="py-3">
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-headline text-[13px] md:text-base tracking-wide">
-                            {item.name}
-                          </span>
-
-                          {item.isSpecial && (
-                            <Badge
-                              variant="outline"
-                              className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
-                              style={{
-                                color: `hsl(${ui.specialBadgeText})`,
-                                borderColor: `hsl(${ui.specialBadgeBorder})`,
-                                backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                              }}
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
+                        <div className="min-w-0">
+                          <div className="flex items-baseline gap-2">
+                            <span className="font-headline text-[13px] md:text-base tracking-wide">
+                              {item.name}
+                            </span>
+                    
+                            {item.isSpecial && (
+                              <Badge
+                                variant="outline"
+                                className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                style={{
+                                  color: `hsl(${ui.specialBadgeText})`,
+                                  borderColor: `hsl(${ui.specialBadgeBorder})`,
+                                  backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                                }}
+                              >
+                                <SparklesIcon className="h-3 w-3" />
+                                Sugerencia
+                              </Badge>
+                            )}
+                    
+                            <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+                          </div>
+                    
+                          {item.description && (
+                            <p
+                              className="mt-1 text-xs md:text-sm leading-snug"
+                              style={{ color: `hsl(${ui.descriptionText})` }}
                             >
-                              <SparklesIcon className="h-3 w-3" />
-                              Sugerencia
-                            </Badge>
+                              {item.description}
+                            </p>
                           )}
-
-                          <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
-
-                          <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                            {formatCurrency(item.price)}
-                          </span>
                         </div>
-
-                        {item.description && (
-                          <p
-                            className="mt-1 text-xs md:text-sm leading-snug max-w-3xl pr-[110px] md:pr-[130px]"
-                            style={{ color: `hsl(${ui.descriptionText})` }}
-                          >
-                            {item.description}
-                          </p>
-                        )}
+                    
+                        <span className="font-semibold text-sm md:text-base whitespace-nowrap">
+                          {formatCurrency(item.price)}
+                        </span>
+                      </div>
 
                         {(item.tags ?? []).length > 0 && (
                           <div className="mt-1 flex flex-wrap gap-1">
