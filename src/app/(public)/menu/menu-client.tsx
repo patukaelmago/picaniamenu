@@ -65,6 +65,18 @@ function fridayDescOverride(
 
 type Props = { tenantId: string };
 
+const ITEMS_PER_PAGE = 7;
+
+function splitIntoPages<T>(items: T[], size = ITEMS_PER_PAGE): T[][] {
+  const pages: T[][] = [];
+
+  for (let i = 0; i < items.length; i += size) {
+    pages.push(items.slice(i, i + size));
+  }
+
+  return pages;
+}
+
 export default function MenuClient({ tenantId }: Props) {
   const { setTheme, resolvedTheme } = useTheme();
   console.log("TENANT:", tenantId);
@@ -369,7 +381,7 @@ export default function MenuClient({ tenantId }: Props) {
   return (
     <div className={tenantId === "picania" ? "dark" : ""}>
       <main
-        className="min-h-screen"
+        className="h-screen overflow-y-auto scroll-smooth snap-y snap-mandatory"
         style={{
           backgroundColor: `hsl(${ui.background})`,
           color: `hsl(${ui.foreground})`,
@@ -527,6 +539,15 @@ export default function MenuClient({ tenantId }: Props) {
                 (item) => item.categoryId === category.id
               );
 
+              const categoryItems = [
+                ...parentItems,
+                ...childCats.flatMap((sub) =>
+                  filteredItems.filter((item) => item.categoryId === sub.id)
+                ),
+              ];
+
+              const categoryPages = splitIntoPages(categoryItems);
+
               console.log(
                 "FRIDAY CATEGORY:",
                 category.name,
@@ -539,12 +560,39 @@ export default function MenuClient({ tenantId }: Props) {
                 <section
                   id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
                   key={category.id}
-                  className="space-y-4 scroll-mt-24 md:scroll-mt-28"
+                  className="
+  relative
+  min-h-[calc(100svh-2rem)]
+  snap-start
+  scroll-mt-0
+  px-5
+  py-10
+  md:px-12
+  md:py-14
+  border
+  border-[#fff7e3]/40
+  rounded-sm
+  flex
+  flex-col
+"
                 >
                   <div className="space-y-1">
                     <div className="mb-4">
                       <h2
-                        className="font-headline text-l md:text-xl lg:text-2xl tracking-widest font-bold"
+                        className="
+                        font-headline
+                        text-3xl
+                        md:text-5xl
+                        tracking-[0.16em]
+                        font-normal
+                        uppercase
+                        text-center
+                        pb-3
+                        border-b
+                        border-[#fff7e3]/70
+                        w-fit
+                        mx-auto
+                      "
                         style={{ color: `hsl(${ui.categoryTitle})` }}
                       >
                         {category.name}
