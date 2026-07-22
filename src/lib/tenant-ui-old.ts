@@ -29,6 +29,8 @@
 // 🟡 Dorado ............. 45 85% 55%
 
 export type TenantUI = {
+  menuTemplate: "default" | "editorial";
+
   logoLight: string;
   logoDark: string;
   navBg: string;
@@ -58,6 +60,8 @@ export type TenantUI = {
 };
 
 const DEFAULT: TenantUI = {
+  menuTemplate: "default",
+
   logoLight: "",
   logoDark: "",
   navBg: "222 51% 23%",
@@ -88,56 +92,60 @@ const DEFAULT: TenantUI = {
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
   // ==================================================
-// PICAÑA
-// Azul oscuro + crema
-// ==================================================
-picana: {
-  logoLight: "",
-  logoDark: "",
+  // PICAÑA
+  // Azul oscuro + crema
+  // ==================================================
+  picana: {
+    menuTemplate: "editorial",
 
-  // ===== MENÚ PÚBLICO =====
+    logoLight: "",
+    logoDark: "",
 
-  navBg: "43 100% 94%", // Fondo de la barra de navegación
-  navText: "222 50% 23%", // Texto e íconos de la barra de navegación
+    // ===== MENÚ PÚBLICO =====
 
-  accent: "222 50% 23%", // Botones, links y elementos destacados
+    navBg: "43 100% 94%", // Fondo de la barra de navegación
+    navText: "222 50% 23%", // Texto e íconos de la barra de navegación
 
-  searchIcon: "222 50% 23%", // Ícono de búsqueda
-  searchText: "222 50% 23%", // Texto del buscador
+    accent: "222 50% 23%", // Botones, links y elementos destacados
 
-  background: "222 50% 23%", // Fondo general del menú público
-  foreground: "43 100% 94%", // Texto general del menú público
+    searchIcon: "222 50% 23%", // Ícono de búsqueda
+    searchText: "222 50% 23%", // Texto del buscador
 
-  categoryTitle: "43 100% 94%", // Título de las categorías
-  categoryNav: "0 0% 100%", // Subcategorías / navegación
-  descriptionText: "0 0% 100%", // Descripción de los productos
-  categoryNavHover: "43 100% 94%", // Hover de categorías
+    background: "222 50% 23%", // Fondo general del menú público
+    foreground: "43 100% 94%", // Texto general del menú público
 
-  specialBadgeText: "0 0% 0%", // Texto de la etiqueta "Sugerencia"
-  specialBadgeBorder: "24 100% 56%", // Borde de la etiqueta
-  specialBadgeBg: "24 100% 56%", // Fondo de la etiqueta
+    categoryTitle: "43 100% 94%", // Título de las categorías
+    categoryNav: "0 0% 100%", // Subcategorías / navegación
+    descriptionText: "0 0% 100%", // Descripción de los productos
+    categoryNavHover: "43 100% 94%", // Hover de categorías
 
-  subCategoryTitle: "0 0% 100%", // Título de subcategorías
-  itemPrice: "220 50% 23%", // Precio del producto
+    specialBadgeText: "0 0% 0%", // Texto de la etiqueta "Sugerencia"
+    specialBadgeBorder: "24 100% 56%", // Borde de la etiqueta
+    specialBadgeBg: "24 100% 56%", // Fondo de la etiqueta
 
-  showFriday: true,
+    subCategoryTitle: "0 0% 100%", // Título de subcategorías
+    itemPrice: "220 50% 23%", // Precio del producto
 
-  // ===== ADMIN =====
+    showFriday: true,
 
-  adminBackground: "222 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
-  adminForeground: "0 0% 100%", // Texto principal del admin y de las tarjetas
+    // ===== ADMIN =====
 
-  adminSidebarBg: "222 50% 23%", // Fondo del menú lateral del admin
-  adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
+    adminBackground: "222 50% 23%", // Fondo principal del admin y de las tarjetas (bg-card)
+    adminForeground: "0 0% 100%", // Texto principal del admin y de las tarjetas
 
-  adminAccent: "14 84% 53%", // Naranja
-},
+    adminSidebarBg: "222 50% 23%", // Fondo del menú lateral del admin
+    adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
+
+    adminAccent: "14 84% 53%", // Naranja
+  },
 
   // ==================================================
   // LA ROTI
   // Negro + dorado
   // ==================================================
   laroti: {
+    menuTemplate: "default",
+
     logoLight: "",
     logoDark: "",
 
@@ -180,6 +188,8 @@ picana: {
   // Azul marino + crema
   // ==================================================
   pulpo: {
+    menuTemplate: "default",
+
     logoLight: "",
     logoDark: "",
 
@@ -222,6 +232,8 @@ picana: {
   // Verde + dorado claro
   // ==================================================
   sucre: {
+    menuTemplate: "default",
+
     logoLight: "",
     logoDark: "",
 
@@ -263,5 +275,9 @@ picana: {
 export function getTenantUI(tenantId?: string | null): TenantUI {
   const key = (tenantId ?? "").toLowerCase();
   const config = TENANTS[key] || {};
-  return { ...DEFAULT, ...config };
+
+  return {
+    ...DEFAULT,
+    ...config,
+  };
 }
