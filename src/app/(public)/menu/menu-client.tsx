@@ -381,7 +381,7 @@ export default function MenuClient({ tenantId }: Props) {
   return (
     <div className={tenantId === "picania" ? "dark" : ""}>
       <main
-        className="h-screen overflow-y-auto scroll-smooth snap-y snap-mandatory"
+        className="min-h-screen scroll-smooth"
         style={{
           backgroundColor: `hsl(${ui.background})`,
           color: `hsl(${ui.foreground})`,
@@ -563,7 +563,6 @@ export default function MenuClient({ tenantId }: Props) {
                   className="
   relative
   min-h-[calc(100svh-2rem)]
-  snap-start
   scroll-mt-0
   px-5
   py-10
