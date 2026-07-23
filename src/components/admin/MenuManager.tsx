@@ -882,14 +882,14 @@ export default function MenuManager({ tenantId }: Props) {
 
   return (
     <div
-  className="space-y-8 min-h-screen p-8"
-  style={{
-    backgroundColor:
-      tenantId === "picania"
-        ? `hsl(${ui.adminBackground})`
-        : undefined,
-  }}
->
+      className="space-y-8 min-h-screen p-8"
+      style={{
+        backgroundColor:
+          tenantId === "picania"
+            ? `hsl(${ui.adminBackground})`
+            : undefined,
+      }}
+    >
       <div>
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
@@ -904,7 +904,18 @@ export default function MenuManager({ tenantId }: Props) {
         </TabsList>
 
         <TabsContent value="items" className="mt-6">
-          <Card>
+          <Card
+            style={{
+              backgroundColor:
+                tenantId === "picania"
+                  ? "hsl(43 100% 94%)"
+                  : undefined,
+              color:
+                tenantId === "picania"
+                  ? "hsl(222 50% 23%)"
+                  : undefined,
+            }}
+          >
             <CardHeader>
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>Administrá todos los items de tu menú.</CardDescription>
@@ -1305,7 +1316,18 @@ export default function MenuManager({ tenantId }: Props) {
         </TabsContent>
 
         <TabsContent value="categories" className="mt-6">
-          <Card>
+          <Card
+            style={{
+              backgroundColor:
+                tenantId === "picania"
+                  ? "hsl(43 100% 94%)"
+                  : undefined,
+              color:
+                tenantId === "picania"
+                  ? "hsl(222 50% 23%)"
+                  : undefined,
+            }}
+          >
             <CardHeader>
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>Organizá las secciones de tu menú.</CardDescription>
