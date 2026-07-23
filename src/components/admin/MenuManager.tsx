@@ -881,7 +881,15 @@ export default function MenuManager({ tenantId }: Props) {
     : visibleAdminItems.filter((item) => getItemParentId(item) === parentFilterId);
 
   return (
-    <div className="space-y-8">
+    <div
+  className="space-y-8 min-h-screen p-8"
+  style={{
+    backgroundColor:
+      tenantId === "picania"
+        ? `hsl(${ui.adminBackground})`
+        : undefined,
+  }}
+>
       <div>
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
