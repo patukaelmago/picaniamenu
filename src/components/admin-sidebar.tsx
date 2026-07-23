@@ -102,8 +102,8 @@ export default function AdminSidebar() {
     r.style.setProperty("--accent", ui.adminAccent);
     r.style.setProperty("--primary", ui.adminAccent);
 
-    r.style.setProperty("--card", ui.adminBackground);
-    r.style.setProperty("--card-foreground", ui.adminForeground);
+    r.style.setProperty("--card", ui.adminCard);
+    r.style.setProperty("--card-foreground", ui.adminCardForeground);
 
     r.style.setProperty("--sidebar-background", ui.adminSidebarBg);
     r.style.setProperty("--sidebar-foreground", ui.adminSidebarText);

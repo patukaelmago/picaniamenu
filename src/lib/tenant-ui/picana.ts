@@ -40,8 +40,11 @@ export const PICANA_UI: Partial<TenantUI> = {
 
   // ===== ADMIN =====
 
-  adminBackground: "222 50% 23%", // Fondo principal del admin y de las tarjetas
-  adminForeground: "0 0% 100%", // Texto principal del admin y de las tarjetas
+  adminBackground: "222 50% 23%", // Fondo principal del admin
+  adminForeground: "0 0% 100%", // Texto principal del admin
+
+  adminCard: "43 100% 94%", // Fondo de las tarjetas del admin
+  adminCardForeground: "222 50% 23%", // Texto de las tarjetas del admin
 
   adminSidebarBg: "222 50% 23%", // Fondo del menú lateral del admin
   adminSidebarText: "0 0% 100%", // Texto e íconos del menú lateral
