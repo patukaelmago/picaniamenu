@@ -597,7 +597,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                       {category.description && (
                         <p
-                          className="mt-2 text-center text-sm"
+                          className="mt-3 text-center text-sm"
                           style={{ color: `hsl(${ui.descriptionText})` }}
                         >
                           {category.description}
