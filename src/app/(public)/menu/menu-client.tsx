@@ -729,7 +729,10 @@ export default function MenuClient({ tenantId }: Props) {
                                       className="font-normal text-[13px] md:text-[15px] tracking-wide"
                                       style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
-                                      {shownDesc || "—"}
+                                      {(shownDesc || "—").replace(
+                                        /^Agua o gaseosa linea Coca-Cola/i,
+                                        "AGUA O GASEOSA LÍNEA COCA-COLA"
+                                      )}
                                     </span>
                                   </p>
                                 </div>
