@@ -890,7 +890,19 @@ export default function MenuManager({ tenantId }: Props) {
             : undefined,
       }}
     >
-      <div>
+      <div
+        className="rounded-lg px-6 py-5"
+        style={{
+          backgroundColor:
+            tenantId === "picania"
+              ? `hsl(${ui.adminBackground})`
+              : undefined,
+          color:
+            tenantId === "picania"
+              ? `hsl(${ui.adminForeground})`
+              : undefined,
+        }}
+      >
         <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
         <p className="text-muted-foreground">
           <span className="font-medium">{tenantName || tenantId}</span>
