@@ -2,7 +2,7 @@
 
 import { getTenantUI } from "@/lib/tenant-ui";
 
-import { use, useEffect, useMemo, useRef, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -666,10 +666,13 @@ export default function TenantSettingsPage({
         <Button
           onClick={handleSave}
           disabled={isSaving}
+          className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
           style={{
-            backgroundColor: `hsl(${ui.navBg})`,
-            color: `hsl(${ui.navText})`,
-          }}
+            "--tenant-button-bg": ui.navBg,
+            "--tenant-button-text": ui.navText,
+            "--tenant-button-hover-bg": ui.adminAccent,
+            "--tenant-button-hover-text": ui.adminCard,
+          } as CSSProperties}
         >
           <Upload className="mr-2 h-4 w-4" />
           {isSaving ? "Guardando..." : "Guardar cambios"}
