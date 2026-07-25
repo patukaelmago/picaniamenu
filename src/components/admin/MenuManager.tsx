@@ -1154,7 +1154,7 @@ export default function MenuManager({ tenantId }: Props) {
 
                               <TableCell
                                 className="font-medium"
-                                style={{ color: `hsl(${ui.adminForeground})` }}
+                                style={{ color: `hsl(${ui.adminCardForeground})` }}
                               >
                                 {item.name}
                               </TableCell>
