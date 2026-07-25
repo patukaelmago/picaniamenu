@@ -947,7 +947,7 @@ export default function MenuManager({ tenantId }: Props) {
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Categoría padre:</Label>
                     <select
-                      className="h-9 rounded-md border bg-background px-2 text-sm min-w-[220px]"
+                      className="h-9 rounded-md border bg-background px-2 text-sm text-foreground min-w-[220px]"
                       value={parentFilterId}
                       onChange={(e) => setParentFilterId(e.target.value)}
                     >
@@ -963,7 +963,7 @@ export default function MenuManager({ tenantId }: Props) {
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Orden:</Label>
                     <select
-                      className="h-9 rounded-md border bg-background px-2 text-sm"
+                      className="h-9 rounded-md border bg-background px-2 text-sm text-foreground"
                       value={sortMode}
                       onChange={(e) => setSortMode(e.target.value as any)}
                     >
