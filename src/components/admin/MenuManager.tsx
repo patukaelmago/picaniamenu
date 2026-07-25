@@ -1364,7 +1364,7 @@ export default function MenuManager({ tenantId }: Props) {
                   <Label htmlFor="new-cat-parent">Categoría padre</Label>
                   <select
                     id="new-cat-parent"
-                    className="h-9 rounded-md border bg-background px-2 text-sm min-w-[180px]"
+                    className="h-9 rounded-md border bg-background px-2 text-sm text-foreground min-w-[180px]"
                     value={formCatParentId}
                     onChange={(e) => setFormCatParentId(e.target.value)}
                   >
