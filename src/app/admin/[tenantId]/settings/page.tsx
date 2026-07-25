@@ -419,7 +419,7 @@ export default function TenantSettingsPage({
 
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-24">
       <div>
         <h1 className="text-3xl font-bold font-headline">Ajustes del Cliente</h1>
         <p className="text-muted-foreground">Configuración para {name}</p>
@@ -687,11 +687,11 @@ export default function TenantSettingsPage({
         </Card>
       </div>
 
-      <div className="flex justify-start">
+      <div className="fixed bottom-0 right-0 z-40 flex w-full justify-start border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="border border-transparent bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-border))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+          className="border border-transparent bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] transition-transform hover:border-[hsl(var(--tenant-button-hover-border))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] active:translate-y-0.5 active:scale-[0.98]"
           style={{
             "--tenant-button-bg": ui.navBg,
             "--tenant-button-text": ui.navText,
