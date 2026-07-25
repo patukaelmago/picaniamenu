@@ -666,12 +666,13 @@ export default function TenantSettingsPage({
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+          className="border border-transparent bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-border))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
           style={{
             "--tenant-button-bg": ui.navBg,
             "--tenant-button-text": ui.navText,
             "--tenant-button-hover-bg": ui.adminCardForeground,
             "--tenant-button-hover-text": ui.adminCard,
+            "--tenant-button-hover-border": ui.adminCard,
           } as CSSProperties}
         >
           <Upload className="mr-2 h-4 w-4" />
