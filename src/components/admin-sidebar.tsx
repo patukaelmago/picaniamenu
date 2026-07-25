@@ -98,6 +98,10 @@ export default function AdminSidebar() {
     // Admin
     r.style.setProperty("--background", ui.adminBackground);
     r.style.setProperty("--foreground", ui.adminForeground);
+    r.style.setProperty(
+      "--muted-foreground",
+      ui.adminMutedForeground ?? ui.adminForeground
+    );
 
     r.style.setProperty("--accent", ui.adminAccent);
     r.style.setProperty("--primary", ui.adminAccent);
@@ -112,6 +116,7 @@ export default function AdminSidebar() {
     ui.navText,
     ui.adminBackground,
     ui.adminForeground,
+    ui.adminMutedForeground,
     ui.adminAccent,
     ui.adminSidebarBg,
     ui.adminSidebarText,
