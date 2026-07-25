@@ -1383,8 +1383,8 @@ export default function MenuManager({ tenantId }: Props) {
                     onClick={onCreateCategory}
                     className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                     style={{
-                      "--tenant-button-bg": ui.adminCard,
-                      "--tenant-button-text": ui.adminCardForeground,
+                      "--tenant-button-bg": ui.adminCardForeground,
+                      "--tenant-button-text": ui.adminCard,
                       "--tenant-button-border": ui.adminCardForeground,
                       "--tenant-button-hover-bg": ui.adminAccent,
                       "--tenant-button-hover-text": ui.adminCard,
