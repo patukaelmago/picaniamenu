@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import {
   collection,
@@ -984,11 +984,13 @@ export default function MenuManager({ tenantId }: Props) {
                     <SheetTrigger asChild>
                       <Button
                         onClick={() => setCreateForm(emptyItem)}
+                        className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                         style={{
-                          backgroundColor: `hsl(${ui.adminCardForeground})`,
-                          color: `hsl(${ui.adminCard})`,
-                          borderColor: `hsl(${ui.adminCardForeground})`,
-                        }}
+                          "--tenant-button-bg": ui.adminCardForeground,
+                          "--tenant-button-text": ui.adminCard,
+                          "--tenant-button-hover-bg": ui.adminAccent,
+                          "--tenant-button-hover-text": ui.adminCard,
+                        } as CSSProperties}
                       >
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Agregar Item
