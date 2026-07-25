@@ -1317,6 +1317,7 @@ export default function MenuManager({ tenantId }: Props) {
                     type="button"
                     onClick={handleUpdateItem}
                     disabled={!editId}
+                    className="transition-transform active:translate-y-0.5 active:scale-[0.98]"
                     style={{
                       backgroundColor: `hsl(${ui.navBg})`,
                       color: `hsl(${ui.navText})`,
