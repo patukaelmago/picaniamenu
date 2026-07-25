@@ -516,6 +516,7 @@ export default function TenantSettingsPage({
                 <Button
                   type="button"
                   variant="outline"
+                  style={{ color: `hsl(${ui.adminForeground})` }}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   Cambiar logo
@@ -524,6 +525,7 @@ export default function TenantSettingsPage({
                 <Button
                   type="button"
                   variant="outline"
+                  style={{ color: `hsl(${ui.adminForeground})` }}
                   onClick={clearLogoSelection}
                 >
                   <X className="mr-2 h-4 w-4" />
@@ -640,6 +642,7 @@ export default function TenantSettingsPage({
                         type="button"
                         variant="outline"
                         className="w-full text-xs py-1 h-auto mt-2"
+                        style={{ color: `hsl(${ui.adminForeground})` }}
                         onClick={() => removeCarouselItem(item.id)}
                       >
                         <Trash2 className="mr-1 h-3.5 w-3.5" />
