@@ -37,7 +37,7 @@ export type TenantUI = {
 
   adminBackground: string;
   adminForeground: string;
-  adminMutedForeground?: string;
+  adminMutedForeground: string;
 
   adminCard: string;
   adminCardForeground: string;
