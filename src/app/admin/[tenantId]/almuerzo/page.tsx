@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   collection,
   doc,
@@ -573,10 +573,13 @@ export default function TenantAlmuerzoPage({
 
               <Button
                 onClick={handleCreateItem}
+                className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                 style={{
-                  backgroundColor: `hsl(${ui.navBg})`,
-                  color: `hsl(${ui.navText})`,
-                }}
+                  "--tenant-button-bg": ui.adminCardForeground,
+                  "--tenant-button-text": ui.adminCard,
+                  "--tenant-button-hover-bg": ui.adminAccent,
+                  "--tenant-button-hover-text": ui.adminCard,
+                } as CSSProperties}
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Agregar
