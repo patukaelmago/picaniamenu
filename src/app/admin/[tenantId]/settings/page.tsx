@@ -589,10 +589,11 @@ export default function TenantSettingsPage({
                 className="hidden"
               />
 
-              <Button
-                type="button"
-                disabled={remainingSlots <= 0}
-                onClick={() => carouselInputRef.current?.click()}
+              <div className="pt-2">
+                <Button
+                  type="button"
+                  disabled={remainingSlots <= 0}
+                  onClick={() => carouselInputRef.current?.click()}
                 className="border border-[hsl(var(--carousel-button-border))] bg-[hsl(var(--carousel-button-bg))] text-[hsl(var(--carousel-button-text))] transition-all hover:border-[hsl(var(--carousel-button-hover-bg))] hover:bg-[hsl(var(--carousel-button-hover-bg))] hover:text-[hsl(var(--carousel-button-hover-text))] active:scale-[0.98]"
                 style={{
                   "--carousel-button-bg": ui.adminCardForeground,
@@ -601,10 +602,11 @@ export default function TenantSettingsPage({
                   "--carousel-button-hover-bg": ui.adminAccent,
                   "--carousel-button-hover-text": ui.adminCard,
                 } as CSSProperties}
-              >
-                <ImagePlus className="mr-2 h-4 w-4" />
-                Elegir imágenes
-              </Button>
+                >
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Elegir imágenes
+                </Button>
+              </div>
 
               <p className="text-xs text-muted-foreground">
                 {totalCarouselCount}/{MAX_CAROUSEL_IMAGES} imágenes en el carrusel
