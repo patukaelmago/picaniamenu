@@ -670,7 +670,7 @@ export default function TenantSettingsPage({
           style={{
             "--tenant-button-bg": ui.navBg,
             "--tenant-button-text": ui.navText,
-            "--tenant-button-hover-bg": ui.adminAccent,
+            "--tenant-button-hover-bg": ui.adminCardForeground,
             "--tenant-button-hover-text": ui.adminCard,
           } as CSSProperties}
         >
