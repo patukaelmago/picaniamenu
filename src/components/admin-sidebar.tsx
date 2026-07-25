@@ -44,7 +44,7 @@ import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import Image from "next/image";
 
@@ -258,15 +258,17 @@ export default function AdminSidebar() {
         asChild
         isActive={isActiveHref(item.href)}
         tooltip={item.label}
-        className="justify-start transition-colors hover:bg-zinc-800 hover:text-white"
+        className="justify-start bg-[var(--sidebar-item-bg)] text-[var(--sidebar-item-text)] transition-colors hover:bg-[var(--sidebar-item-hover-bg)] hover:text-[var(--sidebar-item-hover-text)]"
         style={{
-          color: isActiveHref(item.href)
-            ? "white"
-            : `hsl(${ui.adminSidebarText})`,
-          backgroundColor: isActiveHref(item.href)
-            ? "black"
+          "--sidebar-item-bg": isActiveHref(item.href)
+            ? `hsl(${ui.adminAccent})`
             : "transparent",
-        }}
+          "--sidebar-item-text": isActiveHref(item.href)
+            ? `hsl(${ui.adminCard})`
+            : `hsl(${ui.adminSidebarText})`,
+          "--sidebar-item-hover-bg": `hsl(${ui.adminAccent})`,
+          "--sidebar-item-hover-text": `hsl(${ui.adminCard})`,
+        } as CSSProperties}
       >
                 <Link href={item.href}>
                   <item.icon className="h-5 w-5" />
