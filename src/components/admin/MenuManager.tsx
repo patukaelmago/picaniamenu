@@ -985,8 +985,9 @@ export default function MenuManager({ tenantId }: Props) {
                       <Button
                         onClick={() => setCreateForm(emptyItem)}
                         style={{
-                          backgroundColor: `hsl(${ui.navBg})`,
-                          color: `hsl(${ui.navText})`,
+                          backgroundColor: `hsl(${ui.adminCardForeground})`,
+                          color: `hsl(${ui.adminCard})`,
+                          borderColor: `hsl(${ui.adminCardForeground})`,
                         }}
                       >
                         <PlusCircle className="mr-2 h-4 w-4" />
