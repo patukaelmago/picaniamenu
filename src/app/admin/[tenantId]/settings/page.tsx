@@ -243,6 +243,11 @@ export default function TenantSettingsPage({
 
     setCarouselItems((prev) => [...prev, ...drafts]);
 
+    toast({
+      title: selected.length === 1 ? "Imagen agregada" : "Imágenes agregadas",
+      description: `${selected.length} ${selected.length === 1 ? "imagen agregada" : "imágenes agregadas"} al carrusel.`,
+    });
+
     if (carouselInputRef.current) carouselInputRef.current.value = "";
   }
 
@@ -573,7 +578,7 @@ export default function TenantSettingsPage({
           <CardContent className="space-y-6">
             <div className="space-y-3">
               <Label htmlFor="carousel-files">Imágenes del carrusel</Label>
-              <Input
+              <input
                 id="carousel-files"
                 type="file"
                 ref={carouselInputRef}
@@ -581,10 +586,28 @@ export default function TenantSettingsPage({
                 accept="image/png,image/webp,image/jpeg"
                 onChange={handleCarouselFilesChange}
                 disabled={remainingSlots <= 0}
+                className="hidden"
               />
 
+              <Button
+                type="button"
+                disabled={remainingSlots <= 0}
+                onClick={() => carouselInputRef.current?.click()}
+                className="border border-[hsl(var(--carousel-button-border))] bg-[hsl(var(--carousel-button-bg))] text-[hsl(var(--carousel-button-text))] transition-all hover:border-[hsl(var(--carousel-button-hover-bg))] hover:bg-[hsl(var(--carousel-button-hover-bg))] hover:text-[hsl(var(--carousel-button-hover-text))] active:scale-[0.98]"
+                style={{
+                  "--carousel-button-bg": ui.adminCardForeground,
+                  "--carousel-button-text": ui.adminCard,
+                  "--carousel-button-border": ui.adminCardForeground,
+                  "--carousel-button-hover-bg": ui.adminAccent,
+                  "--carousel-button-hover-text": ui.adminCard,
+                } as CSSProperties}
+              >
+                <ImagePlus className="mr-2 h-4 w-4" />
+                Elegir imágenes
+              </Button>
+
               <p className="text-xs text-muted-foreground">
-                {totalCarouselCount}/{MAX_CAROUSEL_IMAGES} cargadas
+                {totalCarouselCount}/{MAX_CAROUSEL_IMAGES} imágenes en el carrusel
               </p>
             </div>
 
