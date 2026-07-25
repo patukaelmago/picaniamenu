@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState, type CSSProperties } from "react";
 import { getTenantUI } from "@/lib/tenant-ui";
 import { QRCode } from "react-qrcode-logo";
 import { Button } from "@/components/ui/button";
@@ -93,10 +93,13 @@ export default function TenantQrPage({
     onClick={downloadQR}
     size="lg"
     variant="outline"
+    className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
     style={{
-      backgroundColor: `hsl(${ui.navBg})`,
-      color: `hsl(${ui.navText})`,
-    }}
+      "--tenant-button-bg": ui.navBg,
+      "--tenant-button-text": ui.navText,
+      "--tenant-button-hover-bg": ui.adminAccent,
+      "--tenant-button-hover-text": ui.adminCard,
+    } as CSSProperties}
   >
     <Download className="mr-2 h-5 w-5" />
     Descargar PNG
@@ -106,10 +109,13 @@ export default function TenantQrPage({
     onClick={shareMenu}
     size="lg"
     variant="outline"
+    className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
     style={{
-      backgroundColor: `hsl(${ui.navBg})`,
-      color: `hsl(${ui.navText})`,
-    }}
+      "--tenant-button-bg": ui.navBg,
+      "--tenant-button-text": ui.navText,
+      "--tenant-button-hover-bg": ui.adminAccent,
+      "--tenant-button-hover-text": ui.adminCard,
+    } as CSSProperties}
   >
     <Share2 className="mr-2 h-5 w-5" />
     Compartir menú
