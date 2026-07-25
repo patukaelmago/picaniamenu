@@ -1381,10 +1381,14 @@ export default function MenuManager({ tenantId }: Props) {
                   <Label className="invisible">.</Label>
                   <Button
                     onClick={onCreateCategory}
+                    className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                     style={{
-                      backgroundColor: `hsl(${ui.navBg})`,
-                      color: `hsl(${ui.navText})`,
-                    }}
+                      "--tenant-button-bg": ui.adminCard,
+                      "--tenant-button-text": ui.adminCardForeground,
+                      "--tenant-button-border": ui.adminCardForeground,
+                      "--tenant-button-hover-bg": ui.adminAccent,
+                      "--tenant-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
                   >
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Crear
