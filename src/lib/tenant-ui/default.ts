@@ -50,6 +50,7 @@ export const DEFAULT_TENANT_UI: TenantUI = {
 
   adminBackground: "0 0% 100%",
   adminForeground: "222 51% 23%",
+  adminMutedForeground: "0 0% 55%",
 
   adminCard: "0 0% 100%",
   adminCardForeground: "222 51% 23%",
