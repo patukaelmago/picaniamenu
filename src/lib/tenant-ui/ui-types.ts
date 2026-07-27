@@ -47,6 +47,6 @@ export type TenantUI = {
 
   adminAccent: string;
   adminDelete: string;
-  adminAccountMenuBg?: string;
-  adminAccountMenuText?: string;
+  adminAccountMenuBg: string;
+  adminAccountMenuText: string;
 };
