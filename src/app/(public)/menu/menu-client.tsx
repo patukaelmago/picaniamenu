@@ -374,6 +374,48 @@ export default function MenuClient({ tenantId }: Props) {
         : prev + 1;
     });
   };
+  const menuCategoryPages = useMemo(() => {
+    const pages: Category[][] = [];
+    let currentPage: Category[] = [];
+    let currentWeight = 0;
+    const pageCapacity = 12;
+
+    visibleRootCategories.forEach((category) => {
+      const childCats = childCategoriesByParent[category.id] ?? [];
+      const categoryIds = [category.id, ...childCats.map((sub) => sub.id)];
+      const items = filteredItems.filter((item) =>
+        categoryIds.includes(item.categoryId)
+      );
+
+      const itemWeight = items.reduce(
+        (total, item) => total + (item.description ? 1.5 : 1),
+        0
+      );
+      const subcategoryWeight = childCats.filter(
+        (sub) =>
+          sub.isVisible !== false &&
+          filteredItems.some((item) => item.categoryId === sub.id)
+      ).length;
+      const categoryWeight = 2.5 + itemWeight + subcategoryWeight;
+
+      if (
+        currentPage.length > 0 &&
+        currentWeight + categoryWeight > pageCapacity
+      ) {
+        pages.push(currentPage);
+        currentPage = [];
+        currentWeight = 0;
+      }
+
+      currentPage.push(category);
+      currentWeight += categoryWeight;
+    });
+
+    if (currentPage.length > 0) pages.push(currentPage);
+
+    return pages;
+  }, [visibleRootCategories, childCategoriesByParent, filteredItems]);
+
   if (!uiReady) return null;
 
 
@@ -524,7 +566,13 @@ export default function MenuClient({ tenantId }: Props) {
           </div>
 
           <div className="space-y-10">
-            {visibleRootCategories.map((category) => {
+            {menuCategoryPages.map((page, pageIndex) => (
+              <section
+                key={`menu-page-${pageIndex}`}
+                className="mx-auto aspect-[210/297] w-full max-w-3xl overflow-hidden rounded-sm border border-[#fff7e3]/40 px-5 py-8 md:px-10 md:py-10"
+              >
+                <div className="space-y-8">
+                  {page.map((category) => {
               const childCats = childCategoriesByParent[category.id] ?? [];
               const normalizedForId = norm(category.name);
 
@@ -555,22 +603,10 @@ export default function MenuClient({ tenantId }: Props) {
                 }))
               );
               return (
-                <section
+                <div
                   id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
                   key={category.id}
-                  className="
-  relative
-  scroll-mt-24
-  px-5
-  py-10
-  md:px-12
-  md:py-14
-  border
-  border-[#fff7e3]/40
-  rounded-sm
-  flex
-  flex-col
-"
+                  className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-6 last:border-b-0 last:pb-0"
                 >
                   <div className="space-y-1">
                     <div className="mb-4">
@@ -785,9 +821,12 @@ export default function MenuClient({ tenantId }: Props) {
                       </div>
                     );
                   })}
-                </section>
+                </div>
               );
-            })}
+                  })}
+                </div>
+              </section>
+            ))}
 
             {filteredItems.length === 0 && (
               <p className="text-sm text-center opacity-70">
