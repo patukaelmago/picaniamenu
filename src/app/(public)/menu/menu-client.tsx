@@ -372,7 +372,7 @@ export default function MenuClient({ tenantId }: Props) {
     const pages: PageCategory[][] = [];
     let currentPage: PageCategory[] = [];
     let currentWeight = 0;
-    const pageCapacity = 14;
+    const pageCapacity = 16;
 
     const finishPage = () => {
       if (currentPage.length > 0) pages.push(currentPage);
