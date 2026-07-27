@@ -569,7 +569,7 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto aspect-[210/297] w-full max-w-3xl overflow-hidden rounded-sm border border-[#fff7e3]/40 px-5 py-8 md:px-10 md:py-10"
+                className="mx-auto aspect-[210/297] w-full max-w-3xl rounded-sm border border-[#fff7e3]/40 px-5 py-8 md:px-10 md:py-10"
               >
                 <div className="space-y-8">
                   {page.map((category) => {
