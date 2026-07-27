@@ -375,44 +375,82 @@ export default function MenuClient({ tenantId }: Props) {
     });
   };
   const menuCategoryPages = useMemo(() => {
-    const pages: Category[][] = [];
-    let currentPage: Category[] = [];
+    type PageCategory = {
+      category: Category;
+      itemIds: string[];
+      isFirstSegment: boolean;
+    };
+
+    const pages: PageCategory[][] = [];
+    let currentPage: PageCategory[] = [];
     let currentWeight = 0;
-    const pageCapacity = 12;
+    const pageCapacity = 14;
+
+    const finishPage = () => {
+      if (currentPage.length > 0) pages.push(currentPage);
+      currentPage = [];
+      currentWeight = 0;
+    };
 
     visibleRootCategories.forEach((category) => {
       const childCats = childCategoriesByParent[category.id] ?? [];
-      const categoryIds = [category.id, ...childCats.map((sub) => sub.id)];
-      const items = filteredItems.filter((item) =>
-        categoryIds.includes(item.categoryId)
+      const parentItems = filteredItems.filter(
+        (item) => item.categoryId === category.id
       );
+      const orderedItems = [
+        ...parentItems,
+        ...childCats.flatMap((sub) =>
+          filteredItems.filter((item) => item.categoryId === sub.id)
+        ),
+      ];
 
-      const itemWeight = items.reduce(
-        (total, item) => total + (item.description ? 1.5 : 1),
-        0
-      );
-      const subcategoryWeight = childCats.filter(
-        (sub) =>
-          sub.isVisible !== false &&
-          filteredItems.some((item) => item.categoryId === sub.id)
-      ).length;
-      const categoryWeight = 2.5 + itemWeight + subcategoryWeight;
+      let currentEntry: PageCategory | null = null;
+      let isFirstSegment = true;
+      let subcategoriesOnSegment = new Set<string>();
 
-      if (
-        currentPage.length > 0 &&
-        currentWeight + categoryWeight > pageCapacity
-      ) {
-        pages.push(currentPage);
-        currentPage = [];
-        currentWeight = 0;
-      }
+      orderedItems.forEach((item) => {
+        const startsSegment = currentEntry === null;
+        const isSubcategoryItem = item.categoryId !== category.id;
+        const startsSubcategory =
+          isSubcategoryItem && !subcategoriesOnSegment.has(item.categoryId);
+        const itemWeight = item.description ? 1.5 : 1;
+        const requiredWeight =
+          itemWeight + (startsSegment ? 2.5 : 0) + (startsSubcategory ? 1 : 0);
 
-      currentPage.push(category);
-      currentWeight += categoryWeight;
+        if (
+          currentPage.length > 0 &&
+          currentWeight + requiredWeight > pageCapacity
+        ) {
+          finishPage();
+          currentEntry = null;
+          subcategoriesOnSegment = new Set<string>();
+        }
+
+        if (!currentEntry) {
+          currentEntry = {
+            category,
+            itemIds: [],
+            isFirstSegment,
+          };
+          currentPage.push(currentEntry);
+          currentWeight += 2.5;
+          isFirstSegment = false;
+        }
+
+        if (
+          isSubcategoryItem &&
+          !subcategoriesOnSegment.has(item.categoryId)
+        ) {
+          subcategoriesOnSegment.add(item.categoryId);
+          currentWeight += 1;
+        }
+
+        currentEntry.itemIds.push(item.id);
+        currentWeight += itemWeight;
+      });
     });
 
-    if (currentPage.length > 0) pages.push(currentPage);
-
+    finishPage();
     return pages;
   }, [visibleRootCategories, childCategoriesByParent, filteredItems]);
 
@@ -572,7 +610,8 @@ export default function MenuClient({ tenantId }: Props) {
                 className="mx-auto aspect-[210/297] w-full max-w-3xl rounded-sm border border-[#fff7e3]/40 px-5 py-8 md:px-10 md:py-10"
               >
                 <div className="space-y-8">
-                  {page.map((category) => {
+                  {page.map((pageCategory) => {
+              const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
               const normalizedForId = norm(category.name);
 
@@ -582,30 +621,20 @@ export default function MenuClient({ tenantId }: Props) {
                 ui.showFriday;
 
               const parentItems = filteredItems.filter(
-                (item) => item.categoryId === category.id
-              );
-
-              const categoryItems = [
-                ...parentItems,
-                ...childCats.flatMap((sub) =>
-                  filteredItems.filter((item) => item.categoryId === sub.id)
-                ),
-              ];
-
-              const categoryPages = splitIntoPages(categoryItems);
-
-              console.log(
-                "FRIDAY CATEGORY:",
-                category.name,
-                parentItems.map(i => ({
-                  name: i.name,
-                  isSpecial: i.isSpecial
-                }))
+                (item) =>
+                  item.categoryId === category.id &&
+                  pageCategory.itemIds.includes(item.id)
               );
               return (
                 <div
-                  id={isFridayMenu ? "menu-viernes" : `cat-${category.id}`}
-                  key={category.id}
+                  id={
+                    pageCategory.isFirstSegment
+                      ? isFridayMenu
+                        ? "menu-viernes"
+                        : `cat-${category.id}`
+                      : undefined
+                  }
+                  key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
                   className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-6 last:border-b-0 last:pb-0"
                 >
                   <div className="space-y-1">
@@ -630,7 +659,7 @@ export default function MenuClient({ tenantId }: Props) {
                         {category.name}
                       </h2>
 
-                      {category.description && (
+                      {pageCategory.isFirstSegment && category.description && (
                         <p
                           className="mt-3 text-center text-sm"
                           style={{ color: `hsl(${ui.descriptionText})` }}
@@ -704,7 +733,11 @@ export default function MenuClient({ tenantId }: Props) {
                   </div>
 
                   {childCats.map((sub) => {
-                    const itemsSub = filteredItems.filter((item) => item.categoryId === sub.id);
+                    const itemsSub = filteredItems.filter(
+                      (item) =>
+                        item.categoryId === sub.id &&
+                        pageCategory.itemIds.includes(item.id)
+                    );
                     if (itemsSub.length === 0) return null;
 
                     const isIncluye = norm(sub.name) === "incluye";
