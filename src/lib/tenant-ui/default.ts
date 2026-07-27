@@ -59,4 +59,5 @@ export const DEFAULT_TENANT_UI: TenantUI = {
   adminSidebarText: "222 51% 23%",
 
   adminAccent: "24 100% 56%",
+  adminDelete: "24 100% 56%",
 };
