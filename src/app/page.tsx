@@ -47,13 +47,13 @@ const features = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-[#515367]">
+    <main className="min-h-screen bg-[#171717] text-[#F5EEDC]">
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 border-b border-[#515367]/10 bg-white/90 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-[#3A3A3A] bg-[#171717]/90 backdrop-blur">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#E5F0FE]">
-              <Menu className="h-7 w-7 text-[#515367]" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2B2B2B]">
+              <Menu className="h-7 w-7 text-[#F5EEDC]" />
             </div>
 
             <span className="text-xl font-bold">
@@ -77,7 +77,7 @@ export default function Home() {
 
           <Link
             href="/login"
-            className="rounded-xl bg-[#4B75FF] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#515367]"
+            className="rounded-xl bg-[#4B75FF] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#FF7A00]"
           >
             Ingresar
           </Link>
@@ -87,20 +87,20 @@ export default function Home() {
       {/* HERO */}
       <section className="relative overflow-hidden">
         <div className="absolute right-[-160px] top-10 h-[500px] w-[500px] rounded-full bg-[#FF7A00]/20 blur-3xl" />
-        <div className="absolute left-[-150px] top-40 h-[400px] w-[400px] rounded-full bg-[#E5F0FE] blur-3xl" />
+        <div className="absolute left-[-150px] top-40 h-[400px] w-[400px] rounded-full bg-[#4B75FF]/15 blur-3xl" />
 
         <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-14 px-6 py-20 lg:grid-cols-2">
           <div>
-            <span className="inline-flex rounded-full bg-[#E5F0FE] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#4B75FF]">
+            <span className="inline-flex rounded-full bg-[#4B75FF]/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#4B75FF]">
               Menú digital para restaurantes
             </span>
 
-            <h1 className="mt-7 max-w-xl text-5xl font-bold leading-tight tracking-tight text-[#515367] md:text-6xl">
+            <h1 className="mt-7 max-w-xl text-5xl font-bold leading-tight tracking-tight text-[#F5EEDC] md:text-6xl">
               Tu carta, siempre{" "}
               <span className="text-[#4B75FF]">actualizada</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[#515367]/75">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-[#B8B2A7]">
               Creá tu menú digital, compartilo mediante un código QR y
               actualizá productos y precios desde cualquier dispositivo.
             </p>
@@ -108,7 +108,7 @@ export default function Home() {
             <div className="mt-9 flex flex-wrap gap-4">
               <Link
                 href="/login"
-                className="flex items-center gap-2 rounded-xl bg-[#4B75FF] px-6 py-4 font-semibold text-white transition hover:bg-[#515367]"
+                className="flex items-center gap-2 rounded-xl bg-[#4B75FF] px-6 py-4 font-semibold text-white transition hover:bg-[#FF7A00]"
               >
                 Comenzar ahora
                 <ExternalLink className="h-4 w-4" />
@@ -116,7 +116,7 @@ export default function Home() {
 
               <Link
                 href="/menu/picana"
-                className="rounded-xl border-2 border-[#FF7A00] px-6 py-4 font-semibold text-[#515367] transition hover:bg-[#FF7A00]/15"
+                className="rounded-xl border-2 border-[#FF7A00] px-6 py-4 font-semibold text-[#F5EEDC] transition hover:bg-[#FF7A00]/15"
               >
                 Ver demostración
               </Link>
@@ -145,18 +145,18 @@ export default function Home() {
 
           {/* VISTA DE CELULAR */}
           <div className="relative flex justify-center">
-            <div className="absolute h-[430px] w-[430px] rounded-full bg-[#E5F0FE]" />
+            <div className="absolute h-[430px] w-[430px] rounded-full bg-[#2B2B2B]" />
 
-            <div className="relative w-[310px] rounded-[42px] border-[10px] border-[#515367] bg-white p-4 shadow-2xl">
-              <div className="mx-auto mb-5 h-5 w-24 rounded-full bg-[#515367]" />
+            <div className="relative w-[310px] rounded-[42px] border-[10px] border-[#515367] bg-[#202020] p-4 shadow-2xl">
+              <div className="mx-auto mb-5 h-5 w-24 rounded-full bg-[#343434]" />
 
-              <div className="rounded-3xl bg-[#E5F0FE]/60 p-5">
+              <div className="rounded-3xl bg-[#2B2B2B] p-5">
                 <div className="text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#515367]">
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#343434]">
                     <Menu className="h-8 w-8 text-white" />
                   </div>
 
-                  <h2 className="mt-3 text-2xl font-bold text-[#515367]">
+                  <h2 className="mt-3 text-2xl font-bold text-[#F5EEDC]">
                     Picaña
                   </h2>
 
@@ -181,12 +181,12 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="absolute bottom-8 right-0 hidden rotate-3 rounded-3xl bg-white p-6 shadow-xl lg:block">
+            <div className="absolute bottom-8 right-0 hidden rotate-3 rounded-3xl bg-[#202020] p-6 shadow-xl lg:block">
               <p className="text-center text-xs font-bold uppercase">
                 Escaneá nuestra carta
               </p>
 
-              <QrCode className="mx-auto mt-4 h-28 w-28 text-[#515367]" />
+              <QrCode className="mx-auto mt-4 h-28 w-28 text-[#F5EEDC]" />
 
               <p className="mt-3 text-center font-bold text-[#4B75FF]">
                 Carta Online
@@ -197,14 +197,14 @@ export default function Home() {
       </section>
 
       {/* FUNCIONES */}
-      <section id="funciones" className="bg-[#E5F0FE]/55 py-24">
+      <section id="funciones" className="bg-[#202020] py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-2xl text-center">
             <p className="font-bold uppercase tracking-wider text-[#FF7A00]">
               Todo en un solo lugar
             </p>
 
-            <h2 className="mt-3 text-4xl font-bold text-[#515367]">
+            <h2 className="mt-3 text-4xl font-bold text-[#F5EEDC]">
               Todo lo que necesitás para digitalizar tu carta
             </h2>
           </div>
@@ -213,17 +213,17 @@ export default function Home() {
             {features.map(({ icon: Icon, title, text }) => (
               <article
                 key={title}
-                className="rounded-3xl border border-[#515367]/10 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                className="rounded-3xl border border-[#3A3A3A] bg-[#202020] p-7 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FF7A00]/20">
                   <Icon className="h-6 w-6 text-[#FF7A00]" />
                 </div>
 
-                <h3 className="mt-5 text-lg font-bold text-[#515367]">
+                <h3 className="mt-5 text-lg font-bold text-[#F5EEDC]">
                   {title}
                 </h3>
 
-                <p className="mt-3 leading-7 text-[#515367]/70">{text}</p>
+                <p className="mt-3 leading-7 text-[#B8B2A7]">{text}</p>
               </article>
             ))}
           </div>
@@ -231,17 +231,17 @@ export default function Home() {
       </section>
 
       {/* PANEL */}
-      <section id="panel" className="py-24">
+      <section id="panel" className="bg-[#171717] py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-14 px-6 lg:grid-cols-2">
-          <div className="rounded-3xl border border-[#515367]/10 bg-white p-6 shadow-xl">
+          <div className="rounded-3xl border border-[#3A3A3A] bg-[#202020] p-6 shadow-xl">
             <div className="flex items-center gap-3 border-b pb-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#515367]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#343434]">
                 <LayoutDashboard className="h-5 w-5 text-white" />
               </div>
 
               <div>
                 <p className="font-bold">Panel de administración</p>
-                <p className="text-xs text-[#515367]/60">
+                <p className="text-xs text-[#B8B2A7]">
                   Gestioná tu restaurante
                 </p>
               </div>
@@ -254,7 +254,7 @@ export default function Home() {
               <Stat number="89" label="Actualizaciones" />
             </div>
 
-            <div className="mt-5 rounded-2xl bg-[#E5F0FE] p-6">
+            <div className="mt-5 rounded-2xl bg-[#2B2B2B] p-6">
               <div className="flex h-40 items-end gap-3">
                 {[35, 55, 42, 75, 62, 90, 72, 100].map((height, index) => (
                   <div
@@ -272,11 +272,11 @@ export default function Home() {
               Panel intuitivo
             </span>
 
-            <h2 className="mt-5 text-4xl font-bold leading-tight text-[#515367] md:text-5xl">
+            <h2 className="mt-5 text-4xl font-bold leading-tight text-[#F5EEDC] md:text-5xl">
               Gestioná todo desde un mismo lugar
             </h2>
 
-            <p className="mt-6 text-lg leading-8 text-[#515367]/70">
+            <p className="mt-6 text-lg leading-8 text-[#B8B2A7]">
               Actualizá precios, agregá productos, cambiá imágenes y organizá
               categorías desde cualquier dispositivo.
             </p>
@@ -289,7 +289,7 @@ export default function Home() {
 
             <Link
               href="/login"
-              className="mt-9 inline-flex rounded-xl bg-[#515367] px-6 py-4 font-semibold text-white transition hover:bg-[#4B75FF]"
+              className="mt-9 inline-flex rounded-xl bg-[#343434] px-6 py-4 font-semibold text-white transition hover:bg-[#4B75FF]"
             >
               Ingresar al panel
             </Link>
@@ -298,7 +298,7 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="bg-[#515367] py-16 text-white">
+      <section className="border-y border-[#3A3A3A] bg-[#202020] py-16 text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center md:flex-row md:text-left">
           <div>
             <h2 className="text-3xl font-bold">
@@ -312,7 +312,7 @@ export default function Home() {
 
           <Link
             href="/login"
-            className="rounded-xl bg-[#FF7A00] px-7 py-4 font-bold text-[#515367] transition hover:bg-white"
+            className="rounded-xl bg-[#FF7A00] px-7 py-4 font-bold text-[#F5EEDC] transition hover:bg-[#F5EEDC] hover:text-[#171717]"
           >
             Comenzar ahora
           </Link>
@@ -320,13 +320,13 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-white py-10">
+      <footer className="border-t border-[#3A3A3A] bg-[#171717] py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-center md:flex-row">
           <div className="font-bold">
             Carta <span className="text-[#4B75FF]">Online</span>
           </div>
 
-          <p className="text-sm text-[#515367]/60">
+          <p className="text-sm text-[#B8B2A7]">
             © {new Date().getFullYear()} Carta Online. Todos los derechos
             reservados.
           </p>
@@ -352,7 +352,7 @@ function MiniBenefit({
       </div>
 
       <p className="mt-3 text-sm font-bold">{title}</p>
-      <p className="mt-1 text-xs text-[#515367]/60">{text}</p>
+      <p className="mt-1 text-xs text-[#B8B2A7]">{text}</p>
     </div>
   );
 }
@@ -361,7 +361,7 @@ function MenuItem({ name, price }: { name: string; price: string }) {
   return (
     <div className="flex items-end gap-2 text-xs">
       <span className="font-semibold">{name}</span>
-      <span className="mb-1 flex-1 border-b border-dotted border-[#515367]/35" />
+      <span className="mb-1 flex-1 border-b border-dotted border-[#F5EEDC]/35" />
       <span className="font-bold">{price}</span>
     </div>
   );
@@ -369,9 +369,9 @@ function MenuItem({ name, price }: { name: string; price: string }) {
 
 function Stat({ number, label }: { number: string; label: string }) {
   return (
-    <div className="rounded-2xl border border-[#515367]/10 p-5">
+    <div className="rounded-2xl border border-[#3A3A3A] p-5">
       <p className="text-3xl font-bold text-[#4B75FF]">{number}</p>
-      <p className="mt-1 text-sm text-[#515367]/60">{label}</p>
+      <p className="mt-1 text-sm text-[#B8B2A7]">{label}</p>
     </div>
   );
 }
