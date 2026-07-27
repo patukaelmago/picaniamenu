@@ -313,11 +313,11 @@ export default function AdminSidebar() {
           <DropdownMenuContent
             className="mb-2 w-56 bg-[hsl(var(--account-menu-bg))] text-[hsl(var(--account-menu-text))]"
             style={{
-              "--account-menu-bg": ui.adminSidebarBg,
-              "--account-menu-text": ui.adminSidebarText,
+              "--account-menu-bg": ui.adminAccountMenuBg,
+              "--account-menu-text": ui.adminAccountMenuText,
               "--account-menu-hover-bg": ui.adminAccent,
               "--account-menu-hover-text": ui.adminCard,
-              borderColor: `hsl(${ui.adminSidebarText})`,
+              borderColor: `hsl(${ui.adminAccountMenuText})`,
             } as CSSProperties}
             align="end"
             forceMount
