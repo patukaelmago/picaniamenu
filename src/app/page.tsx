@@ -143,55 +143,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* VISTA DE CELULAR */}
+          {/* VISTA REAL DEL MENÚ EN CELULAR */}
           <div className="relative flex justify-center">
-            <div className="absolute h-[430px] w-[430px] rounded-full bg-[#2B2B2B]" />
-
-            <div className="relative w-[310px] rounded-[42px] border-[10px] border-[#515367] bg-[#202020] p-4 shadow-2xl">
-              <div className="mx-auto mb-5 h-5 w-24 rounded-full bg-[#343434]" />
-
-              <div className="rounded-3xl bg-[#2B2B2B] p-5">
-                <div className="text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#343434]">
-                    <Menu className="h-8 w-8 text-white" />
-                  </div>
-
-                  <h2 className="mt-3 text-2xl font-bold text-[#F5EEDC]">
-                    Picaña
-                  </h2>
-
-                  <p className="text-xs uppercase tracking-[0.25em]">
-                    Parrilla
-                  </p>
-                </div>
-
-                <div className="mt-6 rounded-2xl bg-[#FF7A00] p-5 text-white">
-                  <p className="text-sm font-bold uppercase">Nuestra carta</p>
-                  <p className="mt-2 text-2xl font-bold">
-                    Sabores que se comparten
-                  </p>
-                </div>
-
-                <div className="mt-5 space-y-4">
-                  <MenuItem name="Provoleta al horno" price="$8.500" />
-                  <MenuItem name="Chorizo parrillero" price="$7.200" />
-                  <MenuItem name="Mollejas caramelizadas" price="$11.800" />
-                  <MenuItem name="Ojo de bife" price="$19.900" />
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute bottom-8 right-0 hidden rotate-3 rounded-3xl bg-[#202020] p-6 shadow-xl lg:block">
-              <p className="text-center text-xs font-bold uppercase">
-                Escaneá nuestra carta
-              </p>
-
-              <QrCode className="mx-auto mt-4 h-28 w-28 text-[#F5EEDC]" />
-
-              <p className="mt-3 text-center font-bold text-[#4B75FF]">
-                Carta Online
-              </p>
-            </div>
+            <img
+              src="/hero-picana-phone.webp"
+              alt="Menú digital de Picaña mostrado en un celular"
+              className="h-auto w-full max-w-[430px] object-contain lg:max-w-[500px]"
+            />
           </div>
         </div>
       </section>
@@ -353,16 +311,6 @@ function MiniBenefit({
 
       <p className="mt-3 text-sm font-bold">{title}</p>
       <p className="mt-1 text-xs text-[#B8B2A7]">{text}</p>
-    </div>
-  );
-}
-
-function MenuItem({ name, price }: { name: string; price: string }) {
-  return (
-    <div className="flex items-end gap-2 text-xs">
-      <span className="font-semibold">{name}</span>
-      <span className="mb-1 flex-1 border-b border-dotted border-[#F5EEDC]/35" />
-      <span className="font-bold">{price}</span>
     </div>
   );
 }
