@@ -595,9 +595,9 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto aspect-[210/297] w-full max-w-3xl rounded-sm border border-[#fff7e3]/40 px-5 py-8 md:px-10 md:py-10"
+                className="mx-auto aspect-[210/297] w-full max-w-3xl rounded-sm border border-[#fff7e3]/40 px-5 pb-8 pt-12 md:px-10 md:pb-10 md:pt-14"
               >
-                <div className="space-y-8">
+                <div className="space-y-12">
                   {page.map((pageCategory) => {
               const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
@@ -625,39 +625,41 @@ export default function MenuClient({ tenantId }: Props) {
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
                   className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-6 last:border-b-0 last:pb-0"
                 >
-                  <div className="space-y-1">
-                    <div className="mb-4">
-                      <h2
-                        className="
-                        font-headline
-                        text-3xl
-                        md:text-5xl
-                        tracking-[0.16em]
-                        font-normal
-                        uppercase
-                        text-center
-                        pb-3
-                        border-b
-                        border-[#fff7e3]/70
-                        w-fit
-                        mx-auto
-                      "
-                        style={{ color: `hsl(${ui.categoryTitle})` }}
-                      >
-                        {category.name}
-                      </h2>
-
-                      {pageCategory.isFirstSegment && category.description && (
-                        <p
-                          className="mt-3 text-center text-sm"
-                          style={{ color: `hsl(${ui.descriptionText})` }}
+                  {pageCategory.isFirstSegment && (
+                    <div className="space-y-1">
+                      <div className="mb-4">
+                        <h2
+                          className="
+                          mx-auto
+                          w-fit
+                          border-b
+                          border-[#fff7e3]/70
+                          pb-3
+                          text-center
+                          font-headline
+                          text-3xl
+                          font-normal
+                          uppercase
+                          tracking-[0.16em]
+                          md:text-5xl
+                        "
+                          style={{ color: `hsl(${ui.categoryTitle})` }}
                         >
-                          {category.description}
-                        </p>
-                      )}
+                          {category.name}
+                        </h2>
+
+                        {category.description && (
+                          <p
+                            className="mt-3 text-center text-sm"
+                            style={{ color: `hsl(${ui.descriptionText})` }}
+                          >
+                            {category.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="h-px w-full bg-border/10" />
                     </div>
-                    <div className="h-px w-full bg-border/10" />
-                  </div>
+                  )}
 
                   <div className="divide-y divide-border/10">
                     {parentItems.map((item) => (
@@ -721,15 +723,18 @@ export default function MenuClient({ tenantId }: Props) {
                   </div>
 
                   {childCats.map((sub) => {
-                    const itemsSub = filteredItems.filter(
-                      (item) =>
-                        item.categoryId === sub.id &&
-                        pageCategory.itemIds.includes(item.id)
+                    const allSubItems = filteredItems.filter(
+                      (item) => item.categoryId === sub.id
+                    );
+                    const itemsSub = allSubItems.filter((item) =>
+                      pageCategory.itemIds.includes(item.id)
                     );
                     if (itemsSub.length === 0) return null;
 
                     const isIncluye = norm(sub.name) === "incluye";
-                    const showSubTitle = sub.isVisible !== false;
+                    const showSubTitle =
+                      sub.isVisible !== false &&
+                      itemsSub[0]?.id === allSubItems[0]?.id;
 
                     return (
                       <div key={sub.id} className="border-b border-border/10 pb-3">
