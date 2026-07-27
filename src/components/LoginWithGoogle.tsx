@@ -88,13 +88,14 @@ export default function LoginWithGoogle() {
       onClick={handleLogin}
       disabled={loading}
       className="
-        w-full flex items-center justify-center gap-3
-        rounded-lg border bg-white px-4 py-3
-        text-sm font-medium
+        flex w-full items-center justify-center gap-3
+        rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-3.5
+        text-sm font-semibold text-[#F5EEDC]
         shadow-sm
-        hover:bg-slate-50
         transition-all
-        disabled:opacity-60 disabled:cursor-not-allowed
+        hover:border-[#4B75FF] hover:bg-[#4B75FF]
+        active:translate-y-0.5 active:scale-[0.98]
+        disabled:cursor-not-allowed disabled:opacity-60
       "
     >
       <img
