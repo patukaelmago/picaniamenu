@@ -521,7 +521,11 @@ export default function TenantSettingsPage({
                 <Button
                   type="button"
                   variant="outline"
-                  style={{ color: `hsl(${ui.adminForeground})` }}
+                  className="!text-[hsl(var(--logo-button-text))] hover:!text-[hsl(var(--logo-button-hover-text))]"
+                  style={{
+                    "--logo-button-text": ui.adminForeground,
+                    "--logo-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   Cambiar logo
@@ -530,7 +534,11 @@ export default function TenantSettingsPage({
                 <Button
                   type="button"
                   variant="outline"
-                  style={{ color: `hsl(${ui.adminForeground})` }}
+                  className="!text-[hsl(var(--logo-button-text))] hover:!text-[hsl(var(--logo-button-hover-text))]"
+                  style={{
+                    "--logo-button-text": ui.adminForeground,
+                    "--logo-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
                   onClick={clearLogoSelection}
                 >
                   <X className="mr-2 h-4 w-4" />
