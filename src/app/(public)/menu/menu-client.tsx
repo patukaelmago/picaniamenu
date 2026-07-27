@@ -740,8 +740,11 @@ export default function MenuClient({ tenantId }: Props) {
                             }
 
                             return (
-                              <div key={item.id} className="py-3">
-                                <div className="flex items-baseline gap-2">
+                              <div
+                                key={item.id}
+                                className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2 py-3"
+                              >
+                                <div className="flex min-w-0 items-baseline gap-2">
                                   <span className="font-headline text-[13px] md:text-base tracking-wide">
                                     {item.name}
                                   </span>
@@ -761,16 +764,16 @@ export default function MenuClient({ tenantId }: Props) {
                                     </Badge>
                                   )}
 
-                                  <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
-
-                                  <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                                    {formatCurrency(item.price)}
-                                  </span>
+                                  <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />
                                 </div>
+
+                                <span className="whitespace-nowrap text-sm font-semibold md:text-base">
+                                  {formatCurrency(item.price)}
+                                </span>
 
                                 {shownDesc && (
                                   <p
-                                    className="mt-1 text-[13px] md:text-[15px] leading-snug max-w-3xl"
+                                    className="col-start-1 mt-1 max-w-3xl text-[13px] leading-snug md:text-[15px]"
                                     style={{ color: `hsl(${ui.descriptionText})` }}
                                   >
                                     {shownDesc}
