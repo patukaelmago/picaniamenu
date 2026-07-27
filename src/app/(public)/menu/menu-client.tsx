@@ -560,7 +560,6 @@ export default function MenuClient({ tenantId }: Props) {
                   key={category.id}
                   className="
   relative
-  min-h-[calc(100svh-2rem)]
   scroll-mt-24
   px-5
   py-10
