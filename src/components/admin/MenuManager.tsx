@@ -1209,7 +1209,7 @@ export default function MenuManager({ tenantId }: Props) {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    style={{ color: `hsl(${ui.adminAccent})` }}
+                                    style={{ color: `hsl(${ui.adminDelete})` }}
                                     onClick={() => handleDeleteItem(item.id)}
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1460,7 +1460,7 @@ export default function MenuManager({ tenantId }: Props) {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                style={{ color: `hsl(${ui.adminAccent})` }}
+                                style={{ color: `hsl(${ui.adminDelete})` }}
                                 onClick={() => onDeleteCategory(parent)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -1507,7 +1507,7 @@ export default function MenuManager({ tenantId }: Props) {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    style={{ color: `hsl(${ui.adminAccent})` }}
+                                    style={{ color: `hsl(${ui.adminDelete})` }}
                                     onClick={() => onDeleteCategory(child)}
                                   >
                                     <Trash2 className="h-4 w-4" />
