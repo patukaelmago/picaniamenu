@@ -44,4 +44,6 @@ export const LAROTI_UI: Partial<TenantUI> = {
 
   adminAccent: "0 0% 0%",
   adminDelete: "45 85% 55%",
+  adminAccountMenuBg: "0 0% 100%",
+  adminAccountMenuText: "0 0% 0%",
 };
