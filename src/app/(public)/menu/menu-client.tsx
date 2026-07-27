@@ -65,18 +65,6 @@ function fridayDescOverride(
 
 type Props = { tenantId: string };
 
-const ITEMS_PER_PAGE = 7;
-
-function splitIntoPages<T>(items: T[], size = ITEMS_PER_PAGE): T[][] {
-  const pages: T[][] = [];
-
-  for (let i = 0; i < items.length; i += size) {
-    pages.push(items.slice(i, i + size));
-  }
-
-  return pages;
-}
-
 export default function MenuClient({ tenantId }: Props) {
   const { setTheme, resolvedTheme } = useTheme();
   console.log("TENANT:", tenantId);
