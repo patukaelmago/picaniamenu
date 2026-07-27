@@ -310,7 +310,18 @@ export default function AdminSidebar() {
             </Button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent className="mb-2 w-56" align="end" forceMount>
+          <DropdownMenuContent
+            className="mb-2 w-56 bg-[hsl(var(--account-menu-bg))] text-[hsl(var(--account-menu-text))]"
+            style={{
+              "--account-menu-bg": ui.adminSidebarBg,
+              "--account-menu-text": ui.adminSidebarText,
+              "--account-menu-hover-bg": ui.adminAccent,
+              "--account-menu-hover-text": ui.adminCard,
+              borderColor: `hsl(${ui.adminSidebarText})`,
+            } as CSSProperties}
+            align="end"
+            forceMount
+          >
             <DropdownMenuLabel className="font-normal">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
@@ -322,7 +333,7 @@ export default function AdminSidebar() {
                   <p className="text-sm font-medium leading-none">
                     {displayName}
                   </p>
-                  <p className="text-xs leading-none text-muted-foreground">
+                  <p className="text-xs leading-none opacity-70">
                     {email}
                   </p>
                 </div>
@@ -331,12 +342,15 @@ export default function AdminSidebar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
+            <DropdownMenuItem className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]">
               <UserIcon className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
 
-            <DropdownMenuItem asChild>
+            <DropdownMenuItem
+              asChild
+              className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
+            >
               <Link href={`/admin/${tenantId}/settings`}>
                 <div className="flex items-center">
                   <Settings className="mr-2 h-4 w-4" />
@@ -347,7 +361,10 @@ export default function AdminSidebar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Salir</span>
             </DropdownMenuItem>
