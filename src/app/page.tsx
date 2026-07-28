@@ -5,6 +5,7 @@ import {
   ExternalLink,
   Heart,
   LayoutDashboard,
+  Menu,
   Pencil,
   QrCode,
   Smartphone,
