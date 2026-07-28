@@ -638,11 +638,11 @@ export default function MenuClient({ tenantId }: Props) {
                           pb-3
                           text-center
                           font-headline
-                          text-3xl
+                          text-2xl
                           font-normal
                           uppercase
                           tracking-[0.16em]
-                          md:text-5xl
+                          md:text-4xl
                         "
                           style={{ color: `hsl(${ui.categoryTitle})` }}
                         >
