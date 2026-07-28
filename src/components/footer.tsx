@@ -48,11 +48,19 @@ export default function Footer() {
             © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
           </p>
 
-          <img
-            src="/carta-online-logo.png"
-            alt="Carta Online"
-            className="mt-1 h-9 w-auto object-contain drop-shadow-sm"
-          />
+          <a
+            href="https://carta-online.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Ir a Carta Online"
+            className="mt-1 inline-flex rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-2 transition hover:-translate-y-0.5 hover:border-[#4B75FF] hover:bg-[#343434]"
+          >
+            <img
+              src="/carta-online-logo.png"
+              alt="Carta Online"
+              className="h-9 w-auto object-contain"
+            />
+          </a>
 
         </div>
       </div>
