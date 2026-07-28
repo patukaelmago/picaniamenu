@@ -3,6 +3,7 @@ import { PICANA_UI } from "./picana";
 import { LAROTI_UI } from "./laroti";
 import { PULPO_UI } from "./pulpo";
 import { SUCRE_UI } from "./sucre";
+import { MAIDO_UI } from "./maido";
 
 import type { TenantUI } from "./ui-types";
 
@@ -11,6 +12,7 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
   laroti: LAROTI_UI,
   pulpo: PULPO_UI,
   sucre: SUCRE_UI,
+  maido: MAIDO_UI,
 };
 
 export function getTenantUI(tenantId?: string | null): TenantUI {
