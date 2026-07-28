@@ -883,54 +883,77 @@ export default function MenuManager({ tenantId }: Props) {
 
   return (
     <div
-      className="min-h-screen w-full min-w-0 space-y-4 overflow-x-hidden p-0 sm:space-y-8 sm:p-2"
-      style={{
-        backgroundColor:
-          tenantId === "picania"
-            ? `hsl(${ui.adminBackground})`
-            : undefined,
-      }}
+      className="min-h-screen w-full min-w-0 space-y-4 overflow-x-hidden p-0 sm:space-y-6 sm:p-2"
+      style={{ backgroundColor: `hsl(${ui.adminBackground})` }}
     >
       <div
-        className="rounded-lg px-1 py-3 sm:px-6 sm:py-5"
+        className="rounded-xl border-l-4 px-5 py-5 shadow-sm sm:px-7 sm:py-6"
         style={{
-          backgroundColor:
-            tenantId === "picania"
-              ? `hsl(${ui.adminBackground})`
-              : undefined,
-          color:
-            tenantId === "picania"
-              ? `hsl(${ui.adminForeground})`
-              : undefined,
+          backgroundColor: `hsl(${ui.adminSidebarBg})`,
+          color: `hsl(${ui.adminSidebarText})`,
+          borderLeftColor: `hsl(${ui.adminAccent})`,
         }}
       >
-        <h1 className="text-2xl font-bold font-headline sm:text-3xl">Gestionar Menú</h1>
-        <p className="text-muted-foreground">
+        <h1 className="font-headline text-2xl font-bold sm:text-3xl">
+          Gestionar Menú
+        </h1>
+        <p
+          className="mt-1 text-sm"
+          style={{ color: `hsl(${ui.adminSidebarText} / 0.72)` }}
+        >
           <span className="font-medium">{tenantName || tenantId}</span>
         </p>
       </div>
 
       <Tabs defaultValue="items" className="w-full min-w-0">
-        <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:h-9 sm:w-fit">
-          <TabsTrigger value="items" className="sm:px-4">Items del Menú</TabsTrigger>
-          <TabsTrigger value="categories" className="sm:px-4">Categorías</TabsTrigger>
+        <TabsList
+          className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
+          style={{
+            backgroundColor: `hsl(${ui.adminCard})`,
+            borderColor: `hsl(${ui.adminSidebarBg} / 0.16)`,
+          }}
+        >
+          <TabsTrigger
+            value="items"
+            className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+            style={{
+              "--tab-active-bg": ui.adminSidebarBg,
+              "--tab-active-text": ui.adminSidebarText,
+              "--tab-hover-bg": ui.adminAccent,
+              "--tab-hover-text": ui.adminCard,
+            } as CSSProperties}
+          >
+            Items del Menú
+          </TabsTrigger>
+          <TabsTrigger
+            value="categories"
+            className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+            style={{
+              "--tab-active-bg": ui.adminSidebarBg,
+              "--tab-active-text": ui.adminSidebarText,
+              "--tab-hover-bg": ui.adminAccent,
+              "--tab-hover-text": ui.adminCard,
+            } as CSSProperties}
+          >
+            Categorías
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
-            className="w-full min-w-0 overflow-hidden"
+            className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
             style={{
-              backgroundColor:
-                tenantId === "picania"
-                  ? "hsl(43 100% 94%)"
-                  : undefined,
-              color:
-                tenantId === "picania"
-                  ? "hsl(222 50% 23%)"
-                  : undefined,
+              backgroundColor: `hsl(${ui.adminCard})`,
+              color: `hsl(${ui.adminCardForeground})`,
             }}
           >
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader
+              className="border-b p-4 sm:p-6"
+              style={{
+                backgroundColor: `hsl(${ui.adminAccent} / 0.055)`,
+                borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
+              }}
+            >
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>Administrá todos los items de tu menú.</CardDescription>
 
@@ -1113,22 +1136,27 @@ export default function MenuManager({ tenantId }: Props) {
               </div>
             </CardHeader>
 
-            <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+            <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-6">
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
                   <div className="min-w-[760px]">
                     <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[80px]">Imagen</TableHead>
-                          <TableHead>Nombre</TableHead>
-                          <TableHead>Categoría</TableHead>
-                          <TableHead>Precio</TableHead>
-                          <TableHead>Visible</TableHead>
-                          <TableHead>Especial</TableHead>
-                          <TableHead className="w-[100px]">Acciones</TableHead>
+                      <TableHeader
+                        style={{
+                          "--table-head-bg": ui.adminSidebarBg,
+                          "--table-head-text": ui.adminSidebarText,
+                        } as CSSProperties}
+                      >
+                        <TableRow className="border-0 bg-[hsl(var(--table-head-bg))] hover:bg-[hsl(var(--table-head-bg))]">
+                          <TableHead className="w-[80px] text-[hsl(var(--table-head-text))]">Imagen</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Nombre</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Categoría</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
+                          <TableHead className="w-[100px] text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
 
@@ -1145,6 +1173,10 @@ export default function MenuManager({ tenantId }: Props) {
                           return (
                             <TableRow
                               key={item.id}
+                              className="transition-colors hover:bg-[hsl(var(--row-hover-bg))]"
+                              style={{
+                                "--row-hover-bg": `${ui.adminAccent} / 0.055`,
+                              } as CSSProperties}
                               draggable={sortMode === "manual"}
                               onDragStart={() => handleDragItemStart(item)}
                               onDragOver={(e) => handleDragItemOver(e, item)}
@@ -1345,19 +1377,19 @@ export default function MenuManager({ tenantId }: Props) {
 
         <TabsContent value="categories" className="mt-3 sm:mt-6">
           <Card
-            className="w-full min-w-0 overflow-hidden"
+            className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
             style={{
-              backgroundColor:
-                tenantId === "picania"
-                  ? "hsl(43 100% 94%)"
-                  : undefined,
-              color:
-                tenantId === "picania"
-                  ? "hsl(222 50% 23%)"
-                  : undefined,
+              backgroundColor: `hsl(${ui.adminCard})`,
+              color: `hsl(${ui.adminCardForeground})`,
             }}
           >
-            <CardHeader className="p-4 sm:p-6">
+            <CardHeader
+              className="border-b p-4 sm:p-6"
+              style={{
+                backgroundColor: `hsl(${ui.adminAccent} / 0.055)`,
+                borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
+              }}
+            >
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>Organizá las secciones de tu menú.</CardDescription>
             </CardHeader>
