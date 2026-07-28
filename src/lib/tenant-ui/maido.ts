@@ -2,7 +2,7 @@ import type { TenantUI } from "./ui-types";
 
 // ==================================================
 // MAIDO
-// Azul oscuro + blanco + rojo del logo
+// Azul profundo + rojo del logo + crema cálido
 // ==================================================
 
 export const MAIDO_UI: Partial<TenantUI> = {
@@ -14,6 +14,19 @@ export const MAIDO_UI: Partial<TenantUI> = {
   specialBadgeBorder: "355 88% 45%",
   specialBadgeBg: "355 88% 45%",
 
+  adminBackground: "40 24% 96%",
+  adminForeground: "222 50% 23%",
+  adminMutedForeground: "220 9% 46%",
+
+  adminCard: "0 0% 100%",
+  adminCardForeground: "222 50% 23%",
+
+  adminSidebarBg: "222 50% 23%",
+  adminSidebarText: "43 100% 94%",
+
   adminAccent: "355 88% 45%",
   adminDelete: "355 88% 45%",
+
+  adminAccountMenuBg: "0 0% 100%",
+  adminAccountMenuText: "222 50% 23%",
 };
