@@ -285,13 +285,7 @@ export default function AdminSidebar() {
         style={{ backgroundColor: `hsl(${ui.navBg})` }}
       >
         {state === "expanded" && (
-          <Link
-            href="https://carta-online.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Ir a Carta Online"
-            className="mx-auto inline-flex rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-2 transition hover:-translate-y-0.5 hover:border-[#4B75FF] hover:bg-[#343434]"
-          >
+          <div className="mx-auto inline-flex rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-2">
             <Image
               src="/carta-online-logo.png"
               alt="Carta Online"
@@ -299,7 +293,7 @@ export default function AdminSidebar() {
               height={62}
               className="h-9 w-auto object-contain"
             />
-          </Link>
+          </div>
         )}
 
         <Separator className="my-2 bg-white/10" />
