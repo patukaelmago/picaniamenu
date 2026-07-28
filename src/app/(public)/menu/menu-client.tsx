@@ -81,6 +81,11 @@ export default function MenuClient({ tenantId }: Props) {
   const [ui, setUi] = useState(() => getTenantUI(tenantId));
   const [uiReady, setUiReady] = useState(false);
 
+  const specialBadgeText =
+    ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
+      ? ui.foreground
+      : ui.specialBadgeText;
+
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
     postre: "",
@@ -677,7 +682,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   variant="outline"
                                   className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
                                   style={{
-                                    color: `hsl(${ui.specialBadgeText})`,
+                                    color: `hsl(${specialBadgeText})`,
                                     borderColor: `hsl(${ui.specialBadgeBorder})`,
                                     backgroundColor: `hsl(${ui.specialBadgeBg})`,
                                   }}
@@ -779,6 +784,11 @@ export default function MenuClient({ tenantId }: Props) {
                                       <Badge
                                         variant="outline"
                                         className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                        style={{
+                                          color: `hsl(${specialBadgeText})`,
+                                          borderColor: `hsl(${ui.specialBadgeBorder})`,
+                                          backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                                        }}
                                       >
                                         <SparklesIcon className="h-3 w-3" />
                                         Sugerencia
@@ -816,7 +826,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       variant="outline"
                                       className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
                                       style={{
-                                        color: `hsl(${ui.specialBadgeText})`,
+                                        color: `hsl(${specialBadgeText})`,
                                         borderColor: `hsl(${ui.specialBadgeBorder})`,
                                         backgroundColor: `hsl(${ui.specialBadgeBg})`,
                                       }}
