@@ -108,6 +108,26 @@ export default function LoginWithGoogle() {
 
   return (
     <div className="space-y-4">
+      <div className="rounded-xl border border-[#FF7A00]/35 bg-[#FF7A00]/10 p-4 text-sm">
+        <p className="font-semibold text-[#F5EEDC]">Acceso de demostración</p>
+        <p className="mt-1 text-[#B8B2A7]">
+          Usuario: <span className="text-[#F5EEDC]">maido</span>
+          <span className="mx-2">·</span>
+          Contraseña: <span className="text-[#F5EEDC]">Maido2026!</span>
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setIdentifier("maido");
+            setPassword("Maido2026!");
+            setErrorMessage("");
+          }}
+          className="mt-3 text-xs font-semibold text-[#FF9A3D] transition hover:text-[#FFB36B]"
+        >
+          Completar datos de prueba
+        </button>
+      </div>
+
       <form onSubmit={handleCredentialsLogin} className="space-y-3">
         <input
           value={identifier}
