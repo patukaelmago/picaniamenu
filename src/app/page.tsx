@@ -144,18 +144,17 @@ export default function Home() {
           </div>
 
           {/* VISTA REAL DEL MENÚ EN CELULAR */}
-          <div className="relative flex justify-center overflow-hidden">
-            <img
-              src="/hero-picana-phone.webp"
-              alt="Menú digital de Picaña mostrado en un celular"
-              className="h-auto max-h-[590px] w-auto max-w-full object-contain lg:max-h-[620px]"
-              style={{
-                WebkitMaskImage:
-                  "radial-gradient(ellipse 72% 82% at center, black 56%, transparent 100%)",
-                maskImage:
-                  "radial-gradient(ellipse 72% 82% at center, black 56%, transparent 100%)",
-              }}
-            />
+          <div className="relative flex justify-center">
+            <div className="absolute inset-12 rounded-full bg-[#4B75FF]/15 blur-3xl" />
+            <div className="absolute bottom-10 right-14 h-40 w-40 rounded-full bg-[#FF7A00]/15 blur-3xl" />
+
+            <div className="relative rounded-[32px] border border-[#3A3A3A] bg-[#202020] p-3 shadow-2xl">
+              <img
+                src="/hero-picana-phone.webp"
+                alt="Menú digital de Picaña mostrado en un celular"
+                className="h-auto max-h-[570px] w-auto max-w-full rounded-[22px] object-contain lg:max-h-[600px]"
+              />
+            </div>
           </div>
         </div>
       </section>
