@@ -882,7 +882,7 @@ export default function MenuManager({ tenantId }: Props) {
 
   return (
     <div
-      className="min-h-screen space-y-4 p-0 sm:space-y-8 sm:p-2"
+      className="min-h-screen w-full min-w-0 space-y-4 overflow-x-hidden p-0 sm:space-y-8 sm:p-2"
       style={{
         backgroundColor:
           tenantId === "picania"
@@ -909,7 +909,7 @@ export default function MenuManager({ tenantId }: Props) {
         </p>
       </div>
 
-      <Tabs defaultValue="items">
+      <Tabs defaultValue="items" className="w-full min-w-0">
         <TabsList className="grid w-full grid-cols-2 sm:w-auto">
           <TabsTrigger value="items">Items del Menú</TabsTrigger>
           <TabsTrigger value="categories">Categorías</TabsTrigger>
@@ -917,6 +917,7 @@ export default function MenuManager({ tenantId }: Props) {
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
+            className="w-full min-w-0 overflow-hidden"
             style={{
               backgroundColor:
                 tenantId === "picania"
@@ -1109,7 +1110,7 @@ export default function MenuManager({ tenantId }: Props) {
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
                   <div className="min-w-[760px]">
                     <Table>
                       <TableHeader>
@@ -1333,6 +1334,7 @@ export default function MenuManager({ tenantId }: Props) {
 
         <TabsContent value="categories" className="mt-3 sm:mt-6">
           <Card
+            className="w-full min-w-0 overflow-hidden"
             style={{
               backgroundColor:
                 tenantId === "picania"

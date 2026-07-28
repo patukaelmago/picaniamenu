@@ -28,6 +28,7 @@ export default function AdminLayout({
         <AdminSidebar />
 
         <SidebarInset
+          className="min-w-0 overflow-x-hidden"
           style={{
             backgroundColor: "hsl(var(--background))",
           }}
@@ -36,7 +37,7 @@ export default function AdminLayout({
             <SidebarTrigger className="h-9 w-9" />
           </div>
 
-          <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+          <div className="min-w-0 p-3 sm:p-6 lg:p-8">{children}</div>
         </SidebarInset>
 
         <Toaster />
