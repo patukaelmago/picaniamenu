@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 
 import { getTenantUI } from "@/lib/tenant-ui";
+import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
 import { db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
@@ -974,12 +975,18 @@ export default function MenuManager({ tenantId }: Props) {
                   </div>
                 </div>
 
-                <div className="flex w-full items-center gap-3 lg:w-auto">
+                <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto">
                   {isSavingItemsOrder && (
                     <span className="text-xs text-muted-foreground">
                       Guardando orden de items…
                     </span>
                   )}
+
+                  <MenuCsvImporter
+                    tenantId={tenantId}
+                    categories={categories}
+                    onImported={reloadAll}
+                  />
 
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
                     <SheetTrigger asChild>
