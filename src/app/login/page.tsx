@@ -1,5 +1,5 @@
 import LoginWithGoogle from "@/components/LoginWithGoogle";
-import { Menu, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -11,14 +11,14 @@ export default function LoginPage() {
       <div className="relative w-full max-w-md">
         <Link
           href="/"
-          className="mx-auto mb-7 flex w-fit items-center gap-3 transition-opacity hover:opacity-80"
+          className="mx-auto mb-7 block w-fit transition-opacity hover:opacity-80"
+          aria-label="Carta Online"
         >
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2B2B2B]">
-            <Menu className="h-7 w-7 text-[#F5EEDC]" />
-          </div>
-          <span className="text-xl font-bold">
-            Carta <span className="text-[#4B75FF]">Online</span>
-          </span>
+          <img
+            src="/carta-online-logo.png"
+            alt="Carta Online"
+            className="h-24 w-auto object-contain"
+          />
         </Link>
 
         <section className="overflow-hidden rounded-3xl border border-[#3A3A3A] bg-[#202020] shadow-2xl">

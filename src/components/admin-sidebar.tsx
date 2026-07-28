@@ -284,6 +284,19 @@ export default function AdminSidebar() {
         className="text-[hsl(var(--nav-text))]"
         style={{ backgroundColor: `hsl(${ui.navBg})` }}
       >
+        {state === "expanded" && (
+          <div className="mx-auto flex w-fit items-center gap-2 rounded-lg bg-[#171717] px-3 py-1.5">
+            <span className="text-[10px] text-[#B8B2A7]">Creado con</span>
+            <Image
+              src="/carta-online-logo.png"
+              alt="Carta Online"
+              width={92}
+              height={52}
+              className="h-7 w-auto object-contain"
+            />
+          </div>
+        )}
+
         <Separator className="my-2 bg-white/10" />
 
         <DropdownMenu>

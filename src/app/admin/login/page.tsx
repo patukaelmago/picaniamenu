@@ -96,6 +96,14 @@ export default function LoginWithGoogle() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary p-6">
       <div className="w-full max-w-md space-y-8 rounded-2xl bg-white p-8 shadow-xl text-center">
+        <div className="mx-auto w-fit rounded-2xl bg-[#171717] px-5 py-3">
+          <img
+            src="/carta-online-logo.png"
+            alt="Carta Online"
+            className="h-20 w-auto object-contain"
+          />
+        </div>
+
         <div className="space-y-2">
           <h1 className="text-3xl font-bold font-headline">
             Panel de Control

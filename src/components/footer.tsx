@@ -1,7 +1,5 @@
 "use client";
 
-import { Utensils } from "lucide-react";
-import Link from "next/link";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
 export default function Footer() {
@@ -49,6 +47,15 @@ export default function Footer() {
           <p className="text-xs text-[hsl(var(--nav-text))]/70 text-center">
             © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
           </p>
+
+          <div className="mt-1 flex items-center gap-2 rounded-lg bg-[#171717] px-3 py-1.5">
+            <span className="text-[10px] text-[#B8B2A7]">Creado con</span>
+            <img
+              src="/carta-online-logo.png"
+              alt="Carta Online"
+              className="h-7 w-auto object-contain"
+            />
+          </div>
 
         </div>
       </div>

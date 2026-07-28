@@ -5,7 +5,6 @@ import {
   ExternalLink,
   Heart,
   LayoutDashboard,
-  Menu,
   Pencil,
   QrCode,
   Smartphone,
@@ -51,14 +50,12 @@ export default function Home() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-[#3A3A3A] bg-[#171717]/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2B2B2B]">
-              <Menu className="h-7 w-7 text-[#F5EEDC]" />
-            </div>
-
-            <span className="text-xl font-bold">
-              Carta <span className="text-[#4B75FF]">Online</span>
-            </span>
+          <Link href="/" aria-label="Carta Online">
+            <img
+              src="/carta-online-logo.png"
+              alt="Carta Online"
+              className="h-12 w-auto object-contain"
+            />
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
@@ -285,9 +282,11 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="border-t border-[#3A3A3A] bg-[#171717] py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 text-center md:flex-row">
-          <div className="font-bold">
-            Carta <span className="text-[#4B75FF]">Online</span>
-          </div>
+          <img
+            src="/carta-online-logo.png"
+            alt="Carta Online"
+            className="h-14 w-auto object-contain"
+          />
 
           <p className="text-sm text-[#B8B2A7]">
             © {new Date().getFullYear()} Carta Online. Todos los derechos
