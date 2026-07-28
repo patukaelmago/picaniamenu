@@ -1217,7 +1217,11 @@ export default function MenuManager({ tenantId }: Props) {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    style={{ color: `hsl(${ui.adminDelete})` }}
+                                    className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
+                                    style={{
+                                      "--delete-color": ui.adminDelete,
+                                      "--delete-hover-text": ui.adminCard,
+                                    } as CSSProperties}
                                     onClick={() => handleDeleteItem(item.id)}
                                   >
                                     <Trash2 className="h-4 w-4" />
@@ -1469,7 +1473,11 @@ export default function MenuManager({ tenantId }: Props) {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                style={{ color: `hsl(${ui.adminDelete})` }}
+                                className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
+                                    style={{
+                                      "--delete-color": ui.adminDelete,
+                                      "--delete-hover-text": ui.adminCard,
+                                    } as CSSProperties}
                                 onClick={() => onDeleteCategory(parent)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -1516,7 +1524,11 @@ export default function MenuManager({ tenantId }: Props) {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    style={{ color: `hsl(${ui.adminDelete})` }}
+                                    className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
+                                    style={{
+                                      "--delete-color": ui.adminDelete,
+                                      "--delete-hover-text": ui.adminCard,
+                                    } as CSSProperties}
                                     onClick={() => onDeleteCategory(child)}
                                   >
                                     <Trash2 className="h-4 w-4" />
