@@ -500,9 +500,9 @@ export default function TenantAlmuerzoPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="w-full min-w-0 space-y-5 overflow-x-hidden sm:space-y-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline text-foreground">
+        <h1 className="text-2xl font-bold font-headline text-foreground sm:text-3xl">
           Configuración de Almuerzo
         </h1>
         <p className="text-muted-foreground">
@@ -510,16 +510,16 @@ export default function TenantAlmuerzoPage({
         </p>
       </div>
 
-      <div className="grid gap-6 max-w-5xl">
-        <Card>
-          <CardHeader>
+      <div className="grid w-full min-w-0 max-w-5xl gap-4 sm:gap-6">
+        <Card className="w-full min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6">
             <CardTitle>Almuerzo Jueves y Viernes</CardTitle>
             <CardDescription>
               Entrada y postre se guardan automáticamente al salir del campo.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="space-y-2">
               <Label>Entrada del Día</Label>
               <Input
@@ -542,15 +542,15 @@ export default function TenantAlmuerzoPage({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
+        <Card className="w-full min-w-0 overflow-hidden">
+          <CardHeader className="p-4 sm:p-6">
             <CardTitle>Items del Almuerzo</CardTitle>
             <CardDescription>
               Administrá los platos principales del almuerzo ejecutivo.
             </CardDescription>
           </CardHeader>
 
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="grid gap-2 flex-1">
                 <Label>Nombre</Label>
@@ -573,7 +573,7 @@ export default function TenantAlmuerzoPage({
 
               <Button
                 onClick={handleCreateItem}
-                className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+                className="w-full bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
                 style={{
                   "--tenant-button-bg": ui.adminCardForeground,
                   "--tenant-button-text": ui.adminCard,
@@ -586,7 +586,9 @@ export default function TenantAlmuerzoPage({
               </Button>
             </div>
 
-            <Table>
+            <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
+              <div className="min-w-[620px]">
+                <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Nombre</TableHead>
@@ -640,7 +642,9 @@ export default function TenantAlmuerzoPage({
                   </TableRow>
                 )}
               </TableBody>
-            </Table>
+                </Table>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -653,25 +657,25 @@ export default function TenantAlmuerzoPage({
           </SheetHeader>
 
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-name" className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="e-name" className="sm:text-right">
                 Nombre
               </Label>
               <Input
                 id="e-name"
-                className="col-span-3"
+                className="sm:col-span-3"
                 value={editForm.name ?? ""}
                 onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-description" className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="e-description" className="sm:text-right">
                 Descripción
               </Label>
               <Textarea
                 id="e-description"
-                className="col-span-3"
+                className="sm:col-span-3"
                 value={editForm.description ?? ""}
                 onChange={(e) =>
                   setEditForm((p) => ({ ...p, description: e.target.value }))
@@ -679,14 +683,14 @@ export default function TenantAlmuerzoPage({
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-price" className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="e-price" className="sm:text-right">
                 Precio (ARS)
               </Label>
               <Input
                 id="e-price"
                 type="number"
-                className="col-span-3"
+                className="sm:col-span-3"
                 value={editForm.price ?? 0}
                 onChange={(e) =>
                   setEditForm((p) => ({ ...p, price: Number(e.target.value) }))
@@ -694,13 +698,13 @@ export default function TenantAlmuerzoPage({
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-category" className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="e-category" className="sm:text-right">
                 Categoría
               </Label>
               <select
                 id="e-category"
-                className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm sm:col-span-3"
                 value={editForm.categoryId ?? ""}
                 onChange={(e) =>
                   setEditForm((p) => ({ ...p, categoryId: e.target.value }))
@@ -715,13 +719,13 @@ export default function TenantAlmuerzoPage({
               </select>
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="e-imageId" className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label htmlFor="e-imageId" className="sm:text-right">
                 Imagen ID
               </Label>
               <Input
                 id="e-imageId"
-                className="col-span-3"
+                className="sm:col-span-3"
                 value={editForm.imageId ?? ""}
                 onChange={(e) =>
                   setEditForm((p) => ({ ...p, imageId: e.target.value }))
@@ -729,11 +733,11 @@ export default function TenantAlmuerzoPage({
               />
             </div>
 
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="sm:text-right">
                 Sugerencia
               </Label>
-              <div className="col-span-3">
+              <div className="sm:col-span-3">
                 <Switch
                   checked={!!editForm.isSpecial}
                   onCheckedChange={(v) =>
