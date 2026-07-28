@@ -48,14 +48,11 @@ export default function Footer() {
             © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
           </p>
 
-          <div className="mt-1 flex items-center gap-2 rounded-lg bg-[#171717] px-3 py-1.5">
-            <span className="text-[10px] text-[#B8B2A7]">Creado con</span>
-            <img
-              src="/carta-online-logo.png"
-              alt="Carta Online"
-              className="h-7 w-auto object-contain"
-            />
-          </div>
+          <img
+            src="/carta-online-logo.png"
+            alt="Carta Online"
+            className="mt-1 h-9 w-auto object-contain drop-shadow-sm"
+          />
 
         </div>
       </div>
