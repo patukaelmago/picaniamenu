@@ -910,9 +910,9 @@ export default function MenuManager({ tenantId }: Props) {
       </div>
 
       <Tabs defaultValue="items" className="w-full min-w-0">
-        <TabsList className="grid w-full grid-cols-2 sm:w-auto">
-          <TabsTrigger value="items">Items del Menú</TabsTrigger>
-          <TabsTrigger value="categories">Categorías</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:inline-flex sm:h-9 sm:w-fit">
+          <TabsTrigger value="items" className="sm:px-4">Items del Menú</TabsTrigger>
+          <TabsTrigger value="categories" className="sm:px-4">Categorías</TabsTrigger>
         </TabsList>
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
