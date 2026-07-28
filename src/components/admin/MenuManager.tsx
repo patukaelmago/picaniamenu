@@ -950,7 +950,7 @@ export default function MenuManager({ tenantId }: Props) {
             <CardHeader
               className="border-b p-4 sm:p-6"
               style={{
-                backgroundColor: `hsl(${ui.adminAccent} / 0.055)`,
+                backgroundColor: `hsl(${ui.adminBackground})`,
                 borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
               }}
             >
@@ -1175,7 +1175,7 @@ export default function MenuManager({ tenantId }: Props) {
                               key={item.id}
                               className="transition-colors hover:bg-[hsl(var(--row-hover-bg))]"
                               style={{
-                                "--row-hover-bg": `${ui.adminAccent} / 0.055`,
+                                "--row-hover-bg": ui.adminBackground,
                               } as CSSProperties}
                               draggable={sortMode === "manual"}
                               onDragStart={() => handleDragItemStart(item)}
@@ -1386,7 +1386,7 @@ export default function MenuManager({ tenantId }: Props) {
             <CardHeader
               className="border-b p-4 sm:p-6"
               style={{
-                backgroundColor: `hsl(${ui.adminAccent} / 0.055)`,
+                backgroundColor: `hsl(${ui.adminBackground})`,
                 borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
               }}
             >
