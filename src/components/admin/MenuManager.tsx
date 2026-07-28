@@ -882,7 +882,7 @@ export default function MenuManager({ tenantId }: Props) {
 
   return (
     <div
-      className="space-y-8 min-h-screen p-8"
+      className="min-h-screen space-y-4 p-0 sm:space-y-8 sm:p-2"
       style={{
         backgroundColor:
           tenantId === "picania"
@@ -891,7 +891,7 @@ export default function MenuManager({ tenantId }: Props) {
       }}
     >
       <div
-        className="rounded-lg px-6 py-5"
+        className="rounded-lg px-1 py-3 sm:px-6 sm:py-5"
         style={{
           backgroundColor:
             tenantId === "picania"
@@ -903,19 +903,19 @@ export default function MenuManager({ tenantId }: Props) {
               : undefined,
         }}
       >
-        <h1 className="text-3xl font-bold font-headline">Gestionar Menú</h1>
+        <h1 className="text-2xl font-bold font-headline sm:text-3xl">Gestionar Menú</h1>
         <p className="text-muted-foreground">
           <span className="font-medium">{tenantName || tenantId}</span>
         </p>
       </div>
 
       <Tabs defaultValue="items">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-2 sm:w-auto">
           <TabsTrigger value="items">Items del Menú</TabsTrigger>
           <TabsTrigger value="categories">Categorías</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="items" className="mt-6">
+        <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
             style={{
               backgroundColor:
@@ -928,16 +928,16 @@ export default function MenuManager({ tenantId }: Props) {
                   : undefined,
             }}
           >
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6">
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>Administrá todos los items de tu menú.</CardDescription>
 
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
+                <div className="grid w-full gap-3 lg:flex lg:items-center lg:gap-4">
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Buscar:</Label>
                     <Input
-                      className="h-9 w-52"
+                      className="h-9 w-full sm:w-52"
                       placeholder="Nombre o categoría..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
@@ -947,7 +947,7 @@ export default function MenuManager({ tenantId }: Props) {
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Categoría padre:</Label>
                     <select
-                      className="h-9 rounded-md border bg-background px-2 text-sm text-foreground min-w-[220px]"
+                      className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground sm:min-w-[220px]"
                       value={parentFilterId}
                       onChange={(e) => setParentFilterId(e.target.value)}
                     >
@@ -963,7 +963,7 @@ export default function MenuManager({ tenantId }: Props) {
                   <div className="flex items-center gap-2">
                     <Label className="text-sm">Orden:</Label>
                     <select
-                      className="h-9 rounded-md border bg-background px-2 text-sm text-foreground"
+                      className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground sm:w-auto"
                       value={sortMode}
                       onChange={(e) => setSortMode(e.target.value as any)}
                     >
@@ -973,7 +973,7 @@ export default function MenuManager({ tenantId }: Props) {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex w-full items-center gap-3 lg:w-auto">
                   {isSavingItemsOrder && (
                     <span className="text-xs text-muted-foreground">
                       Guardando orden de items…
@@ -984,7 +984,7 @@ export default function MenuManager({ tenantId }: Props) {
                     <SheetTrigger asChild>
                       <Button
                         onClick={() => setCreateForm(emptyItem)}
-                        className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+                        className="w-full bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
                         style={{
                           "--tenant-button-bg": ui.adminCardForeground,
                           "--tenant-button-text": ui.adminCard,
@@ -1006,25 +1006,25 @@ export default function MenuManager({ tenantId }: Props) {
                       </SheetHeader>
 
                       <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="c-name" className="text-right">
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label htmlFor="c-name" className="sm:text-right">
                             Nombre
                           </Label>
                           <Input
                             id="c-name"
-                            className="col-span-3"
+                            className="sm:col-span-3"
                             value={createForm.name}
                             onChange={(e) => onChangeCreate("name", e.target.value)}
                           />
                         </div>
 
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="c-description" className="text-right">
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label htmlFor="c-description" className="sm:text-right">
                             Descripción
                           </Label>
                           <Textarea
                             id="c-description"
-                            className="col-span-3"
+                            className="sm:col-span-3"
                             value={createForm.description}
                             onChange={(e) =>
                               onChangeCreate("description", e.target.value)
@@ -1032,14 +1032,14 @@ export default function MenuManager({ tenantId }: Props) {
                           />
                         </div>
 
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="c-price" className="text-right">
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label htmlFor="c-price" className="sm:text-right">
                             Precio (ARS)
                           </Label>
                           <Input
                             id="c-price"
                             type="number"
-                            className="col-span-3"
+                            className="sm:col-span-3"
                             value={createForm.price}
                             onChange={(e) =>
                               onChangeCreate("price", Number(e.target.value))
@@ -1047,8 +1047,8 @@ export default function MenuManager({ tenantId }: Props) {
                           />
                         </div>
 
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="c-category" className="text-right">
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label htmlFor="c-category" className="sm:text-right">
                             Categoría
                           </Label>
                           <select
@@ -1068,13 +1068,13 @@ export default function MenuManager({ tenantId }: Props) {
                           </select>
                         </div>
 
-                        <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="c-imageId" className="text-right">
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label htmlFor="c-imageId" className="sm:text-right">
                             Imagen ID
                           </Label>
                           <Input
                             id="c-imageId"
-                            className="col-span-3"
+                            className="sm:col-span-3"
                             value={createForm.imageId}
                             onChange={(e) => onChangeCreate("imageId", e.target.value)}
                           />
@@ -1105,12 +1105,12 @@ export default function MenuManager({ tenantId }: Props) {
               </div>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <div className="min-w-[900px]">
+                  <div className="min-w-[760px]">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -1235,45 +1235,45 @@ export default function MenuManager({ tenantId }: Props) {
               </SheetHeader>
 
               <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="e-name" className="text-right">
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label htmlFor="e-name" className="sm:text-right">
                     Nombre
                   </Label>
                   <Input
                     id="e-name"
-                    className="col-span-3"
+                    className="sm:col-span-3"
                     value={editForm.name}
                     onChange={(e) => onChangeEdit("name", e.target.value)}
                   />
                 </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="e-description" className="text-right">
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label htmlFor="e-description" className="sm:text-right">
                     Descripción
                   </Label>
                   <Textarea
                     id="e-description"
-                    className="col-span-3"
+                    className="sm:col-span-3"
                     value={editForm.description}
                     onChange={(e) => onChangeEdit("description", e.target.value)}
                   />
                 </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="e-price" className="text-right">
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label htmlFor="e-price" className="sm:text-right">
                     Precio (ARS)
                   </Label>
                   <Input
                     id="e-price"
                     type="number"
-                    className="col-span-3"
+                    className="sm:col-span-3"
                     value={editForm.price}
                     onChange={(e) => onChangeEdit("price", Number(e.target.value))}
                   />
                 </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="e-category" className="text-right">
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label htmlFor="e-category" className="sm:text-right">
                     Categoría
                   </Label>
                   <select
@@ -1291,13 +1291,13 @@ export default function MenuManager({ tenantId }: Props) {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="e-imageId" className="text-right">
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label htmlFor="e-imageId" className="sm:text-right">
                     Imagen ID
                   </Label>
                   <Input
                     id="e-imageId"
-                    className="col-span-3"
+                    className="sm:col-span-3"
                     value={editForm.imageId}
                     onChange={(e) => onChangeEdit("imageId", e.target.value)}
                   />
@@ -1331,7 +1331,7 @@ export default function MenuManager({ tenantId }: Props) {
           </Sheet>
         </TabsContent>
 
-        <TabsContent value="categories" className="mt-6">
+        <TabsContent value="categories" className="mt-3 sm:mt-6">
           <Card
             style={{
               backgroundColor:
@@ -1344,12 +1344,12 @@ export default function MenuManager({ tenantId }: Props) {
                   : undefined,
             }}
           >
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-6">
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>Organizá las secciones de tu menú.</CardDescription>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
               <div className="mb-4 flex flex-wrap items-end gap-3">
                 <div className="grid gap-2">
                   <Label htmlFor="new-cat-name">Nombre</Label>
@@ -1416,7 +1416,7 @@ export default function MenuManager({ tenantId }: Props) {
                           onDragOver={(e) => handleRootDragOver(e, index)}
                           onDragEnd={handleRootDragEnd}
                         >
-                          <div className="flex items-center gap-3">
+                          <div className="flex w-full items-center gap-3 lg:w-auto">
                             {openParents[parent.id] ? (
                               <ChevronDown className="h-4 w-4 text-muted-foreground" />
                             ) : (
@@ -1475,7 +1475,7 @@ export default function MenuManager({ tenantId }: Props) {
                               key={child.id}
                               className="ml-8 flex items-center justify-between p-3 bg-secondary/60 rounded-md border border-border/40"
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex w-full items-center gap-3 lg:w-auto">
                                 <span className="text-muted-foreground">↳</span>
                                 <span className="font-medium">{child.name}</span>
                               </div>
@@ -1532,13 +1532,13 @@ export default function MenuManager({ tenantId }: Props) {
                   </SheetHeader>
 
                   <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-name" className="text-right">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="cat-name" className="sm:text-right">
                         Nombre
                       </Label>
                       <Input
                         id="cat-name"
-                        className="col-span-3"
+                        className="sm:col-span-3"
                         value={catForm.name}
                         onChange={(e) =>
                           setCatForm((p) => ({ ...p, name: e.target.value }))
@@ -1546,13 +1546,13 @@ export default function MenuManager({ tenantId }: Props) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-description" className="text-right">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="cat-description" className="sm:text-right">
                         Descripción
                       </Label>
                       <Input
                         id="cat-description"
-                        className="col-span-3"
+                        className="sm:col-span-3"
                         value={catForm.description}
                         onChange={(e) =>
                           setCatForm((p) => ({ ...p, description: e.target.value }))
@@ -1560,14 +1560,14 @@ export default function MenuManager({ tenantId }: Props) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-order" className="text-right">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="cat-order" className="sm:text-right">
                         Orden
                       </Label>
                       <Input
                         id="cat-order"
                         type="number"
-                        className="col-span-3"
+                        className="sm:col-span-3"
                         value={catForm.order}
                         onChange={(e) =>
                           setCatForm((p) => ({
@@ -1578,8 +1578,8 @@ export default function MenuManager({ tenantId }: Props) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="cat-parent" className="text-right">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="cat-parent" className="sm:text-right">
                         Categoría padre
                       </Label>
                       <select
@@ -1604,9 +1604,9 @@ export default function MenuManager({ tenantId }: Props) {
                       </select>
                     </div>
 
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label className="text-right">Visible</Label>
-                      <div className="col-span-3">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label className="sm:text-right">Visible</Label>
+                      <div className="sm:col-span-3">
                         <Switch
                           checked={catForm.isVisible}
                           onCheckedChange={(v) =>
