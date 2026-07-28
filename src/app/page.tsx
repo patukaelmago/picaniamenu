@@ -62,15 +62,15 @@ export default function Home() {
           </Link>
 
           <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
-            <a href="#funciones" className="hover:text-[#4B75FF]">
+            <a href="#funciones" className="relative py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#FF7A00] after:transition-transform hover:after:scale-x-100">
               Funcionalidades
             </a>
 
-            <a href="#panel" className="hover:text-[#4B75FF]">
+            <a href="#panel" className="relative py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#FF7A00] after:transition-transform hover:after:scale-x-100">
               Panel
             </a>
 
-            <Link href="/menu/picana" className="hover:text-[#4B75FF]">
+            <Link href="/menu/picana" className="relative py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#FF7A00] after:transition-transform hover:after:scale-x-100">
               Demo
             </Link>
           </nav>
