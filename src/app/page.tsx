@@ -50,7 +50,7 @@ export default function Home() {
     <main className="min-h-screen bg-[#171717] text-[#F5EEDC]">
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-[#3A3A3A] bg-[#171717]/90 backdrop-blur">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#2B2B2B]">
               <Menu className="h-7 w-7 text-[#F5EEDC]" />
@@ -89,23 +89,23 @@ export default function Home() {
         <div className="absolute right-[-160px] top-10 h-[500px] w-[500px] rounded-full bg-[#FF7A00]/20 blur-3xl" />
         <div className="absolute left-[-150px] top-40 h-[400px] w-[400px] rounded-full bg-[#4B75FF]/15 blur-3xl" />
 
-        <div className="relative mx-auto grid min-h-[680px] max-w-7xl items-center gap-14 px-6 py-20 lg:grid-cols-2">
+        <div className="relative mx-auto grid min-h-[calc(100svh-64px)] max-w-7xl items-center gap-8 px-6 py-8 lg:grid-cols-2 lg:py-6">
           <div>
             <span className="inline-flex rounded-full bg-[#4B75FF]/15 px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#4B75FF]">
               Menú digital para restaurantes
             </span>
 
-            <h1 className="mt-7 max-w-xl text-5xl font-bold leading-tight tracking-tight text-[#F5EEDC] md:text-6xl">
+            <h1 className="mt-5 max-w-xl text-5xl font-bold leading-tight tracking-tight text-[#F5EEDC] md:text-6xl">
               Tu carta, siempre{" "}
               <span className="text-[#4B75FF]">actualizada</span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[#B8B2A7]">
+            <p className="mt-4 max-w-xl text-lg leading-8 text-[#B8B2A7]">
               Creá tu menú digital, compartilo mediante un código QR y
               actualizá productos y precios desde cualquier dispositivo.
             </p>
 
-            <div className="mt-9 flex flex-wrap gap-4">
+            <div className="mt-6 flex flex-wrap gap-4">
               <Link
                 href="/login"
                 className="flex items-center gap-2 rounded-xl bg-[#4B75FF] px-6 py-4 font-semibold text-white transition hover:bg-[#FF7A00]"
@@ -122,7 +122,7 @@ export default function Home() {
               </Link>
             </div>
 
-            <div className="mt-12 grid max-w-xl gap-5 sm:grid-cols-3">
+            <div className="mt-8 grid max-w-xl gap-5 sm:grid-cols-3">
               <MiniBenefit
                 icon={Pencil}
                 title="Actualización rápida"
@@ -152,7 +152,7 @@ export default function Home() {
               <img
                 src="/hero-picana-phone.webp"
                 alt="Menú digital de Picaña mostrado en un celular"
-                className="h-auto max-h-[570px] w-auto max-w-full rounded-[22px] object-contain lg:max-h-[600px]"
+                className="h-auto max-h-[500px] w-auto max-w-full rounded-[22px] object-contain lg:max-h-[520px]"
               />
             </div>
           </div>
