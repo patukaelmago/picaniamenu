@@ -10,6 +10,7 @@ import { ArrowRight, Store } from "lucide-react";
 type Tenant = {
   id: string;
   name: string;
+  logoUrl?: string;
 };
 
 export default function SelectTenantPage() {
@@ -31,6 +32,22 @@ export default function SelectTenantPage() {
 
         const snap = await getDocs(collection(db, "tenants"));
 
+        const addLogos = async (items: Tenant[]) =>
+          Promise.all(
+            items.map(async (tenant) => {
+              const settingsSnap = await getDoc(
+                doc(db, "tenants", tenant.id, "settings", "restaurant")
+              );
+
+              return {
+                ...tenant,
+                logoUrl: settingsSnap.exists()
+                  ? settingsSnap.data()?.logoUrl || ""
+                  : "",
+              };
+            })
+          );
+
         const visibles: Tenant[] = [];
 
         // Superadmin
@@ -44,7 +61,7 @@ export default function SelectTenantPage() {
             });
           }
 
-          setTenants(visibles);
+          setTenants(await addLogos(visibles));
           return;
         }
 
@@ -64,7 +81,7 @@ export default function SelectTenantPage() {
             }
           }
 
-          setTenants(visibles);
+          setTenants(await addLogos(visibles));
           return;
         }
 
@@ -84,7 +101,7 @@ export default function SelectTenantPage() {
           }
         }
 
-        setTenants(visibles);
+        setTenants(await addLogos(visibles));
       } finally {
         setLoading(false);
       }
@@ -130,8 +147,16 @@ export default function SelectTenantPage() {
                 href={`/admin/${tenant.id}/menu`}
                 className="group flex w-full items-center gap-4 rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-[#4B75FF] hover:bg-[#343434]"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FF7A00]/15">
-                  <Store className="h-5 w-5 text-[#FF7A00]" />
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F5EEDC] p-1.5">
+                  {tenant.logoUrl ? (
+                    <img
+                      src={tenant.logoUrl}
+                      alt={`Logo de ${tenant.name}`}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <Store className="h-5 w-5 text-[#FF7A00]" />
+                  )}
                 </span>
                 <span className="flex-1 font-semibold">{tenant.name}</span>
                 <ArrowRight className="h-5 w-5 text-[#8F8A82] transition-transform group-hover:translate-x-1 group-hover:text-[#4B75FF]" />
