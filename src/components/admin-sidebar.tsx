@@ -26,6 +26,7 @@ import {
   ChevronUp,
   User as UserIcon,
   Sparkles,
+  Palette,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -59,6 +60,7 @@ const getTenantIdFromPath = (pathname: string) => {
     "menu",
     "qr",
     "settings",
+    "colors",
     "login",
     "import",
     "almuerzo",
@@ -166,6 +168,11 @@ export default function AdminSidebar() {
           href: `/admin/${tenantId}/qr`,
           label: "QR",
           icon: QrCode,
+        },
+        {
+          href: `/admin/${tenantId}/colors`,
+          label: "Colores",
+          icon: Palette,
         },
         {
           href: `/admin/${tenantId}/settings`,
