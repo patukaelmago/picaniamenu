@@ -93,10 +93,11 @@ export default function TenantQrPage({
     onClick={downloadQR}
     size="lg"
     variant="outline"
-    className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+    className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
     style={{
-      "--tenant-button-bg": ui.navBg,
-      "--tenant-button-text": ui.navText,
+      "--tenant-button-bg": ui.adminSidebarBg,
+      "--tenant-button-text": ui.adminSidebarText,
+      "--tenant-button-border": ui.adminForeground,
       "--tenant-button-hover-bg": ui.adminAccent,
       "--tenant-button-hover-text": ui.adminCard,
     } as CSSProperties}
@@ -109,10 +110,11 @@ export default function TenantQrPage({
     onClick={shareMenu}
     size="lg"
     variant="outline"
-    className="bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+    className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
     style={{
-      "--tenant-button-bg": ui.navBg,
-      "--tenant-button-text": ui.navText,
+      "--tenant-button-bg": ui.adminSidebarBg,
+      "--tenant-button-text": ui.adminSidebarText,
+      "--tenant-button-border": ui.adminForeground,
       "--tenant-button-hover-bg": ui.adminAccent,
       "--tenant-button-hover-text": ui.adminCard,
     } as CSSProperties}
