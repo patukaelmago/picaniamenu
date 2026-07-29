@@ -1177,8 +1177,8 @@ export default function MenuManager({ tenantId }: Props) {
                               key={item.id}
                               className="group transition-colors hover:bg-[hsl(var(--row-hover-bg))] hover:text-[hsl(var(--row-hover-text))]"
                               style={{
-                                "--row-hover-bg": ui.adminBackground,
-                                "--row-hover-text": ui.adminForeground,
+                                "--row-hover-bg": `${ui.adminSidebarBg} / 0.08`,
+                                "--row-hover-text": ui.adminCardForeground,
                               } as CSSProperties}
                               draggable={sortMode === "manual"}
                               onDragStart={() => handleDragItemStart(item)}
