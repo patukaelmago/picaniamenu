@@ -600,7 +600,7 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto aspect-[210/297] w-full max-w-3xl rounded-sm border px-5 pb-8 pt-12 shadow-sm md:px-10 md:pb-10 md:pt-14"
+                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-8 pt-12 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-10 md:pt-14"
                 style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
               >
                 <div className="space-y-12">
