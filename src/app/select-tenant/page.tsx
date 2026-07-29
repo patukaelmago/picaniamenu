@@ -16,6 +16,7 @@ type Tenant = {
 export default function SelectTenantPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -52,6 +53,8 @@ export default function SelectTenantPage() {
 
         // Superadmin
         if (superSnap.exists() && superSnap.data()?.enabled === true) {
+          setIsSuperAdmin(true);
+
           for (const tenant of snap.docs) {
             if (tenant.data()?.active !== true) continue;
 
@@ -139,6 +142,15 @@ export default function SelectTenantPage() {
               Elegí la cuenta que querés administrar.
             </p>
           </div>
+
+          {isSuperAdmin && (
+            <Link
+              href="/admin/tenants/new"
+              className="mb-5 flex w-full items-center justify-center rounded-xl bg-[#FF7A00] px-4 py-3 font-semibold text-[#171717] transition-colors hover:bg-[#ff922e]"
+            >
+              Crear nuevo tenant
+            </Link>
+          )}
 
           <div className="space-y-3">
             {tenants.map((tenant) => (
