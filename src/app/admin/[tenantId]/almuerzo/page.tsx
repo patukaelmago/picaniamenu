@@ -291,6 +291,20 @@ export default function TenantAlmuerzoPage({
     }
   }
 
+  async function transformFridayField(
+    field: keyof FridayMenuData,
+    mode: "upper" | "lower"
+  ) {
+    const value =
+      mode === "upper"
+        ? data[field].toLocaleUpperCase("es-AR")
+        : data[field].toLocaleLowerCase("es-AR");
+
+    const nextData = { ...data, [field]: value };
+    setData(nextData);
+    await autosaveFridayMenu(nextData);
+  }
+
   async function handleToggleItem(id: string, value: boolean) {
     setItems((prev) =>
       prev.map((item) => (item.id === id ? { ...item, isVisible: value } : item))
@@ -522,22 +536,96 @@ export default function TenantAlmuerzoPage({
           <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="space-y-2">
               <Label>Entrada del Día</Label>
-              <Input
-                value={data.entrada}
-                onChange={(e) => setData({ ...data, entrada: e.target.value })}
-                onBlur={() => autosaveFridayMenu(data)}
-                placeholder="Ej: Focaccia con hummus..."
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  className="min-w-0 flex-1"
+                  value={data.entrada}
+                  onChange={(e) => setData({ ...data, entrada: e.target.value })}
+                  onBlur={() => autosaveFridayMenu(data)}
+                  placeholder="Ej: Focaccia con hummus..."
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a mayúsculas"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => transformFridayField("entrada", "upper")}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  AA
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a minúsculas"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => transformFridayField("entrada", "lower")}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  aa
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-2">
               <Label>Postre o Café</Label>
-              <Input
-                value={data.postre}
-                onChange={(e) => setData({ ...data, postre: e.target.value })}
-                onBlur={() => autosaveFridayMenu(data)}
-                placeholder="Ej: Flan casero..."
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  className="min-w-0 flex-1"
+                  value={data.postre}
+                  onChange={(e) => setData({ ...data, postre: e.target.value })}
+                  onBlur={() => autosaveFridayMenu(data)}
+                  placeholder="Ej: Flan casero..."
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a mayúsculas"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => transformFridayField("postre", "upper")}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  AA
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a minúsculas"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => transformFridayField("postre", "lower")}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  aa
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
