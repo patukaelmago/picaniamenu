@@ -9,7 +9,7 @@ import {
 import { Download, Loader2, Upload } from "lucide-react";
 
 import { db } from "@/lib/firebase";
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import type { Category } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -154,7 +154,7 @@ export default function MenuCsvImporter({
   onImported,
 }: Props) {
   const { toast } = useToast();
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<CsvRow[]>([]);
