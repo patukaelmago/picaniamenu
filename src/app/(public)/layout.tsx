@@ -2,7 +2,7 @@
 
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { usePathname } from "next/navigation";
 import type { CSSProperties } from "react";
 
@@ -15,7 +15,7 @@ export default function PublicLayout({
   const parts = pathname.split("/").filter(Boolean);
   const menuIndex = parts.indexOf("menu");
   const tenantId = menuIndex >= 0 ? parts[menuIndex + 1] : null;
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
 
   return (
     <div
