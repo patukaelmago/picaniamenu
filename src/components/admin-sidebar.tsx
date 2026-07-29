@@ -1,6 +1,6 @@
 "use client";
 
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
 import {
@@ -86,7 +86,7 @@ export default function AdminSidebar() {
   }, []);
 
   const tenantId = useMemo(() => getTenantIdFromPath(pathname), [pathname]);
-  const ui = useMemo(() => getTenantUI(tenantId), [tenantId]);
+  const ui = useTenantUI(tenantId);
 
   useEffect(() => {
     const r = document.documentElement;
