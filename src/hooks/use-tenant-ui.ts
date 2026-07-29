@@ -5,67 +5,10 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 import { getTenantUI, type TenantUI } from "@/lib/tenant-ui";
-
-type BrandColors = {
-  primary?: string;
-  background?: string;
-  accent?: string;
-};
-
-function validColor(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
-}
-
-function applyBrandColors(base: TenantUI, colors?: BrandColors): TenantUI {
-  if (!colors) return base;
-
-  const primary = validColor(colors.primary) ? colors.primary.trim() : base.navBg;
-  const background = validColor(colors.background)
-    ? colors.background.trim()
-    : base.background;
-  const accent = validColor(colors.accent) ? colors.accent.trim() : base.accent;
-
-  return {
-    ...base,
-
-    navBg: primary,
-    navText: background,
-    accent,
-
-    searchIcon: primary,
-    searchText: primary,
-
-    background,
-    foreground: primary,
-
-    categoryTitle: primary,
-    categoryNav: primary,
-    descriptionText: primary,
-    categoryNavHover: accent,
-
-    specialBadgeText: background,
-    specialBadgeBorder: accent,
-    specialBadgeBg: accent,
-
-    subCategoryTitle: primary,
-    itemPrice: primary,
-
-    adminBackground: primary,
-    adminForeground: background,
-    adminMutedForeground: background,
-
-    adminCard: background,
-    adminCardForeground: primary,
-
-    adminSidebarBg: primary,
-    adminSidebarText: background,
-
-    adminAccent: accent,
-    adminDelete: accent,
-    adminAccountMenuBg: background,
-    adminAccountMenuText: primary,
-  };
-}
+import {
+  applyBrandColors,
+  applyColorOverrides,
+} from "@/lib/tenant-ui/brand-colors";
 
 export function useTenantUI(tenantId?: string | null): TenantUI {
   const [ui, setUi] = useState<TenantUI>(() => getTenantUI(tenantId));
@@ -84,7 +27,9 @@ export function useTenantUI(tenantId?: string | null): TenantUI {
     getDoc(doc(db, "tenants", tenantId, "settings", "ui"))
       .then((snapshot) => {
         if (cancelled || !snapshot.exists()) return;
-        setUi(applyBrandColors(base, snapshot.data()?.brandColors));
+        const data = snapshot.data();
+        const generated = applyBrandColors(base, data?.brandColors);
+        setUi(applyColorOverrides(generated, data?.colorOverrides));
       })
       .catch((error) => {
         console.error("Error cargando colores del tenant", error);
