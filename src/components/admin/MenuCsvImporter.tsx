@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, useRef, useState, type CSSProperties } from "react";
 import {
   addDoc,
   collection,
@@ -9,6 +9,7 @@ import {
 import { Download, Loader2, Upload } from "lucide-react";
 
 import { db } from "@/lib/firebase";
+import { getTenantUI } from "@/lib/tenant-ui";
 import type { Category } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -153,6 +154,7 @@ export default function MenuCsvImporter({
   onImported,
 }: Props) {
   const { toast } = useToast();
+  const ui = getTenantUI(tenantId);
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
   const [rows, setRows] = useState<CsvRow[]>([]);
@@ -278,14 +280,35 @@ export default function MenuCsvImporter({
 
   return (
     <>
-      <Button type="button" variant="outline" onClick={downloadTemplate}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={downloadTemplate}
+        className="border-[hsl(var(--csv-button-border))] bg-transparent text-[hsl(var(--csv-button-text))] hover:border-[hsl(var(--csv-button-hover-bg))] hover:bg-[hsl(var(--csv-button-hover-bg))] hover:text-[hsl(var(--csv-button-hover-text))]"
+        style={{
+          "--csv-button-border": `${ui.adminForeground} / 0.55`,
+          "--csv-button-text": ui.adminForeground,
+          "--csv-button-hover-bg": ui.adminAccent,
+          "--csv-button-hover-text": ui.adminCard,
+        } as CSSProperties}
+      >
         <Download className="mr-2 h-4 w-4" />
         Plantilla CSV
       </Button>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
-          <Button type="button" variant="outline">
+          <Button
+            type="button"
+            variant="outline"
+            className="border-[hsl(var(--csv-button-border))] bg-transparent text-[hsl(var(--csv-button-text))] hover:border-[hsl(var(--csv-button-hover-bg))] hover:bg-[hsl(var(--csv-button-hover-bg))] hover:text-[hsl(var(--csv-button-hover-text))]"
+            style={{
+              "--csv-button-border": `${ui.adminForeground} / 0.55`,
+              "--csv-button-text": ui.adminForeground,
+              "--csv-button-hover-bg": ui.adminAccent,
+              "--csv-button-hover-text": ui.adminCard,
+            } as CSSProperties}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Importar CSV
           </Button>
