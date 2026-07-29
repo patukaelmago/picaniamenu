@@ -792,12 +792,58 @@ export default function TenantAlmuerzoPage({
               <Label htmlFor="e-name" className="sm:text-right">
                 Nombre
               </Label>
-              <Input
-                id="e-name"
-                className="sm:col-span-3"
-                value={editForm.name ?? ""}
-                onChange={(e) => setEditForm((p) => ({ ...p, name: e.target.value }))}
-              />
+              <div className="flex min-w-0 items-center gap-2 sm:col-span-3">
+                <Input
+                  id="e-name"
+                  className="min-w-0 flex-1"
+                  value={editForm.name ?? ""}
+                  onChange={(e) =>
+                    setEditForm((p) => ({ ...p, name: e.target.value }))
+                  }
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a mayúsculas"
+                  onClick={() =>
+                    setEditForm((p) => ({
+                      ...p,
+                      name: (p.name ?? "").toLocaleUpperCase("es-AR"),
+                    }))
+                  }
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  AA
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Convertir a minúsculas"
+                  onClick={() =>
+                    setEditForm((p) => ({
+                      ...p,
+                      name: (p.name ?? "").toLocaleLowerCase("es-AR"),
+                    }))
+                  }
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  aa
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
