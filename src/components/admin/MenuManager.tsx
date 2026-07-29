@@ -1016,10 +1016,11 @@ export default function MenuManager({ tenantId }: Props) {
                     <SheetTrigger asChild>
                       <Button
                         onClick={() => setCreateForm(emptyItem)}
-                        className="w-full bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
+                        className="w-full border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
                         style={{
                           "--tenant-button-bg": ui.adminCardForeground,
                           "--tenant-button-text": ui.adminCard,
+                          "--tenant-button-border": ui.adminForeground,
                           "--tenant-button-hover-bg": ui.adminAccent,
                           "--tenant-button-hover-text": ui.adminCard,
                         } as CSSProperties}
