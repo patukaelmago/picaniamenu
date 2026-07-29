@@ -1152,13 +1152,13 @@ export default function MenuManager({ tenantId }: Props) {
                         } as CSSProperties}
                       >
                         <TableRow className="border-0 bg-[hsl(var(--table-head-bg))] hover:bg-[hsl(var(--table-head-bg))]">
-                          <TableHead className="w-[80px] text-[hsl(var(--table-head-text))]">Imagen</TableHead>
+                          <TableHead className="w-[80px] rounded-tl-md text-[hsl(var(--table-head-text))]">Imagen</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Nombre</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Categoría</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
-                          <TableHead className="w-[100px] text-[hsl(var(--table-head-text))]">Acciones</TableHead>
+                          <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
 
