@@ -642,11 +642,54 @@ export default function TenantAlmuerzoPage({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="grid gap-2 flex-1">
                 <Label>Nombre</Label>
-                <Input
-                  value={newItemName}
-                  onChange={(e) => setNewItemName(e.target.value)}
-                  placeholder="Ej: Milanesa con puré"
-                />
+                <div className="flex items-center gap-2">
+                  <Input
+                    className="min-w-0 flex-1"
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                    placeholder="Ej: Milanesa con puré"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Convertir a mayúsculas"
+                    onClick={() =>
+                      setNewItemName((value) =>
+                        value.toLocaleUpperCase("es-AR")
+                      )
+                    }
+                    className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                    style={{
+                      "--case-button-border": ui.adminCardForeground,
+                      "--case-button-text": ui.adminCardForeground,
+                      "--case-button-hover-bg": ui.adminAccent,
+                      "--case-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
+                  >
+                    AA
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Convertir a minúsculas"
+                    onClick={() =>
+                      setNewItemName((value) =>
+                        value.toLocaleLowerCase("es-AR")
+                      )
+                    }
+                    className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                    style={{
+                      "--case-button-border": ui.adminCardForeground,
+                      "--case-button-text": ui.adminCardForeground,
+                      "--case-button-hover-bg": ui.adminAccent,
+                      "--case-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
+                  >
+                    aa
+                  </Button>
+                </div>
               </div>
 
               <div className="grid gap-2 sm:w-40">
