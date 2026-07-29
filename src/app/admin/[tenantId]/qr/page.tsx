@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useRef, useState, type CSSProperties } from "react";
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { QRCode } from "react-qrcode-logo";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2, Share2 } from "lucide-react";
@@ -13,7 +13,7 @@ export default function TenantQrPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
 
   const [menuUrl, setMenuUrl] = useState("");
   const qrRef = useRef<HTMLDivElement | null>(null);
