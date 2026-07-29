@@ -1063,8 +1063,8 @@ export default function MenuManager({ tenantId }: Props) {
                               }
                               className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                               style={{
-                                "--case-button-border": ui.adminCardForeground,
-                                "--case-button-text": ui.adminCardForeground,
+                                "--case-button-border": ui.adminForeground,
+                                "--case-button-text": ui.adminForeground,
                                 "--case-button-hover-bg": ui.adminAccent,
                                 "--case-button-hover-text": ui.adminCard,
                               } as CSSProperties}
@@ -1084,8 +1084,8 @@ export default function MenuManager({ tenantId }: Props) {
                               }
                               className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                               style={{
-                                "--case-button-border": ui.adminCardForeground,
-                                "--case-button-text": ui.adminCardForeground,
+                                "--case-button-border": ui.adminForeground,
+                                "--case-button-text": ui.adminForeground,
                                 "--case-button-hover-bg": ui.adminAccent,
                                 "--case-button-hover-text": ui.adminCard,
                               } as CSSProperties}
@@ -1350,8 +1350,8 @@ export default function MenuManager({ tenantId }: Props) {
                       }
                       className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                       style={{
-                        "--case-button-border": ui.adminCard,
-                        "--case-button-text": ui.adminCard,
+                        "--case-button-border": ui.adminForeground,
+                        "--case-button-text": ui.adminForeground,
                         "--case-button-hover-bg": ui.adminAccent,
                         "--case-button-hover-text": ui.adminCard,
                       } as CSSProperties}
@@ -1371,8 +1371,8 @@ export default function MenuManager({ tenantId }: Props) {
                       }
                       className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                       style={{
-                        "--case-button-border": ui.adminCard,
-                        "--case-button-text": ui.adminCard,
+                        "--case-button-border": ui.adminForeground,
+                        "--case-button-text": ui.adminForeground,
                         "--case-button-hover-bg": ui.adminAccent,
                         "--case-button-hover-text": ui.adminCard,
                       } as CSSProperties}
