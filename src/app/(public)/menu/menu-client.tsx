@@ -10,7 +10,7 @@ import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories, listenCategories } from "@/lib/categories-service";
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { db } from "@/lib/firebase";
 
 import { Input } from "@/components/ui/input";
@@ -78,8 +78,8 @@ export default function MenuClient({ tenantId }: Props) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
 
-  const [ui, setUi] = useState(() => getTenantUI(tenantId));
-  const [uiReady, setUiReady] = useState(false);
+  const ui = useTenantUI(tenantId);
+  const uiReady = true;
 
   const specialBadgeText =
     ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
@@ -95,12 +95,6 @@ export default function MenuClient({ tenantId }: Props) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
   const [tenantCarouselImages, setTenantCarouselImages] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!tenantId) return;
-    setUi(getTenantUI(tenantId));
-    setUiReady(true);
-  }, [tenantId]);
 
   useEffect(() => {
     const r = document.documentElement;
