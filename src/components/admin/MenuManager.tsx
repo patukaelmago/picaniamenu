@@ -943,7 +943,7 @@ export default function MenuManager({ tenantId }: Props) {
           <Card
             className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
             style={{
-              backgroundColor: `hsl(${ui.adminCard})`,
+              backgroundColor: `hsl(${ui.adminBackground})`,
               color: `hsl(${ui.adminCardForeground})`,
             }}
           >
@@ -1182,7 +1182,10 @@ export default function MenuManager({ tenantId }: Props) {
               </div>
             </CardHeader>
 
-            <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-6">
+            <CardContent
+              className="rounded-t-lg px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-6"
+              style={{ backgroundColor: `hsl(${ui.adminCard})` }}
+            >
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
