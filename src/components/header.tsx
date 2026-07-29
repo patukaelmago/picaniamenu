@@ -27,7 +27,7 @@ export default function Header() {
             <img
               src={settings.logoUrl}
               alt={settings.name || "Logo"}
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-14 w-auto object-contain md:h-16"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
               }}
