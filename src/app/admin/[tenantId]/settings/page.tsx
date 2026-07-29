@@ -483,6 +483,9 @@ export default function TenantSettingsPage({
 
             <div className="space-y-2">
               <Label>Logo</Label>
+              <p className="text-xs text-muted-foreground">
+                Tamaño recomendado: 800 × 800 px, PNG o WebP transparente y sin márgenes vacíos.
+              </p>
 
               <div
                 onClick={() => fileInputRef.current?.click()}
