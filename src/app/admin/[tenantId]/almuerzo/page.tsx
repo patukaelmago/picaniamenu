@@ -17,7 +17,7 @@ import {
 import { notFound } from "next/navigation";
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
 
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -97,7 +97,7 @@ export default function TenantAlmuerzoPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
 
   const [data, setData] = useState<FridayMenuData>({ entrada: "", postre: "" });
   const [tenantName, setTenantName] = useState("");
