@@ -951,6 +951,7 @@ export default function MenuManager({ tenantId }: Props) {
               className="border-b p-4 sm:p-6"
               style={{
                 backgroundColor: `hsl(${ui.adminBackground})`,
+                color: `hsl(${ui.adminForeground})`,
                 borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
               }}
             >
@@ -1173,9 +1174,10 @@ export default function MenuManager({ tenantId }: Props) {
                           return (
                             <TableRow
                               key={item.id}
-                              className="transition-colors hover:bg-[hsl(var(--row-hover-bg))]"
+                              className="group transition-colors hover:bg-[hsl(var(--row-hover-bg))] hover:text-[hsl(var(--row-hover-text))]"
                               style={{
                                 "--row-hover-bg": ui.adminBackground,
+                                "--row-hover-text": ui.adminForeground,
                               } as CSSProperties}
                               draggable={sortMode === "manual"}
                               onDragStart={() => handleDragItemStart(item)}
@@ -1195,20 +1197,17 @@ export default function MenuManager({ tenantId }: Props) {
                                 )}
                               </TableCell>
 
-                              <TableCell
-                                className="font-medium"
-                                style={{ color: `hsl(${ui.adminCardForeground})` }}
-                              >
+                              <TableCell className="font-medium">
                                 {item.name}
                               </TableCell>
 
                               <TableCell>
                                 {parentName && category?.parentCategoryId ? (
                                   <span className="text-sm">
-                                    <span className="text-muted-foreground">
+                                    <span className="text-muted-foreground group-hover:text-[hsl(var(--row-hover-text))]">
                                       {parentName}
                                     </span>
-                                    <span className="text-muted-foreground"> {" > "} </span>
+                                    <span className="text-muted-foreground group-hover:text-[hsl(var(--row-hover-text))]"> {" > "} </span>
                                     <span>{category?.name}</span>
                                   </span>
                                 ) : (
@@ -1387,6 +1386,7 @@ export default function MenuManager({ tenantId }: Props) {
               className="border-b p-4 sm:p-6"
               style={{
                 backgroundColor: `hsl(${ui.adminBackground})`,
+                color: `hsl(${ui.adminForeground})`,
                 borderBottomColor: `hsl(${ui.adminAccent} / 0.18)`,
               }}
             >
