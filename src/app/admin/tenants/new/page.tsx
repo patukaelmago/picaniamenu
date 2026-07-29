@@ -261,6 +261,9 @@ export default function NewTenantPage() {
 
             <div className="space-y-3">
               <Label htmlFor="logo-url">Logo</Label>
+              <p className="text-xs text-muted-foreground">
+                Tamaño recomendado: 800 × 800 px, PNG o WebP transparente y sin márgenes vacíos.
+              </p>
               <Input
                 id="logo-url"
                 type="url"
