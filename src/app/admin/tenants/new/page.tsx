@@ -1,11 +1,12 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { ArrowLeft, Building2, Loader2 } from "lucide-react";
+import { ArrowLeft, Building2, ImageUp, Loader2 } from "lucide-react";
 
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,10 @@ export default function NewTenantPage() {
   const [tenantId, setTenantId] = useState("");
   const [adminEmail, setAdminEmail] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [isLogoDragging, setIsLogoDragging] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement | null>(null);
   const [primaryColor, setPrimaryColor] = useState("#1d2f58");
   const [backgroundColor, setBackgroundColor] = useState("#fff7e3");
   const [accentColor, setAccentColor] = useState("#ff6b1a");
@@ -65,6 +70,36 @@ export default function NewTenantPage() {
   function handleName(value: string) {
     setName(value);
     if (!idWasEdited) setTenantId(normalizeTenantId(value));
+  }
+
+  function selectLogoFile(file: File | null) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        variant: "destructive",
+        title: "Archivo inválido",
+        description: "Solo podés cargar una imagen como logo.",
+      });
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoUrl("");
+    setLogoPreview(URL.createObjectURL(file));
+  }
+
+  function handleLogoDrop(event: React.DragEvent<HTMLDivElement>) {
+    event.preventDefault();
+    setIsLogoDragging(false);
+    selectLogoFile(event.dataTransfer.files?.[0] ?? null);
+  }
+
+  function handleLogoUrl(value: string) {
+    setLogoUrl(value);
+    setLogoFile(null);
+    setLogoPreview(value.trim());
+    if (logoInputRef.current) logoInputRef.current.value = "";
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -96,6 +131,18 @@ export default function NewTenantPage() {
         return;
       }
 
+      let finalLogoUrl = logoUrl.trim();
+
+      if (logoFile) {
+        const extension = logoFile.name.split(".").pop() || "png";
+        const logoRef = ref(
+          storage,
+          `tenants/${id}/logos/logo-${Date.now()}.${extension}`
+        );
+        await uploadBytes(logoRef, logoFile);
+        finalLogoUrl = await getDownloadURL(logoRef);
+      }
+
       await setDoc(tenantRef, {
         name: name.trim(),
         active,
@@ -112,7 +159,7 @@ export default function NewTenantPage() {
       await setDoc(doc(db, "tenants", id, "settings", "restaurant"), {
         name: name.trim(),
         currency: "ARS",
-        logoUrl: logoUrl.trim(),
+        logoUrl: finalLogoUrl,
         websiteUrl: "",
         showLogo: true,
         showName: true,
@@ -212,15 +259,72 @@ export default function NewTenantPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="logo-url">URL del logo</Label>
+            <div className="space-y-3">
+              <Label htmlFor="logo-url">Logo</Label>
               <Input
                 id="logo-url"
                 type="url"
                 value={logoUrl}
-                onChange={(event) => setLogoUrl(event.target.value)}
-                placeholder="https://..."
+                onChange={(event) => handleLogoUrl(event.target.value)}
+                placeholder="Pegá la URL del logo..."
               />
+
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/webp,image/jpeg,image/svg+xml"
+                className="hidden"
+                onChange={(event) =>
+                  selectLogoFile(event.target.files?.[0] ?? null)
+                }
+              />
+
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => logoInputRef.current?.click()}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    logoInputRef.current?.click();
+                  }
+                }}
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  setIsLogoDragging(true);
+                }}
+                onDragLeave={() => setIsLogoDragging(false)}
+                onDrop={handleLogoDrop}
+                className={[
+                  "flex min-h-32 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border-2 border-dashed p-4 text-center transition-colors",
+                  isLogoDragging
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-muted/20 hover:bg-muted/40",
+                ].join(" ")}
+              >
+                {logoPreview ? (
+                  <img
+                    src={logoPreview}
+                    alt="Vista previa del logo"
+                    className="max-h-20 max-w-full object-contain"
+                  />
+                ) : (
+                  <>
+                    <ImageUp className="mb-2 h-7 w-7 text-muted-foreground" />
+                    <p className="text-sm font-medium">
+                      Arrastrá el logo acá
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      o hacé clic para elegir una imagen
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {logoFile && (
+                <p className="text-xs text-muted-foreground">
+                  Archivo seleccionado: {logoFile.name}
+                </p>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
