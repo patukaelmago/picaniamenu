@@ -15,7 +15,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
 import { db } from "@/lib/firebase";
@@ -108,7 +108,7 @@ function norm(s: string) {
 }
 
 export default function MenuManager({ tenantId }: Props) {
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
   const { toast } = useToast();
 
   const [items, setItems] = useState<MenuItem[]>([]);
