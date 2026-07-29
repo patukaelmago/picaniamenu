@@ -1,6 +1,6 @@
 "use client";
 
-import { getTenantUI } from "@/lib/tenant-ui";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 
 import { use, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,7 @@ export default function TenantSettingsPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
-  const ui = getTenantUI(tenantId);
+  const ui = useTenantUI(tenantId);
 
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("ARS");
