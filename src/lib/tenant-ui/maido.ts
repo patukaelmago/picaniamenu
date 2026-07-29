@@ -10,6 +10,9 @@ export const MAIDO_UI: Partial<TenantUI> = {
 
   accent: "355 88% 45%",
 
+  categoryNav: "222 50% 23%",
+  categoryNavHover: "355 88% 45%",
+
   specialBadgeText: "0 0% 100%",
   specialBadgeBorder: "355 88% 45%",
   specialBadgeBg: "355 88% 45%",
