@@ -1043,12 +1043,56 @@ export default function MenuManager({ tenantId }: Props) {
                           <Label htmlFor="c-name" className="sm:text-right">
                             Nombre
                           </Label>
-                          <Input
-                            id="c-name"
-                            className="sm:col-span-3"
-                            value={createForm.name}
-                            onChange={(e) => onChangeCreate("name", e.target.value)}
-                          />
+                          <div className="flex min-w-0 items-center gap-2 sm:col-span-3">
+                            <Input
+                              id="c-name"
+                              className="min-w-0 flex-1"
+                              value={createForm.name}
+                              onChange={(e) => onChangeCreate("name", e.target.value)}
+                            />
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              title="Convertir a mayúsculas"
+                              onClick={() =>
+                                onChangeCreate(
+                                  "name",
+                                  createForm.name.toLocaleUpperCase("es-AR")
+                                )
+                              }
+                              className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                              style={{
+                                "--case-button-border": ui.adminCardForeground,
+                                "--case-button-text": ui.adminCardForeground,
+                                "--case-button-hover-bg": ui.adminAccent,
+                                "--case-button-hover-text": ui.adminCard,
+                              } as CSSProperties}
+                            >
+                              AA
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              title="Convertir a minúsculas"
+                              onClick={() =>
+                                onChangeCreate(
+                                  "name",
+                                  createForm.name.toLocaleLowerCase("es-AR")
+                                )
+                              }
+                              className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                              style={{
+                                "--case-button-border": ui.adminCardForeground,
+                                "--case-button-text": ui.adminCardForeground,
+                                "--case-button-hover-bg": ui.adminAccent,
+                                "--case-button-hover-text": ui.adminCard,
+                              } as CSSProperties}
+                            >
+                              aa
+                            </Button>
+                          </div>
                         </div>
 
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
