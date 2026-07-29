@@ -1143,7 +1143,7 @@ export default function MenuManager({ tenantId }: Props) {
                 <p>Cargando platos...</p>
               ) : (
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-                  <div className="min-w-[760px]">
+                  <div className="min-w-[760px] overflow-hidden rounded-md">
                     <Table>
                       <TableHeader
                         style={{
