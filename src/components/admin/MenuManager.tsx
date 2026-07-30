@@ -340,7 +340,7 @@ export default function MenuManager({ tenantId }: Props) {
     variant: "A" | "B",
     enabled: boolean
   ) {
-    const current = item.menuVariants ?? ["A", "B"];
+    const current = item.menuVariants ?? ["A"];
     const menuVariants = enabled
       ? Array.from(new Set([...current, variant]))
       : current.filter((value) => value !== variant);
@@ -501,7 +501,7 @@ export default function MenuManager({ tenantId }: Props) {
         : createForm.imageUrl;
       await addDoc(itemsCol, {
         ...createForm,
-        ...(isPulpo ? { menuVariants: ["A", "B"] } : {}),
+        ...(isPulpo ? { menuVariants: ["A"] } : {}),
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
@@ -1535,7 +1535,7 @@ export default function MenuManager({ tenantId }: Props) {
                                 <>
                                   <TableCell>
                                     <Switch
-                                      checked={(item.menuVariants ?? ["A", "B"]).includes("A")}
+                                      checked={(item.menuVariants ?? ["A"]).includes("A")}
                                       onCheckedChange={(value) =>
                                         handleToggleMenuVariant(item, "A", value)
                                       }
@@ -1544,7 +1544,7 @@ export default function MenuManager({ tenantId }: Props) {
                                   </TableCell>
                                   <TableCell>
                                     <Switch
-                                      checked={(item.menuVariants ?? ["A", "B"]).includes("B")}
+                                      checked={(item.menuVariants ?? ["A"]).includes("B")}
                                       onCheckedChange={(value) =>
                                         handleToggleMenuVariant(item, "B", value)
                                       }

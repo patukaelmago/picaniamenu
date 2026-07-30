@@ -105,7 +105,7 @@ export default function MenuClient({ tenantId }: Props) {
       allMenuItems.filter(
         (item) =>
           !isPulpo ||
-          (item.menuVariants ?? ["A", "B"]).includes(activeMenuVariant)
+          (item.menuVariants ?? ["A"]).includes(activeMenuVariant)
       ),
     [activeMenuVariant, allMenuItems, isPulpo]
   );
