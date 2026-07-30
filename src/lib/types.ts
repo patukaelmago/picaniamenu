@@ -18,6 +18,7 @@ export interface MenuItem {
   currency: string;
   imageUrl: string;
   imageId: string;
+  showImage?: boolean;
   categoryId: string;
   isVisible: boolean;
   inStock: boolean;
