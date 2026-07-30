@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useTheme } from "next-themes";
 
@@ -77,6 +77,12 @@ export default function MenuClient({ tenantId }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+  const [openItemImage, setOpenItemImage] = useState<{
+    src: string;
+    name: string;
+    description: string;
+    price: number;
+  } | null>(null);
 
   const ui = useTenantUI(tenantId);
   const uiReady = true;
@@ -85,6 +91,41 @@ export default function MenuClient({ tenantId }: Props) {
     ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
       ? ui.foreground
       : ui.specialBadgeText;
+
+  const getItemImage = (item: MenuItem) => {
+    if (item.showImage === false) return "";
+    const placeholder = PlaceHolderImages.find((p) => p.id === item.imageId);
+    return item.imageUrl || placeholder?.imageUrl || "";
+  };
+
+  const itemThumbnail = (item: MenuItem) => {
+    const src = getItemImage(item);
+    if (!src) return null;
+
+    return (
+      <button
+        type="button"
+        onClick={() =>
+          setOpenItemImage({
+            src,
+            name: item.name,
+            description: item.description || "",
+            price: item.price,
+          })
+        }
+        className="group/item-image float-left mr-3 mb-2 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:h-16 md:w-16"
+        style={{ borderColor: `hsl(${ui.foreground} / 0.3)` }}
+        aria-label={`Ver imagen de ${item.name}`}
+      >
+        <img
+          src={src}
+          alt={item.name}
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-300 group-hover/item-image:scale-110"
+        />
+      </button>
+    );
+  };
 
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
@@ -400,7 +441,13 @@ export default function MenuClient({ tenantId }: Props) {
         const isSubcategoryItem = item.categoryId !== category.id;
         const startsSubcategory =
           isSubcategoryItem && !subcategoriesOnSegment.has(item.categoryId);
-        const itemWeight = item.description ? 1.5 : 1;
+        const hasVisibleImage =
+          item.showImage !== false &&
+          Boolean(
+            item.imageUrl ||
+              PlaceHolderImages.find((placeholder) => placeholder.id === item.imageId)
+          );
+        const itemWeight = hasVisibleImage ? 2.25 : item.description ? 1.5 : 1;
         const requiredWeight =
           itemWeight + (startsSegment ? 2.5 : 0) + (startsSubcategory ? 1 : 0);
 
@@ -663,7 +710,8 @@ export default function MenuClient({ tenantId }: Props) {
 
                   <div className="divide-y divide-border/10">
                     {parentItems.map((item) => (
-                      <div key={item.id} className="py-3">
+                      <div key={item.id} className="flow-root py-3">
+                        {itemThumbnail(item)}
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
                           <div className="min-w-0">
                             <div className="flex items-baseline gap-2">
@@ -765,7 +813,8 @@ export default function MenuClient({ tenantId }: Props) {
 
                             if (isFridayMenu && isIncluye) {
                               return (
-                                <div key={item.id} className="py-3">
+                                <div key={item.id} className="flow-root py-3">
+                                  {itemThumbnail(item)}
                                   <p>
                                     <span
                                       className="font-headline text-[13px] md:text-[15px] tracking-wide"
@@ -808,43 +857,46 @@ export default function MenuClient({ tenantId }: Props) {
                             return (
                               <div
                                 key={item.id}
-                                className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2 py-3"
+                                className="flow-root py-3"
                               >
-                                <div className="flex min-w-0 items-baseline gap-2">
-                                  <span className="font-headline text-[13px] md:text-base tracking-wide">
-                                    {item.name}
+                                {itemThumbnail(item)}
+                                <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2">
+                                  <div className="flex min-w-0 items-baseline gap-2">
+                                    <span className="font-headline text-[13px] md:text-base tracking-wide">
+                                      {item.name}
+                                    </span>
+
+                                    {item.isSpecial && (
+                                      <Badge
+                                        variant="outline"
+                                        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
+                                        style={{
+                                          color: `hsl(${specialBadgeText})`,
+                                          borderColor: `hsl(${ui.specialBadgeBorder})`,
+                                          backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                                        }}
+                                      >
+                                        <SparklesIcon className="h-3 w-3" />
+                                        Sugerencia
+                                      </Badge>
+                                    )}
+
+                                    <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />
+                                  </div>
+
+                                  <span className="whitespace-nowrap text-sm font-semibold md:text-base">
+                                    {formatCurrency(item.price)}
                                   </span>
 
-                                  {item.isSpecial && (
-                                    <Badge
-                                      variant="outline"
-                                      className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                      style={{
-                                        color: `hsl(${specialBadgeText})`,
-                                        borderColor: `hsl(${ui.specialBadgeBorder})`,
-                                        backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                                      }}
+                                  {shownDesc && (
+                                    <p
+                                      className="col-start-1 mt-1 max-w-3xl text-[13px] leading-snug md:text-[15px]"
+                                      style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
-                                      <SparklesIcon className="h-3 w-3" />
-                                      Sugerencia
-                                    </Badge>
+                                      {shownDesc}
+                                    </p>
                                   )}
-
-                                  <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />
                                 </div>
-
-                                <span className="whitespace-nowrap text-sm font-semibold md:text-base">
-                                  {formatCurrency(item.price)}
-                                </span>
-
-                                {shownDesc && (
-                                  <p
-                                    className="col-start-1 mt-1 max-w-3xl text-[13px] leading-snug md:text-[15px]"
-                                    style={{ color: `hsl(${ui.descriptionText})` }}
-                                  >
-                                    {shownDesc}
-                                  </p>
-                                )}
                               </div>
                             );
                           })}
@@ -866,6 +918,57 @@ export default function MenuClient({ tenantId }: Props) {
             )}
           </div>
         </section>
+
+        {openItemImage && (
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Imagen de ${openItemImage.name}`}
+            onClick={() => setOpenItemImage(null)}
+          >
+            <div
+              className="relative max-h-[92vh] w-full max-w-3xl overflow-hidden rounded-xl border shadow-2xl"
+              style={{
+                backgroundColor: `hsl(${ui.background})`,
+                borderColor: `hsl(${ui.foreground} / 0.35)`,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => setOpenItemImage(null)}
+                className="absolute right-3 top-3 z-10 rounded-full bg-black/70 p-2 text-white transition-transform hover:scale-110"
+                aria-label="Cerrar imagen"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              <img
+                src={openItemImage.src}
+                alt={openItemImage.name}
+                className="max-h-[68vh] w-full object-contain"
+              />
+              <div className="p-4 md:p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="font-headline text-lg md:text-xl">
+                    {openItemImage.name}
+                  </h3>
+                  <span className="whitespace-nowrap font-semibold">
+                    {formatCurrency(openItemImage.price)}
+                  </span>
+                </div>
+                {openItemImage.description && (
+                  <p
+                    className="mt-2 text-sm leading-relaxed"
+                    style={{ color: `hsl(${ui.descriptionText})` }}
+                  >
+                    {openItemImage.description}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
