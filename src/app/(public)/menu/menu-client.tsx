@@ -514,6 +514,20 @@ export default function MenuClient({ tenantId }: Props) {
     };
 
     visibleRootCategories.forEach((category) => {
+      const normalizedCategoryName = norm(category.name);
+      const isPicaniaTableService =
+        tenantId === "picania" &&
+        (normalizedCategoryName === "servicio de mesa" ||
+          normalizedCategoryName === "servicios de mesa");
+      const isPicaniaExecutiveLunch =
+        tenantId === "picania" &&
+        (normalizedCategoryName === "menu viernes" ||
+          normalizedCategoryName === "almuerzo ejecutivo");
+
+      if (isPicaniaExecutiveLunch && currentPage.length > 0) {
+        finishPage();
+      }
+
       const childCats = childCategoriesByParent[category.id] ?? [];
       const parentItems = filteredItems.filter(
         (item) => item.categoryId === category.id
@@ -545,6 +559,7 @@ export default function MenuClient({ tenantId }: Props) {
           itemWeight + (startsSegment ? 2.5 : 0) + (startsSubcategory ? 1 : 0);
 
         if (
+          !isPicaniaTableService &&
           currentPage.length > 0 &&
           currentWeight + requiredWeight > pageCapacity
         ) {
@@ -579,7 +594,7 @@ export default function MenuClient({ tenantId }: Props) {
 
     finishPage();
     return pages;
-  }, [visibleRootCategories, childCategoriesByParent, filteredItems]);
+  }, [visibleRootCategories, childCategoriesByParent, filteredItems, tenantId]);
 
   if (!uiReady) return null;
 
