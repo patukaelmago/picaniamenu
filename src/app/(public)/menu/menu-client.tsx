@@ -53,6 +53,11 @@ const norm = (s: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 
+const hslLightness = (value: string) => {
+  const match = value.match(/(-?\d+(?:\.\d+)?)%\s*$/);
+  return match ? Number(match[1]) : 50;
+};
+
 function fridayDescOverride(
   itemName: string,
   originalDesc: string | undefined,
@@ -124,6 +129,10 @@ export default function MenuClient({ tenantId }: Props) {
     ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
       ? ui.foreground
       : ui.specialBadgeText;
+  const readableSubCategoryTitle =
+    Math.abs(hslLightness(ui.subCategoryTitle) - hslLightness(ui.background)) < 28
+      ? ui.foreground
+      : ui.subCategoryTitle;
 
   const getItemImage = (item: MenuItem) => {
     if (item.showImage === false) return "";
@@ -847,7 +856,7 @@ export default function MenuClient({ tenantId }: Props) {
                         {showSubTitle && (
                           <p
                             className="font-headline uppercase text-[15px] md:text-[18px] font-semibold tracking-[0.16em] pt-4 pb-2"
-                            style={{ color: `hsl(${ui.subCategoryTitle})` }}
+                            style={{ color: `hsl(${readableSubCategoryTitle})` }}
                           >
                             {sub.name}
                             {sub.description && (
