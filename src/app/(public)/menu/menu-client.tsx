@@ -101,11 +101,6 @@ export default function MenuClient({ tenantId }: Props) {
   const [language, setLanguage] = useState<"es" | "en">("es");
   const uiReady = true;
 
-  useEffect(() => {
-    if (!settings) return;
-    setLanguage(settings.language === "en" ? "en" : "es");
-  }, [settings?.language]);
-
   const copy =
     language === "en"
       ? {
@@ -236,6 +231,7 @@ export default function MenuClient({ tenantId }: Props) {
         }
 
         const data = snap.data();
+        setLanguage(data?.language === "en" ? "en" : "es");
 
         const images = Array.isArray(data?.carouselImages)
           ? data.carouselImages.filter(
