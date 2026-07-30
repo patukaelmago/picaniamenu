@@ -589,6 +589,9 @@ export default function TenantSettingsPage({
           <CardContent className="space-y-6">
             <div className="space-y-3">
               <Label htmlFor="carousel-files">Imágenes del carrusel</Label>
+              <p className="text-xs text-muted-foreground">
+                Tamaño recomendado: 1600 × 900 px, formato JPG o WebP y hasta 500 KB por imagen.
+              </p>
               <input
                 id="carousel-files"
                 type="file"
