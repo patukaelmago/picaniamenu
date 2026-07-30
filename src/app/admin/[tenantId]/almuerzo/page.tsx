@@ -18,6 +18,7 @@ import { notFound } from "next/navigation";
 import { Pencil, Trash2, PlusCircle } from "lucide-react";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
+import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 
 import { db } from "@/lib/firebase";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -75,10 +76,10 @@ type LunchItem = {
   order: number;
 };
 
-const formatCurrency = (price: number) =>
+const formatCurrency = (price: number, currency: "ARS" | "USD") =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
@@ -98,6 +99,9 @@ export default function TenantAlmuerzoPage({
 }) {
   const { tenantId } = use(params);
   const ui = useTenantUI(tenantId);
+  const settings = useRestaurantSettings();
+  const tenantCurrency: "ARS" | "USD" =
+    settings?.currency === "USD" ? "USD" : "ARS";
 
   const [data, setData] = useState<FridayMenuData>({ entrada: "", postre: "" });
   const [tenantName, setTenantName] = useState("");
@@ -359,7 +363,7 @@ export default function TenantAlmuerzoPage({
         name: editForm.name ?? "",
         description: editForm.description ?? "",
         price: Number(editForm.price ?? 0),
-        currency: editForm.currency ?? "ARS",
+        currency: tenantCurrency,
         imageUrl: editForm.imageUrl ?? "",
         imageId: editForm.imageId ?? "",
         categoryId: editForm.categoryId ?? "",
@@ -381,7 +385,7 @@ export default function TenantAlmuerzoPage({
               name: editForm.name ?? "",
               description: editForm.description ?? "",
               price: Number(editForm.price ?? 0),
-              currency: editForm.currency ?? "ARS",
+              currency: tenantCurrency,
               imageUrl: editForm.imageUrl ?? "",
               imageId: editForm.imageId ?? "",
               categoryId: editForm.categoryId ?? "",
@@ -454,7 +458,7 @@ export default function TenantAlmuerzoPage({
         name,
         description: "",
         price: Number(newItemPrice) || 0,
-        currency: "ARS",
+        currency: tenantCurrency,
         imageUrl: "",
         imageId: "",
         categoryId: principalesCategory.id,
@@ -476,7 +480,7 @@ export default function TenantAlmuerzoPage({
           name,
           description: "",
           price: Number(newItemPrice) || 0,
-          currency: "ARS",
+          currency: tenantCurrency,
           imageUrl: "",
           imageId: "",
           categoryId: principalesCategory.id,
@@ -733,7 +737,7 @@ export default function TenantAlmuerzoPage({
                 {lunchItems.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{formatCurrency(item.price)}</TableCell>
+                    <TableCell>{formatCurrency(item.price, tenantCurrency)}</TableCell>
                     <TableCell>
                       <Switch
                         checked={!!item.isVisible}
@@ -862,7 +866,7 @@ export default function TenantAlmuerzoPage({
 
             <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
               <Label htmlFor="e-price" className="sm:text-right">
-                Precio (ARS)
+                Precio ({tenantCurrency})
               </Label>
               <Input
                 id="e-price"
