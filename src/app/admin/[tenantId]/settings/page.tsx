@@ -77,7 +77,12 @@ export default function TenantSettingsPage({
 
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState<number>(0);
+  const [logoProgress, setLogoProgress] = useState<number>(0);
+  const [carouselProgress, setCarouselProgress] = useState<{
+    current: number;
+    total: number;
+    percent: number;
+  } | null>(null);
 
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -279,7 +284,11 @@ export default function TenantSettingsPage({
     });
   }
 
-  async function uploadFile(file: File, path: string): Promise<string> {
+  async function uploadFile(
+    file: File,
+    path: string,
+    onProgress?: (percent: number) => void
+  ): Promise<string> {
     const storageReference = ref(storage, path);
     const task: UploadTask = uploadBytesResumable(storageReference, file);
 
@@ -288,7 +297,7 @@ export default function TenantSettingsPage({
         "state_changed",
         (snap) => {
           if (snap.totalBytes > 0) {
-            setProgress(
+            onProgress?.(
               Math.round((snap.bytesTransferred / snap.totalBytes) * 100)
             );
           }
@@ -312,7 +321,8 @@ export default function TenantSettingsPage({
     if (isSaving) return;
 
     setIsSaving(true);
-    setProgress(0);
+    setLogoProgress(0);
+    setCarouselProgress(null);
 
     try {
       let finalLogoUrl = logoUrlInput.trim() || DEFAULT_TENANT_LOGO;
@@ -321,11 +331,16 @@ export default function TenantSettingsPage({
         const ext = logoFile.name.split(".").pop() || "png";
         finalLogoUrl = await uploadFile(
           logoFile,
-          `tenants/${tenantId}/logos/logo-${Date.now()}.${ext}`
+          `tenants/${tenantId}/logos/logo-${Date.now()}.${ext}`,
+          setLogoProgress
         );
       }
 
       const finalCarouselImages: string[] = [];
+      const pendingCarouselTotal = carouselItems.filter(
+        (item) => item.kind === "draft"
+      ).length;
+      let pendingCarouselCurrent = 0;
 
       for (let i = 0; i < carouselItems.length; i++) {
         const item = carouselItems[i];
@@ -335,10 +350,17 @@ export default function TenantSettingsPage({
           continue;
         }
 
+        pendingCarouselCurrent += 1;
         const ext = item.file.name.split(".").pop() || "jpg";
         const url = await uploadFile(
           item.file,
-          `tenants/${tenantId}/carousel/carousel-${Date.now()}-${i}.${ext}`
+          `tenants/${tenantId}/carousel/carousel-${Date.now()}-${i}.${ext}`,
+          (percent) =>
+            setCarouselProgress({
+              current: pendingCarouselCurrent,
+              total: pendingCarouselTotal,
+              percent,
+            })
         );
 
         finalCarouselImages.push(url);
@@ -378,7 +400,8 @@ export default function TenantSettingsPage({
           url,
         }))
       );
-      setProgress(0);
+      setLogoProgress(0);
+      setCarouselProgress(null);
       setDraggedId(null);
       setDragOverId(null);
 
@@ -584,9 +607,9 @@ export default function TenantSettingsPage({
                 </Button>
               </div>
 
-              {progress > 0 && isSaving && (
+              {logoProgress > 0 && isSaving && (
                 <p className="text-xs text-muted-foreground">
-                  Subiendo: {progress}%
+                  Subiendo logo: {logoProgress}%
                 </p>
               )}
             </div>
@@ -660,6 +683,24 @@ export default function TenantSettingsPage({
               <p className="text-xs text-muted-foreground">
                 {totalCarouselCount}/{MAX_CAROUSEL_IMAGES} imágenes en el carrusel
               </p>
+
+              {carouselProgress && isSaving && (
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground">
+                    Subiendo imagen {carouselProgress.current} de{" "}
+                    {carouselProgress.total}: {carouselProgress.percent}%
+                  </p>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full transition-[width] duration-200"
+                      style={{
+                        width: `${carouselProgress.percent}%`,
+                        backgroundColor: `hsl(${ui.adminAccent})`,
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             {previewItems.length > 0 ? (
