@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useTheme } from "next-themes";
@@ -128,6 +128,15 @@ export default function MenuClient({ tenantId }: Props) {
     Math.abs(hslLightness(ui.subCategoryTitle) - hslLightness(ui.background)) < 28
       ? ui.foreground
       : ui.subCategoryTitle;
+  const searchBackground = ui.navBg;
+  const readableSearchText =
+    Math.abs(hslLightness(ui.searchText) - hslLightness(searchBackground)) < 28
+      ? ui.navText
+      : ui.searchText;
+  const readableSearchIcon =
+    Math.abs(hslLightness(ui.searchIcon) - hslLightness(searchBackground)) < 28
+      ? ui.navText
+      : ui.searchIcon;
 
   const getItemImage = (item: MenuItem) => {
     if (item.showImage === false) return "";
@@ -699,21 +708,26 @@ export default function MenuClient({ tenantId }: Props) {
                 )}
               </div>
             </div>
-            <Search
-              className="absolute left-3 top-2.5 h-4 w-4"
-              style={{ color: `hsl(${ui.searchIcon})` }}
-            />
+            <div className="relative w-full">
+              <Search
+                className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                style={{ color: `hsl(${readableSearchIcon})` }}
+              />
 
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={copy.search}
-              style={{
-                color: `hsl(${ui.searchText})`,
-                caretColor: `hsl(${ui.searchText})`,
-              }}
-              className="pl-10 border border-[#fff7e3]/40 placeholder:!opacity-100 focus-visible:ring-1 focus-visible:ring-[#fff7e3]"
-            />
+              <Input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={copy.search}
+                style={{
+                  color: `hsl(${readableSearchText})`,
+                  caretColor: `hsl(${readableSearchText})`,
+                  backgroundColor: `hsl(${searchBackground})`,
+                  borderColor: `hsl(${ui.navText} / 0.35)`,
+                  "--search-placeholder": readableSearchText,
+                } as CSSProperties}
+                className="pl-10 placeholder:!text-[hsl(var(--search-placeholder))] placeholder:!opacity-70 focus-visible:ring-1 focus-visible:ring-[hsl(var(--search-placeholder))]"
+              />
+            </div>
           </div>
 
           <div className="space-y-10">
