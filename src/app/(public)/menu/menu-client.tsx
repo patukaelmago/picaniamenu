@@ -505,7 +505,7 @@ export default function MenuClient({ tenantId }: Props) {
     let currentWeight = 0;
     // Deja margen real para el borde inferior de la hoja. Los títulos,
     // descripciones e imágenes ocupan más alto que una fila simple.
-    const pageCapacity = 19;
+    const pageCapacity = 18;
 
     const finishPage = () => {
       if (currentPage.length > 0) pages.push(currentPage);
