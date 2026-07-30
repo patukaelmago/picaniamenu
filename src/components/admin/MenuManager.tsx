@@ -16,6 +16,7 @@ import {
 } from "firebase/firestore";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
+import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
 import { db, storage } from "@/lib/firebase";
@@ -68,10 +69,10 @@ import { useToast } from "@/hooks/use-toast";
 
 type Props = { tenantId: string };
 
-const formatCurrency = (price: number) =>
+const formatCurrency = (price: number, currency: "ARS" | "USD") =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
@@ -111,6 +112,9 @@ function norm(s: string) {
 
 export default function MenuManager({ tenantId }: Props) {
   const ui = useTenantUI(tenantId);
+  const settings = useRestaurantSettings();
+  const tenantCurrency: "ARS" | "USD" =
+    settings?.currency === "USD" ? "USD" : "ARS";
   const { toast } = useToast();
 
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -409,6 +413,7 @@ export default function MenuManager({ tenantId }: Props) {
         : createForm.imageUrl;
       await addDoc(itemsCol, {
         ...createForm,
+        currency: tenantCurrency,
         imageUrl,
         imageId: "",
         order: Number(createForm.order ?? 0),
@@ -467,6 +472,7 @@ export default function MenuManager({ tenantId }: Props) {
         : editForm.imageUrl;
       await updateDoc(doc(itemsCol, editId), {
         ...editForm,
+        currency: tenantCurrency,
         imageUrl,
         imageId: "",
         order: Number(editForm.order ?? 0),
@@ -1035,13 +1041,16 @@ export default function MenuManager({ tenantId }: Props) {
                   <MenuCsvImporter
                     tenantId={tenantId}
                     categories={categories}
+                    currency={tenantCurrency}
                     onImported={reloadAll}
                   />
 
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
                     <SheetTrigger asChild>
                       <Button
-                        onClick={() => setCreateForm(emptyItem)}
+                        onClick={() =>
+                          setCreateForm({ ...emptyItem, currency: tenantCurrency })
+                        }
                         className="w-full border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
                         style={{
                           "--tenant-button-bg": ui.adminCardForeground,
@@ -1137,7 +1146,7 @@ export default function MenuManager({ tenantId }: Props) {
 
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                           <Label htmlFor="c-price" className="sm:text-right">
-                            Precio (ARS)
+                            Precio ({tenantCurrency})
                           </Label>
                           <Input
                             id="c-price"
@@ -1342,7 +1351,9 @@ export default function MenuManager({ tenantId }: Props) {
                                 )}
                               </TableCell>
 
-                              <TableCell>{formatCurrency(item.price)}</TableCell>
+                              <TableCell>
+                                {formatCurrency(item.price, tenantCurrency)}
+                              </TableCell>
 
                               <TableCell>
                                 <Switch
@@ -1475,7 +1486,7 @@ export default function MenuManager({ tenantId }: Props) {
 
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                   <Label htmlFor="e-price" className="sm:text-right">
-                    Precio (ARS)
+                    Precio ({tenantCurrency})
                   </Label>
                   <Input
                     id="e-price"
