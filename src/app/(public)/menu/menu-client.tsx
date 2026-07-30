@@ -164,6 +164,22 @@ export default function MenuClient({ tenantId }: Props) {
     );
   };
 
+  const sinTaccBadge = (item: MenuItem) =>
+    (item.tags ?? []).includes("sin TACC") ? (
+      <Badge
+        variant="outline"
+        className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 text-[11px]"
+        style={{
+          color: `hsl(${ui.foreground})`,
+          borderColor: `hsl(${ui.foreground} / 0.45)`,
+          backgroundColor: `hsl(${ui.foreground} / 0.08)`,
+        }}
+      >
+        <WheatOff className="h-3 w-3" />
+        Sin TACC
+      </Badge>
+    ) : null;
+
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
     postre: "",
@@ -796,6 +812,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   {copy.special}
                                 </Badge>
                               )}
+                              {sinTaccBadge(item)}
 
                               <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
                             </div>
@@ -817,7 +834,9 @@ export default function MenuClient({ tenantId }: Props) {
 
                         {(item.tags ?? []).length > 0 && (
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {(item.tags ?? []).map((tag) => (
+                            {(item.tags ?? [])
+                              .filter((tag) => tag !== "sin TACC")
+                              .map((tag) => (
                               <Badge
                                 key={tag}
                                 variant="outline"
@@ -826,7 +845,7 @@ export default function MenuClient({ tenantId }: Props) {
                                 <TagIcon tag={tag} />
                                 <span>{tag}</span>
                               </Badge>
-                            ))}
+                              ))}
                           </div>
                         )}
                       </div>
@@ -900,6 +919,7 @@ export default function MenuClient({ tenantId }: Props) {
                                         {copy.special}
                                       </Badge>
                                     )}
+                                    {sinTaccBadge(item)}
 
                                     {": "}
 
@@ -943,6 +963,7 @@ export default function MenuClient({ tenantId }: Props) {
                                         {copy.special}
                                       </Badge>
                                     )}
+                                    {sinTaccBadge(item)}
 
                                     <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />
                                   </div>
