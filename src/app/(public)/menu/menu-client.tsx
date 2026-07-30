@@ -107,6 +107,8 @@ export default function MenuClient({ tenantId }: Props) {
           title: "OUR MENU",
           search: "Search by dish or ingredient...",
           special: "Chef's choice",
+          glutenFree: "Gluten-free",
+          legend: "References",
           empty: "No dishes match your search.",
           previous: "Previous category",
           next: "Next category",
@@ -115,6 +117,8 @@ export default function MenuClient({ tenantId }: Props) {
           title: "NUESTRA CARTA",
           search: "Buscar por plato, ingrediente...",
           special: "Sugerencia",
+          glutenFree: "Sin TACC",
+          legend: "Referencias",
           empty: "No encontramos platos que coincidan con la búsqueda.",
           previous: "Categoría anterior",
           next: "Categoría siguiente",
@@ -186,19 +190,37 @@ export default function MenuClient({ tenantId }: Props) {
     );
   };
 
+  const specialBadge = (item: MenuItem) =>
+    item.isSpecial ? (
+      <Badge
+        variant="outline"
+        className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full p-0"
+        style={{
+          color: `hsl(${specialBadgeText})`,
+          borderColor: `hsl(${ui.specialBadgeBorder})`,
+          backgroundColor: `hsl(${ui.specialBadgeBg})`,
+        }}
+        title={copy.special}
+        aria-label={copy.special}
+      >
+        <SparklesIcon className="h-3 w-3" />
+      </Badge>
+    ) : null;
+
   const sinTaccBadge = (item: MenuItem) =>
     (item.tags ?? []).includes("sin TACC") ? (
       <Badge
         variant="outline"
-        className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 text-[11px]"
+        className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full p-0"
         style={{
           color: "#ffffff",
           borderColor: "#166534",
           backgroundColor: "#15803d",
         }}
+        title={copy.glutenFree}
+        aria-label={copy.glutenFree}
       >
         <WheatOff className="h-3 w-3" />
-        Sin TACC
       </Badge>
     ) : null;
 
@@ -749,6 +771,32 @@ export default function MenuClient({ tenantId }: Props) {
                 className="pl-10 placeholder:!text-[hsl(var(--search-placeholder))] placeholder:!opacity-70 focus-visible:ring-1 focus-visible:ring-[hsl(var(--search-placeholder))]"
               />
             </div>
+            <div
+              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs"
+              style={{ color: `hsl(${ui.descriptionText})` }}
+              aria-label={copy.legend}
+            >
+              <span className="sr-only">{copy.legend}:</span>
+              <span className="inline-flex items-center gap-1.5">
+                <span
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border"
+                  style={{
+                    color: `hsl(${specialBadgeText})`,
+                    borderColor: `hsl(${ui.specialBadgeBorder})`,
+                    backgroundColor: `hsl(${ui.specialBadgeBg})`,
+                  }}
+                >
+                  <SparklesIcon className="h-2.5 w-2.5" />
+                </span>
+                {copy.special}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-green-800 bg-green-700 text-white">
+                  <WheatOff className="h-2.5 w-2.5" />
+                </span>
+                {copy.glutenFree}
+              </span>
+            </div>
           </div>
 
           <div className="space-y-10">
@@ -833,20 +881,7 @@ export default function MenuClient({ tenantId }: Props) {
                                 {itemName(item)}
                               </span>
 
-                              {item.isSpecial && (
-                                <Badge
-                                  variant="outline"
-                                  className="ml-2 flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                  style={{
-                                    color: `hsl(${specialBadgeText})`,
-                                    borderColor: `hsl(${ui.specialBadgeBorder})`,
-                                    backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                                  }}
-                                >
-                                  <SparklesIcon className="h-3 w-3" />
-                                  {copy.special}
-                                </Badge>
-                              )}
+                              {specialBadge(item)}
                               {sinTaccBadge(item)}
 
                               <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
@@ -940,20 +975,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       {itemName(item)}
                                     </span>
 
-                                    {item.isSpecial && (
-                                      <Badge
-                                        variant="outline"
-                                        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                        style={{
-                                          color: `hsl(${specialBadgeText})`,
-                                          borderColor: `hsl(${ui.specialBadgeBorder})`,
-                                          backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                                        }}
-                                      >
-                                        <SparklesIcon className="h-3 w-3" />
-                                        {copy.special}
-                                      </Badge>
-                                    )}
+                                    {specialBadge(item)}
                                     {sinTaccBadge(item)}
 
                                     {": "}
@@ -984,20 +1006,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       {itemName(item)}
                                     </span>
 
-                                    {item.isSpecial && (
-                                      <Badge
-                                        variant="outline"
-                                        className="ml-2 inline-flex items-center gap-1 text-[11px] px-2 py-0.5"
-                                        style={{
-                                          color: `hsl(${specialBadgeText})`,
-                                          borderColor: `hsl(${ui.specialBadgeBorder})`,
-                                          backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                                        }}
-                                      >
-                                        <SparklesIcon className="h-3 w-3" />
-                                        {copy.special}
-                                      </Badge>
-                                    )}
+                                    {specialBadge(item)}
                                     {sinTaccBadge(item)}
 
                                     <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />

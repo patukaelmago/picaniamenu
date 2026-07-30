@@ -182,6 +182,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState("");
   const [translating, setTranslating] = useState<"create" | "edit" | "category" | "newCategory" | null>(null);
+  const [bulkTranslation, setBulkTranslation] = useState({ active: false, done: 0, total: 0 });
   const createImageInputRef = useRef<HTMLInputElement | null>(null);
   const editImageInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -739,6 +740,81 @@ export default function MenuManager({ tenantId }: Props) {
     }
   }
 
+  async function translateExistingMenu() {
+    const pendingCategories = categories.filter(
+      (category) =>
+        !category.nameEn?.trim() ||
+        (Boolean(category.description?.trim()) && !category.descriptionEn?.trim())
+    );
+    const pendingItems = items.filter(
+      (item) =>
+        !item.nameEn?.trim() ||
+        (Boolean(item.description?.trim()) && !item.descriptionEn?.trim())
+    );
+    const total = pendingCategories.length + pendingItems.length;
+
+    if (total === 0) {
+      toast({
+        title: "La carta ya está traducida",
+        description: "No hay nombres ni descripciones pendientes.",
+      });
+      return;
+    }
+
+    setBulkTranslation({ active: true, done: 0, total });
+    let done = 0;
+
+    try {
+      for (const category of pendingCategories) {
+        const result = await translateMenuContent({
+          name: category.name,
+          description: category.description ?? "",
+        });
+        await updateDoc(doc(catsCol, category.id), {
+          ...(!category.nameEn?.trim() ? { nameEn: result.nameEn } : {}),
+          ...(category.description?.trim() && !category.descriptionEn?.trim()
+            ? { descriptionEn: result.descriptionEn }
+            : {}),
+          updatedAt: serverTimestamp(),
+        });
+        done += 1;
+        setBulkTranslation({ active: true, done, total });
+      }
+
+      for (const item of pendingItems) {
+        const result = await translateMenuContent({
+          name: item.name,
+          description: item.description ?? "",
+        });
+        await updateDoc(doc(itemsCol, item.id), {
+          ...(!item.nameEn?.trim() ? { nameEn: result.nameEn } : {}),
+          ...(item.description?.trim() && !item.descriptionEn?.trim()
+            ? { descriptionEn: result.descriptionEn }
+            : {}),
+          updatedAt: serverTimestamp(),
+        });
+        done += 1;
+        setBulkTranslation({ active: true, done, total });
+      }
+
+      await Promise.all([loadCategories(), loadItems()]);
+      toast({
+        title: "Carta traducida",
+        description: `Se actualizaron ${total} registros. Podés editar cada traducción cuando quieras.`,
+      });
+    } catch (error) {
+      console.error(error);
+      await Promise.all([loadCategories(), loadItems()]);
+      toast({
+        variant: "destructive",
+        title: "Traducción incompleta",
+        description: `Se guardaron ${done} de ${total} registros. Podés volver a intentarlo para completar el resto.`,
+      });
+    } finally {
+      setBulkTranslation({ active: false, done: 0, total: 0 });
+    }
+  }
+
   async function onToggleVisible(cat: Category, value: boolean) {
     setCategories((prev) =>
       prev.map((c) => (c.id === cat.id ? { ...c, isVisible: value } : c))
@@ -1157,6 +1233,29 @@ export default function MenuManager({ tenantId }: Props) {
                       Guardando orden de items…
                     </span>
                   )}
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={translateExistingMenu}
+                    disabled={bulkTranslation.active}
+                    className="border-[hsl(var(--tenant-button-border))] bg-transparent text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+                    style={{
+                      "--tenant-button-text": ui.adminForeground,
+                      "--tenant-button-border": ui.adminForeground,
+                      "--tenant-button-hover-bg": ui.adminAccent,
+                      "--tenant-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
+                  >
+                    {bulkTranslation.active ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <Languages className="mr-2 h-4 w-4" />
+                    )}
+                    {bulkTranslation.active
+                      ? `Traduciendo ${bulkTranslation.done}/${bulkTranslation.total}`
+                      : "Traducir carta con IA"}
+                  </Button>
 
                   <MenuCsvImporter
                     tenantId={tenantId}
