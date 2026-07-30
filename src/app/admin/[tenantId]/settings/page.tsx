@@ -46,6 +46,7 @@ type CarouselItem =
 type RestaurantSettingsExtra = {
   name?: string;
   currency?: string;
+  language?: "es" | "en";
   logoUrl?: string;
   websiteUrl?: string;
   showLogo?: boolean;
@@ -62,6 +63,7 @@ export default function TenantSettingsPage({
 
   const [name, setName] = useState("");
   const [currency, setCurrency] = useState("ARS");
+  const [language, setLanguage] = useState<"es" | "en">("es");
 
   const [showLogo, setShowLogo] = useState(true);
   const [showName, setShowName] = useState(true);
@@ -96,6 +98,7 @@ export default function TenantSettingsPage({
 
         setName(settings.name || tenantId);
         setCurrency(settings.currency || "ARS");
+        setLanguage(settings.language === "en" ? "en" : "es");
         setShowLogo(settings.showLogo ?? true);
         setShowName(settings.showName ?? true);
 
@@ -345,6 +348,7 @@ export default function TenantSettingsPage({
       await saveRestaurantSettings(tenantId, {
         name: name.trim() || tenantId,
         currency: currency.trim() || "ARS",
+        language,
         logoUrl: finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl,
         websiteUrl: websiteUrl.trim(),
         showLogo,
@@ -457,6 +461,22 @@ export default function TenantSettingsPage({
               </select>
               <p className="text-xs text-muted-foreground">
                 Se aplicará a los precios del admin y de la carta pública.
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="language">Idioma principal</Label>
+              <select
+                id="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value === "en" ? "en" : "es")}
+                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="es">Español</option>
+                <option value="en">English</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Será el idioma inicial de la carta pública.
               </p>
             </div>
 
