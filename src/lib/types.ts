@@ -13,7 +13,9 @@ export type FirestoreDate = Date | Timestamp;
 export interface MenuItem {
   id: string;
   name: string;
+  nameEn?: string;
   description: string;
+  descriptionEn?: string;
   price: number;
   currency: string;
   imageUrl: string;
@@ -40,7 +42,9 @@ export type MenuItemInput = Omit<MenuItem, "id" | "createdAt" | "updatedAt">;
 export interface Category {
   id: string;
   name: string;
+  nameEn?: string;
   description?: string;
+  descriptionEn?: string;
   order: number;
   isVisible: boolean;
   createdAt: FirestoreDate;

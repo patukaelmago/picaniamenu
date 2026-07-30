@@ -138,6 +138,19 @@ export default function MenuClient({ tenantId }: Props) {
       ? ui.navText
       : ui.searchIcon;
 
+  const categoryName = (category: Category) =>
+    language === "en" && category.nameEn?.trim() ? category.nameEn : category.name;
+  const categoryDescription = (category: Category) =>
+    language === "en" && category.descriptionEn?.trim()
+      ? category.descriptionEn
+      : category.description ?? "";
+  const itemName = (item: MenuItem) =>
+    language === "en" && item.nameEn?.trim() ? item.nameEn : item.name;
+  const itemDescription = (item: MenuItem) =>
+    language === "en" && item.descriptionEn?.trim()
+      ? item.descriptionEn
+      : item.description ?? "";
+
   const getItemImage = (item: MenuItem) => {
     if (item.showImage === false) return "";
     const placeholder = PlaceHolderImages.find((p) => p.id === item.imageId);
@@ -154,18 +167,18 @@ export default function MenuClient({ tenantId }: Props) {
         onClick={() =>
           setOpenItemImage({
             src,
-            name: item.name,
-            description: item.description || "",
+            name: itemName(item),
+            description: itemDescription(item),
             price: item.price,
           })
         }
         className="group/item-image float-left mr-3 mb-2 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:h-16 md:w-16"
         style={{ borderColor: `hsl(${ui.foreground} / 0.3)` }}
-        aria-label={`Ver imagen de ${item.name}`}
+        aria-label={`Ver imagen de ${itemName(item)}`}
       >
         <img
           src={src}
-          alt={item.name}
+          alt={itemName(item)}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover/item-image:scale-110"
         />
@@ -179,9 +192,9 @@ export default function MenuClient({ tenantId }: Props) {
         variant="outline"
         className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 text-[11px]"
         style={{
-          color: `hsl(${ui.foreground})`,
-          borderColor: `hsl(${ui.foreground} / 0.45)`,
-          backgroundColor: `hsl(${ui.foreground} / 0.08)`,
+          color: "#ffffff",
+          borderColor: "#166534",
+          backgroundColor: "#15803d",
         }}
       >
         <WheatOff className="h-3 w-3" />
@@ -325,14 +338,22 @@ export default function MenuClient({ tenantId }: Props) {
         : undefined;
 
       const catName = category?.name.toLowerCase() ?? "";
+      const catNameEn = category?.nameEn?.toLowerCase() ?? "";
       const parentCatName = parentCategory?.name.toLowerCase() ?? "";
+      const parentCatNameEn = parentCategory?.nameEn?.toLowerCase() ?? "";
 
       const matchesText =
         item.name.toLowerCase().includes(term) ||
+        (item.nameEn?.toLowerCase() ?? "").includes(term) ||
         desc.includes(term) ||
+        (item.descriptionEn?.toLowerCase() ?? "").includes(term) ||
         (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
-      const matchesCategory = catName.includes(term) || parentCatName.includes(term);
+      const matchesCategory =
+        catName.includes(term) ||
+        catNameEn.includes(term) ||
+        parentCatName.includes(term) ||
+        parentCatNameEn.includes(term);
 
       return matchesText || matchesCategory;
     });
@@ -441,7 +462,7 @@ export default function MenuClient({ tenantId }: Props) {
       })
       .map((cat) => ({
         id: `cat-${cat.id}`,
-        name: cat.name,
+        name: categoryName(cat),
       })),
   ];
 
@@ -785,15 +806,15 @@ export default function MenuClient({ tenantId }: Props) {
                         "
                           style={{ color: `hsl(${ui.categoryTitle})` }}
                         >
-                          {category.name}
+                          {categoryName(category)}
                         </h2>
 
-                        {category.description && (
+                        {categoryDescription(category) && (
                           <p
                             className="mt-3 text-center text-sm"
                             style={{ color: `hsl(${ui.descriptionText})` }}
                           >
-                            {category.description}
+                            {categoryDescription(category)}
                           </p>
                         )}
                       </div>
@@ -809,7 +830,7 @@ export default function MenuClient({ tenantId }: Props) {
                           <div className="min-w-0">
                             <div className="flex items-baseline gap-2">
                               <span className="font-headline text-[13px] md:text-base tracking-wide">
-                                {item.name}
+                                {itemName(item)}
                               </span>
 
                               {item.isSpecial && (
@@ -831,12 +852,12 @@ export default function MenuClient({ tenantId }: Props) {
                               <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
                             </div>
 
-                            {item.description && (
+                            {itemDescription(item) && (
                               <p
                                 className="mt-1 text-xs md:text-sm leading-snug"
                                 style={{ color: `hsl(${ui.descriptionText})` }}
                               >
-                                {item.description}
+                                {itemDescription(item)}
                               </p>
                             )}
                           </div>
@@ -887,13 +908,13 @@ export default function MenuClient({ tenantId }: Props) {
                             className="font-headline uppercase text-[15px] md:text-[18px] font-semibold tracking-[0.16em] pt-4 pb-2"
                             style={{ color: `hsl(${readableSubCategoryTitle})` }}
                           >
-                            {sub.name}
-                            {sub.description && (
+                            {categoryName(sub)}
+                            {categoryDescription(sub) && (
                               <p
                                 className="font-normal normal-case text-xs md:text-sm tracking-[0.16em] pb-2 pt-1"
                                 style={{ color: `hsl(${ui.descriptionText})` }}
                               >
-                                {sub.description}
+                                {categoryDescription(sub)}
                               </p>
                             )}
 
@@ -905,7 +926,7 @@ export default function MenuClient({ tenantId }: Props) {
                             const shownDesc =
                               isFridayMenu && isIncluye
                                 ? fridayDescOverride(item.name, item.description, fridayData)
-                                : item.description ?? "";
+                                : itemDescription(item);
 
                             if (isFridayMenu && isIncluye) {
                               return (
@@ -916,7 +937,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       className="font-headline text-[13px] md:text-[15px] tracking-wide"
                                       style={{ color: "#FFF7E3" }}
                                     >
-                                      {item.name}
+                                      {itemName(item)}
                                     </span>
 
                                     {item.isSpecial && (
@@ -960,7 +981,7 @@ export default function MenuClient({ tenantId }: Props) {
                                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2">
                                   <div className="flex min-w-0 items-baseline gap-2">
                                     <span className="font-headline text-[13px] md:text-base tracking-wide">
-                                      {item.name}
+                                      {itemName(item)}
                                     </span>
 
                                     {item.isSpecial && (

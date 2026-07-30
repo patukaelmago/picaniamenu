@@ -51,6 +51,8 @@ import {
   ChevronDown,
   ImagePlus,
   X,
+  Languages,
+  Loader2,
 } from "lucide-react";
 import {
   Sheet,
@@ -66,6 +68,7 @@ import {
 import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
+import { translateMenuContent } from "@/ai/flows/translate-menu-content";
 
 type Props = { tenantId: string };
 
@@ -79,7 +82,9 @@ const formatCurrency = (price: number, currency: "ARS" | "USD") =>
 
 const emptyItem: MenuItemInput = {
   name: "",
+  nameEn: "",
   description: "",
+  descriptionEn: "",
   price: 0,
   currency: "ARS",
   imageUrl: "",
@@ -134,6 +139,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [tenantName, setTenantName] = useState("");
 
   const [formCatName, setFormCatName] = useState("");
+  const [formCatNameEn, setFormCatNameEn] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
 
   const [openParents, setOpenParents] = useState<Record<string, boolean>>({});
@@ -149,13 +155,17 @@ export default function MenuManager({ tenantId }: Props) {
   const [catModalOpen, setCatModalOpen] = useState(false);
   const [catForm, setCatForm] = useState<{
     name: string;
+    nameEn: string;
     description: string;
+    descriptionEn: string;
     order: number;
     isVisible: boolean;
     parentCategoryId: string | null;
   }>({
     name: "",
+    nameEn: "",
     description: "",
+    descriptionEn: "",
     order: 0,
     isVisible: true,
     parentCategoryId: null,
@@ -171,6 +181,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState("");
+  const [translating, setTranslating] = useState<"create" | "edit" | "category" | "newCategory" | null>(null);
   const createImageInputRef = useRef<HTMLInputElement | null>(null);
   const editImageInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -219,7 +230,9 @@ export default function MenuManager({ tenantId }: Props) {
       return {
         id: d.id,
         name: raw.name ?? "",
+        nameEn: raw.nameEn ?? "",
         description: raw.description ?? raw.desc ?? "",
+        descriptionEn: raw.descriptionEn ?? "",
         order: typeof raw.order === "number" ? raw.order : Number(raw.order) || 0,
         isVisible,
         parentCategoryId: raw.parentCategoryId ?? null,
@@ -249,7 +262,9 @@ export default function MenuManager({ tenantId }: Props) {
         ({
           id: x.id,
           name: x.name ?? "",
+          nameEn: x.nameEn ?? "",
           description: x.description ?? "",
+          descriptionEn: x.descriptionEn ?? "",
           price: Number(x.price ?? 0),
           currency: x.currency ?? "ARS",
           imageUrl: x.imageUrl ?? "",
@@ -453,7 +468,9 @@ export default function MenuManager({ tenantId }: Props) {
     setEditId(item.id);
     setEditForm({
       name: item.name,
+      nameEn: item.nameEn ?? "",
       description: item.description,
+      descriptionEn: item.descriptionEn ?? "",
       price: item.price,
       currency: item.currency,
       imageUrl: item.imageUrl,
@@ -594,7 +611,9 @@ export default function MenuManager({ tenantId }: Props) {
 
       await addDoc(catsCol, {
         name,
+        nameEn: formCatNameEn.trim(),
         description: "",
+        descriptionEn: "",
         order: nextOrder,
         isVisible: true,
         parentCategoryId: formCatParentId || null,
@@ -603,6 +622,7 @@ export default function MenuManager({ tenantId }: Props) {
       });
 
       setFormCatName("");
+      setFormCatNameEn("");
       setFormCatParentId("");
       await loadCategories();
       toast({ title: "Categoría creada" });
@@ -620,7 +640,9 @@ export default function MenuManager({ tenantId }: Props) {
     setCatEditingId(cat.id);
     setCatForm({
       name: cat.name,
+      nameEn: cat.nameEn ?? "",
       description: cat.description ?? "",
+      descriptionEn: cat.descriptionEn ?? "",
       order: cat.order ?? 0,
       isVisible: !!cat.isVisible,
       parentCategoryId: cat.parentCategoryId ?? null,
@@ -635,7 +657,9 @@ export default function MenuManager({ tenantId }: Props) {
     try {
       await updateDoc(doc(catsCol, catEditingId), {
         name: catForm.name.trim(),
+        nameEn: catForm.nameEn.trim(),
         description: catForm.description?.trim() ?? "",
+        descriptionEn: catForm.descriptionEn?.trim() ?? "",
         order: Number(catForm.order) || 0,
         isVisible: catForm.isVisible,
         parentCategoryId: catForm.parentCategoryId ?? null,
@@ -653,6 +677,65 @@ export default function MenuManager({ tenantId }: Props) {
         title: "Error",
         description: "No se pudo actualizar la categoría.",
       });
+    }
+  }
+
+  async function translateItemForm(target: "create" | "edit") {
+    const form = target === "create" ? createForm : editForm;
+    if (!form.name.trim()) return;
+    try {
+      setTranslating(target);
+      const result = await translateMenuContent({
+        name: form.name,
+        description: form.description,
+      });
+      const setter = target === "create" ? setCreateForm : setEditForm;
+      setter((prev) => ({
+        ...prev,
+        nameEn: result.nameEn,
+        descriptionEn: result.descriptionEn,
+      }));
+      toast({ title: "Traducción generada", description: "Podés revisarla y editarla antes de guardar." });
+    } catch (error) {
+      console.error(error);
+      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
+    } finally {
+      setTranslating(null);
+    }
+  }
+
+  async function translateCategoryForm() {
+    if (!catForm.name.trim()) return;
+    try {
+      setTranslating("category");
+      const result = await translateMenuContent({
+        name: catForm.name,
+        description: catForm.description,
+      });
+      setCatForm((prev) => ({
+        ...prev,
+        nameEn: result.nameEn,
+        descriptionEn: result.descriptionEn,
+      }));
+    } catch (error) {
+      console.error(error);
+      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
+    } finally {
+      setTranslating(null);
+    }
+  }
+
+  async function translateNewCategory() {
+    if (!formCatName.trim()) return;
+    try {
+      setTranslating("newCategory");
+      const result = await translateMenuContent({ name: formCatName, description: "" });
+      setFormCatNameEn(result.nameEn);
+    } catch (error) {
+      console.error(error);
+      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
+    } finally {
+      setTranslating(null);
     }
   }
 
@@ -1181,6 +1264,40 @@ export default function MenuManager({ tenantId }: Props) {
                           />
                         </div>
 
+                        <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
+                          <div className="mb-3 flex items-center justify-between gap-3">
+                            <Label>Traducción al inglés</Label>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={translating === "create" || !createForm.name.trim()}
+                              onClick={() => translateItemForm("create")}
+                            >
+                              {translating === "create" ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              ) : (
+                                <Languages className="mr-2 h-4 w-4" />
+                              )}
+                              Traducir con IA
+                            </Button>
+                          </div>
+                          <div className="space-y-3">
+                            <Input
+                              aria-label="Nombre en inglés"
+                              placeholder="Nombre en inglés"
+                              value={createForm.nameEn ?? ""}
+                              onChange={(e) => onChangeCreate("nameEn", e.target.value)}
+                            />
+                            <Textarea
+                              aria-label="Descripción en inglés"
+                              placeholder="Descripción en inglés"
+                              value={createForm.descriptionEn ?? ""}
+                              onChange={(e) => onChangeCreate("descriptionEn", e.target.value)}
+                            />
+                          </div>
+                        </div>
+
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                           <Label htmlFor="c-price" className="sm:text-right">
                             Precio ({tenantCurrency})
@@ -1544,6 +1661,40 @@ export default function MenuManager({ tenantId }: Props) {
                   />
                 </div>
 
+                <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <Label>Traducción al inglés</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={translating === "edit" || !editForm.name.trim()}
+                      onClick={() => translateItemForm("edit")}
+                    >
+                      {translating === "edit" ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Languages className="mr-2 h-4 w-4" />
+                      )}
+                      Traducir con IA
+                    </Button>
+                  </div>
+                  <div className="space-y-3">
+                    <Input
+                      aria-label="Nombre en inglés"
+                      placeholder="Nombre en inglés"
+                      value={editForm.nameEn ?? ""}
+                      onChange={(e) => onChangeEdit("nameEn", e.target.value)}
+                    />
+                    <Textarea
+                      aria-label="Descripción en inglés"
+                      placeholder="Descripción en inglés"
+                      value={editForm.descriptionEn ?? ""}
+                      onChange={(e) => onChangeEdit("descriptionEn", e.target.value)}
+                    />
+                  </div>
+                </div>
+
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                   <Label htmlFor="e-price" className="sm:text-right">
                     Precio ({tenantCurrency})
@@ -1716,6 +1867,32 @@ export default function MenuManager({ tenantId }: Props) {
                     value={formCatName}
                     onChange={(e) => setFormCatName(e.target.value)}
                   />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="new-cat-name-en">Nombre en inglés</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="new-cat-name-en"
+                      placeholder="Ej: Starters"
+                      value={formCatNameEn}
+                      onChange={(e) => setFormCatNameEn(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      title="Traducir con IA"
+                      disabled={translating === "newCategory" || !formCatName.trim()}
+                      onClick={translateNewCategory}
+                    >
+                      {translating === "newCategory" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Languages className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid gap-2">
@@ -1923,6 +2100,44 @@ export default function MenuManager({ tenantId }: Props) {
                           setCatForm((p) => ({ ...p, description: e.target.value }))
                         }
                       />
+                    </div>
+
+                    <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <Label>Traducción al inglés</Label>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={translating === "category" || !catForm.name.trim()}
+                          onClick={translateCategoryForm}
+                        >
+                          {translating === "category" ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : (
+                            <Languages className="mr-2 h-4 w-4" />
+                          )}
+                          Traducir con IA
+                        </Button>
+                      </div>
+                      <div className="space-y-3">
+                        <Input
+                          aria-label="Nombre de categoría en inglés"
+                          placeholder="Nombre en inglés"
+                          value={catForm.nameEn}
+                          onChange={(e) =>
+                            setCatForm((p) => ({ ...p, nameEn: e.target.value }))
+                          }
+                        />
+                        <Input
+                          aria-label="Descripción de categoría en inglés"
+                          placeholder="Descripción en inglés"
+                          value={catForm.descriptionEn}
+                          onChange={(e) =>
+                            setCatForm((p) => ({ ...p, descriptionEn: e.target.value }))
+                          }
+                        />
+                      </div>
                     </div>
 
                     <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
