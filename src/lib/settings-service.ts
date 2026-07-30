@@ -5,6 +5,7 @@ import { db } from "./firebase";
 export type RestaurantSettings = {
   name: string;
   currency: string;
+  language: "es" | "en";
   logoUrl: string;
   websiteUrl: string;
   showLogo: boolean;
@@ -24,6 +25,7 @@ export async function getRestaurantSettings(
     return {
       name: tenantId,
       currency: "ARS",
+      language: "es",
       logoUrl: "",
       websiteUrl: "",
       showLogo: true,
@@ -36,6 +38,7 @@ export async function getRestaurantSettings(
   return {
     name: data.name ?? tenantId,
     currency: data.currency ?? "ARS",
+    language: data.language === "en" ? "en" : "es",
     logoUrl: data.logoUrl ?? "",
     websiteUrl: data.websiteUrl ?? "",
     showLogo: data.showLogo ?? true,
@@ -52,6 +55,7 @@ export async function saveRestaurantSettings(
     {
       name: data.name,
       currency: data.currency,
+      language: data.language,
       logoUrl: data.logoUrl,
       websiteUrl: data.websiteUrl,
       showLogo: data.showLogo,
