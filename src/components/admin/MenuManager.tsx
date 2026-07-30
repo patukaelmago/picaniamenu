@@ -110,6 +110,17 @@ function norm(s: string) {
     .trim();
 }
 
+const hasSinTacc = (tags: MenuItemInput["tags"] | undefined) =>
+  (tags ?? []).includes("sin TACC");
+
+const withSinTacc = (
+  tags: MenuItemInput["tags"] | undefined,
+  enabled: boolean
+): MenuItemInput["tags"] => {
+  const next = (tags ?? []).filter((tag) => tag !== "sin TACC");
+  return enabled ? [...next, "sin TACC"] : next;
+};
+
 export default function MenuManager({ tenantId }: Props) {
   const ui = useTenantUI(tenantId);
   const settings = useRestaurantSettings();
@@ -541,6 +552,32 @@ export default function MenuManager({ tenantId }: Props) {
         variant: "destructive",
         title: "Error",
         description: "No se pudo actualizar el estado del item.",
+      });
+    }
+  }
+
+  async function handleToggleSinTacc(item: MenuItem, value: boolean) {
+    const tags = withSinTacc(item.tags, value);
+    setItems((prev) =>
+      prev.map((current) => (current.id === item.id ? { ...current, tags } : current))
+    );
+
+    try {
+      await updateDoc(doc(itemsCol, item.id), {
+        tags,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      console.error(e);
+      setItems((prev) =>
+        prev.map((current) =>
+          current.id === item.id ? { ...current, tags: item.tags } : current
+        )
+      );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo actualizar Sin TACC.",
       });
     }
   }
@@ -1180,6 +1217,21 @@ export default function MenuManager({ tenantId }: Props) {
                           </select>
                         </div>
 
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label className="sm:text-right">Sin TACC</Label>
+                          <div className="sm:col-span-3">
+                            <Switch
+                              checked={hasSinTacc(createForm.tags)}
+                              onCheckedChange={(checked) =>
+                                setCreateForm((prev) => ({
+                                  ...prev,
+                                  tags: withSinTacc(prev.tags, checked),
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-start sm:gap-4">
                           <Label className="pt-2 sm:text-right">Imagen</Label>
                           <div className="space-y-3 sm:col-span-3">
@@ -1276,7 +1328,7 @@ export default function MenuManager({ tenantId }: Props) {
                 <p>Cargando platos...</p>
               ) : (
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-                  <div className="min-w-[760px] overflow-hidden rounded-md">
+                  <div className="min-w-[840px] overflow-hidden rounded-md">
                     <Table>
                       <TableHeader
                         style={{
@@ -1291,6 +1343,7 @@ export default function MenuManager({ tenantId }: Props) {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1370,6 +1423,13 @@ export default function MenuManager({ tenantId }: Props) {
                                   onCheckedChange={(v) =>
                                     handleToggleItem(item.id, "isSpecial", v)
                                   }
+                                />
+                              </TableCell>
+
+                              <TableCell>
+                                <Switch
+                                  checked={hasSinTacc(item.tags)}
+                                  onCheckedChange={(v) => handleToggleSinTacc(item, v)}
                                 />
                               </TableCell>
 
@@ -1514,6 +1574,21 @@ export default function MenuManager({ tenantId }: Props) {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label className="sm:text-right">Sin TACC</Label>
+                  <div className="sm:col-span-3">
+                    <Switch
+                      checked={hasSinTacc(editForm.tags)}
+                      onCheckedChange={(checked) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          tags: withSinTacc(prev.tags, checked),
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-start sm:gap-4">
