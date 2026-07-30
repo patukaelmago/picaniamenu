@@ -68,7 +68,7 @@ export default function Home() {
               Panel
             </a>
 
-            <Link href="/menu/picana" className="relative py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#FF7A00] after:transition-transform hover:after:scale-x-100">
+            <Link href="/menu/maido" className="relative py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-[#FF7A00] after:transition-transform hover:after:scale-x-100">
               Demo
             </Link>
           </nav>
@@ -113,7 +113,7 @@ export default function Home() {
               </Link>
 
               <Link
-                href="/menu/picana"
+                href="/menu/maido"
                 className="rounded-xl border-2 border-[#FF7A00] px-6 py-4 font-semibold text-[#F5EEDC] transition hover:bg-[#FF7A00]/15"
               >
                 Ver demostración
