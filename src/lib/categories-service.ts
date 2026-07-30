@@ -28,9 +28,7 @@ function mapCategory(d: any): Category {
   return {
     id: d.id,
     name: data.name,
-    nameEn: data.nameEn ?? "",
     description: data.description ?? "",
-    descriptionEn: data.descriptionEn ?? "",
     order: typeof data.order === "number" ? data.order : Number(data.order) || 0,
     isVisible: data.isVisible ?? true,
     parentCategoryId: data.parentCategoryId ?? null,
@@ -54,15 +52,12 @@ export async function listCategories(tenantId: string): Promise<Category[]> {
 // =========================
 export async function createCategory(
   tenantId: string,
-  input: Pick<Category, "name" | "nameEn" | "description" | "descriptionEn" | "order" | "isVisible" | "parentCategoryId">
+  input: Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId">
 ): Promise<string> {
   const col = categoriesCollectionRef(tenantId);
   const now = serverTimestamp();
   const docRef = await addDoc(col, {
     name: input.name,
-    nameEn: input.nameEn ?? "",
-    description: input.description ?? "",
-    descriptionEn: input.descriptionEn ?? "",
     order: input.order ?? 0,
     isVisible: input.isVisible ?? true,
     parentCategoryId: input.parentCategoryId ?? null,
@@ -75,7 +70,7 @@ export async function createCategory(
 export async function updateCategory(
   tenantId: string,
   id: string,
-  input: Partial<Pick<Category, "name" | "nameEn" | "description" | "descriptionEn" | "order" | "isVisible" | "parentCategoryId">>
+  input: Partial<Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId">>
 ): Promise<void> {
   const ref = doc(db, "tenants", tenantId, "categories", id);
   await updateDoc(ref, {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X, Loader2 } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useTheme } from "next-themes";
 
@@ -13,7 +13,6 @@ import { listCategories, listenCategories } from "@/lib/categories-service";
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { db } from "@/lib/firebase";
-import { translateMenuBatch } from "@/ai/flows/translate-menu-content";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -22,10 +21,9 @@ import { Sparkles as SparklesIcon } from "lucide-react";
 
 const formatCurrency = (
   price: number,
-  currency: "ARS" | "USD",
-  language: "es" | "en"
+  currency: "ARS" | "USD"
 ) =>
-  new Intl.NumberFormat(language === "en" ? "en-US" : "es-AR", {
+  new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
@@ -99,44 +97,17 @@ export default function MenuClient({ tenantId }: Props) {
   const settings = useRestaurantSettings();
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
-  const [language, setLanguage] = useState<"es" | "en">("es");
-  const [isTranslatingMenu, setIsTranslatingMenu] = useState(false);
-  const [categoryTranslations, setCategoryTranslations] = useState<
-    Record<string, { nameEn: string; descriptionEn: string }>
-  >({});
-  const [itemTranslations, setItemTranslations] = useState<
-    Record<string, { nameEn: string; descriptionEn: string }>
-  >({});
-  const translationRequestRef = useRef(false);
   const uiReady = true;
 
-  const copy =
-    language === "en"
-      ? {
-          title: "OUR MENU",
-          search: "Search by dish or ingredient...",
-          special: "Chef's choice",
-          glutenFree: "Gluten-free",
-          legend: "References",
-          empty: "No dishes match your search.",
-          previous: "Previous category",
-          next: "Next category",
-        }
-      : {
-          title: "NUESTRA CARTA",
-          search: "Buscar por plato, ingrediente...",
-          special: "Sugerencia",
-          glutenFree: "Sin TACC",
-          legend: "Referencias",
-          empty: "No encontramos platos que coincidan con la búsqueda.",
-          previous: "Categoría anterior",
-          next: "Categoría siguiente",
-        };
-
-  const specialBadgeText =
-    ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
-      ? ui.foreground
-      : ui.specialBadgeText;
+  const copy = {
+    title: "NUESTRA CARTA",
+    search: "Buscar por plato, ingrediente...",
+    special: "Sugerencia",
+    glutenFree: "Sin TACC",
+    empty: "No encontramos platos que coincidan con la búsqueda.",
+    previous: "Categoría anterior",
+    next: "Categoría siguiente",
+  };
   const readableSubCategoryTitle =
     Math.abs(hslLightness(ui.subCategoryTitle) - hslLightness(ui.background)) < 28
       ? ui.foreground
@@ -150,31 +121,17 @@ export default function MenuClient({ tenantId }: Props) {
     Math.abs(hslLightness(ui.searchIcon) - hslLightness(searchBackground)) < 28
       ? ui.navText
       : ui.searchIcon;
-
-  const categoryName = (category: Category) =>
-    language === "en"
-      ? category.nameEn?.trim() ||
-        categoryTranslations[category.id]?.nameEn ||
-        category.name
-      : category.name;
-  const categoryDescription = (category: Category) =>
-    language === "en"
-      ? category.descriptionEn?.trim() ||
-        categoryTranslations[category.id]?.descriptionEn ||
-        category.description ||
-        ""
-      : category.description ?? "";
-  const itemName = (item: MenuItem) =>
-    language === "en"
-      ? item.nameEn?.trim() || itemTranslations[item.id]?.nameEn || item.name
-      : item.name;
-  const itemDescription = (item: MenuItem) =>
-    language === "en"
-      ? item.descriptionEn?.trim() ||
-        itemTranslations[item.id]?.descriptionEn ||
-        item.description ||
-        ""
-      : item.description ?? "";
+  const indicatorBackground =
+    hslLightness(ui.background) >= hslLightness(ui.foreground)
+      ? ui.background
+      : ui.foreground;
+  const indicatorForeground =
+    indicatorBackground === ui.background ? ui.foreground : ui.background;
+  const indicatorStyle = {
+    color: `hsl(${indicatorForeground})`,
+    borderColor: `hsl(${indicatorForeground} / 0.3)`,
+    backgroundColor: `hsl(${indicatorBackground})`,
+  };
 
   const getItemImage = (item: MenuItem) => {
     if (item.showImage === false) return "";
@@ -192,18 +149,18 @@ export default function MenuClient({ tenantId }: Props) {
         onClick={() =>
           setOpenItemImage({
             src,
-            name: itemName(item),
-            description: itemDescription(item),
+            name: item.name,
+            description: item.description || "",
             price: item.price,
           })
         }
         className="group/item-image float-left mr-3 mb-2 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:h-16 md:w-16"
         style={{ borderColor: `hsl(${ui.foreground} / 0.3)` }}
-        aria-label={`Ver imagen de ${itemName(item)}`}
+        aria-label={`Ver imagen de ${item.name}`}
       >
         <img
           src={src}
-          alt={itemName(item)}
+          alt={item.name}
           loading="lazy"
           className="h-full w-full object-cover transition-transform duration-300 group-hover/item-image:scale-110"
         />
@@ -215,16 +172,12 @@ export default function MenuClient({ tenantId }: Props) {
     item.isSpecial ? (
       <Badge
         variant="outline"
-        className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full p-0"
-        style={{
-          color: `hsl(${specialBadgeText})`,
-          borderColor: `hsl(${ui.specialBadgeBorder})`,
-          backgroundColor: `hsl(${ui.specialBadgeBg})`,
-        }}
+        className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full p-0"
+        style={indicatorStyle}
         title={copy.special}
         aria-label={copy.special}
       >
-        <SparklesIcon className="h-3 w-3" />
+        <SparklesIcon className="h-3.5 w-3.5" />
       </Badge>
     ) : null;
 
@@ -232,16 +185,12 @@ export default function MenuClient({ tenantId }: Props) {
     (item.tags ?? []).includes("sin TACC") ? (
       <Badge
         variant="outline"
-        className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full p-0"
-        style={{
-          color: "#ffffff",
-          borderColor: "#166534",
-          backgroundColor: "#15803d",
-        }}
+        className="ml-2 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full p-0"
+        style={indicatorStyle}
         title={copy.glutenFree}
         aria-label={copy.glutenFree}
       >
-        <WheatOff className="h-3 w-3" />
+        <WheatOff className="h-3.5 w-3.5" />
       </Badge>
     ) : null;
 
@@ -301,96 +250,6 @@ export default function MenuClient({ tenantId }: Props) {
   }, [tenantId]);
 
   useEffect(() => {
-    if (
-      language !== "en" ||
-      translationRequestRef.current ||
-      (categories.length === 0 && menuItems.length === 0)
-    ) {
-      return;
-    }
-
-    const categoryEntries = categories
-      .filter(
-        (category) =>
-          !category.nameEn?.trim() &&
-          !categoryTranslations[category.id]?.nameEn
-      )
-      .map((category) => ({
-        id: `category:${category.id}`,
-        name: category.name,
-        description: category.description ?? "",
-      }));
-    const itemEntries = menuItems
-      .filter(
-        (item) => !item.nameEn?.trim() && !itemTranslations[item.id]?.nameEn
-      )
-      .map((item) => ({
-        id: `item:${item.id}`,
-        name: item.name,
-        description: item.description ?? "",
-      }));
-    const pending = [...categoryEntries, ...itemEntries];
-
-    if (pending.length === 0) return;
-
-    let cancelled = false;
-    translationRequestRef.current = true;
-    setIsTranslatingMenu(true);
-
-    (async () => {
-      try {
-        const translatedEntries = [];
-        for (let index = 0; index < pending.length; index += 25) {
-          const result = await translateMenuBatch({
-            entries: pending.slice(index, index + 25),
-          });
-          translatedEntries.push(...result.entries);
-        }
-
-        if (cancelled) return;
-
-        const translatedCategories: typeof categoryTranslations = {};
-        const translatedItems: typeof itemTranslations = {};
-
-        translatedEntries.forEach((entry) => {
-          const [kind, id] = entry.id.split(":");
-          if (!id) return;
-          const translation = {
-            nameEn: entry.nameEn,
-            descriptionEn: entry.descriptionEn,
-          };
-          if (kind === "category") translatedCategories[id] = translation;
-          if (kind === "item") translatedItems[id] = translation;
-        });
-
-        setCategoryTranslations((previous) => ({
-          ...previous,
-          ...translatedCategories,
-        }));
-        setItemTranslations((previous) => ({
-          ...previous,
-          ...translatedItems,
-        }));
-      } catch (error) {
-        console.error("No se pudo traducir la carta", error);
-      } finally {
-        translationRequestRef.current = false;
-        if (!cancelled) setIsTranslatingMenu(false);
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    language,
-    categories,
-    menuItems,
-    categoryTranslations,
-    itemTranslations,
-  ]);
-
-  useEffect(() => {
     (async () => {
       try {
         const ref = doc(db, "tenants", tenantId, "settings", "ui");
@@ -402,8 +261,6 @@ export default function MenuClient({ tenantId }: Props) {
         }
 
         const data = snap.data();
-        setLanguage(data?.language === "en" ? "en" : "es");
-
         const images = Array.isArray(data?.carouselImages)
           ? data.carouselImages.filter(
             (img: unknown): img is string =>
@@ -471,22 +328,14 @@ export default function MenuClient({ tenantId }: Props) {
         : undefined;
 
       const catName = category?.name.toLowerCase() ?? "";
-      const catNameEn = category?.nameEn?.toLowerCase() ?? "";
       const parentCatName = parentCategory?.name.toLowerCase() ?? "";
-      const parentCatNameEn = parentCategory?.nameEn?.toLowerCase() ?? "";
 
       const matchesText =
         item.name.toLowerCase().includes(term) ||
-        (item.nameEn?.toLowerCase() ?? "").includes(term) ||
         desc.includes(term) ||
-        (item.descriptionEn?.toLowerCase() ?? "").includes(term) ||
         (item.searchKeywords ?? []).some((k) => k.toLowerCase().includes(term));
 
-      const matchesCategory =
-        catName.includes(term) ||
-        catNameEn.includes(term) ||
-        parentCatName.includes(term) ||
-        parentCatNameEn.includes(term);
+      const matchesCategory = catName.includes(term) || parentCatName.includes(term);
 
       return matchesText || matchesCategory;
     });
@@ -595,7 +444,7 @@ export default function MenuClient({ tenantId }: Props) {
       })
       .map((cat) => ({
         id: `cat-${cat.id}`,
-        name: categoryName(cat),
+        name: cat.name,
       })),
   ];
 
@@ -766,37 +615,6 @@ export default function MenuClient({ tenantId }: Props) {
                   {copy.title}
                 </h1>
 
-                <div
-                  className="flex overflow-hidden rounded-full border text-xs"
-                  style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
-                  aria-label="Idioma"
-                >
-                  {(["es", "en"] as const).map((code) => (
-                    <button
-                      key={code}
-                      type="button"
-                      onClick={() => setLanguage(code)}
-                      className="px-3 py-1 font-semibold transition-opacity hover:opacity-80"
-                      style={{
-                        backgroundColor:
-                          language === code ? `hsl(${ui.foreground})` : "transparent",
-                        color:
-                          language === code
-                            ? `hsl(${ui.background})`
-                            : `hsl(${ui.foreground})`,
-                      }}
-                    >
-                      {code.toUpperCase()}
-                    </button>
-                  ))}
-                </div>
-                {language === "en" && isTranslatingMenu && (
-                  <span className="inline-flex items-center gap-1.5 text-xs opacity-70">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    Translating menu…
-                  </span>
-                )}
-
                 {categoryNavItems.length > 0 && (
                   <div className="relative flex w-full items-center justify-center py-2">
                     <button
@@ -889,27 +707,25 @@ export default function MenuClient({ tenantId }: Props) {
               />
             </div>
             <div
-              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium"
+              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs"
               style={{ color: `hsl(${ui.foreground})` }}
-              aria-label={copy.legend}
+              aria-label="Referencias"
             >
-              <span className="sr-only">{copy.legend}:</span>
-              <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex items-center gap-2">
                 <span
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full border"
-                  style={{
-                    color: `hsl(${specialBadgeText})`,
-                    borderColor: `hsl(${ui.specialBadgeBorder})`,
-                    backgroundColor: `hsl(${ui.specialBadgeBg})`,
-                  }}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border"
+                  style={indicatorStyle}
                 >
-                  <SparklesIcon className="h-2.5 w-2.5" />
+                  <SparklesIcon className="h-3.5 w-3.5" />
                 </span>
                 {copy.special}
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-green-800 bg-green-700 text-white">
-                  <WheatOff className="h-2.5 w-2.5" />
+              <span className="inline-flex items-center gap-2">
+                <span
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border"
+                  style={indicatorStyle}
+                >
+                  <WheatOff className="h-3.5 w-3.5" />
                 </span>
                 {copy.glutenFree}
               </span>
@@ -971,15 +787,15 @@ export default function MenuClient({ tenantId }: Props) {
                         "
                           style={{ color: `hsl(${ui.categoryTitle})` }}
                         >
-                          {categoryName(category)}
+                          {category.name}
                         </h2>
 
-                        {categoryDescription(category) && (
+                        {category.description && (
                           <p
                             className="mt-3 text-center text-sm"
                             style={{ color: `hsl(${ui.descriptionText})` }}
                           >
-                            {categoryDescription(category)}
+                            {category.description}
                           </p>
                         )}
                       </div>
@@ -995,7 +811,7 @@ export default function MenuClient({ tenantId }: Props) {
                           <div className="min-w-0">
                             <div className="flex items-baseline gap-2">
                               <span className="font-headline text-[13px] md:text-base tracking-wide">
-                                {itemName(item)}
+                                {item.name}
                               </span>
 
                               {specialBadge(item)}
@@ -1004,18 +820,18 @@ export default function MenuClient({ tenantId }: Props) {
                               <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
                             </div>
 
-                            {itemDescription(item) && (
+                            {item.description && (
                               <p
                                 className="mt-1 text-xs md:text-sm leading-snug"
                                 style={{ color: `hsl(${ui.descriptionText})` }}
                               >
-                                {itemDescription(item)}
+                                {item.description}
                               </p>
                             )}
                           </div>
 
                           <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                            {formatCurrency(item.price, tenantCurrency, language)}
+                            {formatCurrency(item.price, tenantCurrency)}
                           </span>
                         </div>
 
@@ -1060,13 +876,13 @@ export default function MenuClient({ tenantId }: Props) {
                             className="font-headline uppercase text-[15px] md:text-[18px] font-semibold tracking-[0.16em] pt-4 pb-2"
                             style={{ color: `hsl(${readableSubCategoryTitle})` }}
                           >
-                            {categoryName(sub)}
-                            {categoryDescription(sub) && (
+                            {sub.name}
+                            {sub.description && (
                               <p
                                 className="font-normal normal-case text-xs md:text-sm tracking-[0.16em] pb-2 pt-1"
                                 style={{ color: `hsl(${ui.descriptionText})` }}
                               >
-                                {categoryDescription(sub)}
+                                {sub.description}
                               </p>
                             )}
 
@@ -1078,7 +894,7 @@ export default function MenuClient({ tenantId }: Props) {
                             const shownDesc =
                               isFridayMenu && isIncluye
                                 ? fridayDescOverride(item.name, item.description, fridayData)
-                                : itemDescription(item);
+                                : item.description ?? "";
 
                             if (isFridayMenu && isIncluye) {
                               return (
@@ -1089,7 +905,7 @@ export default function MenuClient({ tenantId }: Props) {
                                       className="font-headline text-[13px] md:text-[15px] tracking-wide"
                                       style={{ color: "#FFF7E3" }}
                                     >
-                                      {itemName(item)}
+                                      {item.name}
                                     </span>
 
                                     {specialBadge(item)}
@@ -1120,7 +936,7 @@ export default function MenuClient({ tenantId }: Props) {
                                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2">
                                   <div className="flex min-w-0 items-baseline gap-2">
                                     <span className="font-headline text-[13px] md:text-base tracking-wide">
-                                      {itemName(item)}
+                                      {item.name}
                                     </span>
 
                                     {specialBadge(item)}
@@ -1130,7 +946,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   </div>
 
                                   <span className="whitespace-nowrap text-sm font-semibold md:text-base">
-                                    {formatCurrency(item.price, tenantCurrency, language)}
+                                    {formatCurrency(item.price, tenantCurrency)}
                                   </span>
 
                                   {shownDesc && (
@@ -1199,7 +1015,7 @@ export default function MenuClient({ tenantId }: Props) {
                     {openItemImage.name}
                   </h3>
                   <span className="whitespace-nowrap font-semibold">
-                    {formatCurrency(openItemImage.price, tenantCurrency, language)}
+                    {formatCurrency(openItemImage.price, tenantCurrency)}
                   </span>
                 </div>
                 {openItemImage.description && (

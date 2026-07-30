@@ -18,9 +18,9 @@ export default function Header() {
           className="
             absolute left-1/2 -translate-x-1/2
             flex items-center gap-3
-            opacity-90
-            transition-transform transition-opacity
-            hover:opacity-100 hover:scale-105
+            opacity-100
+            transition-transform
+            hover:scale-105
           "
         >
           {showLogo && settings?.logoUrl && (

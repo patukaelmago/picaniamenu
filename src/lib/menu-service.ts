@@ -35,9 +35,7 @@ export async function listMenuItems(tenantId: string): Promise<MenuItem[]> {
     return {
       id: d.id,
       name: data.name,
-      nameEn: data.nameEn ?? "",
       description: data.description,
-      descriptionEn: data.descriptionEn ?? "",
       price: data.price,
       currency: data.currency,
       imageUrl: data.imageUrl,
@@ -113,9 +111,7 @@ export function listenMenuItems(
       return {
         id: d.id,
         name: data.name,
-        nameEn: data.nameEn ?? "",
         description: data.description,
-        descriptionEn: data.descriptionEn ?? "",
         price: data.price,
         currency: data.currency,
         imageUrl: data.imageUrl,
