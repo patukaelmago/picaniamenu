@@ -819,7 +819,11 @@ export default function MenuClient({ tenantId }: Props) {
 
                         {category.description && (
                           <p
-                            className="mt-3 text-center text-sm"
+                            className={
+                              tenantId === "picania" && isFridayMenu
+                                ? "mt-3 text-center text-[13px] md:text-[15px]"
+                                : "mt-3 text-center text-sm"
+                            }
                             style={{ color: `hsl(${ui.descriptionText})` }}
                           >
                             {category.description}
