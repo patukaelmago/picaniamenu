@@ -35,6 +35,7 @@ type CsvRow = {
 type Props = {
   tenantId: string;
   categories: Category[];
+  currency: "ARS" | "USD";
   onImported: () => Promise<void>;
 };
 
@@ -151,6 +152,7 @@ function parseCsv(text: string): CsvRow[] {
 export default function MenuCsvImporter({
   tenantId,
   categories,
+  currency,
   onImported,
 }: Props) {
   const { toast } = useToast();
@@ -242,7 +244,7 @@ export default function MenuCsvImporter({
           name: row.nombre,
           description: row.descripcion,
           price: row.precio,
-          currency: "ARS",
+          currency,
           imageUrl: row.imagenUrl,
           imageId: "",
           categoryId,
