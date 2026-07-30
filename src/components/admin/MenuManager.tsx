@@ -310,8 +310,9 @@ export default function MenuManager({ tenantId }: Props) {
     );
   }, [isPulpo, tenantId]);
 
-  async function handleActiveMenuVariant(value: boolean) {
-    const next: "A" | "B" = value ? "B" : "A";
+  async function handleActiveMenuVariant(next: "A" | "B") {
+    if (next === activeMenuVariant) return;
+
     setActiveMenuVariant(next);
     setSavingMenuVariant(true);
 
@@ -1068,15 +1069,37 @@ export default function MenuManager({ tenantId }: Props) {
                 El mismo QR muestra la Carta {activeMenuVariant}.
               </p>
             </div>
-            <div className="flex shrink-0 items-center gap-3 font-semibold">
-              <span>Carta A</span>
-              <Switch
-                checked={activeMenuVariant === "B"}
-                disabled={savingMenuVariant}
-                onCheckedChange={handleActiveMenuVariant}
-                aria-label="Cambiar entre Carta A y Carta B"
-              />
-              <span>Carta B</span>
+            <div
+              className="grid shrink-0 grid-cols-2 overflow-hidden rounded-md border"
+              style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
+              role="group"
+              aria-label="Carta publicada"
+            >
+              {(["A", "B"] as const).map((variant) => {
+                const isActive = activeMenuVariant === variant;
+
+                return (
+                  <Button
+                    key={variant}
+                    type="button"
+                    variant="ghost"
+                    disabled={savingMenuVariant}
+                    aria-pressed={isActive}
+                    onClick={() => handleActiveMenuVariant(variant)}
+                    className="rounded-none px-5 font-semibold hover:opacity-90"
+                    style={{
+                      backgroundColor: isActive
+                        ? `hsl(${ui.adminAccent})`
+                        : `hsl(${ui.adminCard})`,
+                      color: isActive
+                        ? `hsl(${ui.adminCard})`
+                        : `hsl(${ui.adminSidebarBg})`,
+                    }}
+                  >
+                    Carta {variant}
+                  </Button>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
