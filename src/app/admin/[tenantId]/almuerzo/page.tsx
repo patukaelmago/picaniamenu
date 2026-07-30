@@ -927,6 +927,30 @@ export default function TenantAlmuerzoPage({
                 />
               </div>
             </div>
+
+            <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+              <Label className="sm:text-right">Sin TACC</Label>
+              <div className="sm:col-span-3">
+                <Switch
+                  checked={(editForm.tags ?? []).includes("sin TACC")}
+                  onCheckedChange={(checked) =>
+                    setEditForm((previous) => ({
+                      ...previous,
+                      tags: checked
+                        ? [
+                            ...(previous.tags ?? []).filter(
+                              (tag) => tag !== "sin TACC"
+                            ),
+                            "sin TACC",
+                          ]
+                        : (previous.tags ?? []).filter(
+                            (tag) => tag !== "sin TACC"
+                          ),
+                    }))
+                  }
+                />
+              </div>
+            </div>
           </div>
           <SheetFooter>
             <SheetClose asChild>
