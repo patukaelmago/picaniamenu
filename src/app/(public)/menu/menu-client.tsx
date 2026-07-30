@@ -299,8 +299,11 @@ export default function MenuClient({ tenantId }: Props) {
   }, [tenantId]);
 
   const rootCategories = useMemo(
-    () => categories.filter((c) => !c.parentCategoryId && c.isVisible !== false),
-    [categories]
+    () =>
+      categories.filter(
+        (c) => !c.parentCategoryId && (isPulpo || c.isVisible !== false)
+      ),
+    [categories, isPulpo]
   );
 
   const childCategoriesByParent = useMemo(() => {
@@ -888,7 +891,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                     const isIncluye = norm(sub.name) === "incluye";
                     const showSubTitle =
-                      sub.isVisible !== false &&
+                      (isPulpo || sub.isVisible !== false) &&
                       itemsSub[0]?.id === allSubItems[0]?.id;
 
                     return (
