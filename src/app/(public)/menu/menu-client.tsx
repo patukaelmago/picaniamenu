@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useTheme } from "next-themes";
 
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
@@ -82,7 +82,8 @@ export default function MenuClient({ tenantId }: Props) {
 
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
 
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
+  const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -98,6 +99,16 @@ export default function MenuClient({ tenantId }: Props) {
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
   const uiReady = true;
+  const isPulpo = tenantId.toLowerCase() === "pulpo";
+  const menuItems = useMemo(
+    () =>
+      allMenuItems.filter(
+        (item) =>
+          !isPulpo ||
+          (item.menuVariants ?? ["A", "B"]).includes(activeMenuVariant)
+      ),
+    [activeMenuVariant, allMenuItems, isPulpo]
+  );
 
   const copy = {
     title: "NUESTRA CARTA",
@@ -237,11 +248,22 @@ export default function MenuClient({ tenantId }: Props) {
     return listenMenuItems(
       tenantId,
       (items) => {
-        setMenuItems(items.filter((i) => i.isVisible !== false));
+        setAllMenuItems(items.filter((i) => i.isVisible !== false));
       },
       { onlyVisible: true }
     );
   }, [tenantId]);
+
+  useEffect(() => {
+    if (!isPulpo) return;
+
+    return onSnapshot(
+      doc(db, "tenants", tenantId, "settings", "menuVariants"),
+      (snapshot) => {
+        setActiveMenuVariant(snapshot.data()?.activeVariant === "B" ? "B" : "A");
+      }
+    );
+  }, [isPulpo, tenantId]);
 
   useEffect(() => {
     return listenCategories(tenantId, (cats) => {

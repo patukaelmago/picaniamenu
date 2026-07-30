@@ -23,6 +23,7 @@ export interface MenuItem {
   isVisible: boolean;
   inStock: boolean;
   isSpecial: boolean;
+  menuVariants?: ("A" | "B")[];
   tags: (DietaryTag | SpecialTag)[];
   allergens: string[];
   searchKeywords: string[];

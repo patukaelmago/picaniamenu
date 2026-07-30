@@ -13,6 +13,8 @@ import {
   query,
   orderBy,
   serverTimestamp,
+  setDoc,
+  onSnapshot,
 } from "firebase/firestore";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
@@ -122,6 +124,7 @@ const withSinTacc = (
 };
 
 export default function MenuManager({ tenantId }: Props) {
+  const isPulpo = tenantId.toLowerCase() === "pulpo";
   const ui = useTenantUI(tenantId);
   const settings = useRestaurantSettings();
   const tenantCurrency: "ARS" | "USD" =
@@ -132,6 +135,8 @@ export default function MenuManager({ tenantId }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
+  const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
+  const [savingMenuVariant, setSavingMenuVariant] = useState(false);
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
@@ -259,6 +264,7 @@ export default function MenuManager({ tenantId }: Props) {
           isVisible: x.isVisible ?? true,
           inStock: x.inStock ?? true,
           isSpecial: x.isSpecial ?? false,
+          menuVariants: Array.isArray(x.menuVariants) ? x.menuVariants : undefined,
           tags: x.tags ?? [],
           allergens: x.allergens ?? [],
           searchKeywords: x.searchKeywords ?? [],
@@ -291,6 +297,77 @@ export default function MenuManager({ tenantId }: Props) {
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
+
+  useEffect(() => {
+    if (!isPulpo) return;
+
+    return onSnapshot(
+      doc(db, "tenants", tenantId, "settings", "menuVariants"),
+      (snapshot) => {
+        const value = snapshot.data()?.activeVariant;
+        setActiveMenuVariant(value === "B" ? "B" : "A");
+      }
+    );
+  }, [isPulpo, tenantId]);
+
+  async function handleActiveMenuVariant(value: boolean) {
+    const next: "A" | "B" = value ? "B" : "A";
+    setActiveMenuVariant(next);
+    setSavingMenuVariant(true);
+
+    try {
+      await setDoc(
+        doc(db, "tenants", tenantId, "settings", "menuVariants"),
+        { activeVariant: next, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      toast({ title: `Carta ${next} publicada` });
+    } catch (e) {
+      console.error(e);
+      setActiveMenuVariant(next === "A" ? "B" : "A");
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo cambiar la carta publicada.",
+      });
+    } finally {
+      setSavingMenuVariant(false);
+    }
+  }
+
+  async function handleToggleMenuVariant(
+    item: MenuItem,
+    variant: "A" | "B",
+    enabled: boolean
+  ) {
+    const current = item.menuVariants ?? ["A", "B"];
+    const menuVariants = enabled
+      ? Array.from(new Set([...current, variant]))
+      : current.filter((value) => value !== variant);
+
+    setItems((prev) =>
+      prev.map((entry) => (entry.id === item.id ? { ...entry, menuVariants } : entry))
+    );
+
+    try {
+      await updateDoc(doc(itemsCol, item.id), {
+        menuVariants,
+        updatedAt: serverTimestamp(),
+      });
+    } catch (e) {
+      console.error(e);
+      setItems((prev) =>
+        prev.map((entry) =>
+          entry.id === item.id ? { ...entry, menuVariants: item.menuVariants } : entry
+        )
+      );
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: `No se pudo actualizar la Carta ${variant}.`,
+      });
+    }
+  }
 
   const categoryById = useMemo(() => {
     const m = new Map<string, Category>();
@@ -424,6 +501,7 @@ export default function MenuManager({ tenantId }: Props) {
         : createForm.imageUrl;
       await addDoc(itemsCol, {
         ...createForm,
+        ...(isPulpo ? { menuVariants: ["A", "B"] } : {}),
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
@@ -463,6 +541,7 @@ export default function MenuManager({ tenantId }: Props) {
       isVisible: item.isVisible,
       inStock: item.inStock,
       isSpecial: item.isSpecial,
+      menuVariants: item.menuVariants,
       tags: item.tags ?? [],
       allergens: item.allergens ?? [],
       searchKeywords: item.searchKeywords ?? [],
@@ -974,6 +1053,35 @@ export default function MenuManager({ tenantId }: Props) {
         </p>
       </div>
 
+      {isPulpo && (
+        <Card
+          className="border-0 shadow-sm ring-1 ring-black/5"
+          style={{
+            backgroundColor: `hsl(${ui.adminCard})`,
+            color: `hsl(${ui.adminCardForeground})`,
+          }}
+        >
+          <CardContent className="flex items-center justify-between gap-4 p-4 sm:p-5">
+            <div>
+              <p className="font-semibold">Carta publicada</p>
+              <p className="text-sm opacity-70">
+                El mismo QR muestra la Carta {activeMenuVariant}.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-3 font-semibold">
+              <span>Carta A</span>
+              <Switch
+                checked={activeMenuVariant === "B"}
+                disabled={savingMenuVariant}
+                onCheckedChange={handleActiveMenuVariant}
+                aria-label="Cambiar entre Carta A y Carta B"
+              />
+              <span>Carta B</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Tabs defaultValue="items" className="w-full min-w-0">
         <TabsList
           className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
@@ -1342,6 +1450,12 @@ export default function MenuManager({ tenantId }: Props) {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Categoría</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
+                          {isPulpo && (
+                            <>
+                              <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
+                              <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
+                            </>
+                          )}
                           <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
@@ -1416,6 +1530,29 @@ export default function MenuManager({ tenantId }: Props) {
                                   }
                                 />
                               </TableCell>
+
+                              {isPulpo && (
+                                <>
+                                  <TableCell>
+                                    <Switch
+                                      checked={(item.menuVariants ?? ["A", "B"]).includes("A")}
+                                      onCheckedChange={(value) =>
+                                        handleToggleMenuVariant(item, "A", value)
+                                      }
+                                      aria-label={`${item.name} en Carta A`}
+                                    />
+                                  </TableCell>
+                                  <TableCell>
+                                    <Switch
+                                      checked={(item.menuVariants ?? ["A", "B"]).includes("B")}
+                                      onCheckedChange={(value) =>
+                                        handleToggleMenuVariant(item, "B", value)
+                                      }
+                                      aria-label={`${item.name} en Carta B`}
+                                    />
+                                  </TableCell>
+                                </>
+                              )}
 
                               <TableCell>
                                 <Switch
