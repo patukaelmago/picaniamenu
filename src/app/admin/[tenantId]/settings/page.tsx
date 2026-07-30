@@ -46,7 +46,6 @@ type CarouselItem =
 type RestaurantSettingsExtra = {
   name?: string;
   currency?: string;
-  language?: "es" | "en";
   logoUrl?: string;
   websiteUrl?: string;
   showLogo?: boolean;
@@ -98,7 +97,6 @@ export default function TenantSettingsPage({
 
         setName(settings.name || tenantId);
         setCurrency(settings.currency || "ARS");
-        setLanguage(settings.language === "en" ? "en" : "es");
         setShowLogo(settings.showLogo ?? true);
         setShowName(settings.showName ?? true);
 
@@ -112,6 +110,7 @@ export default function TenantSettingsPage({
 
         if (uiSnap.exists()) {
           const data = uiSnap.data();
+          setLanguage(data?.language === "en" ? "en" : "es");
           const images = Array.isArray(data?.carouselImages)
             ? data.carouselImages.filter(
               (img: unknown): img is string =>
@@ -348,7 +347,6 @@ export default function TenantSettingsPage({
       await saveRestaurantSettings(tenantId, {
         name: name.trim() || tenantId,
         currency: currency.trim() || "ARS",
-        language,
         logoUrl: finalLogoUrl === DEFAULT_TENANT_LOGO ? "" : finalLogoUrl,
         websiteUrl: websiteUrl.trim(),
         showLogo,
@@ -359,6 +357,7 @@ export default function TenantSettingsPage({
         doc(db, "tenants", tenantId, "settings", "ui"),
         {
           carouselImages: finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES),
+          language,
         },
         { merge: true }
       );
