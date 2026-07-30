@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X, Loader2 } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { useTheme } from "next-themes";
 
@@ -13,6 +13,7 @@ import { listCategories, listenCategories } from "@/lib/categories-service";
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { db } from "@/lib/firebase";
+import { translateMenuBatch } from "@/ai/flows/translate-menu-content";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -99,6 +100,14 @@ export default function MenuClient({ tenantId }: Props) {
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
   const [language, setLanguage] = useState<"es" | "en">("es");
+  const [isTranslatingMenu, setIsTranslatingMenu] = useState(false);
+  const [categoryTranslations, setCategoryTranslations] = useState<
+    Record<string, { nameEn: string; descriptionEn: string }>
+  >({});
+  const [itemTranslations, setItemTranslations] = useState<
+    Record<string, { nameEn: string; descriptionEn: string }>
+  >({});
+  const translationRequestRef = useRef(false);
   const uiReady = true;
 
   const copy =
@@ -143,16 +152,28 @@ export default function MenuClient({ tenantId }: Props) {
       : ui.searchIcon;
 
   const categoryName = (category: Category) =>
-    language === "en" && category.nameEn?.trim() ? category.nameEn : category.name;
+    language === "en"
+      ? category.nameEn?.trim() ||
+        categoryTranslations[category.id]?.nameEn ||
+        category.name
+      : category.name;
   const categoryDescription = (category: Category) =>
-    language === "en" && category.descriptionEn?.trim()
-      ? category.descriptionEn
+    language === "en"
+      ? category.descriptionEn?.trim() ||
+        categoryTranslations[category.id]?.descriptionEn ||
+        category.description ||
+        ""
       : category.description ?? "";
   const itemName = (item: MenuItem) =>
-    language === "en" && item.nameEn?.trim() ? item.nameEn : item.name;
+    language === "en"
+      ? item.nameEn?.trim() || itemTranslations[item.id]?.nameEn || item.name
+      : item.name;
   const itemDescription = (item: MenuItem) =>
-    language === "en" && item.descriptionEn?.trim()
-      ? item.descriptionEn
+    language === "en"
+      ? item.descriptionEn?.trim() ||
+        itemTranslations[item.id]?.descriptionEn ||
+        item.description ||
+        ""
       : item.description ?? "";
 
   const getItemImage = (item: MenuItem) => {
@@ -278,6 +299,96 @@ export default function MenuClient({ tenantId }: Props) {
       setCategories(cats);
     });
   }, [tenantId]);
+
+  useEffect(() => {
+    if (
+      language !== "en" ||
+      translationRequestRef.current ||
+      (categories.length === 0 && menuItems.length === 0)
+    ) {
+      return;
+    }
+
+    const categoryEntries = categories
+      .filter(
+        (category) =>
+          !category.nameEn?.trim() &&
+          !categoryTranslations[category.id]?.nameEn
+      )
+      .map((category) => ({
+        id: `category:${category.id}`,
+        name: category.name,
+        description: category.description ?? "",
+      }));
+    const itemEntries = menuItems
+      .filter(
+        (item) => !item.nameEn?.trim() && !itemTranslations[item.id]?.nameEn
+      )
+      .map((item) => ({
+        id: `item:${item.id}`,
+        name: item.name,
+        description: item.description ?? "",
+      }));
+    const pending = [...categoryEntries, ...itemEntries];
+
+    if (pending.length === 0) return;
+
+    let cancelled = false;
+    translationRequestRef.current = true;
+    setIsTranslatingMenu(true);
+
+    (async () => {
+      try {
+        const translatedEntries = [];
+        for (let index = 0; index < pending.length; index += 25) {
+          const result = await translateMenuBatch({
+            entries: pending.slice(index, index + 25),
+          });
+          translatedEntries.push(...result.entries);
+        }
+
+        if (cancelled) return;
+
+        const translatedCategories: typeof categoryTranslations = {};
+        const translatedItems: typeof itemTranslations = {};
+
+        translatedEntries.forEach((entry) => {
+          const [kind, id] = entry.id.split(":");
+          if (!id) return;
+          const translation = {
+            nameEn: entry.nameEn,
+            descriptionEn: entry.descriptionEn,
+          };
+          if (kind === "category") translatedCategories[id] = translation;
+          if (kind === "item") translatedItems[id] = translation;
+        });
+
+        setCategoryTranslations((previous) => ({
+          ...previous,
+          ...translatedCategories,
+        }));
+        setItemTranslations((previous) => ({
+          ...previous,
+          ...translatedItems,
+        }));
+      } catch (error) {
+        console.error("No se pudo traducir la carta", error);
+      } finally {
+        translationRequestRef.current = false;
+        if (!cancelled) setIsTranslatingMenu(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    language,
+    categories,
+    menuItems,
+    categoryTranslations,
+    itemTranslations,
+  ]);
 
   useEffect(() => {
     (async () => {
@@ -679,6 +790,12 @@ export default function MenuClient({ tenantId }: Props) {
                     </button>
                   ))}
                 </div>
+                {language === "en" && isTranslatingMenu && (
+                  <span className="inline-flex items-center gap-1.5 text-xs opacity-70">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Translating menu…
+                  </span>
+                )}
 
                 {categoryNavItems.length > 0 && (
                   <div className="relative flex w-full items-center justify-center py-2">
@@ -772,8 +889,8 @@ export default function MenuClient({ tenantId }: Props) {
               />
             </div>
             <div
-              className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs"
-              style={{ color: `hsl(${ui.descriptionText})` }}
+              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs font-medium"
+              style={{ color: `hsl(${ui.foreground})` }}
               aria-label={copy.legend}
             >
               <span className="sr-only">{copy.legend}:</span>

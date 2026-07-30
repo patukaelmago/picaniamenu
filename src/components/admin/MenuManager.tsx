@@ -51,8 +51,6 @@ import {
   ChevronDown,
   ImagePlus,
   X,
-  Languages,
-  Loader2,
 } from "lucide-react";
 import {
   Sheet,
@@ -68,7 +66,6 @@ import {
 import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
-import { translateMenuContent } from "@/ai/flows/translate-menu-content";
 
 type Props = { tenantId: string };
 
@@ -181,8 +178,6 @@ export default function MenuManager({ tenantId }: Props) {
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
   const [editImageFile, setEditImageFile] = useState<File | null>(null);
   const [editImagePreview, setEditImagePreview] = useState("");
-  const [translating, setTranslating] = useState<"create" | "edit" | "category" | "newCategory" | null>(null);
-  const [bulkTranslation, setBulkTranslation] = useState({ active: false, done: 0, total: 0 });
   const createImageInputRef = useRef<HTMLInputElement | null>(null);
   const editImageInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -681,139 +676,6 @@ export default function MenuManager({ tenantId }: Props) {
     }
   }
 
-  async function translateItemForm(target: "create" | "edit") {
-    const form = target === "create" ? createForm : editForm;
-    if (!form.name.trim()) return;
-    try {
-      setTranslating(target);
-      const result = await translateMenuContent({
-        name: form.name,
-        description: form.description,
-      });
-      const setter = target === "create" ? setCreateForm : setEditForm;
-      setter((prev) => ({
-        ...prev,
-        nameEn: result.nameEn,
-        descriptionEn: result.descriptionEn,
-      }));
-      toast({ title: "Traducción generada", description: "Podés revisarla y editarla antes de guardar." });
-    } catch (error) {
-      console.error(error);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
-    } finally {
-      setTranslating(null);
-    }
-  }
-
-  async function translateCategoryForm() {
-    if (!catForm.name.trim()) return;
-    try {
-      setTranslating("category");
-      const result = await translateMenuContent({
-        name: catForm.name,
-        description: catForm.description,
-      });
-      setCatForm((prev) => ({
-        ...prev,
-        nameEn: result.nameEn,
-        descriptionEn: result.descriptionEn,
-      }));
-    } catch (error) {
-      console.error(error);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
-    } finally {
-      setTranslating(null);
-    }
-  }
-
-  async function translateNewCategory() {
-    if (!formCatName.trim()) return;
-    try {
-      setTranslating("newCategory");
-      const result = await translateMenuContent({ name: formCatName, description: "" });
-      setFormCatNameEn(result.nameEn);
-    } catch (error) {
-      console.error(error);
-      toast({ variant: "destructive", title: "Error", description: "No se pudo generar la traducción." });
-    } finally {
-      setTranslating(null);
-    }
-  }
-
-  async function translateExistingMenu() {
-    const pendingCategories = categories.filter(
-      (category) =>
-        !category.nameEn?.trim() ||
-        (Boolean(category.description?.trim()) && !category.descriptionEn?.trim())
-    );
-    const pendingItems = items.filter(
-      (item) =>
-        !item.nameEn?.trim() ||
-        (Boolean(item.description?.trim()) && !item.descriptionEn?.trim())
-    );
-    const total = pendingCategories.length + pendingItems.length;
-
-    if (total === 0) {
-      toast({
-        title: "La carta ya está traducida",
-        description: "No hay nombres ni descripciones pendientes.",
-      });
-      return;
-    }
-
-    setBulkTranslation({ active: true, done: 0, total });
-    let done = 0;
-
-    try {
-      for (const category of pendingCategories) {
-        const result = await translateMenuContent({
-          name: category.name,
-          description: category.description ?? "",
-        });
-        await updateDoc(doc(catsCol, category.id), {
-          ...(!category.nameEn?.trim() ? { nameEn: result.nameEn } : {}),
-          ...(category.description?.trim() && !category.descriptionEn?.trim()
-            ? { descriptionEn: result.descriptionEn }
-            : {}),
-          updatedAt: serverTimestamp(),
-        });
-        done += 1;
-        setBulkTranslation({ active: true, done, total });
-      }
-
-      for (const item of pendingItems) {
-        const result = await translateMenuContent({
-          name: item.name,
-          description: item.description ?? "",
-        });
-        await updateDoc(doc(itemsCol, item.id), {
-          ...(!item.nameEn?.trim() ? { nameEn: result.nameEn } : {}),
-          ...(item.description?.trim() && !item.descriptionEn?.trim()
-            ? { descriptionEn: result.descriptionEn }
-            : {}),
-          updatedAt: serverTimestamp(),
-        });
-        done += 1;
-        setBulkTranslation({ active: true, done, total });
-      }
-
-      await Promise.all([loadCategories(), loadItems()]);
-      toast({
-        title: "Carta traducida",
-        description: `Se actualizaron ${total} registros. Podés editar cada traducción cuando quieras.`,
-      });
-    } catch (error) {
-      console.error(error);
-      await Promise.all([loadCategories(), loadItems()]);
-      toast({
-        variant: "destructive",
-        title: "Traducción incompleta",
-        description: `Se guardaron ${done} de ${total} registros. Podés volver a intentarlo para completar el resto.`,
-      });
-    } finally {
-      setBulkTranslation({ active: false, done: 0, total: 0 });
-    }
-  }
 
   async function onToggleVisible(cat: Category, value: boolean) {
     setCategories((prev) =>
@@ -1234,29 +1096,6 @@ export default function MenuManager({ tenantId }: Props) {
                     </span>
                   )}
 
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={translateExistingMenu}
-                    disabled={bulkTranslation.active}
-                    className="border-[hsl(var(--tenant-button-border))] bg-transparent text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
-                    style={{
-                      "--tenant-button-text": ui.adminForeground,
-                      "--tenant-button-border": ui.adminForeground,
-                      "--tenant-button-hover-bg": ui.adminAccent,
-                      "--tenant-button-hover-text": ui.adminCard,
-                    } as CSSProperties}
-                  >
-                    {bulkTranslation.active ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <Languages className="mr-2 h-4 w-4" />
-                    )}
-                    {bulkTranslation.active
-                      ? `Traduciendo ${bulkTranslation.done}/${bulkTranslation.total}`
-                      : "Traducir carta con IA"}
-                  </Button>
-
                   <MenuCsvImporter
                     tenantId={tenantId}
                     categories={categories}
@@ -1364,22 +1203,8 @@ export default function MenuManager({ tenantId }: Props) {
                         </div>
 
                         <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
-                          <div className="mb-3 flex items-center justify-between gap-3">
+                          <div className="mb-3">
                             <Label>Traducción al inglés</Label>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              disabled={translating === "create" || !createForm.name.trim()}
-                              onClick={() => translateItemForm("create")}
-                            >
-                              {translating === "create" ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              ) : (
-                                <Languages className="mr-2 h-4 w-4" />
-                              )}
-                              Traducir con IA
-                            </Button>
                           </div>
                           <div className="space-y-3">
                             <Input
@@ -1761,22 +1586,8 @@ export default function MenuManager({ tenantId }: Props) {
                 </div>
 
                 <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
-                  <div className="mb-3 flex items-center justify-between gap-3">
+                  <div className="mb-3">
                     <Label>Traducción al inglés</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      disabled={translating === "edit" || !editForm.name.trim()}
-                      onClick={() => translateItemForm("edit")}
-                    >
-                      {translating === "edit" ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Languages className="mr-2 h-4 w-4" />
-                      )}
-                      Traducir con IA
-                    </Button>
                   </div>
                   <div className="space-y-3">
                     <Input
@@ -1970,28 +1781,12 @@ export default function MenuManager({ tenantId }: Props) {
 
                 <div className="grid gap-2">
                   <Label htmlFor="new-cat-name-en">Nombre en inglés</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="new-cat-name-en"
-                      placeholder="Ej: Starters"
-                      value={formCatNameEn}
-                      onChange={(e) => setFormCatNameEn(e.target.value)}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      title="Traducir con IA"
-                      disabled={translating === "newCategory" || !formCatName.trim()}
-                      onClick={translateNewCategory}
-                    >
-                      {translating === "newCategory" ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Languages className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
+                  <Input
+                    id="new-cat-name-en"
+                    placeholder="Ej: Starters"
+                    value={formCatNameEn}
+                    onChange={(e) => setFormCatNameEn(e.target.value)}
+                  />
                 </div>
 
                 <div className="grid gap-2">
@@ -2202,22 +1997,8 @@ export default function MenuManager({ tenantId }: Props) {
                     </div>
 
                     <div className="rounded-lg border p-3 sm:ml-[calc(25%+0.5rem)]">
-                      <div className="mb-3 flex items-center justify-between gap-3">
+                      <div className="mb-3">
                         <Label>Traducción al inglés</Label>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          disabled={translating === "category" || !catForm.name.trim()}
-                          onClick={translateCategoryForm}
-                        >
-                          {translating === "category" ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          ) : (
-                            <Languages className="mr-2 h-4 w-4" />
-                          )}
-                          Traducir con IA
-                        </Button>
                       </div>
                       <div className="space-y-3">
                         <Input
