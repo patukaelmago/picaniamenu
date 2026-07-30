@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, type CSSProperties } from "react";
+import React, { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import Image from "next/image";
 import {
   collection,
@@ -18,7 +18,8 @@ import {
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
-import { db } from "@/lib/firebase";
+import { db, storage } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,9 +46,10 @@ import {
   Pencil,
   Trash2,
   GripVertical,
-  Loader2,
   ChevronRight,
   ChevronDown,
+  ImagePlus,
+  X,
 } from "lucide-react";
 import {
   Sheet,
@@ -62,7 +64,6 @@ import {
 
 import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { generateSearchKeywords } from "@/ai/flows/generate-search-keywords";
 import { useToast } from "@/hooks/use-toast";
 
 type Props = { tenantId: string };
@@ -82,6 +83,7 @@ const emptyItem: MenuItemInput = {
   currency: "ARS",
   imageUrl: "",
   imageId: "",
+  showImage: true,
   categoryId: "",
   isVisible: true,
   inStock: true,
@@ -146,11 +148,16 @@ export default function MenuManager({ tenantId }: Props) {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [createImageFile, setCreateImageFile] = useState<File | null>(null);
+  const [createImagePreview, setCreateImagePreview] = useState("");
 
   const [editOpen, setEditOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<MenuItemInput>(emptyItem);
+  const [editImageFile, setEditImageFile] = useState<File | null>(null);
+  const [editImagePreview, setEditImagePreview] = useState("");
+  const createImageInputRef = useRef<HTMLInputElement | null>(null);
+  const editImageInputRef = useRef<HTMLInputElement | null>(null);
 
   const [sortMode, setSortMode] = useState<"auto" | "manual">("manual");
   const [searchTerm, setSearchTerm] = useState("");
@@ -232,6 +239,7 @@ export default function MenuManager({ tenantId }: Props) {
           currency: x.currency ?? "ARS",
           imageUrl: x.imageUrl ?? "",
           imageId: x.imageId ?? "",
+          showImage: x.showImage ?? true,
           categoryId: x.categoryId ?? "",
           isVisible: x.isVisible ?? true,
           inStock: x.inStock ?? true,
@@ -355,50 +363,54 @@ export default function MenuManager({ tenantId }: Props) {
     setEditForm((p) => ({ ...p, [key]: value }));
   }
 
-  async function handleGenerateKeywords() {
-    setIsGenerating(true);
+  async function uploadItemImage(file: File, itemName: string) {
+    const ext = file.name.split(".").pop() || "jpg";
+    const safeName = norm(itemName).replace(/[^a-z0-9]+/g, "-") || "item";
+    const imageRef = ref(
+      storage,
+      `tenants/${tenantId}/menu-items/${safeName}-${Date.now()}.${ext}`
+    );
+    await uploadBytes(imageRef, file);
+    return getDownloadURL(imageRef);
+  }
 
-    try {
-      const keywords = await generateSearchKeywords({
-        name: createOpen
-          ? createForm.name || "Bife de Chorizo"
-          : editForm.name || "Bife de Chorizo",
-        tags: ["carne", "parrilla"],
-        category: "Parrilla",
-      });
-
-      if (createOpen) {
-        setCreateForm((prev) => ({
-          ...prev,
-          searchKeywords: keywords.searchKeywords,
-        }));
-      } else {
-        setEditForm((prev) => ({
-          ...prev,
-          searchKeywords: keywords.searchKeywords,
-        }));
-      }
-
-      toast({
-        title: "Keywords generadas",
-        description: `Se generaron: ${keywords.searchKeywords.join(", ")}`,
-      });
-    } catch (e) {
-      console.error(e);
+  function validateImage(file: File) {
+    if (!file.type.startsWith("image/")) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "No se pudieron generar las keywords.",
+        title: "Archivo inválido",
+        description: "Elegí una imagen JPG, PNG o WebP.",
       });
-    } finally {
-      setIsGenerating(false);
+      return false;
     }
+    return true;
+  }
+
+  function selectCreateImage(file: File | null) {
+    if (!file || !validateImage(file)) return;
+    if (createImagePreview.startsWith("blob:")) URL.revokeObjectURL(createImagePreview);
+    setCreateImageFile(file);
+    setCreateImagePreview(URL.createObjectURL(file));
+    setCreateForm((prev) => ({ ...prev, showImage: true }));
+  }
+
+  function selectEditImage(file: File | null) {
+    if (!file || !validateImage(file)) return;
+    if (editImagePreview.startsWith("blob:")) URL.revokeObjectURL(editImagePreview);
+    setEditImageFile(file);
+    setEditImagePreview(URL.createObjectURL(file));
+    setEditForm((prev) => ({ ...prev, showImage: true }));
   }
 
   async function handleCreateItem() {
     try {
+      const imageUrl = createImageFile
+        ? await uploadItemImage(createImageFile, createForm.name)
+        : createForm.imageUrl;
       await addDoc(itemsCol, {
         ...createForm,
+        imageUrl,
+        imageId: "",
         order: Number(createForm.order ?? 0),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -406,6 +418,9 @@ export default function MenuManager({ tenantId }: Props) {
 
       toast({ title: "Plato creado" });
       setCreateForm(emptyItem);
+      if (createImagePreview.startsWith("blob:")) URL.revokeObjectURL(createImagePreview);
+      setCreateImageFile(null);
+      setCreateImagePreview("");
       setCreateOpen(false);
       await loadItems();
     } catch (e) {
@@ -427,6 +442,7 @@ export default function MenuManager({ tenantId }: Props) {
       currency: item.currency,
       imageUrl: item.imageUrl,
       imageId: item.imageId,
+      showImage: item.showImage ?? true,
       categoryId: item.categoryId,
       isVisible: item.isVisible,
       inStock: item.inStock,
@@ -437,6 +453,8 @@ export default function MenuManager({ tenantId }: Props) {
       order: item.order ?? 0,
     });
 
+    setEditImageFile(null);
+    setEditImagePreview(item.imageUrl || "");
     setEditOpen(true);
   }
 
@@ -444,8 +462,13 @@ export default function MenuManager({ tenantId }: Props) {
     if (!editId) return;
 
     try {
+      const imageUrl = editImageFile
+        ? await uploadItemImage(editImageFile, editForm.name)
+        : editForm.imageUrl;
       await updateDoc(doc(itemsCol, editId), {
         ...editForm,
+        imageUrl,
+        imageId: "",
         order: Number(editForm.order ?? 0),
         updatedAt: serverTimestamp(),
       });
@@ -454,6 +477,9 @@ export default function MenuManager({ tenantId }: Props) {
       setEditOpen(false);
       setEditId(null);
       setEditForm(emptyItem);
+      if (editImagePreview.startsWith("blob:")) URL.revokeObjectURL(editImagePreview);
+      setEditImageFile(null);
+      setEditImagePreview("");
       await loadItems();
     } catch (e) {
       console.error(e);
@@ -1145,24 +1171,75 @@ export default function MenuManager({ tenantId }: Props) {
                           </select>
                         </div>
 
-                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                          <Label htmlFor="c-imageId" className="sm:text-right">
-                            Imagen ID
-                          </Label>
-                          <Input
-                            id="c-imageId"
-                            className="sm:col-span-3"
-                            value={createForm.imageId}
-                            onChange={(e) => onChangeCreate("imageId", e.target.value)}
-                          />
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-start sm:gap-4">
+                          <Label className="pt-2 sm:text-right">Imagen</Label>
+                          <div className="space-y-3 sm:col-span-3">
+                            <input
+                              ref={createImageInputRef}
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              className="hidden"
+                              onChange={(e) => selectCreateImage(e.target.files?.[0] ?? null)}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => createImageInputRef.current?.click()}
+                              onDragOver={(e) => e.preventDefault()}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                selectCreateImage(e.dataTransfer.files?.[0] ?? null);
+                              }}
+                              className="flex min-h-28 w-full items-center justify-center overflow-hidden rounded-md border-2 border-dashed p-3 transition-colors hover:bg-black/5"
+                            >
+                              {createImagePreview ? (
+                                <img
+                                  src={createImagePreview}
+                                  alt="Vista previa"
+                                  className="h-24 w-24 rounded-md object-cover"
+                                />
+                              ) : (
+                                <span className="flex items-center gap-2 text-sm">
+                                  <ImagePlus className="h-5 w-5" />
+                                  Elegir o arrastrar imagen
+                                </span>
+                              )}
+                            </button>
+                            <p className="text-xs opacity-70">
+                              Recomendado: 1200 × 900 px, JPG o WebP, hasta 500 KB.
+                            </p>
+                            {createImagePreview && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (createImagePreview.startsWith("blob:")) {
+                                    URL.revokeObjectURL(createImagePreview);
+                                  }
+                                  setCreateImageFile(null);
+                                  setCreateImagePreview("");
+                                  setCreateForm((prev) => ({ ...prev, imageUrl: "" }));
+                                  if (createImageInputRef.current) {
+                                    createImageInputRef.current.value = "";
+                                  }
+                                }}
+                              >
+                                <X className="mr-2 h-4 w-4" />
+                                Quitar
+                              </Button>
+                            )}
+                            <div className="flex items-center justify-between rounded-md border p-3">
+                              <Label htmlFor="c-show-image">Mostrar imagen en la carta</Label>
+                              <Switch
+                                id="c-show-image"
+                                checked={createForm.showImage ?? true}
+                                onCheckedChange={(checked) =>
+                                  onChangeCreate("showImage", checked)
+                                }
+                              />
+                            </div>
+                          </div>
                         </div>
-
-                        <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                          {isGenerating && (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          )}
-                          Generar Keywords con IA
-                        </Button>
                       </div>
 
                       <SheetFooter>
@@ -1217,7 +1294,8 @@ export default function MenuManager({ tenantId }: Props) {
                             ? categoryById.get(parentId)?.name
                             : undefined;
 
-                          const image = PlaceHolderImages.find((p) => p.id === item.imageId);
+                          const placeholder = PlaceHolderImages.find((p) => p.id === item.imageId);
+                          const imageUrl = item.imageUrl || placeholder?.imageUrl || "";
 
                           return (
                             <TableRow
@@ -1233,14 +1311,15 @@ export default function MenuManager({ tenantId }: Props) {
                               onDragEnd={handleDragItemEnd}
                             >
                               <TableCell>
-                                {image && (
+                                {imageUrl && (
                                   <Image
-                                    src={image.imageUrl}
+                                    src={imageUrl}
                                     alt={item.name}
                                     width={50}
                                     height={50}
-                                    className="rounded-md object-cover"
-                                    data-ai-hint={image.imageHint}
+                                    className={`h-[50px] w-[50px] rounded-md object-cover ${
+                                      item.showImage === false ? "opacity-35" : ""
+                                    }`}
                                   />
                                 )}
                               </TableCell>
@@ -1426,24 +1505,79 @@ export default function MenuManager({ tenantId }: Props) {
                   </select>
                 </div>
 
-                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                  <Label htmlFor="e-imageId" className="sm:text-right">
-                    Imagen ID
-                  </Label>
-                  <Input
-                    id="e-imageId"
-                    className="sm:col-span-3"
-                    value={editForm.imageId}
-                    onChange={(e) => onChangeEdit("imageId", e.target.value)}
-                  />
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-start sm:gap-4">
+                  <Label className="pt-2 sm:text-right">Imagen</Label>
+                  <div className="space-y-3 sm:col-span-3">
+                    <input
+                      ref={editImageInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => selectEditImage(e.target.files?.[0] ?? null)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => editImageInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        selectEditImage(e.dataTransfer.files?.[0] ?? null);
+                      }}
+                      className="flex min-h-28 w-full items-center justify-center overflow-hidden rounded-md border-2 border-dashed p-3 transition-colors hover:bg-black/5"
+                    >
+                      {editImagePreview ? (
+                        <img
+                          src={editImagePreview}
+                          alt="Vista previa"
+                          className="h-24 w-24 rounded-md object-cover"
+                        />
+                      ) : (
+                        <span className="flex items-center gap-2 text-sm">
+                          <ImagePlus className="h-5 w-5" />
+                          Elegir o arrastrar imagen
+                        </span>
+                      )}
+                    </button>
+                    <p className="text-xs opacity-70">
+                      Recomendado: 1200 × 900 px, JPG o WebP, hasta 500 KB.
+                    </p>
+                    {editImagePreview && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          if (editImagePreview.startsWith("blob:")) {
+                            URL.revokeObjectURL(editImagePreview);
+                          }
+                          setEditImageFile(null);
+                          setEditImagePreview("");
+                          setEditForm((prev) => ({
+                            ...prev,
+                            imageUrl: "",
+                            imageId: "",
+                          }));
+                          if (editImageInputRef.current) {
+                            editImageInputRef.current.value = "";
+                          }
+                        }}
+                      >
+                        <X className="mr-2 h-4 w-4" />
+                        Quitar
+                      </Button>
+                    )}
+                    <div className="flex items-center justify-between rounded-md border p-3">
+                      <Label htmlFor="e-show-image">Mostrar imagen en la carta</Label>
+                      <Switch
+                        id="e-show-image"
+                        checked={editForm.showImage ?? true}
+                        onCheckedChange={(checked) =>
+                          onChangeEdit("showImage", checked)
+                        }
+                      />
+                    </div>
+                  </div>
                 </div>
-
-                <Button onClick={handleGenerateKeywords} disabled={isGenerating}>
-                  {isGenerating && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Generar Keywords con IA
-                </Button>
               </div>
 
               <SheetFooter>
