@@ -11,6 +11,7 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories, listenCategories } from "@/lib/categories-service";
 import { useTenantUI } from "@/hooks/use-tenant-ui";
+import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { db } from "@/lib/firebase";
 
 import { Input } from "@/components/ui/input";
@@ -18,10 +19,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles as SparklesIcon } from "lucide-react";
 
-const formatCurrency = (price: number) =>
+const formatCurrency = (price: number, currency: "ARS" | "USD") =>
   new Intl.NumberFormat("es-AR", {
     style: "currency",
-    currency: "ARS",
+    currency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
@@ -85,6 +86,9 @@ export default function MenuClient({ tenantId }: Props) {
   } | null>(null);
 
   const ui = useTenantUI(tenantId);
+  const settings = useRestaurantSettings();
+  const tenantCurrency: "ARS" | "USD" =
+    settings?.currency === "USD" ? "USD" : "ARS";
   const uiReady = true;
 
   const specialBadgeText =
@@ -748,7 +752,7 @@ export default function MenuClient({ tenantId }: Props) {
                           </div>
 
                           <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                            {formatCurrency(item.price)}
+                            {formatCurrency(item.price, tenantCurrency)}
                           </span>
                         </div>
 
@@ -885,7 +889,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   </div>
 
                                   <span className="whitespace-nowrap text-sm font-semibold md:text-base">
-                                    {formatCurrency(item.price)}
+                                    {formatCurrency(item.price, tenantCurrency)}
                                   </span>
 
                                   {shownDesc && (
@@ -954,7 +958,7 @@ export default function MenuClient({ tenantId }: Props) {
                     {openItemImage.name}
                   </h3>
                   <span className="whitespace-nowrap font-semibold">
-                    {formatCurrency(openItemImage.price)}
+                    {formatCurrency(openItemImage.price, tenantCurrency)}
                   </span>
                 </div>
                 {openItemImage.description && (
