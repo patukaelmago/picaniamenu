@@ -444,6 +444,22 @@ export default function TenantSettingsPage({
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="currency">Moneda de la carta</Label>
+              <select
+                id="currency"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="h-10 w-full rounded-md border bg-background px-3 text-sm"
+              >
+                <option value="ARS">Pesos argentinos (ARS)</option>
+                <option value="USD">Dólares estadounidenses (USD)</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Se aplicará a los precios del admin y de la carta pública.
+              </p>
+            </div>
+
             <div className="flex items-center justify-between rounded-md border p-4">
               <div className="space-y-0.5">
                 <Label htmlFor="show-logo">Mostrar logo</Label>
