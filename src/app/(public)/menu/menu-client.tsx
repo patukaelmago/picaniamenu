@@ -19,8 +19,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles as SparklesIcon } from "lucide-react";
 
-const formatCurrency = (price: number, currency: "ARS" | "USD") =>
-  new Intl.NumberFormat("es-AR", {
+const formatCurrency = (
+  price: number,
+  currency: "ARS" | "USD",
+  language: "es" | "en"
+) =>
+  new Intl.NumberFormat(language === "en" ? "en-US" : "es-AR", {
     style: "currency",
     currency,
     minimumFractionDigits: 0,
@@ -89,7 +93,32 @@ export default function MenuClient({ tenantId }: Props) {
   const settings = useRestaurantSettings();
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
+  const [language, setLanguage] = useState<"es" | "en">("es");
   const uiReady = true;
+
+  useEffect(() => {
+    if (!settings) return;
+    setLanguage(settings.language === "en" ? "en" : "es");
+  }, [settings?.language]);
+
+  const copy =
+    language === "en"
+      ? {
+          title: "OUR MENU",
+          search: "Search by dish or ingredient...",
+          special: "Chef's choice",
+          empty: "No dishes match your search.",
+          previous: "Previous category",
+          next: "Next category",
+        }
+      : {
+          title: "NUESTRA CARTA",
+          search: "Buscar por plato, ingrediente...",
+          special: "Sugerencia",
+          empty: "No encontramos platos que coincidan con la búsqueda.",
+          previous: "Categoría anterior",
+          next: "Categoría siguiente",
+        };
 
   const specialBadgeText =
     ui.specialBadgeText.replace(/\s/g, "") === ui.specialBadgeBg.replace(/\s/g, "")
@@ -550,8 +579,33 @@ export default function MenuClient({ tenantId }: Props) {
                 {ui.showFriday && <div className="hidden md:block" />}
 
                 <h1 className="font-headline text-lg md:text-2xl lg:text-3xl tracking-[0.3em] uppercase">
-                  NUESTRA CARTA
+                  {copy.title}
                 </h1>
+
+                <div
+                  className="flex overflow-hidden rounded-full border text-xs"
+                  style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
+                  aria-label="Idioma"
+                >
+                  {(["es", "en"] as const).map((code) => (
+                    <button
+                      key={code}
+                      type="button"
+                      onClick={() => setLanguage(code)}
+                      className="px-3 py-1 font-semibold transition-opacity hover:opacity-80"
+                      style={{
+                        backgroundColor:
+                          language === code ? `hsl(${ui.foreground})` : "transparent",
+                        color:
+                          language === code
+                            ? `hsl(${ui.background})`
+                            : `hsl(${ui.foreground})`,
+                      }}
+                    >
+                      {code.toUpperCase()}
+                    </button>
+                  ))}
+                </div>
 
                 {categoryNavItems.length > 0 && (
                   <div className="relative flex w-full items-center justify-center py-2">
@@ -559,7 +613,7 @@ export default function MenuClient({ tenantId }: Props) {
                       type="button"
                       onClick={() => moveCategoryNav("left")}
                       className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label="Categoría anterior"
+                      aria-label={copy.previous}
                     >
                       <ChevronLeft
                         className="h-10 w-10"
@@ -613,7 +667,7 @@ export default function MenuClient({ tenantId }: Props) {
                       type="button"
                       onClick={() => moveCategoryNav("right")}
                       className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label="Categoría siguiente"
+                      aria-label={copy.next}
                     >
                       <ChevronRight
                         className="h-10 w-10"
@@ -632,7 +686,7 @@ export default function MenuClient({ tenantId }: Props) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por plato, ingrediente..."
+              placeholder={copy.search}
               style={{
                 color: `hsl(${ui.searchText})`,
                 caretColor: `hsl(${ui.searchText})`,
@@ -734,7 +788,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   }}
                                 >
                                   <SparklesIcon className="h-3 w-3" />
-                                  Sugerencia
+                                  {copy.special}
                                 </Badge>
                               )}
 
@@ -752,7 +806,7 @@ export default function MenuClient({ tenantId }: Props) {
                           </div>
 
                           <span className="font-semibold text-sm md:text-base whitespace-nowrap">
-                            {formatCurrency(item.price, tenantCurrency)}
+                            {formatCurrency(item.price, tenantCurrency, language)}
                           </span>
                         </div>
 
@@ -838,7 +892,7 @@ export default function MenuClient({ tenantId }: Props) {
                                         }}
                                       >
                                         <SparklesIcon className="h-3 w-3" />
-                                        Sugerencia
+                                        {copy.special}
                                       </Badge>
                                     )}
 
@@ -881,7 +935,7 @@ export default function MenuClient({ tenantId }: Props) {
                                         }}
                                       >
                                         <SparklesIcon className="h-3 w-3" />
-                                        Sugerencia
+                                        {copy.special}
                                       </Badge>
                                     )}
 
@@ -889,7 +943,7 @@ export default function MenuClient({ tenantId }: Props) {
                                   </div>
 
                                   <span className="whitespace-nowrap text-sm font-semibold md:text-base">
-                                    {formatCurrency(item.price, tenantCurrency)}
+                                    {formatCurrency(item.price, tenantCurrency, language)}
                                   </span>
 
                                   {shownDesc && (
@@ -917,7 +971,7 @@ export default function MenuClient({ tenantId }: Props) {
 
             {filteredItems.length === 0 && (
               <p className="text-sm text-center opacity-70">
-                No encontramos platos que coincidan con la búsqueda.
+                {copy.empty}
               </p>
             )}
           </div>
@@ -958,7 +1012,7 @@ export default function MenuClient({ tenantId }: Props) {
                     {openItemImage.name}
                   </h3>
                   <span className="whitespace-nowrap font-semibold">
-                    {formatCurrency(openItemImage.price, tenantCurrency)}
+                    {formatCurrency(openItemImage.price, tenantCurrency, language)}
                   </span>
                 </div>
                 {openItemImage.description && (
