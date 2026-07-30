@@ -8,6 +8,7 @@ import { useParams } from "next/navigation";
 export type RestaurantSettings = {
   name: string;
   currency: string;
+  language: "es" | "en";
   logoUrl: string;
   websiteUrl: string;
   showLogo?: boolean;
@@ -32,6 +33,7 @@ export function useRestaurantSettings() {
           ? {
               name: raw.name ?? "",
               currency: raw.currency ?? "ARS",
+              language: raw.language === "en" ? "en" : "es",
               logoUrl: raw.logoUrl ?? "",
               websiteUrl: raw.websiteUrl ?? "",
               showLogo: raw.showLogo ?? true,
