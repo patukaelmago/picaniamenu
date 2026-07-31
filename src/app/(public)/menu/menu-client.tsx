@@ -519,10 +519,6 @@ export default function MenuClient({ tenantId }: Props) {
         tenantId === "picania" &&
         (normalizedCategoryName === "servicio de mesa" ||
           normalizedCategoryName === "servicios de mesa");
-      if (currentPage.length > 0 && !isPicaniaTableService) {
-        finishPage();
-      }
-
       const childCats = childCategoriesByParent[category.id] ?? [];
       const parentItems = filteredItems.filter(
         (item) => item.categoryId === category.id
@@ -550,8 +546,10 @@ export default function MenuClient({ tenantId }: Props) {
               PlaceHolderImages.find((placeholder) => placeholder.id === item.imageId)
           );
         const itemWeight = hasVisibleImage ? 2.25 : item.description ? 1.5 : 1;
+        const categoryHeaderWeight =
+          startsSegment && isFirstSegment ? 2.5 : 0;
         const requiredWeight =
-          itemWeight + (startsSegment ? 2.5 : 0) + (startsSubcategory ? 1 : 0);
+          itemWeight + categoryHeaderWeight + (startsSubcategory ? 1 : 0);
 
         if (
           !isPicaniaTableService &&
@@ -570,7 +568,7 @@ export default function MenuClient({ tenantId }: Props) {
             isFirstSegment,
           };
           currentPage.push(currentEntry);
-          currentWeight += 2.5;
+          currentWeight += categoryHeaderWeight;
           isFirstSegment = false;
         }
 
@@ -821,7 +819,7 @@ export default function MenuClient({ tenantId }: Props) {
                 className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-6 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-8 md:pt-14"
                 style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
               >
-                <div className="space-y-12">
+                <div className="space-y-6">
                   {page.map((pageCategory) => {
               const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
@@ -847,7 +845,7 @@ export default function MenuClient({ tenantId }: Props) {
                       : undefined
                   }
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
-                  className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-6 last:border-b-0 last:pb-0"
+                  className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-4 last:border-b-0 last:pb-0"
                 >
                   {pageCategory.isFirstSegment && (
                     <div className="space-y-1">
