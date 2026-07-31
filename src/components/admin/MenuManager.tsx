@@ -561,8 +561,10 @@ export default function MenuManager({ tenantId }: Props) {
       const imageUrl = editImageFile
         ? await uploadItemImage(editImageFile, editForm.name)
         : editForm.imageUrl;
+      const { menuVariants, ...itemFields } = editForm;
       await updateDoc(doc(itemsCol, editId), {
-        ...editForm,
+        ...itemFields,
+        ...(menuVariants ? { menuVariants } : {}),
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
