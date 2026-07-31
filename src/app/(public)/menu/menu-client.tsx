@@ -519,11 +519,6 @@ export default function MenuClient({ tenantId }: Props) {
         tenantId === "picania" &&
         (normalizedCategoryName === "servicio de mesa" ||
           normalizedCategoryName === "servicios de mesa");
-      const isPicaniaExecutiveLunch =
-        tenantId === "picania" &&
-        (normalizedCategoryName === "menu viernes" ||
-          normalizedCategoryName === "almuerzo ejecutivo");
-
       if (currentPage.length > 0 && !isPicaniaTableService) {
         finishPage();
       }
