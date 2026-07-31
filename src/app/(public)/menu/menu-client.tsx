@@ -524,7 +524,7 @@ export default function MenuClient({ tenantId }: Props) {
         (normalizedCategoryName === "menu viernes" ||
           normalizedCategoryName === "almuerzo ejecutivo");
 
-      if (isPicaniaExecutiveLunch && currentPage.length > 0) {
+      if (currentPage.length > 0 && !isPicaniaTableService) {
         finishPage();
       }
 
