@@ -903,7 +903,13 @@ export default function MenuClient({ tenantId }: Props) {
                               {specialBadge(item)}
                               {sinTaccBadge(item)}
 
-                              <div className="flex-1 border-b border-dotted border-foreground/20 mx-2" />
+                              <div
+                                className={
+                                  tenantId === "picania"
+                                    ? "mx-2 flex-1 border-b border-dotted border-[#fff7e3]/55"
+                                    : "mx-2 flex-1 border-b border-dotted border-foreground/20"
+                                }
+                              />
                             </div>
 
                             {item.description && (
@@ -1028,7 +1034,13 @@ export default function MenuClient({ tenantId }: Props) {
                                     {specialBadge(item)}
                                     {sinTaccBadge(item)}
 
-                                    <div className="mx-2 flex-1 border-b border-dotted border-foreground/20" />
+                                    <div
+                                      className={
+                                        tenantId === "picania"
+                                          ? "mx-2 flex-1 border-b border-dotted border-[#fff7e3]/55"
+                                          : "mx-2 flex-1 border-b border-dotted border-foreground/20"
+                                      }
+                                    />
                                   </div>
 
                                   <span className="whitespace-nowrap text-sm font-semibold md:text-base">
