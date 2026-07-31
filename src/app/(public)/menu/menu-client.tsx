@@ -505,7 +505,7 @@ export default function MenuClient({ tenantId }: Props) {
     let currentWeight = 0;
     // Deja margen real para el borde inferior de la hoja. Los títulos,
     // descripciones e imágenes ocupan más alto que una fila simple.
-    const pageCapacity = 18;
+    const pageCapacity = 19.5;
 
     const finishPage = () => {
       if (currentPage.length > 0) pages.push(currentPage);
@@ -823,7 +823,7 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
+                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-6 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-8 md:pt-14"
                 style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
               >
                 <div className="space-y-12">
