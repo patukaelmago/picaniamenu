@@ -617,9 +617,11 @@ export default function MenuClient({ tenantId }: Props) {
         )
         .filter((page) => page.length > 0);
 
-      const spiritsPageIndex = cleanPages.findLastIndex((page) =>
-        page.some((entry) => norm(entry.category.name) === "destilados")
-      );
+      const spiritsPageIndex = cleanPages
+        .map((page) =>
+          page.some((entry) => norm(entry.category.name) === "destilados")
+        )
+        .lastIndexOf(true);
 
       if (spiritsPageIndex >= 0 && serviceEntries.length > 0) {
         cleanPages[spiritsPageIndex].push(...serviceEntries);
