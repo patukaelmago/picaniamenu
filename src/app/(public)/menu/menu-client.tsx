@@ -593,6 +593,49 @@ export default function MenuClient({ tenantId }: Props) {
     });
 
     finishPage();
+
+    if (tenantId === "picania") {
+      const isCategory = (entry: PageCategory, names: string[]) =>
+        names.includes(norm(entry.category.name));
+      const serviceNames = ["servicio de mesa", "servicios de mesa"];
+      const lunchNames = ["menu viernes", "almuerzo ejecutivo"];
+
+      const serviceEntries = pages
+        .flat()
+        .filter((entry) => isCategory(entry, serviceNames));
+      const lunchEntries = pages
+        .flat()
+        .filter((entry) => isCategory(entry, lunchNames));
+
+      const cleanPages = pages
+        .map((page) =>
+          page.filter(
+            (entry) =>
+              !isCategory(entry, serviceNames) &&
+              !isCategory(entry, lunchNames)
+          )
+        )
+        .filter((page) => page.length > 0);
+
+      const spiritsPageIndex = cleanPages.findLastIndex((page) =>
+        page.some((entry) => norm(entry.category.name) === "destilados")
+      );
+
+      if (spiritsPageIndex >= 0 && serviceEntries.length > 0) {
+        cleanPages[spiritsPageIndex].push(...serviceEntries);
+      }
+
+      if (lunchEntries.length > 0) {
+        cleanPages.splice(
+          spiritsPageIndex >= 0 ? spiritsPageIndex + 1 : cleanPages.length,
+          0,
+          lunchEntries
+        );
+      }
+
+      return cleanPages;
+    }
+
     return pages;
   }, [visibleRootCategories, childCategoriesByParent, filteredItems, tenantId]);
 
