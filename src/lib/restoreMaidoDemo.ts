@@ -1,8 +1,16 @@
 import { db } from "./firebase";
 import { maidoDemo } from "@/demo-data/maido";
 
-export async function restoreMaidoDemo() {
-  console.log("Restaurando demo Maido...");
+import {
+  collection,
+  doc,
+  getDocs,
+  writeBatch,
+} from "firebase/firestore";
 
-  // Acá vamos a implementar la restauración completa
+export async function restoreMaidoDemo() {
+  const tenantId = "maido";
+  const batch = writeBatch(db);
+
+  // Restauraremos todo el tenant en los próximos pasos
 }
