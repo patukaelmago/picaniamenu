@@ -6,6 +6,9 @@ import {
   getDocs,
 } from "firebase/firestore";
 
+import fs from "fs";
+import path from "path";
+
 async function exportMaido() {
   const tenantId = "maido";
 
@@ -19,30 +22,36 @@ async function exportMaido() {
 
   const categories = (
     await getDocs(collection(db, `tenants/${tenantId}/categories`))
-  ).docs.map(d => ({
+  ).docs.map((d) => ({
     id: d.id,
     ...d.data(),
   }));
 
   const menuItems = (
     await getDocs(collection(db, `tenants/${tenantId}/menuItems`))
-  ).docs.map(d => ({
+  ).docs.map((d) => ({
     id: d.id,
     ...d.data(),
   }));
 
-  console.log(
-    JSON.stringify(
-      {
-        restaurant,
-        ui,
-        categories,
-        menuItems,
-      },
-      null,
-      2
-    )
+  const output = `export const maidoDemo = ${JSON.stringify(
+    {
+      restaurant,
+      ui,
+      categories,
+      menuItems,
+    },
+    null,
+    2
+  )};`;
+
+  fs.writeFileSync(
+    path.join(process.cwd(), "src/demo-data/maido.ts"),
+    output,
+    "utf8"
   );
+
+  console.log("✅ Demo exportado correctamente.");
 }
 
-exportMaido();
+exportMaido().catch(console.error);
