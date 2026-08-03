@@ -574,12 +574,21 @@ export default function MenuManager({ tenantId }: Props) {
 
   async function handleUpdateItem() {
     if (!editId) return;
-
+  
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     try {
       const imageUrl = editImageFile
         ? await uploadItemImage(editImageFile, editForm.name)
         : editForm.imageUrl;
+  
       const { menuVariants, ...itemFields } = editForm;
+  
       await updateDoc(doc(itemsCol, editId), {
         ...itemFields,
         ...(menuVariants ? { menuVariants } : {}),
@@ -589,12 +598,16 @@ export default function MenuManager({ tenantId }: Props) {
         order: Number(editForm.order ?? 0),
         updatedAt: serverTimestamp(),
       });
-
+  
       toast({ title: "Plato actualizado" });
       setEditOpen(false);
       setEditId(null);
       setEditForm(emptyItem);
-      if (editImagePreview.startsWith("blob:")) URL.revokeObjectURL(editImagePreview);
+  
+      if (editImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(editImagePreview);
+      }
+  
       setEditImageFile(null);
       setEditImagePreview("");
       await loadItems();
