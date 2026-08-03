@@ -502,10 +502,18 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleCreateItem() {
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     try {
       const imageUrl = createImageFile
         ? await uploadItemImage(createImageFile, createForm.name)
         : createForm.imageUrl;
+  
       await addDoc(itemsCol, {
         ...createForm,
         ...(isPulpo ? { menuVariants: ["A"] } : {}),
@@ -516,10 +524,14 @@ export default function MenuManager({ tenantId }: Props) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-
+  
       toast({ title: "Plato creado" });
       setCreateForm(emptyItem);
-      if (createImagePreview.startsWith("blob:")) URL.revokeObjectURL(createImagePreview);
+  
+      if (createImagePreview.startsWith("blob:")) {
+        URL.revokeObjectURL(createImagePreview);
+      }
+  
       setCreateImageFile(null);
       setCreateImagePreview("");
       setCreateOpen(false);
