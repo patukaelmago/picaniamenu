@@ -1,6 +1,8 @@
 "use client";
 
+
 import React, { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { restoreMaidoDemo } from "@/lib/restoreMaidoDemo";
 import Image from "next/image";
 import {
   collection,
@@ -281,6 +283,10 @@ export default function MenuManager({ tenantId }: Props) {
   useEffect(() => {
     const run = async () => {
       try {
+        if (tenantId === "maido") {
+          await restoreMaidoDemo();
+        }
+  
         await reloadAll();
       } catch (e) {
         console.error(e);
@@ -293,7 +299,7 @@ export default function MenuManager({ tenantId }: Props) {
         setLoading(false);
       }
     };
-
+  
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
