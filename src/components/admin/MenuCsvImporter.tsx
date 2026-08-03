@@ -199,22 +199,33 @@ export default function MenuCsvImporter({
 
   async function importRows() {
     if (rows.length === 0) return;
-
+  
+    if (tenantId === "maido") {
+      toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+      return;
+    }
+  
     try {
       setImporting(true);
+  
       const catsCol = collection(db, "tenants", tenantId, "categories");
       const itemsCol = collection(db, "tenants", tenantId, "menuItems");
+  
       const categoryIds = new Map(
         categories.map((category) => [normalize(category.name), category.id])
       );
+  
       let nextCategoryOrder =
         categories.length === 0
           ? 0
           : Math.max(...categories.map((category) => category.order ?? 0)) + 1;
-
+  
       for (const row of rows) {
         const key = normalize(row.categoria);
-
+  
         if (!categoryIds.has(key)) {
           const categoryDoc = await addDoc(catsCol, {
             name: row.categoria,
@@ -225,21 +236,21 @@ export default function MenuCsvImporter({
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
           });
-
+  
           categoryIds.set(key, categoryDoc.id);
           nextCategoryOrder += 1;
         }
       }
-
+  
       const orderByCategory = new Map<string, number>();
-
+  
       for (const row of rows) {
         const categoryId = categoryIds.get(normalize(row.categoria));
         if (!categoryId) continue;
-
+  
         const order = orderByCategory.get(categoryId) ?? 0;
         orderByCategory.set(categoryId, order + 1);
-
+  
         await addDoc(itemsCol, {
           name: row.nombre,
           description: row.descripcion,
@@ -259,17 +270,20 @@ export default function MenuCsvImporter({
           updatedAt: serverTimestamp(),
         });
       }
-
+  
       await onImported();
+  
       toast({
         title: "Carta importada",
         description: `Se agregaron ${rows.length} ítems.`,
       });
+  
       setRows([]);
       setFileName("");
       setOpen(false);
     } catch (error) {
       console.error(error);
+  
       toast({
         variant: "destructive",
         title: "Error al importar",
