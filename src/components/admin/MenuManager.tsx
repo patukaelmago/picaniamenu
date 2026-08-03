@@ -705,13 +705,20 @@ export default function MenuManager({ tenantId }: Props) {
   async function onCreateCategory() {
     const name = formCatName.trim();
     if (!name) return;
-
+  
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     try {
       const nextOrder =
         categories.length === 0
           ? 0
           : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
-
+  
       await addDoc(catsCol, {
         name,
         description: "",
@@ -721,7 +728,7 @@ export default function MenuManager({ tenantId }: Props) {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
-
+  
       setFormCatName("");
       setFormCatParentId("");
       await loadCategories();
