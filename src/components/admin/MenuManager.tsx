@@ -351,12 +351,22 @@ export default function MenuManager({ tenantId }: Props) {
     const menuVariants = enabled
       ? Array.from(new Set([...current, variant]))
       : current.filter((value) => value !== variant);
-
+  
     setItems((prev) =>
-      prev.map((entry) => (entry.id === item.id ? { ...entry, menuVariants } : entry))
+      prev.map((entry) =>
+        entry.id === item.id ? { ...entry, menuVariants } : entry
+      )
     );
-
+  
     try {
+      if (tenantId === "maido") {
+        toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+        return;
+      }
+  
       await updateDoc(doc(itemsCol, item.id), {
         menuVariants,
         updatedAt: serverTimestamp(),
@@ -365,7 +375,9 @@ export default function MenuManager({ tenantId }: Props) {
       console.error(e);
       setItems((prev) =>
         prev.map((entry) =>
-          entry.id === item.id ? { ...entry, menuVariants: item.menuVariants } : entry
+          entry.id === item.id
+            ? { ...entry, menuVariants: item.menuVariants }
+            : entry
         )
       );
       toast({
@@ -375,13 +387,13 @@ export default function MenuManager({ tenantId }: Props) {
       });
     }
   }
-
+  
   const categoryById = useMemo(() => {
     const m = new Map<string, Category>();
     categories.forEach((c) => m.set(c.id, c));
     return m;
   }, [categories]);
-
+  
   const rootCategories = useMemo(
     () => categories.filter((c) => !c.parentCategoryId),
     [categories]
