@@ -703,85 +703,92 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function onCreateCategory() {
-    const name = formCatName.trim();
-    if (!name) return;
-  
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
-    try {
-      const nextOrder =
-        categories.length === 0
-          ? 0
-          : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
-  
-      await addDoc(catsCol, {
-        name,
-        description: "",
-        order: nextOrder,
-        isVisible: true,
-        parentCategoryId: formCatParentId || null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      });
-  
-      setFormCatName("");
-      setFormCatParentId("");
-      await loadCategories();
-      toast({ title: "Categoría creada" });
-    } catch (e) {
-      console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo crear la categoría.",
-      });
-    }
+  const name = formCatName.trim();
+  if (!name) return;
+
+  if (tenantId === "maido") {
+    return toast({
+      title: "Modo demostración",
+      description: "Los cambios no se guardan.",
+    });
   }
 
-  function startEditCategory(cat: Category) {
-    setCatEditingId(cat.id);
-    setCatForm({
-      name: cat.name,
-      description: cat.description ?? "",
-      order: cat.order ?? 0,
-      isVisible: !!cat.isVisible,
-      parentCategoryId: cat.parentCategoryId ?? null,
+  try {
+    const nextOrder =
+      categories.length === 0
+        ? 0
+        : Math.max(...categories.map((c) => c.order ?? 0)) + 1;
+
+    await addDoc(catsCol, {
+      name,
+      description: "",
+      order: nextOrder,
+      isVisible: true,
+      parentCategoryId: formCatParentId || null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
 
-    setCatModalOpen(true);
+    setFormCatName("");
+    setFormCatParentId("");
+    await loadCategories();
+    toast({ title: "Categoría creada" });
+  } catch (e) {
+    console.error(e);
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "No se pudo crear la categoría.",
+    });
+  }
+}
+
+function startEditCategory(cat: Category) {
+  setCatEditingId(cat.id);
+  setCatForm({
+    name: cat.name,
+    description: cat.description ?? "",
+    order: cat.order ?? 0,
+    isVisible: !!cat.isVisible,
+    parentCategoryId: cat.parentCategoryId ?? null,
+  });
+
+  setCatModalOpen(true);
+}
+
+async function saveCategoryEdit() {
+  if (!catEditingId) return;
+
+  if (tenantId === "maido") {
+    return toast({
+      title: "Modo demostración",
+      description: "Los cambios no se guardan.",
+    });
   }
 
-  async function saveCategoryEdit() {
-    if (!catEditingId) return;
+  try {
+    await updateDoc(doc(catsCol, catEditingId), {
+      name: catForm.name.trim(),
+      description: catForm.description?.trim() ?? "",
+      order: Number(catForm.order) || 0,
+      isVisible: catForm.isVisible,
+      parentCategoryId: catForm.parentCategoryId ?? null,
+      updatedAt: serverTimestamp(),
+    });
 
-    try {
-      await updateDoc(doc(catsCol, catEditingId), {
-        name: catForm.name.trim(),
-        description: catForm.description?.trim() ?? "",
-        order: Number(catForm.order) || 0,
-        isVisible: catForm.isVisible,
-        parentCategoryId: catForm.parentCategoryId ?? null,
-        updatedAt: serverTimestamp(),
-      });
-
-      setCatModalOpen(false);
-      setCatEditingId(null);
-      await loadCategories();
-      toast({ title: "Categoría actualizada" });
-    } catch (e) {
-      console.error(e);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar la categoría.",
-      });
-    }
+    setCatModalOpen(false);
+    setCatEditingId(null);
+    await loadCategories();
+    toast({ title: "Categoría actualizada" });
+  } catch (e) {
+    console.error(e);
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "No se pudo actualizar la categoría.",
+    });
   }
+}
 
   async function onToggleVisible(cat: Category, value: boolean) {
     setCategories((prev) =>
@@ -809,8 +816,15 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function onDeleteCategory(cat: Category) {
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
-
+  
     try {
       await deleteDoc(doc(catsCol, cat.id));
       setCategories((prev) => prev.filter((c) => c.id !== cat.id));
