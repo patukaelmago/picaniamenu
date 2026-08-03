@@ -622,8 +622,15 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleDeleteItem(id: string) {
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     if (!confirm("¿Eliminar este plato?")) return;
-
+  
     try {
       await deleteDoc(doc(itemsCol, id));
       setItems((prev) => prev.filter((i) => i.id !== id));
