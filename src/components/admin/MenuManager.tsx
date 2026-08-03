@@ -601,6 +601,13 @@ export default function MenuManager({ tenantId }: Props) {
   
       const { menuVariants, ...itemFields } = editForm;
   
+      if (tenantId === "maido") {
+        return toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+      }
+      
       await updateDoc(doc(itemsCol, editId), {
         ...itemFields,
         ...(menuVariants ? { menuVariants } : {}),
@@ -667,13 +674,20 @@ export default function MenuManager({ tenantId }: Props) {
     );
 
     try {
+      if (tenantId === "maido") {
+        return toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+      }
+    
       await updateDoc(doc(itemsCol, id), {
         [field]: value,
         updatedAt: serverTimestamp(),
       });
     } catch (e) {
       console.error(e);
-
+    
       setItems((prev) =>
         prev.map((it) =>
           it.id === id ? ({ ...it, [field]: !value } as MenuItem) : it
@@ -695,6 +709,13 @@ export default function MenuManager({ tenantId }: Props) {
     );
 
     try {
+      if (tenantId === "maido") {
+        return toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+      }
+    
       await updateDoc(doc(itemsCol, item.id), {
         tags,
         updatedAt: serverTimestamp(),
@@ -779,6 +800,13 @@ async function saveCategoryEdit() {
   }
 
   try {
+    if (tenantId === "maido") {
+      return toast({
+        title: "Modo demostración",
+        description: "Los cambios no se guardan.",
+      });
+    }
+  
     await updateDoc(doc(catsCol, catEditingId), {
       name: catForm.name.trim(),
       description: catForm.description?.trim() ?? "",
@@ -808,13 +836,20 @@ async function saveCategoryEdit() {
     );
 
     try {
+      if (tenantId === "maido") {
+        return toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+      }
+    
       await updateDoc(doc(catsCol, cat.id), {
         isVisible: value,
         updatedAt: serverTimestamp(),
       });
     } catch (e) {
       console.error(e);
-
+    
       setCategories((prev) =>
         prev.map((c) => (c.id === cat.id ? { ...c, isVisible: !value } : c))
       );
@@ -888,14 +923,22 @@ async function saveCategoryEdit() {
         .slice()
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      await Promise.all(
-        parents.map((c, i) =>
-          updateDoc(doc(catsCol, c.id), {
-            order: i,
-            updatedAt: serverTimestamp(),
-          })
-        )
-      );
+        if (tenantId === "maido") {
+          toast({
+            title: "Modo demostración",
+            description: "Los cambios no se guardan.",
+          });
+          return;
+        }
+        
+        await Promise.all(
+          parents.map((c, i) =>
+            updateDoc(doc(catsCol, c.id), {
+              order: i,
+              updatedAt: serverTimestamp(),
+            })
+          )
+        );
 
       toast({ title: "Orden de categorías padre guardado" });
     } catch (e) {
@@ -964,14 +1007,22 @@ async function saveCategoryEdit() {
         .filter((i) => i.categoryId === categoryId)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
-      await Promise.all(
-        affected.map((item) =>
-          updateDoc(doc(itemsCol, item.id), {
-            order: item.order ?? 0,
-            updatedAt: serverTimestamp(),
-          })
-        )
-      );
+        if (tenantId === "maido") {
+          toast({
+            title: "Modo demostración",
+            description: "Los cambios no se guardan.",
+          });
+          return;
+        }
+        
+        await Promise.all(
+          affected.map((item) =>
+            updateDoc(doc(itemsCol, item.id), {
+              order: item.order ?? 0,
+              updatedAt: serverTimestamp(),
+            })
+          )
+        );
 
       toast({ title: "Orden de items guardado" });
     } catch (e) {
