@@ -1230,38 +1230,39 @@ async function saveCategoryEdit() {
       )}
 
       <Tabs defaultValue="items" className="w-full min-w-0">
-        <TabsList
-          className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
-          style={{
-            backgroundColor: `hsl(${ui.adminCard})`,
-            borderColor: `hsl(${ui.adminSidebarBg} / 0.16)`,
-          }}
-        >
-          <TabsTrigger
-            value="items"
-            className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
-            style={{
-              "--tab-active-bg": ui.adminSidebarBg,
-              "--tab-active-text": ui.adminSidebarText,
-              "--tab-hover-bg": ui.adminAccent,
-              "--tab-hover-text": ui.adminCard,
-            } as CSSProperties}
-          >
-            Items del Menú
-          </TabsTrigger>
-          <TabsTrigger
-            value="categories"
-            className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
-            style={{
-              "--tab-active-bg": ui.adminSidebarBg,
-              "--tab-active-text": ui.adminSidebarText,
-              "--tab-hover-bg": ui.adminAccent,
-              "--tab-hover-text": ui.adminCard,
-            } as CSSProperties}
-          >
-            Categorías
-          </TabsTrigger>
-        </TabsList>
+      <TabsList
+  className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
+  style={{
+    backgroundColor: `hsl(${ui.adminCard})`,
+    borderColor: `hsl(${ui.adminSidebarBg} / 0.16)`,
+  }}
+>
+  <TabsTrigger
+    value="items"
+    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    style={{
+      "--tab-active-bg": ui.adminSidebarBg,
+      "--tab-active-text": ui.adminSidebarText,
+      "--tab-hover-bg": ui.adminAccent,
+      "--tab-hover-text": ui.adminCard,
+    } as CSSProperties}
+  >
+    Items del Menú
+  </TabsTrigger>
+
+  <TabsTrigger
+    value="categories"
+    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    style={{
+      "--tab-active-bg": ui.adminSidebarBg,
+      "--tab-active-text": ui.adminSidebarText,
+      "--tab-hover-bg": ui.adminAccent,
+      "--tab-hover-text": ui.adminCard,
+    } as CSSProperties}
+  >
+    Categorías
+  </TabsTrigger>
+</TabsList>
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
