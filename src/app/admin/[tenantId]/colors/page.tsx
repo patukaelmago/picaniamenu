@@ -158,15 +158,25 @@ export default function TenantColorsPage({
   }
 
   async function saveColors() {
-    if (saving) return;
+    if (saving || tenantId === "maido") {
+      if (tenantId === "maido") {
+        toast({
+          title: "Modo demostración",
+          description: "Los cambios no se guardan.",
+        });
+      }
+      return;
+    }
+  
     setSaving(true);
-
+  
     try {
       const colorOverrides: TenantColorOverrides = {};
+  
       TENANT_COLOR_FIELDS.forEach(({ key }) => {
         colorOverrides[key] = hexToHsl(colors[key]);
       });
-
+  
       await setDoc(
         doc(db, "tenants", tenantId, "settings", "ui"),
         {
@@ -179,20 +189,22 @@ export default function TenantColorsPage({
         },
         { merge: true }
       );
-
+  
       toast({
         title: "Colores guardados",
         description: "La carta y el panel ya usan la nueva paleta.",
       });
-
+  
       window.setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       console.error(error);
+  
       toast({
         variant: "destructive",
         title: "Error",
         description: "No se pudieron guardar los colores.",
       });
+    } finally {
       setSaving(false);
     }
   }
