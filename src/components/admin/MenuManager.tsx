@@ -299,10 +299,6 @@ export default function MenuManager({ tenantId }: Props) {
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
-  
-    run();
-    // eslint-disable-next-line react-hooks/exhaustive-deps 
-  }, [tenantId]);
 
   useEffect(() => {
     if (!isPulpo) return;
