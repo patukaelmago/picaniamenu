@@ -283,10 +283,6 @@ export default function MenuManager({ tenantId }: Props) {
   useEffect(() => {
     const run = async () => {
       try {
-        if (tenantId === "maido") {
-          await restoreMaidoDemo();
-        }
-  
         await reloadAll();
       } catch (e) {
         console.error(e);
@@ -299,6 +295,10 @@ export default function MenuManager({ tenantId }: Props) {
         setLoading(false);
       }
     };
+  
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tenantId]);
   
     run();
     // eslint-disable-next-line react-hooks/exhaustive-deps 
