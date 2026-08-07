@@ -126,7 +126,6 @@ const withSinTacc = (
 };
 
 export default function MenuManager({ tenantId }: Props) {
-  const isPulpo = tenantId.toLowerCase() === "pulpo";
   const ui = useTenantUI(tenantId);
   const settings = useRestaurantSettings();
   const tenantCurrency: "ARS" | "USD" =
@@ -301,8 +300,6 @@ export default function MenuManager({ tenantId }: Props) {
   }, [tenantId]);
 
   useEffect(() => {
-    if (!isPulpo) return;
-
     return onSnapshot(
       doc(db, "tenants", tenantId, "settings", "menuVariants"),
       (snapshot) => {
@@ -310,7 +307,7 @@ export default function MenuManager({ tenantId }: Props) {
         setActiveMenuVariant(value === "B" ? "B" : "A");
       }
     );
-  }, [isPulpo, tenantId]);
+  }, [tenantId]);
 
   async function handleActiveMenuVariant(next: "A" | "B") {
     if (next === activeMenuVariant) return;
@@ -524,7 +521,7 @@ export default function MenuManager({ tenantId }: Props) {
   
       await addDoc(itemsCol, {
         ...createForm,
-        ...(isPulpo ? { menuVariants: ["A"] } : {}),
+        menuVariants: ["A"],
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
@@ -1174,8 +1171,7 @@ async function saveCategoryEdit() {
         </p>
       </div>
 
-      {isPulpo && (
-        <Card
+      <Card
           className="border-0 shadow-sm ring-1 ring-black/5"
           style={{
             backgroundColor: `hsl(${ui.adminCard})`,
@@ -1223,7 +1219,6 @@ async function saveCategoryEdit() {
             </div>
           </CardContent>
         </Card>
-      )}
 
       <Tabs defaultValue="items" className="w-full min-w-0">
       <TabsList
@@ -1594,12 +1589,8 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Categoría</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
-                          {isPulpo && (
-                            <>
-                              <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
-                              <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
-                            </>
-                          )}
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
@@ -1675,28 +1666,24 @@ async function saveCategoryEdit() {
                                 />
                               </TableCell>
 
-                              {isPulpo && (
-                                <>
-                                  <TableCell>
-                                    <Switch
-                                      checked={(item.menuVariants ?? ["A"]).includes("A")}
-                                      onCheckedChange={(value) =>
-                                        handleToggleMenuVariant(item, "A", value)
-                                      }
-                                      aria-label={`${item.name} en Carta A`}
-                                    />
-                                  </TableCell>
-                                  <TableCell>
-                                    <Switch
-                                      checked={(item.menuVariants ?? ["A"]).includes("B")}
-                                      onCheckedChange={(value) =>
-                                        handleToggleMenuVariant(item, "B", value)
-                                      }
-                                      aria-label={`${item.name} en Carta B`}
-                                    />
-                                  </TableCell>
-                                </>
-                              )}
+                              <TableCell>
+                                <Switch
+                                  checked={(item.menuVariants ?? ["A"]).includes("A")}
+                                  onCheckedChange={(value) =>
+                                    handleToggleMenuVariant(item, "A", value)
+                                  }
+                                  aria-label={`${item.name} en Carta A`}
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Switch
+                                  checked={(item.menuVariants ?? ["A"]).includes("B")}
+                                  onCheckedChange={(value) =>
+                                    handleToggleMenuVariant(item, "B", value)
+                                  }
+                                  aria-label={`${item.name} en Carta B`}
+                                />
+                              </TableCell>
 
                               <TableCell>
                                 <Switch
