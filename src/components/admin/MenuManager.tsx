@@ -2,7 +2,6 @@
 
 
 import React, { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { restoreMaidoDemo } from "@/lib/restoreMaidoDemo";
 import Image from "next/image";
 import {
   collection,
@@ -352,14 +351,6 @@ export default function MenuManager({ tenantId }: Props) {
     );
   
     try {
-      if (tenantId === "maido") {
-        toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-        return;
-      }
-  
       await updateDoc(doc(itemsCol, item.id), {
         menuVariants,
         updatedAt: serverTimestamp(),
@@ -507,13 +498,6 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleCreateItem() {
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
     try {
       const imageUrl = createImageFile
         ? await uploadItemImage(createImageFile, createForm.name)
@@ -580,26 +564,12 @@ export default function MenuManager({ tenantId }: Props) {
   async function handleUpdateItem() {
     if (!editId) return;
   
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
     try {
       const imageUrl = editImageFile
         ? await uploadItemImage(editImageFile, editForm.name)
         : editForm.imageUrl;
   
       const { menuVariants, ...itemFields } = editForm;
-  
-      if (tenantId === "maido") {
-        return toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-      }
       
       await updateDoc(doc(itemsCol, editId), {
         ...itemFields,
@@ -634,13 +604,6 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleDeleteItem(id: string) {
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
     if (!confirm("¿Eliminar este plato?")) return;
   
     try {
@@ -667,13 +630,6 @@ export default function MenuManager({ tenantId }: Props) {
     );
 
     try {
-      if (tenantId === "maido") {
-        return toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-      }
-    
       await updateDoc(doc(itemsCol, id), {
         [field]: value,
         updatedAt: serverTimestamp(),
@@ -702,13 +658,6 @@ export default function MenuManager({ tenantId }: Props) {
     );
 
     try {
-      if (tenantId === "maido") {
-        return toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-      }
-    
       await updateDoc(doc(itemsCol, item.id), {
         tags,
         updatedAt: serverTimestamp(),
@@ -731,13 +680,6 @@ export default function MenuManager({ tenantId }: Props) {
   async function onCreateCategory() {
   const name = formCatName.trim();
   if (!name) return;
-
-  if (tenantId === "maido") {
-    return toast({
-      title: "Modo demostración",
-      description: "Los cambios no se guardan.",
-    });
-  }
 
   try {
     const nextOrder =
@@ -785,21 +727,7 @@ function startEditCategory(cat: Category) {
 async function saveCategoryEdit() {
   if (!catEditingId) return;
 
-  if (tenantId === "maido") {
-    return toast({
-      title: "Modo demostración",
-      description: "Los cambios no se guardan.",
-    });
-  }
-
   try {
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
     await updateDoc(doc(catsCol, catEditingId), {
       name: catForm.name.trim(),
       description: catForm.description?.trim() ?? "",
@@ -829,13 +757,6 @@ async function saveCategoryEdit() {
     );
 
     try {
-      if (tenantId === "maido") {
-        return toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-      }
-    
       await updateDoc(doc(catsCol, cat.id), {
         isVisible: value,
         updatedAt: serverTimestamp(),
@@ -856,13 +777,6 @@ async function saveCategoryEdit() {
   }
 
   async function onDeleteCategory(cat: Category) {
-    if (tenantId === "maido") {
-      return toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-    }
-  
     if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
   
     try {
@@ -915,14 +829,6 @@ async function saveCategoryEdit() {
       const parents = rootCategories
         .slice()
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-        if (tenantId === "maido") {
-          toast({
-            title: "Modo demostración",
-            description: "Los cambios no se guardan.",
-          });
-          return;
-        }
         
         await Promise.all(
           parents.map((c, i) =>
@@ -999,14 +905,6 @@ async function saveCategoryEdit() {
       const affected = items
         .filter((i) => i.categoryId === categoryId)
         .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-
-        if (tenantId === "maido") {
-          toast({
-            title: "Modo demostración",
-            description: "Los cambios no se guardan.",
-          });
-          return;
-        }
         
         await Promise.all(
           affected.map((item) =>

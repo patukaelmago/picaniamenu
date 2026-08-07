@@ -200,14 +200,6 @@ export default function MenuCsvImporter({
   async function importRows() {
     if (rows.length === 0) return;
   
-    if (tenantId === "maido") {
-      toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-      return;
-    }
-  
     try {
       setImporting(true);
   

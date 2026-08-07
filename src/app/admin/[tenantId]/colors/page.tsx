@@ -158,15 +158,7 @@ export default function TenantColorsPage({
   }
 
   async function saveColors() {
-    if (saving || tenantId === "maido") {
-      if (tenantId === "maido") {
-        toast({
-          title: "Modo demostración",
-          description: "Los cambios no se guardan.",
-        });
-      }
-      return;
-    }
+    if (saving) return;
   
     setSaving(true);
   

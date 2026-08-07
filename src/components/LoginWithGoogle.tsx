@@ -11,6 +11,7 @@ import {
 } from "firebase/auth";
 import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
+import { restoreMaidoDemo } from "@/lib/restoreMaidoDemo";
 
 export default function LoginWithGoogle() {
   const router = useRouter();
@@ -73,6 +74,10 @@ export default function LoginWithGoogle() {
 
       if (!result.user.email) {
         throw new Error("No se pudo leer el email del usuario.");
+      }
+
+      if (result.user.email.toLowerCase() === "demo-maido@carta-online.com") {
+        await restoreMaidoDemo();
       }
 
       await redirectAuthorizedUser(result.user.email);
