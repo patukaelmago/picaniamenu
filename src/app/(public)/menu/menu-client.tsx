@@ -104,10 +104,9 @@ export default function MenuClient({ tenantId }: Props) {
     () =>
       allMenuItems.filter(
         (item) =>
-          !isPulpo ||
           (item.menuVariants ?? ["A"]).includes(activeMenuVariant)
       ),
-    [activeMenuVariant, allMenuItems, isPulpo]
+    [activeMenuVariant, allMenuItems]
   );
 
   const copy = {
@@ -255,15 +254,13 @@ export default function MenuClient({ tenantId }: Props) {
   }, [tenantId]);
 
   useEffect(() => {
-    if (!isPulpo) return;
-
     return onSnapshot(
       doc(db, "tenants", tenantId, "settings", "menuVariants"),
       (snapshot) => {
         setActiveMenuVariant(snapshot.data()?.activeVariant === "B" ? "B" : "A");
       }
     );
-  }, [isPulpo, tenantId]);
+  }, [tenantId]);
 
   useEffect(() => {
     return listenCategories(tenantId, (cats) => {
