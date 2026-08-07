@@ -318,14 +318,6 @@ export default function TenantSettingsPage({
   async function handleSave() {
     if (isSaving) return;
 
-    if (tenantId === "maido") {
-      toast({
-        title: "Modo demostración",
-        description: "Los cambios no se guardan.",
-      });
-      return;
-    }
-
     setIsSaving(true);
     setLogoProgress(0);
     setCarouselProgress(null);
