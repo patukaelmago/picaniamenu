@@ -43,6 +43,12 @@ export async function restoreMaidoDemo() {
     maidoDemo.ui
   );
 
+  // Restaurar la carta publicada por defecto
+  await setDoc(
+    doc(db, `tenants/${tenantId}/settings/menuVariants`),
+    { activeVariant: "A" }
+  );
+
   // Restaurar categorías
   for (const category of maidoDemo.categories) {
     const { id, ...data } = category;
