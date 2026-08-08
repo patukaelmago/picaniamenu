@@ -2139,7 +2139,7 @@ async function saveCategoryEdit() {
                   <SheetHeader>
                     <SheetTitle>Editar categoría</SheetTitle>
                     <SheetDescription>
-                      Modificá el nombre, orden o visibilidad.
+                      Modificá el nombre o la visibilidad.
                     </SheetDescription>
                   </SheetHeader>
 
@@ -2168,24 +2168,6 @@ async function saveCategoryEdit() {
                         value={catForm.description}
                         onChange={(e) =>
                           setCatForm((p) => ({ ...p, description: e.target.value }))
-                        }
-                      />
-                    </div>
-
-                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                      <Label htmlFor="cat-order" className="sm:text-right">
-                        Orden
-                      </Label>
-                      <Input
-                        id="cat-order"
-                        type="number"
-                        className="sm:col-span-3"
-                        value={catForm.order}
-                        onChange={(e) =>
-                          setCatForm((p) => ({
-                            ...p,
-                            order: Number(e.target.value),
-                          }))
                         }
                       />
                     </div>
