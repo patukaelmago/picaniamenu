@@ -148,6 +148,10 @@ export default function MenuManager({ tenantId }: Props) {
   const [parentFilterId, setParentFilterId] = useState<string>("");
 
   const [dragRootIndex, setDragRootIndex] = useState<number | null>(null);
+  const [dragChild, setDragChild] = useState<{
+    parentId: string;
+    index: number;
+  } | null>(null);
   const [isSavingOrder, setIsSavingOrder] = useState(false);
 
   const [catEditingId, setCatEditingId] = useState<string | null>(null);
@@ -846,6 +850,74 @@ async function saveCategoryEdit() {
         variant: "destructive",
         title: "Error",
         description: "No se pudo guardar el nuevo orden.",
+      });
+      await loadCategories();
+    } finally {
+      setIsSavingOrder(false);
+    }
+  }
+
+  function handleChildDragStart(parentId: string, index: number) {
+    setDragChild({ parentId, index });
+  }
+
+  function handleChildDragOver(
+    e: React.DragEvent<HTMLDivElement>,
+    parentId: string,
+    overIndex: number
+  ) {
+    e.preventDefault();
+
+    if (!dragChild || dragChild.parentId !== parentId) return;
+    if (dragChild.index === overIndex) return;
+
+    const siblings = childrenByParent.get(parentId) ?? [];
+    const moved = arrayMove(siblings, dragChild.index, overIndex);
+
+    setCategories((prev) => {
+      const next = prev.slice();
+
+      moved.forEach((category, index) => {
+        const categoryIndex = next.findIndex((c) => c.id === category.id);
+        if (categoryIndex !== -1) {
+          next[categoryIndex] = { ...next[categoryIndex], order: index };
+        }
+      });
+
+      return next;
+    });
+
+    setDragChild({ parentId, index: overIndex });
+  }
+
+  async function handleChildDragEnd(parentId: string) {
+    if (!dragChild || dragChild.parentId !== parentId) return;
+
+    setDragChild(null);
+
+    try {
+      setIsSavingOrder(true);
+
+      const siblings = (childrenByParent.get(parentId) ?? [])
+        .slice()
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+      await Promise.all(
+        siblings.map((category, index) =>
+          updateDoc(doc(catsCol, category.id), {
+            order: index,
+            updatedAt: serverTimestamp(),
+          })
+        )
+      );
+
+      toast({ title: "Orden de subcategorías guardado" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el orden de las subcategorías.",
       });
       await loadCategories();
     } finally {
@@ -1997,13 +2069,22 @@ async function saveCategoryEdit() {
                         </div>
 
                         {openParents[parent.id] &&
-                          children.map((child) => (
+                          children.map((child, childIndex) => (
                             <div
                               key={child.id}
-                              className="ml-8 flex items-center justify-between p-3 bg-secondary/60 rounded-md border border-border/40"
+                              className="ml-8 flex cursor-grab items-center justify-between rounded-md border border-border/40 bg-secondary/60 p-3 active:cursor-grabbing"
+                              draggable
+                              onDragStart={() =>
+                                handleChildDragStart(parent.id, childIndex)
+                              }
+                              onDragOver={(e) =>
+                                handleChildDragOver(e, parent.id, childIndex)
+                              }
+                              onDragEnd={() => handleChildDragEnd(parent.id)}
                             >
                               <div className="flex w-full items-center gap-3 lg:w-auto">
                                 <span className="text-muted-foreground">↳</span>
+                                <GripVertical className="h-5 w-5 text-muted-foreground" />
                                 <span className="font-medium">{child.name}</span>
                               </div>
 
