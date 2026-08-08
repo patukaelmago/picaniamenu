@@ -1027,7 +1027,7 @@ export default function MenuClient({ tenantId }: Props) {
                                     >
                                       {(shownDesc || "—").replace(
                                         /^Agua o gaseosa linea Coca-Cola/i,
-                                        "AGUA O GASEOSA LÍNEA COCA-COLA"
+                                        "AGUA O GASEOSA"
                                       )}
                                     </span>
                                   </p>
