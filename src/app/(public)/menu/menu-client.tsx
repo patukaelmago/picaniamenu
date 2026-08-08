@@ -957,7 +957,14 @@ export default function MenuClient({ tenantId }: Props) {
                       itemsSub[0]?.id === allSubItems[0]?.id;
 
                     return (
-                      <div key={sub.id} className="border-b border-border/10 pb-3">
+                      <div
+                        key={sub.id}
+                        className={`border-b border-border/10 pb-3 ${
+                          isFridayMenu && isIncluye
+                            ? "mt-3 border-t border-[#fff7e3]/50 pt-3"
+                            : ""
+                        }`}
+                      >
                         {showSubTitle && (
                           <p
                             className="font-headline uppercase text-[15px] md:text-[18px] font-semibold tracking-[0.16em] pt-4 pb-2"
