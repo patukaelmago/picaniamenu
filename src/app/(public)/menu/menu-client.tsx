@@ -982,6 +982,12 @@ export default function MenuClient({ tenantId }: Props) {
                               isFridayMenu && isIncluye
                                 ? fridayDescOverride(item.name, item.description, fridayData)
                                 : item.description ?? "";
+                            const isFridayComplement =
+                              isFridayMenu &&
+                              isIncluye &&
+                              ["bebida", "entrada", "postre", "postre o cafe", "cafe"].includes(
+                                norm(item.name)
+                              );
 
                             if (isFridayMenu && isIncluye) {
                               return (
@@ -989,7 +995,11 @@ export default function MenuClient({ tenantId }: Props) {
                                   {itemThumbnail(item)}
                                   <p>
                                     <span
-                                      className="font-headline text-[13px] md:text-[15px] tracking-wide"
+                                      className={`font-headline tracking-wide ${
+                                        isFridayComplement
+                                          ? "text-[11px] md:text-[12px]"
+                                          : "text-[13px] md:text-[15px]"
+                                      }`}
                                       style={{ color: "#FFF7E3" }}
                                     >
                                       {item.name}
@@ -1001,7 +1011,11 @@ export default function MenuClient({ tenantId }: Props) {
                                     {": "}
 
                                     <span
-                                      className="font-normal text-[13px] md:text-[15px] tracking-wide"
+                                      className={`font-normal tracking-wide ${
+                                        isFridayComplement
+                                          ? "text-[11px] md:text-[12px]"
+                                          : "text-[13px] md:text-[15px]"
+                                      }`}
                                       style={{ color: `hsl(${ui.descriptionText})` }}
                                     >
                                       {(shownDesc || "—").replace(
