@@ -164,7 +164,7 @@ export default function MenuClient({ tenantId }: Props) {
             price: item.price,
           })
         }
-        className="group/item-image float-left mr-3 mb-2 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:h-16 md:w-16"
+        className="group/item-image float-none m-0 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:float-left md:mr-3 md:mb-2 md:h-16 md:w-16"
         style={{ borderColor: `hsl(${ui.foreground} / 0.3)` }}
         aria-label={`Ver imagen de ${item.name}`}
       >
@@ -211,7 +211,7 @@ export default function MenuClient({ tenantId }: Props) {
     if (!hasSpecial && !hasGlutenFree) return null;
 
     return (
-      <div className="-ml-2 mt-1 flex items-center gap-1 md:hidden">
+      <div className="col-span-2 mt-1 flex items-center gap-1 md:hidden">
         {specialBadge(item)}
         {sinTaccBadge(item)}
       </div>
@@ -900,7 +900,14 @@ export default function MenuClient({ tenantId }: Props) {
 
                   <div className="divide-y divide-border/10">
                     {parentItems.map((item) => (
-                      <div key={item.id} className="flow-root py-3">
+                      <div
+                        key={item.id}
+                        className={`py-3 ${
+                          getItemImage(item)
+                            ? "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 md:flow-root"
+                            : "flow-root"
+                        }`}
+                      >
                         {itemThumbnail(item)}
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3">
                           <div className="min-w-0">
@@ -941,7 +948,7 @@ export default function MenuClient({ tenantId }: Props) {
                         {mobileIndicators(item)}
 
                         {(item.tags ?? []).length > 0 && (
-                          <div className="mt-1 flex flex-wrap gap-1">
+                          <div className="col-span-2 mt-1 flex flex-wrap gap-1">
                             {(item.tags ?? [])
                               .filter((tag) => tag !== "sin TACC")
                               .map((tag) => (
@@ -1016,7 +1023,14 @@ export default function MenuClient({ tenantId }: Props) {
 
                             if (isFridayMenu && isIncluye) {
                               return (
-                                <div key={item.id} className="flow-root py-3">
+                                <div
+                        key={item.id}
+                        className={`py-3 ${
+                          getItemImage(item)
+                            ? "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 md:flow-root"
+                            : "flow-root"
+                        }`}
+                      >
                                   {itemThumbnail(item)}
                                   <p>
                                     <span
@@ -1056,7 +1070,11 @@ export default function MenuClient({ tenantId }: Props) {
                             return (
                               <div
                                 key={item.id}
-                                className="flow-root py-3"
+                                className={`py-3 ${
+                                  getItemImage(item)
+                                    ? "grid grid-cols-[3.5rem_minmax(0,1fr)] gap-x-3 md:flow-root"
+                                    : "flow-root"
+                                }`}
                               >
                                 {itemThumbnail(item)}
                                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-2">
