@@ -217,6 +217,72 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-[#F3F1EC] py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[.85fr_1.15fr]">
+          <div>
+            <span className="inline-flex rounded-full bg-[#FF6B00] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white">
+              Código QR
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">
+              Un QR listo para compartir.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-[#5E6573]">
+              Descargalo, compartilo o imprimilo. El código sigue siendo el mismo aunque cambies productos, precios o imágenes.
+            </p>
+            <div className="mt-8 space-y-4">
+              <Benefit text="Un único QR para tu carta" />
+              <Benefit text="Descarga lista para imprimir" />
+              <Benefit text="Enlace directo al menú público" />
+            </div>
+          </div>
+          <AdminFeaturePreview section="qr" />
+        </div>
+      </section>
+
+      <section className="bg-white py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[1.15fr_.85fr]">
+          <AdminFeaturePreview section="colors" />
+          <div>
+            <span className="inline-flex rounded-full bg-[#FF6B00] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white">
+              Colores
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">
+              Tu identidad en cada detalle.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-[#5E6573]">
+              Personalizá fondos, textos, navegación y destacados para que la carta tenga la identidad visual de tu restaurante.
+            </p>
+            <div className="mt-8 space-y-4">
+              <Benefit text="Paleta propia para cada local" />
+              <Benefit text="Vista previa de cada combinación" />
+              <Benefit text="Cambios visibles inmediatamente" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#F3F1EC] py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[.85fr_1.15fr]">
+          <div>
+            <span className="inline-flex rounded-full bg-[#FF6B00] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white">
+              Ajustes
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">
+              Todo tu local, configurado.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-[#5E6573]">
+              Administrá el nombre, el logo y las imágenes principales desde un único lugar, sin depender de soporte técnico.
+            </p>
+            <div className="mt-8 space-y-4">
+              <Benefit text="Logo y nombre comercial" />
+              <Benefit text="Carrusel de imágenes ordenable" />
+              <Benefit text="Control de lo que ve el cliente" />
+            </div>
+          </div>
+          <AdminFeaturePreview section="settings" />
+        </div>
+      </section>
+
       <section className="bg-[#2563EB] py-20 text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center md:flex-row md:text-left">
           <div>
@@ -238,7 +304,7 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="border-t border-[#E5E7EB] bg-white py-10">
+      <footer className="border-t border-[#DED9CF] bg-[#F3F1EC] py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 text-center md:flex-row">
           <img
             src="/carta-online-logo-orange.svg"
@@ -353,6 +419,126 @@ function AdminPreview() {
             <ImageIcon className="h-3.5 w-3.5 text-[#D80E1F]" />
             Imágenes, visibilidad y orden en el mismo panel
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings" }) {
+  const titles = {
+    qr: "Código QR",
+    colors: "Colores",
+    settings: "Ajustes del Cliente",
+  };
+
+  return (
+    <div className="overflow-hidden rounded-3xl border border-[#DDE0E5] bg-white shadow-[0_24px_70px_rgba(21,26,36,.12)]">
+      <div className="flex min-h-[500px]">
+        <aside className="hidden w-36 shrink-0 bg-[#1D2E58] p-4 text-[#FFF2DE] sm:block">
+          <div className="border-b border-white/20 py-3">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Flogos%2Flogo-1785349762837.png?alt=media&token=664f0516-831d-48cd-b11f-e0c6f645a6f0"
+              alt="Maido"
+              className="mx-auto h-16 w-full object-contain"
+            />
+          </div>
+          <div className="mt-5 space-y-2 text-xs font-bold">
+            <AdminNav icon={UtensilsCrossed} text="Menú" />
+            <AdminNav icon={QrCode} text="QR" active={section === "qr"} />
+            <AdminNav icon={Palette} text="Colores" active={section === "colors"} />
+            <AdminNav icon={Settings} text="Ajustes" active={section === "settings"} />
+          </div>
+        </aside>
+
+        <div className="min-w-0 flex-1 bg-[#F8F6F1] p-4 sm:p-5">
+          <div className="rounded-xl border-l-4 border-[#D80E1F] bg-[#1D2E58] p-4 text-[#FFF2DE] shadow-sm">
+            <p className="text-lg font-black">{titles[section]}</p>
+            <p className="text-xs text-white/70">Maido</p>
+          </div>
+
+          {section === "qr" && (
+            <div className="mt-4 rounded-xl border bg-white p-5 text-center shadow-sm">
+              <p className="font-black">QR de tu carta</p>
+              <p className="mt-1 text-xs text-[#69708B]">Este código abre directamente el menú de Maido.</p>
+              <div className="mx-auto mt-5 flex h-48 w-48 items-center justify-center rounded-xl border-8 border-[#1D2E58] bg-white">
+                <QrCode className="h-36 w-36 text-[#1D2E58]" />
+              </div>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                <span className="rounded-md bg-[#1D2E58] px-4 py-2 text-xs font-bold text-white">Descargar QR</span>
+                <span className="rounded-md border border-[#1D2E58] px-4 py-2 text-xs font-bold text-[#1D2E58]">Compartir</span>
+              </div>
+              <p className="mt-4 text-[10px] font-bold text-[#69708B]">El enlace no cambia cuando actualizás la carta.</p>
+            </div>
+          )}
+
+          {section === "colors" && (
+            <div className="mt-4 rounded-xl border bg-white p-5 shadow-sm">
+              <p className="font-black">Personalización de colores</p>
+              <p className="mt-1 text-xs text-[#69708B]">Definí la identidad visual de tu carta.</p>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                {[
+                  ["Fondo principal", "#1D2E58"],
+                  ["Texto principal", "#FFF2DE"],
+                  ["Color destacado", "#D80E1F"],
+                  ["Fondo del menú", "#F8F6F1"],
+                  ["Navegación", "#1D2E58"],
+                  ["Texto navegación", "#FFFFFF"],
+                ].map(([label, color]) => (
+                  <div key={label} className="rounded-lg border p-3">
+                    <div className="flex items-center gap-2">
+                      <span className="h-9 w-9 shrink-0 rounded-md border" style={{ backgroundColor: color }} />
+                      <div className="min-w-0">
+                        <p className="truncate text-[11px] font-bold">{label}</p>
+                        <p className="text-[10px] text-[#69708B]">{color}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 rounded-md bg-[#D80E1F] px-4 py-2 text-center text-xs font-bold text-white">Guardar colores</div>
+            </div>
+          )}
+
+          {section === "settings" && (
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <p className="font-black">Identidad Visual</p>
+                <p className="mt-1 text-[10px] text-[#69708B]">Nombre y logo del local.</p>
+                <p className="mt-4 text-[10px] font-bold">Nombre comercial</p>
+                <div className="mt-1 rounded-md border bg-[#F8F6F1] px-3 py-2 text-xs">Maido</div>
+                <div className="mt-3 flex items-center justify-between rounded-md border p-3 text-[10px]">
+                  <span className="font-bold">Mostrar logo</span>
+                  <span className="h-5 w-9 rounded-full bg-[#D80E1F] p-0.5"><span className="ml-auto block h-4 w-4 rounded-full bg-white" /></span>
+                </div>
+                <div className="mt-3 rounded-lg bg-[#1D2E58] p-3">
+                  <img
+                    src="https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Flogos%2Flogo-1785349762837.png?alt=media&token=664f0516-831d-48cd-b11f-e0c6f645a6f0"
+                    alt="Logo de Maido"
+                    className="mx-auto h-14 object-contain"
+                  />
+                </div>
+              </div>
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <p className="font-black">Carrusel</p>
+                <p className="mt-1 text-[10px] text-[#69708B]">Imágenes principales de la carta.</p>
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {[
+                    "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Ftiradito-amazonico-1785693096244.png?alt=media&token=aa733d0f-0ac9-4243-9b72-7b9a473d16f7",
+                    "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fnigiri-de-salmon-1785692493140.png?alt=media&token=199f849b-f503-4e7e-b3f2-761098605880",
+                    "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fpesca-misoyaki-1785694096909.png?alt=media&token=6a0ee7b0-339a-4283-8735-9b4648514918",
+                    "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fmochi-de-maracuya-1785694628189.png?alt=media&token=328bca4b-9320-48f7-bfd1-055b0ff3aec7",
+                  ].map((image, index) => (
+                    <div key={image} className="rounded-md border p-1">
+                      <span className="block px-1 text-[9px] font-bold text-[#69708B]">{index + 1}</span>
+                      <img src={image} alt="" className="mt-1 h-16 w-full rounded object-cover" />
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 rounded-md bg-[#1D2E58] px-3 py-2 text-center text-[10px] font-bold text-white">Elegir imágenes</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
