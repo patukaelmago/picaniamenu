@@ -211,7 +211,7 @@ export default function MenuClient({ tenantId }: Props) {
     if (!hasSpecial && !hasGlutenFree) return null;
 
     return (
-      <div className="clear-left -ml-2 mt-2 flex items-center gap-1 md:hidden">
+      <div className="-ml-2 mt-1 flex items-center gap-1 md:hidden">
         {specialBadge(item)}
         {sinTaccBadge(item)}
       </div>
