@@ -5,6 +5,7 @@ import {
   Eye,
   GripVertical,
   ImageIcon,
+  LogIn,
   Menu,
   Palette,
   Pencil,
@@ -83,9 +84,10 @@ export default function Home() {
 
           <Link
             href="/login"
-            className="rounded-xl bg-[#2563EB] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174BC1]"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#174BC1]"
           >
-            Ingresar
+            <LogIn className="h-4 w-4" />
+            Iniciar sesión
           </Link>
         </div>
       </header>
