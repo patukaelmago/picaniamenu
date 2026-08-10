@@ -204,6 +204,20 @@ export default function MenuClient({ tenantId }: Props) {
       </Badge>
     ) : null;
 
+  const mobileIndicators = (item: MenuItem) => {
+    const hasSpecial = item.isSpecial;
+    const hasGlutenFree = (item.tags ?? []).includes("sin TACC");
+
+    if (!hasSpecial && !hasGlutenFree) return null;
+
+    return (
+      <div className="clear-left -ml-2 mt-2 flex items-center gap-1 md:hidden">
+        {specialBadge(item)}
+        {sinTaccBadge(item)}
+      </div>
+    );
+  };
+
   const [fridayData, setFridayData] = useState<FridayData>({
     entrada: "",
     postre: "",
@@ -895,8 +909,10 @@ export default function MenuClient({ tenantId }: Props) {
                                 {item.name}
                               </span>
 
-                              {specialBadge(item)}
-                              {sinTaccBadge(item)}
+                              <span className="hidden md:contents">
+                                {specialBadge(item)}
+                                {sinTaccBadge(item)}
+                              </span>
 
                               <div
                                 className={
@@ -921,6 +937,8 @@ export default function MenuClient({ tenantId }: Props) {
                             {formatCurrency(item.price, tenantCurrency)}
                           </span>
                         </div>
+
+                        {mobileIndicators(item)}
 
                         {(item.tags ?? []).length > 0 && (
                           <div className="mt-1 flex flex-wrap gap-1">
@@ -1047,8 +1065,10 @@ export default function MenuClient({ tenantId }: Props) {
                                       {item.name}
                                     </span>
 
-                                    {specialBadge(item)}
-                                    {sinTaccBadge(item)}
+                                    <span className="hidden md:contents">
+                                      {specialBadge(item)}
+                                      {sinTaccBadge(item)}
+                                    </span>
 
                                     <div
                                       className={
@@ -1072,6 +1092,8 @@ export default function MenuClient({ tenantId }: Props) {
                                     </p>
                                   )}
                                 </div>
+
+                                {mobileIndicators(item)}
                               </div>
                             );
                           })}
