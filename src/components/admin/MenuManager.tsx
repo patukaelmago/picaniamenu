@@ -1642,8 +1642,8 @@ async function saveCategoryEdit() {
                                   }
                                   className={
                                     item.isVisible
-                                      ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color)/0.12)]"
-                                      : "text-muted-foreground opacity-55 hover:opacity-100"
+                                      ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
+                                      : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"
                                   }
                                   style={{
                                     "--visible-eye-color": ui.adminAccent,
