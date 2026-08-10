@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -254,13 +257,23 @@ export default function Home() {
   );
 }
 
+type AdminSection = "menu" | "qr" | "colors" | "settings";
+
 function AdminPreview() {
+  const [activeSection, setActiveSection] = useState<AdminSection>("menu");
   const items = [
     ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Ftiradito-amazonico-1785693096244.png?alt=media&token=aa733d0f-0ac9-4243-9b72-7b9a473d16f7", "Tiradito amazónico", "Tiraditos", "$ 18.900"],
     ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fnigiri-de-salmon-1785692493140.png?alt=media&token=199f849b-f503-4e7e-b3f2-761098605880", "Nigiri de salmón", "Nigiris", "$ 8.500"],
     ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fpesca-misoyaki-1785694096909.png?alt=media&token=6a0ee7b0-339a-4283-8735-9b4648514918", "Pesca misoyaki", "Principales", "$ 26.000"],
     ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fmochi-de-maracuya-1785694628189.png?alt=media&token=328bca4b-9320-48f7-bfd1-055b0ff3aec7", "Mochi de maracuyá", "Postres", "$ 9.800"],
   ];
+
+  const titles = {
+    menu: "Gestionar Menú",
+    qr: "Código QR",
+    colors: "Colores",
+    settings: "Ajustes del Cliente",
+  };
 
   return (
     <div className="overflow-hidden rounded-3xl border border-[#DDE0E5] bg-white shadow-[0_24px_70px_rgba(21,26,36,.15)]">
@@ -274,85 +287,119 @@ function AdminPreview() {
             />
           </div>
           <div className="mt-5 space-y-2 text-xs font-bold">
-            <AdminNav icon={UtensilsCrossed} text="Menú" active />
-            <AdminNav icon={QrCode} text="QR" />
-            <AdminNav icon={Palette} text="Colores" />
-            <AdminNav icon={Settings} text="Ajustes" />
+            <AdminNav icon={UtensilsCrossed} text="Menú" active={activeSection === "menu"} onClick={() => setActiveSection("menu")} />
+            <AdminNav icon={QrCode} text="QR" active={activeSection === "qr"} onClick={() => setActiveSection("qr")} />
+            <AdminNav icon={Palette} text="Colores" active={activeSection === "colors"} onClick={() => setActiveSection("colors")} />
+            <AdminNav icon={Settings} text="Ajustes" active={activeSection === "settings"} onClick={() => setActiveSection("settings")} />
           </div>
         </aside>
 
         <div className="min-w-0 flex-1 bg-[#F8F6F1] p-4 sm:p-5">
           <div className="rounded-xl border-l-4 border-[#D80E1F] bg-[#1D2E58] p-4 text-[#FFF2DE] shadow-sm">
-            <p className="text-lg font-black">Gestionar Menú</p>
+            <p className="text-lg font-black">{titles[activeSection]}</p>
             <p className="text-xs text-white/70">Maido</p>
           </div>
 
-          <div className="mt-4 flex gap-2 text-xs font-bold">
-            <span className="rounded-md bg-[#1D2E58] px-4 py-2 text-white">
-              Items del Menú
-            </span>
-            <span className="rounded-md border bg-white px-4 py-2">
-              Categorías
-            </span>
-          </div>
-
-          <div className="mt-3 overflow-hidden rounded-xl border bg-white shadow-sm">
-            <div className="border-b p-4">
-              <p className="font-black">Platos y Bebidas</p>
-              <p className="text-xs text-[#69708B]">
-                Administrá todos los items de tu menú.
-              </p>
-
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                <div className="flex min-w-[150px] flex-1 items-center gap-2 rounded-md border px-3 py-2 text-xs text-[#777D91]">
-                  <Search className="h-3.5 w-3.5" />
-                  Nombre o categoría...
+          {activeSection === "menu" && (
+            <>
+              <div className="mt-4 flex gap-2 text-xs font-bold">
+                <span className="rounded-md bg-[#1D2E58] px-4 py-2 text-white">Items del Menú</span>
+                <span className="rounded-md border bg-white px-4 py-2">Categorías</span>
+              </div>
+              <div className="mt-3 overflow-hidden rounded-xl border bg-white shadow-sm">
+                <div className="border-b p-4">
+                  <p className="font-black">Platos y Bebidas</p>
+                  <p className="text-xs text-[#69708B]">Administrá todos los items de tu menú.</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <div className="flex min-w-[150px] flex-1 items-center gap-2 rounded-md border px-3 py-2 text-xs text-[#777D91]">
+                      <Search className="h-3.5 w-3.5" /> Nombre o categoría...
+                    </div>
+                    <span className="flex items-center gap-1.5 rounded-md bg-[#1D2E58] px-3 py-2 text-xs font-bold text-white">
+                      <Plus className="h-3.5 w-3.5" /> Agregar Item
+                    </span>
+                  </div>
                 </div>
-                <span className="flex items-center gap-1.5 rounded-md bg-[#1D2E58] px-3 py-2 text-xs font-bold text-white">
-                  <Plus className="h-3.5 w-3.5" />
-                  Agregar Item
-                </span>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[440px]">
+                    <div className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
+                      <span /><span>Imagen</span><span>Producto</span><span>Categoría</span><span>Precio</span><span>Visible</span>
+                    </div>
+                    {items.map(([image, name, category, price]) => (
+                      <div key={name} className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] items-center gap-2 border-t px-3 py-2.5 text-[11px]">
+                        <GripVertical className="h-4 w-4 text-[#A3A6B1]" />
+                        <img src={image} alt="" className="h-9 w-9 rounded-md object-cover" />
+                        <span className="truncate font-bold">{name}</span>
+                        <span className="truncate text-[#69708B]">{category}</span>
+                        <span className="font-bold">{price}</span>
+                        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#D80E1F] text-white"><Eye className="h-4 w-4" /></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-[10px] font-bold text-[#69708B]">
+                <ImageIcon className="h-3.5 w-3.5 text-[#D80E1F]" /> Imágenes, visibilidad y orden en el mismo panel
+              </div>
+            </>
+          )}
+
+          {activeSection === "qr" && (
+            <div className="mt-4 rounded-xl border bg-white p-5 text-center shadow-sm">
+              <p className="font-black">QR de tu carta</p>
+              <p className="mt-1 text-xs text-[#69708B]">El mismo código funciona aunque actualices el menú.</p>
+              <div className="mx-auto mt-5 flex h-44 w-44 items-center justify-center rounded-xl border-8 border-[#1D2E58] bg-white">
+                <QrCode className="h-32 w-32 text-[#1D2E58]" />
+              </div>
+              <div className="mt-5 flex justify-center gap-2">
+                <span className="rounded-md bg-[#1D2E58] px-4 py-2 text-xs font-bold text-white">Descargar QR</span>
+                <span className="rounded-md border border-[#1D2E58] px-4 py-2 text-xs font-bold text-[#1D2E58]">Compartir</span>
               </div>
             </div>
+          )}
 
-            <div className="overflow-x-auto">
-              <div className="min-w-[440px]">
-                <div className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
-                  <span />
-                  <span>Imagen</span>
-                  <span>Producto</span>
-                  <span>Categoría</span>
-                  <span>Precio</span>
-                  <span>Visible</span>
-                </div>
-
-                {items.map(([image, name, category, price]) => (
-                  <div
-                    key={name}
-                    className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] items-center gap-2 border-t px-3 py-2.5 text-[11px]"
-                  >
-                    <GripVertical className="h-4 w-4 text-[#A3A6B1]" />
-                    <img
-                      src={image}
-                      alt=""
-                      className="h-9 w-9 rounded-md object-cover"
-                    />
-                    <span className="truncate font-bold">{name}</span>
-                    <span className="truncate text-[#69708B]">{category}</span>
-                    <span className="font-bold">{price}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#D80E1F] text-white">
-                      <Eye className="h-4 w-4" />
-                    </span>
+          {activeSection === "colors" && (
+            <div className="mt-4 rounded-xl border bg-white p-5 shadow-sm">
+              <p className="font-black">Personalizá tu carta</p>
+              <p className="mt-1 text-xs text-[#69708B]">Elegí los colores que representan a tu restaurante.</p>
+              <div className="mt-5 grid grid-cols-2 gap-3">
+                {[
+                  ["Fondo principal", "#1D2E58"],
+                  ["Texto principal", "#FFF2DE"],
+                  ["Color destacado", "#D80E1F"],
+                  ["Fondo de tarjetas", "#FFFFFF"],
+                ].map(([label, color]) => (
+                  <div key={label} className="rounded-lg border p-3">
+                    <div className="h-12 rounded-md border" style={{ backgroundColor: color }} />
+                    <p className="mt-2 text-xs font-bold">{label}</p>
+                    <p className="text-[10px] text-[#69708B]">{color}</p>
                   </div>
                 ))}
               </div>
+              <div className="mt-4 rounded-md bg-[#D80E1F] px-4 py-2 text-center text-xs font-bold text-white">Guardar colores</div>
             </div>
-          </div>
+          )}
 
-          <div className="mt-3 flex items-center gap-2 text-[10px] font-bold text-[#69708B]">
-            <ImageIcon className="h-3.5 w-3.5 text-[#D80E1F]" />
-            Imágenes, visibilidad y orden en el mismo panel
-          </div>
+          {activeSection === "settings" && (
+            <div className="mt-4 rounded-xl border bg-white p-5 shadow-sm">
+              <p className="font-black">Identidad visual</p>
+              <p className="mt-1 text-xs text-[#69708B]">Configurá el nombre, logo e imágenes de tu restaurante.</p>
+              <div className="mt-5 space-y-3 text-xs">
+                <div className="rounded-lg border p-3">
+                  <p className="font-bold">Nombre comercial</p>
+                  <div className="mt-2 rounded-md border bg-[#F8F6F1] px-3 py-2">Maido</div>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div><p className="font-bold">Mostrar logo</p><p className="text-[#69708B]">Visible en la carta</p></div>
+                  <span className="h-6 w-11 rounded-full bg-[#D80E1F] p-1"><span className="ml-auto block h-4 w-4 rounded-full bg-white" /></span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg border p-3">
+                  <div><p className="font-bold">Mostrar nombre</p><p className="text-[#69708B]">Junto al logo</p></div>
+                  <span className="h-6 w-11 rounded-full bg-[#D80E1F] p-1"><span className="ml-auto block h-4 w-4 rounded-full bg-white" /></span>
+                </div>
+                <div className="rounded-md bg-[#1D2E58] px-4 py-2 text-center font-bold text-white">Guardar cambios</div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -363,22 +410,26 @@ function AdminNav({
   icon: Icon,
   text,
   active = false,
+  onClick,
 }: {
   icon: typeof Menu;
   text: string;
   active?: boolean;
+  onClick: () => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onClick}
       className={
         active
-          ? "flex items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-[#1D2E58]"
-          : "flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/80"
+          ? "flex w-full items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-left text-[#1D2E58]"
+          : "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-white/80 transition hover:bg-white/10 hover:text-white"
       }
     >
       <Icon className="h-4 w-4" />
       {text}
-    </div>
+    </button>
   );
 }
 
