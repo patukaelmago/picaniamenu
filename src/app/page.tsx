@@ -138,7 +138,7 @@ export default function Home() {
 
           <div className="relative flex min-h-[590px] items-center justify-center lg:justify-end">
             <div className="absolute right-4 top-8 h-[460px] w-[390px] rounded-[64px] bg-[#F3F1EC]" />
-            <div className="relative h-[570px] w-[294px] overflow-hidden rounded-[44px] border-[10px] border-[#151A24] bg-white shadow-[0_28px_70px_rgba(21,26,36,.22)]">
+            <div className="relative h-[570px] w-[294px] overflow-hidden rounded-[44px] border-[10px] border-[#151A24] bg-white shadow-[0_28px_70px_rgba(243,241,236,.95)]">
               <div className="absolute left-1/2 top-2 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-[#151A24]" />
               <iframe
                 src="/menu/maido"
