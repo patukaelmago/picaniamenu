@@ -163,17 +163,17 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {features.map(({ icon: Icon, title, text, accent }) => (
               <article
                 key={title}
-                className="rounded-3xl border border-[#E2DED5] bg-white p-7 shadow-[0_10px_30px_rgba(21,26,36,.06)] transition hover:-translate-y-1 hover:shadow-[0_16px_35px_rgba(21,26,36,.1)]"
+                className="rounded-2xl border border-[#E2DED5] bg-white p-5 shadow-[0_8px_24px_rgba(21,26,36,.06)] transition hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(21,26,36,.1)]"
               >
-                <div className={"flex h-12 w-12 items-center justify-center rounded-2xl text-white " + accent}>
-                  <Icon className="h-6 w-6" />
+                <div className={"flex h-10 w-10 items-center justify-center rounded-xl text-white " + accent}>
+                  <Icon className="h-5 w-5" />
                 </div>
-                <h3 className="mt-5 text-xl font-black">{title}</h3>
-                <p className="mt-3 leading-7 text-[#646B78]">{text}</p>
+                <h3 className="mt-4 text-lg font-black">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-[#646B78]">{text}</p>
               </article>
             ))}
           </div>
