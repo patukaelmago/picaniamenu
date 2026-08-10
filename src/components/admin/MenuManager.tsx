@@ -137,6 +137,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
+  const [activeMenuTab, setActiveMenuTab] = useState("items");
   const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
 
@@ -1143,8 +1144,9 @@ async function saveCategoryEdit() {
         </p>
       </div>
 
-      <Tabs defaultValue="items" className="w-full min-w-0">
+      <Tabs value={activeMenuTab} onValueChange={setActiveMenuTab} className="w-full min-w-0">
         <div className="flex flex-col items-start gap-2">
+        {activeMenuTab === "items" && (
         <Button
           type="button"
           onClick={() => {
@@ -1163,6 +1165,7 @@ async function saveCategoryEdit() {
           <PlusCircle className="mr-2 h-4 w-4" />
           Agregar Item
         </Button>
+        )}
       <TabsList
   className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
   style={{
@@ -1198,6 +1201,7 @@ async function saveCategoryEdit() {
 </TabsList>
         </div>
 
+      {activeMenuTab === "items" && (
       <Card
           className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
           style={{
@@ -1246,6 +1250,7 @@ async function saveCategoryEdit() {
             </div>
           </CardContent>
         </Card>
+      )}
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
