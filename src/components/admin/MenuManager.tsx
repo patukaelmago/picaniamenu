@@ -47,6 +47,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   PlusCircle,
+  Eye,
+  EyeOff,
   Pencil,
   Trash2,
   GripVertical,
@@ -1628,12 +1630,31 @@ async function saveCategoryEdit() {
                               </TableCell>
 
                               <TableCell>
-                                <Switch
-                                  checked={!!item.isVisible}
-                                  onCheckedChange={(v) =>
-                                    handleToggleItem(item.id, "isVisible", v)
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  title={item.isVisible ? "Ocultar item" : "Mostrar item"}
+                                  aria-label={item.isVisible ? `Ocultar ${item.name}` : `Mostrar ${item.name}`}
+                                  aria-pressed={!!item.isVisible}
+                                  onClick={() =>
+                                    handleToggleItem(item.id, "isVisible", !item.isVisible)
                                   }
-                                />
+                                  className={
+                                    item.isVisible
+                                      ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color)/0.12)]"
+                                      : "text-muted-foreground opacity-55 hover:opacity-100"
+                                  }
+                                  style={{
+                                    "--visible-eye-color": ui.adminAccent,
+                                  } as CSSProperties}
+                                >
+                                  {item.isVisible ? (
+                                    <Eye className="h-5 w-5" />
+                                  ) : (
+                                    <EyeOff className="h-5 w-5" />
+                                  )}
+                                </Button>
                               </TableCell>
 
                               <TableCell>
