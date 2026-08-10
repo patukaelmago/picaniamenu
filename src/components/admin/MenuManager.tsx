@@ -1143,8 +1143,63 @@ async function saveCategoryEdit() {
         </p>
       </div>
 
+      <Tabs defaultValue="items" className="w-full min-w-0">
+        <div className="flex flex-wrap items-center gap-3">
+      <TabsList
+  className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
+  style={{
+    backgroundColor: `hsl(${ui.adminCard})`,
+    borderColor: `hsl(${ui.adminSidebarBg} / 0.16)`,
+  }}
+>
+  <TabsTrigger
+    value="items"
+    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    style={{
+      "--tab-active-bg": ui.adminSidebarBg,
+      "--tab-active-text": ui.adminSidebarText,
+      "--tab-hover-bg": ui.adminAccent,
+      "--tab-hover-text": ui.adminCard,
+    } as CSSProperties}
+  >
+    Items del Menú
+  </TabsTrigger>
+
+  <TabsTrigger
+    value="categories"
+    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    style={{
+      "--tab-active-bg": ui.adminSidebarBg,
+      "--tab-active-text": ui.adminSidebarText,
+      "--tab-hover-bg": ui.adminAccent,
+      "--tab-hover-text": ui.adminCard,
+    } as CSSProperties}
+  >
+    Categorías
+  </TabsTrigger>
+</TabsList>
+        <Button
+          type="button"
+          onClick={() => {
+            setCreateForm({ ...emptyItem, currency: tenantCurrency });
+            setCreateOpen(true);
+          }}
+          className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+          style={{
+            "--tenant-button-bg": ui.adminCardForeground,
+            "--tenant-button-text": ui.adminCard,
+            "--tenant-button-border": ui.adminForeground,
+            "--tenant-button-hover-bg": ui.adminAccent,
+            "--tenant-button-hover-text": ui.adminCard,
+          } as CSSProperties}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Agregar Item
+        </Button>
+        </div>
+
       <Card
-          className="border-0 shadow-sm ring-1 ring-black/5"
+          className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
           style={{
             backgroundColor: `hsl(${ui.adminCard})`,
             color: `hsl(${ui.adminCardForeground})`,
@@ -1191,41 +1246,6 @@ async function saveCategoryEdit() {
             </div>
           </CardContent>
         </Card>
-
-      <Tabs defaultValue="items" className="w-full min-w-0">
-      <TabsList
-  className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
-  style={{
-    backgroundColor: `hsl(${ui.adminCard})`,
-    borderColor: `hsl(${ui.adminSidebarBg} / 0.16)`,
-  }}
->
-  <TabsTrigger
-    value="items"
-    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
-    style={{
-      "--tab-active-bg": ui.adminSidebarBg,
-      "--tab-active-text": ui.adminSidebarText,
-      "--tab-hover-bg": ui.adminAccent,
-      "--tab-hover-text": ui.adminCard,
-    } as CSSProperties}
-  >
-    Items del Menú
-  </TabsTrigger>
-
-  <TabsTrigger
-    value="categories"
-    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
-    style={{
-      "--tab-active-bg": ui.adminSidebarBg,
-      "--tab-active-text": ui.adminSidebarText,
-      "--tab-hover-bg": ui.adminAccent,
-      "--tab-hover-text": ui.adminCard,
-    } as CSSProperties}
-  >
-    Categorías
-  </TabsTrigger>
-</TabsList>
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
@@ -1302,24 +1322,7 @@ async function saveCategoryEdit() {
                   />
 
                   <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-                    <SheetTrigger asChild>
-                      <Button
-                        onClick={() =>
-                          setCreateForm({ ...emptyItem, currency: tenantCurrency })
-                        }
-                        className="w-full border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
-                        style={{
-                          "--tenant-button-bg": ui.adminCardForeground,
-                          "--tenant-button-text": ui.adminCard,
-                          "--tenant-button-border": ui.adminForeground,
-                          "--tenant-button-hover-bg": ui.adminAccent,
-                          "--tenant-button-hover-text": ui.adminCard,
-                        } as CSSProperties}
-                      >
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Agregar Item
-                      </Button>
-                    </SheetTrigger>
+
 
                     <SheetContent className="sm:max-w-lg overflow-y-auto">
                       <SheetHeader>
