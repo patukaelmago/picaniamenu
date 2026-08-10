@@ -185,7 +185,7 @@ export default function Home() {
           <AdminPreview />
 
           <div>
-            <span className="inline-flex rounded-full bg-[#FFF0E5] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#D95B00]">
+            <span className="inline-flex rounded-full bg-[#FF6B00] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white">
               Panel de administración
             </span>
 
@@ -334,7 +334,7 @@ function AdminPreview() {
                     <span className="truncate font-bold">{name}</span>
                     <span className="truncate text-[#69708B]">{category}</span>
                     <span className="font-bold">{price}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#FFE5E7] text-[#D80E1F]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#D80E1F] text-white">
                       <Eye className="h-4 w-4" />
                     </span>
                   </div>
@@ -390,7 +390,7 @@ function SmallCheck({ text }: { text: string }) {
 function Benefit({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 font-bold">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FFF0E5] text-[#FF6B00]">
+      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#FF6B00] text-white">
         <Check className="h-4 w-4" />
       </span>
       {text}
