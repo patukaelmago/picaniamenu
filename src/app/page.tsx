@@ -264,8 +264,12 @@ function AdminPreview() {
     <div className="overflow-hidden rounded-3xl border border-[#DDE0E5] bg-white shadow-[0_24px_70px_rgba(21,26,36,.15)]">
       <div className="flex min-h-[540px]">
         <aside className="hidden w-36 shrink-0 bg-[#1D2E58] p-4 text-[#FFF2DE] sm:block">
-          <div className="border-b border-white/20 py-4 text-center text-lg font-black tracking-[0.14em]">
-            MAIDO
+          <div className="border-b border-white/20 py-3">
+            <img
+              src="https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Flogos%2Flogo-1785349762837.png?alt=media&token=664f0516-831d-48cd-b11f-e0c6f645a6f0"
+              alt="Maido"
+              className="mx-auto h-16 w-full object-contain"
+            />
           </div>
           <div className="mt-5 space-y-2 text-xs font-bold">
             <AdminNav icon={UtensilsCrossed} text="Menú" active />
