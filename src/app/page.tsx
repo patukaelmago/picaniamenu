@@ -267,7 +267,7 @@ function AdminPreview() {
   return (
     <div className="overflow-hidden rounded-3xl border border-[#DDE0E5] bg-white shadow-[0_24px_70px_rgba(21,26,36,.15)]">
       <div className="flex min-h-[540px]">
-        <aside className="hidden w-36 shrink-0 bg-[#971B1E] p-4 text-white sm:block">
+        <aside className="hidden w-36 shrink-0 bg-[#1D2E58] p-4 text-[#FFF2DE] sm:block">
           <div className="border-b border-white/20 py-4 text-center text-lg font-black tracking-[0.14em]">
             MAIDO
           </div>
@@ -279,14 +279,14 @@ function AdminPreview() {
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1 bg-[#F6F1E8] p-4 sm:p-5">
-          <div className="rounded-xl border-l-4 border-[#E43D30] bg-[#971B1E] p-4 text-white shadow-sm">
+        <div className="min-w-0 flex-1 bg-[#F8F6F1] p-4 sm:p-5">
+          <div className="rounded-xl border-l-4 border-[#D80E1F] bg-[#1D2E58] p-4 text-[#FFF2DE] shadow-sm">
             <p className="text-lg font-black">Gestionar Menú</p>
             <p className="text-xs text-white/70">Maido</p>
           </div>
 
           <div className="mt-4 flex gap-2 text-xs font-bold">
-            <span className="rounded-md bg-[#971B1E] px-4 py-2 text-white">
+            <span className="rounded-md bg-[#1D2E58] px-4 py-2 text-white">
               Items del Menú
             </span>
             <span className="rounded-md border bg-white px-4 py-2">
@@ -306,7 +306,7 @@ function AdminPreview() {
                   <Search className="h-3.5 w-3.5" />
                   Nombre o categoría...
                 </div>
-                <span className="flex items-center gap-1.5 rounded-md bg-[#971B1E] px-3 py-2 text-xs font-bold text-white">
+                <span className="flex items-center gap-1.5 rounded-md bg-[#1D2E58] px-3 py-2 text-xs font-bold text-white">
                   <Plus className="h-3.5 w-3.5" />
                   Agregar Item
                 </span>
@@ -315,7 +315,7 @@ function AdminPreview() {
 
             <div className="overflow-x-auto">
               <div className="min-w-[440px]">
-                <div className="grid grid-cols-[22px_1fr_1fr_80px_36px] gap-2 bg-[#F4EFE7] px-3 py-2 text-[10px] font-black uppercase text-[#69708B]">
+                <div className="grid grid-cols-[22px_1fr_1fr_80px_36px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
                   <span />
                   <span>Producto</span>
                   <span>Categoría</span>
@@ -332,7 +332,7 @@ function AdminPreview() {
                     <span className="truncate font-bold">{name}</span>
                     <span className="truncate text-[#69708B]">{category}</span>
                     <span className="font-bold">{price}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#FFE5E2] text-[#E43D30]">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#FFE5E7] text-[#D80E1F]">
                       <Eye className="h-3.5 w-3.5" />
                     </span>
                   </div>
@@ -342,7 +342,7 @@ function AdminPreview() {
           </div>
 
           <div className="mt-3 flex items-center gap-2 text-[10px] font-bold text-[#69708B]">
-            <ImageIcon className="h-3.5 w-3.5 text-[#971B1E]" />
+            <ImageIcon className="h-3.5 w-3.5 text-[#D80E1F]" />
             Imágenes, visibilidad y orden en el mismo panel
           </div>
         </div>
@@ -364,7 +364,7 @@ function AdminNav({
     <div
       className={
         active
-          ? "flex items-center gap-2 rounded-lg bg-[#E43D30] px-3 py-2.5"
+          ? "flex items-center gap-2 rounded-lg bg-white px-3 py-2.5 text-[#1D2E58]"
           : "flex items-center gap-2 rounded-lg px-3 py-2.5 text-white/80"
       }
     >
