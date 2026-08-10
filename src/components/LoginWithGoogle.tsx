@@ -112,8 +112,8 @@ export default function LoginWithGoogle() {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border border-[#FF7A00]/35 bg-[#FF7A00]/10 p-4 text-sm">
+    <div className="space-y-3">
+      <div className="rounded-xl border border-[#FF6B00]/40 bg-[#FF6B00]/10 p-3 text-xs">
         <p className="font-semibold text-[#F5EEDC]">Acceso de demostración</p>
         <p className="mt-1 text-[#B8B2A7]">
           Usuario: <span className="text-[#F5EEDC]">maido</span>
@@ -127,13 +127,13 @@ export default function LoginWithGoogle() {
             setPassword("Maido2026!");
             setErrorMessage("");
           }}
-          className="mt-3 text-xs font-semibold text-[#FF9A3D] transition hover:text-[#FFB36B]"
+          className="mt-2 text-xs font-semibold text-[#FF8A2A] transition hover:text-[#FFAA66]"
         >
           Completar datos de prueba
         </button>
       </div>
 
-      <form onSubmit={handleCredentialsLogin} className="space-y-3">
+      <form onSubmit={handleCredentialsLogin} className="space-y-2.5">
         <input
           value={identifier}
           onChange={(event) => setIdentifier(event.target.value)}
@@ -141,7 +141,7 @@ export default function LoginWithGoogle() {
           aria-label="Usuario o email"
           autoComplete="username"
           required
-          className="w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3.5 text-sm text-[#F5EEDC] outline-none transition focus:border-[#4B75FF]"
+          className="w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3 text-sm text-[#F5EEDC] outline-none transition focus:border-[#2563EB]"
         />
 
         <input
@@ -152,7 +152,7 @@ export default function LoginWithGoogle() {
           aria-label="Contraseña"
           autoComplete="current-password"
           required
-          className="w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3.5 text-sm text-[#F5EEDC] outline-none transition focus:border-[#4B75FF]"
+          className="w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3 text-sm text-[#F5EEDC] outline-none transition focus:border-[#2563EB]"
         />
 
         {errorMessage && (
@@ -162,7 +162,7 @@ export default function LoginWithGoogle() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-[#4B75FF] px-4 py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#3d65e8] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl bg-[#2563EB] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[#174BC1] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
@@ -178,12 +178,12 @@ export default function LoginWithGoogle() {
         type="button"
         onClick={handleGoogleLogin}
         disabled={loading}
-        className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-3.5 text-sm font-semibold text-[#F5EEDC] shadow-sm transition-all hover:border-[#4B75FF] hover:bg-[#303030] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-3 text-sm font-semibold text-[#F5EEDC] shadow-sm transition-all hover:border-[#2563EB] hover:bg-[#303030] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
       >
         <img
           src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
           alt="Google"
-          className="h-5 w-5"
+          className="h-4 w-4"
         />
         Continuar con Google
       </button>
