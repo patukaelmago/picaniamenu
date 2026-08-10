@@ -149,7 +149,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="funciones" className="bg-[#F3F1EC] py-24">
+      <section id="funciones" className="scroll-mt-20 bg-[#F3F1EC] pb-24 pt-5">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-3xl text-center">
             <p className="font-black uppercase tracking-[0.16em] text-[#FF6B00]">
