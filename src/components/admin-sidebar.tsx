@@ -24,7 +24,9 @@ import {
   Settings,
   LogOut,
   ChevronUp,
-  User as UserIcon,
+  ExternalLink,
+  MessageCircle,
+  Store,
   Sparkles,
   Palette,
 } from "lucide-react";
@@ -48,6 +50,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import Image from "next/image";
+
+const SUPPORT_WHATSAPP = "5493412172916";
 
 const getTenantIdFromPath = (pathname: string) => {
   const clean = (pathname || "").split("?")[0].replace(/\/+$/, "");
@@ -81,6 +85,7 @@ export default function AdminSidebar() {
 
   const [user, setUser] = useState<User | null>(null);
   const [tenantLogo, setTenantLogo] = useState("");
+  const [tenantName, setTenantName] = useState("");
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => setUser(u));
@@ -134,15 +139,18 @@ export default function AdminSidebar() {
 
         if (!snap.exists()) {
           setTenantLogo("");
+          setTenantName(tenantId);
           return;
         }
 
         const data: any = snap.data();
 
         setTenantLogo(data?.logoUrl || "");
+        setTenantName(data?.name || tenantId);
       } catch (e) {
         console.error("Error cargando logo del tenant", e);
         setTenantLogo("");
+        setTenantName(tenantId);
       }
     }
 
@@ -363,21 +371,40 @@ export default function AdminSidebar() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]">
-              <UserIcon className="mr-2 h-4 w-4" />
-              <span>Perfil</span>
+            <DropdownMenuItem
+              asChild
+              className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
+            >
+              <Link href={`/menu/${tenantId}`} target="_blank">
+                <ExternalLink className="mr-2 h-4 w-4" />
+                <span>Ver mi carta</span>
+              </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem
               asChild
               className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
             >
-              <Link href={`/admin/${tenantId}/settings`}>
-                <div className="flex items-center">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Ajustes</span>
-                </div>
+              <Link href="/select-tenant">
+                <Store className="mr-2 h-4 w-4" />
+                <span>Local: {tenantName || tenantId}</span>
               </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              asChild
+              className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
+            >
+              <a
+                href={`https://wa.me/${SUPPORT_WHATSAPP}?text=${encodeURIComponent(
+                  `Hola, necesito ayuda con Carta Online. Local: ${tenantName || tenantId}. Usuario: ${email}.`
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <MessageCircle className="mr-2 h-4 w-4" />
+                <span>Soporte</span>
+              </a>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -387,7 +414,7 @@ export default function AdminSidebar() {
               className="focus:bg-[hsl(var(--account-menu-hover-bg))] focus:text-[hsl(var(--account-menu-hover-text))]"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Salir</span>
+              <span>Cerrar sesión</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
