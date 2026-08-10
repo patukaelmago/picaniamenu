@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   Check,
+  Eye,
   GripVertical,
   ImageIcon,
   Menu,
@@ -122,7 +123,7 @@ export default function Home() {
                 href="/menu/maido"
                 className="rounded-xl border-2 border-[#151A24] px-6 py-4 font-bold transition hover:border-[#FF6B00] hover:text-[#FF6B00]"
               >
-                Ver demo 
+                Ver demo
               </Link>
             </div>
 
@@ -333,8 +334,8 @@ function AdminPreview() {
                     <span className="truncate font-bold">{name}</span>
                     <span className="truncate text-[#69708B]">{category}</span>
                     <span className="font-bold">{price}</span>
-                    <span className="relative block h-5 w-9 rounded-full bg-[#D80E1F]">
-                      <span className="absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm" />
+                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#FFE5E7] text-[#D80E1F]">
+                      <Eye className="h-4 w-4" />
                     </span>
                   </div>
                 ))}
