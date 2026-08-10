@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white px-5 py-4 text-[#F5EEDC]">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F3F1EC] px-5 py-4 text-[#F5EEDC]">
       <div className="absolute left-[-180px] top-[-120px] h-[420px] w-[420px] rounded-full bg-[#2563EB]/10 blur-3xl" />
       <div className="absolute bottom-[-180px] right-[-120px] h-[440px] w-[440px] rounded-full bg-[#FF6B00]/10 blur-3xl" />
 
