@@ -63,7 +63,7 @@ export default function Home() {
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="Carta Online">
             <img
-              src="/carta-online-logo.png"
+              src="/carta-online-logo-orange.svg"
               alt="Carta Online"
               className="h-14 w-auto object-contain"
             />
@@ -239,7 +239,7 @@ export default function Home() {
       <footer className="border-t border-[#E5E7EB] bg-white py-10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 px-6 text-center md:flex-row">
           <img
-            src="/carta-online-logo.png"
+            src="/carta-online-logo-orange.svg"
             alt="Carta Online"
             className="h-14 w-auto object-contain"
           />
