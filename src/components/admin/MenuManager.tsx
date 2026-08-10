@@ -1968,7 +1968,7 @@ async function saveCategoryEdit() {
               <CardDescription>Organizá las secciones de tu menú.</CardDescription>
             </CardHeader>
 
-            <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
+            <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-5">
               <div className="mb-4 flex flex-wrap items-end gap-3">
                 <div className="grid gap-2">
                   <Label htmlFor="new-cat-name">Nombre</Label>
