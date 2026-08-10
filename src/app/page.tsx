@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Check,
-  Eye,
   GripVertical,
   ImageIcon,
   Menu,
@@ -123,7 +122,7 @@ export default function Home() {
                 href="/menu/maido"
                 className="rounded-xl border-2 border-[#151A24] px-6 py-4 font-bold transition hover:border-[#FF6B00] hover:text-[#FF6B00]"
               >
-                Ver demo de Maido
+                Ver demo 
               </Link>
             </div>
 
@@ -136,10 +135,6 @@ export default function Home() {
 
           <div className="relative flex min-h-[590px] items-center justify-center lg:justify-end">
             <div className="absolute right-4 top-8 h-[460px] w-[390px] rounded-[64px] bg-[#F3F1EC]" />
-            <div className="absolute bottom-10 left-4 rounded-2xl bg-[#FF6B00] px-5 py-4 text-sm font-black text-white shadow-lg sm:left-14">
-              Ejemplo real: Maido
-            </div>
-
             <div className="relative h-[570px] w-[294px] overflow-hidden rounded-[44px] border-[10px] border-[#151A24] bg-white shadow-[0_28px_70px_rgba(21,26,36,.22)]">
               <div className="absolute left-1/2 top-2 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-[#151A24]" />
               <iframe
@@ -258,10 +253,10 @@ export default function Home() {
 
 function AdminPreview() {
   const items = [
-    ["Tiradito amazónico", "Tiraditos", "$ 18.900"],
-    ["Nigiri de salmón", "Nigiris", "$ 8.500"],
-    ["Pesca misoyaki", "Principales", "$ 26.000"],
-    ["Mochi de maracuyá", "Postres", "$ 9.800"],
+    ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Ftiradito-amazonico-1785693096244.png?alt=media&token=aa733d0f-0ac9-4243-9b72-7b9a473d16f7", "Tiradito amazónico", "Tiraditos", "$ 18.900"],
+    ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fnigiri-de-salmon-1785692493140.png?alt=media&token=199f849b-f503-4e7e-b3f2-761098605880", "Nigiri de salmón", "Nigiris", "$ 8.500"],
+    ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fpesca-misoyaki-1785694096909.png?alt=media&token=6a0ee7b0-339a-4283-8735-9b4648514918", "Pesca misoyaki", "Principales", "$ 26.000"],
+    ["https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Fmochi-de-maracuya-1785694628189.png?alt=media&token=328bca4b-9320-48f7-bfd1-055b0ff3aec7", "Mochi de maracuyá", "Postres", "$ 9.800"],
   ];
 
   return (
@@ -315,25 +310,31 @@ function AdminPreview() {
 
             <div className="overflow-x-auto">
               <div className="min-w-[440px]">
-                <div className="grid grid-cols-[22px_1fr_1fr_80px_36px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
+                <div className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
                   <span />
+                  <span>Imagen</span>
                   <span>Producto</span>
                   <span>Categoría</span>
                   <span>Precio</span>
-                  <span />
+                  <span>Visible</span>
                 </div>
 
-                {items.map(([name, category, price]) => (
+                {items.map(([image, name, category, price]) => (
                   <div
                     key={name}
-                    className="grid grid-cols-[22px_1fr_1fr_80px_36px] items-center gap-2 border-t px-3 py-3 text-[11px]"
+                    className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] items-center gap-2 border-t px-3 py-2.5 text-[11px]"
                   >
                     <GripVertical className="h-4 w-4 text-[#A3A6B1]" />
+                    <img
+                      src={image}
+                      alt=""
+                      className="h-9 w-9 rounded-md object-cover"
+                    />
                     <span className="truncate font-bold">{name}</span>
                     <span className="truncate text-[#69708B]">{category}</span>
                     <span className="font-bold">{price}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#FFE5E7] text-[#D80E1F]">
-                      <Eye className="h-3.5 w-3.5" />
+                    <span className="relative block h-5 w-9 rounded-full bg-[#D80E1F]">
+                      <span className="absolute right-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm" />
                     </span>
                   </div>
                 ))}
