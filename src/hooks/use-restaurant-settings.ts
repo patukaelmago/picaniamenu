@@ -12,6 +12,7 @@ export type RestaurantSettings = {
   websiteUrl: string;
   showLogo?: boolean;
   showName?: boolean;
+  specialLabel?: string;
 };
 
 export function useRestaurantSettings() {
@@ -36,6 +37,8 @@ export function useRestaurantSettings() {
               websiteUrl: raw.websiteUrl ?? "",
               showLogo: raw.showLogo ?? true,
               showName: raw.showName ?? true,
+              specialLabel:
+                raw.specialLabel?.trim().slice(0, 20) || "Sugerencia",
             }
           : null
       );
