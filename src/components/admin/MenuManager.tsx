@@ -1146,26 +1146,6 @@ async function saveCategoryEdit() {
 
       <Tabs value={activeMenuTab} onValueChange={setActiveMenuTab} className="w-full min-w-0">
         <div className="flex flex-col items-start gap-2">
-        {activeMenuTab === "items" && (
-        <Button
-          type="button"
-          onClick={() => {
-            setCreateForm({ ...emptyItem, currency: tenantCurrency });
-            setCreateOpen(true);
-          }}
-          className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
-          style={{
-            "--tenant-button-bg": ui.adminAccent,
-            "--tenant-button-text": ui.adminCard,
-            "--tenant-button-border": ui.adminAccent,
-            "--tenant-button-hover-bg": ui.adminSidebarBg,
-            "--tenant-button-hover-text": ui.adminSidebarText,
-          } as CSSProperties}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Agregar Item
-        </Button>
-        )}
       <TabsList
   className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
   style={{
@@ -1199,6 +1179,26 @@ async function saveCategoryEdit() {
     Categorías
   </TabsTrigger>
 </TabsList>
+        {activeMenuTab === "items" && (
+        <Button
+          type="button"
+          onClick={() => {
+            setCreateForm({ ...emptyItem, currency: tenantCurrency });
+            setCreateOpen(true);
+          }}
+          className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+          style={{
+            "--tenant-button-bg": ui.adminAccent,
+            "--tenant-button-text": ui.adminCard,
+            "--tenant-button-border": ui.adminAccent,
+            "--tenant-button-hover-bg": ui.adminSidebarBg,
+            "--tenant-button-hover-text": ui.adminSidebarText,
+          } as CSSProperties}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Agregar Item
+        </Button>
+        )}
         </div>
 
       {activeMenuTab === "items" && (
