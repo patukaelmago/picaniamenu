@@ -387,20 +387,20 @@ function AdminPreview() {
             </div>
 
             <div className="overflow-x-auto">
-              <div className="min-w-[440px]">
-                <div className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] gap-2 bg-[#1D2E58] px-3 py-2 text-[10px] font-black uppercase text-white">
+              <div className="min-w-0 sm:min-w-[440px]">
+                <div className="grid grid-cols-[18px_38px_minmax(0,1.2fr)_minmax(0,0.9fr)_62px] gap-1 bg-[#1D2E58] px-2 py-2 text-[10px] font-black uppercase text-white sm:grid-cols-[22px_42px_1fr_1fr_72px_48px] sm:gap-2 sm:px-3">
                   <span />
                   <span>Imagen</span>
                   <span>Producto</span>
                   <span>Categoría</span>
                   <span>Precio</span>
-                  <span>Visible</span>
+                  <span className="hidden sm:block">Visible</span>
                 </div>
 
                 {items.map(([image, name, category, price]) => (
                   <div
                     key={name}
-                    className="grid grid-cols-[22px_42px_1fr_1fr_72px_48px] items-center gap-2 border-t px-3 py-2.5 text-[11px]"
+                    className="grid grid-cols-[18px_38px_minmax(0,1.2fr)_minmax(0,0.9fr)_62px] items-center gap-1 border-t px-2 py-2.5 text-[11px] sm:grid-cols-[22px_42px_1fr_1fr_72px_48px] sm:gap-2 sm:px-3"
                   >
                     <GripVertical className="h-4 w-4 text-[#A3A6B1]" />
                     <img
@@ -411,7 +411,7 @@ function AdminPreview() {
                     <span className="truncate font-bold">{name}</span>
                     <span className="truncate text-[#69708B]">{category}</span>
                     <span className="font-bold">{price}</span>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[#D80E1F] text-white">
+                    <span className="hidden h-7 w-7 items-center justify-center rounded-md bg-[#D80E1F] text-white sm:flex">
                       <Eye className="h-4 w-4" />
                     </span>
                   </div>
