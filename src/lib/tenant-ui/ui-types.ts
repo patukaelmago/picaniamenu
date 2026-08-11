@@ -32,6 +32,7 @@ export type TenantUI = {
   itemPrice: string;
 
   showFriday: boolean;
+  showDesktopCategoryList: boolean;
 
   // ===== ADMIN =====
 
