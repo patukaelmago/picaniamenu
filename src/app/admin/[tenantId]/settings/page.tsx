@@ -50,6 +50,7 @@ type RestaurantSettingsExtra = {
   websiteUrl?: string;
   showLogo?: boolean;
   showName?: boolean;
+  specialLabel?: string;
 };
 
 export default function TenantSettingsPage({
@@ -65,6 +66,7 @@ export default function TenantSettingsPage({
 
   const [showLogo, setShowLogo] = useState(true);
   const [showName, setShowName] = useState(true);
+  const [specialLabel, setSpecialLabel] = useState("Sugerencia");
   const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -104,6 +106,9 @@ export default function TenantSettingsPage({
         setCurrency(settings.currency || "ARS");
         setShowLogo(settings.showLogo ?? true);
         setShowName(settings.showName ?? true);
+        setSpecialLabel(
+          settings.specialLabel?.trim().slice(0, 20) || "Sugerencia"
+        );
 
         const initialLogo = settings.logoUrl?.trim() || DEFAULT_TENANT_LOGO;
         setLogoUrlInput(settings.logoUrl?.trim() || "");
@@ -376,6 +381,7 @@ export default function TenantSettingsPage({
         websiteUrl: websiteUrl.trim(),
         showLogo,
         showName,
+        specialLabel: specialLabel.trim().slice(0, 20) || "Sugerencia",
       } as any);
 
       await setDoc(
@@ -471,6 +477,25 @@ export default function TenantSettingsPage({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-4">
+                <Label htmlFor="special-label">Etiqueta destacada</Label>
+                <span className="text-xs text-muted-foreground">
+                  {specialLabel.length}/20
+                </span>
+              </div>
+              <Input
+                id="special-label"
+                value={specialLabel}
+                maxLength={20}
+                placeholder="Sugerencia"
+                onChange={(e) => setSpecialLabel(e.target.value.slice(0, 20))}
+              />
+              <p className="text-sm text-muted-foreground">
+                Este nombre aparece en la columna del menú y en la carta pública.
+              </p>
             </div>
 
             <div className="flex items-center justify-between rounded-md border p-4">
