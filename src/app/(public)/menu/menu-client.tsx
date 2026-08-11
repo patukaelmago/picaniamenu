@@ -850,14 +850,16 @@ export default function MenuClient({ tenantId }: Props) {
               style={{ color: `hsl(${ui.foreground})` }}
               aria-label="Referencias"
             >
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex max-w-full items-center gap-2">
                 <span
-                  className="inline-flex h-6 w-6 items-center justify-center rounded-full border"
+                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border"
                   style={indicatorStyle}
                 >
                   <SparklesIcon className="h-3.5 w-3.5" />
                 </span>
-                {copy.special}
+                <span className="max-w-[12rem] break-words leading-tight">
+                  {copy.special}
+                </span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <span
