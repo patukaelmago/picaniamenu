@@ -47,6 +47,7 @@ export const DEFAULT_TENANT_UI: TenantUI = {
   itemPrice: "43 100% 94%",
 
   showFriday: false,
+  showDesktopCategoryList: false,
 
   adminBackground: "0 0% 100%",
   adminForeground: "222 51% 23%",
