@@ -22,7 +22,7 @@ export async function generateMetadata({
   const { tenantId } = await params;
 
   return {
-    title: `Carta-Online/${tenantDisplayName(tenantId)}`,
+    title: tenantDisplayName(tenantId),
   };
 }
 
