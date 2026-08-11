@@ -56,6 +56,7 @@ export interface RestaurantSettings {
   restaurantName: string;
   logoUrl: string;
   currency: string;
+  specialLabel?: string;
   theme: {
     primary: string;
     secondary: string;
