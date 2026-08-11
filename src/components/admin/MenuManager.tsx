@@ -55,6 +55,7 @@ import {
   ChevronRight,
   ChevronDown,
   ImagePlus,
+  Sparkles,
   X,
 } from "lucide-react";
 import {
@@ -1569,8 +1570,17 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">
-                            {settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                          <TableHead
+                            className="text-center text-[hsl(var(--table-head-text))]"
+                            title={settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                          >
+                            <span className="hidden sm:inline">
+                              {settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                            </span>
+                            <Sparkles
+                              className="mx-auto h-4 w-4 sm:hidden"
+                              aria-label={settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                            />
                           </TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
