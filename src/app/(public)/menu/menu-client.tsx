@@ -81,6 +81,7 @@ export default function MenuClient({ tenantId }: Props) {
 
 
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
+  const categorySwipeStartX = useRef<number | null>(null);
 
   const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
   const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
@@ -706,8 +707,54 @@ export default function MenuClient({ tenantId }: Props) {
                   {copy.title}
                 </h1>
 
+                {ui.showDesktopCategoryList && categoryNavItems.length > 0 && (
+                  <div className="hidden w-full overflow-x-auto py-2 md:block [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="mx-auto flex w-max min-w-full items-center justify-center gap-4 px-2">
+                      {categoryNavItems.map((category, index) => (
+                        <button
+                          key={category.id}
+                          type="button"
+                          onClick={() => {
+                            setCategoryNavIndex(index);
+                            scrollToSection(category.id);
+                          }}
+                          className="shrink-0 border-b bg-transparent px-2 py-1 font-headline text-xs uppercase tracking-[0.18em] transition-colors"
+                          style={{
+                            color: `hsl(${ui.categoryNav})`,
+                            borderColor: `hsl(${ui.categoryNav} / 0.35)`,
+                          }}
+                          onMouseEnter={(event) => {
+                            event.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
+                          }}
+                          onMouseLeave={(event) => {
+                            event.currentTarget.style.color = `hsl(${ui.categoryNav})`;
+                          }}
+                        >
+                          {category.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {categoryNavItems.length > 0 && (
-                  <div className="relative flex w-full items-center justify-center py-2">
+                  <div
+                    className="relative flex w-full items-center justify-center py-2"
+                    onTouchStart={(event) => {
+                      categorySwipeStartX.current = event.touches[0]?.clientX ?? null;
+                    }}
+                    onTouchEnd={(event) => {
+                      const startX = categorySwipeStartX.current;
+                      const endX = event.changedTouches[0]?.clientX;
+                      categorySwipeStartX.current = null;
+
+                      if (startX == null || endX == null) return;
+                      const distance = endX - startX;
+                      if (Math.abs(distance) < 40) return;
+
+                      moveCategoryNav(distance > 0 ? "left" : "right");
+                    }}
+                  >
                     <button
                       type="button"
                       onClick={() => moveCategoryNav("left")}
