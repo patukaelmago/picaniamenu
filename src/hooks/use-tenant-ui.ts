@@ -34,6 +34,8 @@ export function useTenantUI(tenantId?: string | null): TenantUI {
           ...themed,
           showDesktopCategoryList:
             data?.showDesktopCategoryList ?? base.showDesktopCategoryList,
+          showCategorySelector:
+            data?.showCategorySelector ?? base.showCategorySelector,
         });
       })
       .catch((error) => {

@@ -18,10 +18,19 @@ const TENANTS: Record<string, Partial<TenantUI>> = {
 export function getTenantUI(tenantId?: string | null): TenantUI {
   const key = (tenantId ?? "").toLowerCase();
   const config = TENANTS[key] || {};
-
-  return {
+  const merged = {
     ...DEFAULT_TENANT_UI,
     ...config,
+  };
+
+  return {
+    ...merged,
+    categoryTitleUnderline:
+      config.categoryTitleUnderline ?? merged.categoryTitle,
+    categoryNavUnderline:
+      config.categoryNavUnderline ?? merged.categoryNav,
+    itemDivider: config.itemDivider ?? merged.foreground,
+    menuPageBorder: config.menuPageBorder ?? merged.foreground,
   };
 }
 

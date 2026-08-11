@@ -68,6 +68,7 @@ export default function TenantSettingsPage({
   const [showName, setShowName] = useState(true);
   const [specialLabel, setSpecialLabel] = useState("Sugerencia");
   const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
+  const [showCategorySelector, setShowCategorySelector] = useState(true);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState("");
@@ -123,6 +124,9 @@ export default function TenantSettingsPage({
           setShowDesktopCategoryList(
             data?.showDesktopCategoryList ?? ui.showDesktopCategoryList
           );
+          setShowCategorySelector(
+            data?.showCategorySelector ?? ui.showCategorySelector
+          );
           const images = Array.isArray(data?.carouselImages)
             ? data.carouselImages.filter(
               (img: unknown): img is string =>
@@ -140,6 +144,7 @@ export default function TenantSettingsPage({
         } else {
           setCarouselItems([]);
           setShowDesktopCategoryList(ui.showDesktopCategoryList);
+          setShowCategorySelector(ui.showCategorySelector);
         }
       } catch (e) {
         console.error(e);
@@ -389,6 +394,7 @@ export default function TenantSettingsPage({
         {
           carouselImages: finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES),
           showDesktopCategoryList,
+          showCategorySelector,
         },
         { merge: true }
       );
@@ -780,20 +786,36 @@ export default function TenantSettingsPage({
             Configurá cómo se muestran las categorías en computadoras.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="flex items-center justify-between rounded-md border p-4">
             <div className="space-y-0.5">
               <Label htmlFor="show-desktop-category-list">
                 Mostrar todas las categorías en PC
               </Label>
               <p className="text-sm text-muted-foreground">
-                El selector principal seguirá visible aunque desactives esta fila.
+                Muestra una fila con todas las categorías disponibles.
               </p>
             </div>
             <Switch
               id="show-desktop-category-list"
               checked={showDesktopCategoryList}
               onCheckedChange={setShowDesktopCategoryList}
+            />
+          </div>
+
+          <div className="flex items-center justify-between rounded-md border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="show-category-selector">
+                Mostrar selector con flechas
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Muestra una categoría por vez para recorrer el menú.
+              </p>
+            </div>
+            <Switch
+              id="show-category-selector"
+              checked={showCategorySelector}
+              onCheckedChange={setShowCategorySelector}
             />
           </div>
         </CardContent>

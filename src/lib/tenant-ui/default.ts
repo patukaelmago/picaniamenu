@@ -35,9 +35,13 @@ export const DEFAULT_TENANT_UI: TenantUI = {
   foreground: "222 51% 23%",
 
   categoryTitle: "222 51% 23%",
+  categoryTitleUnderline: "222 51% 23%",
   categoryNav: "0 0% 100%",
   descriptionText: "0 0% 100%",
   categoryNavHover: "0 0% 100%",
+  categoryNavUnderline: "222 51% 23%",
+  itemDivider: "222 51% 23%",
+  menuPageBorder: "222 51% 23%",
 
   specialBadgeText: "24 100% 56%",
   specialBadgeBorder: "24 100% 56%",
@@ -48,6 +52,7 @@ export const DEFAULT_TENANT_UI: TenantUI = {
 
   showFriday: false,
   showDesktopCategoryList: false,
+  showCategorySelector: true,
 
   adminBackground: "0 0% 100%",
   adminForeground: "222 51% 23%",

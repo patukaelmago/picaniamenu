@@ -722,7 +722,7 @@ export default function MenuClient({ tenantId }: Props) {
                           className="shrink-0 border-b bg-transparent px-2 py-1 font-headline text-xs uppercase tracking-[0.18em] transition-colors"
                           style={{
                             color: `hsl(${ui.categoryNav})`,
-                            borderColor: `hsl(${ui.categoryNav} / 0.35)`,
+                            borderColor: `hsl(${ui.categoryNavUnderline})`,
                           }}
                           onMouseEnter={(event) => {
                             event.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
@@ -738,7 +738,7 @@ export default function MenuClient({ tenantId }: Props) {
                   </div>
                 )}
 
-                {categoryNavItems.length > 0 && (
+                {ui.showCategorySelector && categoryNavItems.length > 0 && (
                   <div
                     className="relative flex w-full items-center justify-center py-2"
                     onTouchStart={(event) => {
@@ -799,6 +799,7 @@ export default function MenuClient({ tenantId }: Props) {
       "
                       style={{
                         color: `hsl(${ui.categoryNav})`,
+                        borderColor: `hsl(${ui.categoryNavUnderline})`,
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
@@ -877,8 +878,12 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
-                style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
+                className={`mx-auto w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:px-10 md:pb-14 md:pt-14 ${
+                  pageIndex === menuCategoryPages.length - 1
+                    ? "min-h-0"
+                    : "min-h-[calc((100vw-2rem)*297/210)] md:aspect-[210/297] md:min-h-0"
+                }`}
+                style={{ borderColor: `hsl(${ui.menuPageBorder})` }}
               >
                 <div className="space-y-7">
                   {page.map((pageCategory) => {
@@ -906,7 +911,8 @@ export default function MenuClient({ tenantId }: Props) {
                       : undefined
                   }
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
-                  className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-4 last:border-b-0 last:pb-0"
+                  className="relative scroll-mt-24 border-b pb-4 last:border-b-0 last:pb-0"
+                  style={{ borderBottomColor: `hsl(${ui.itemDivider})` }}
                 >
                   {pageCategory.isFirstSegment && (
                     <div className="space-y-1">
@@ -916,7 +922,6 @@ export default function MenuClient({ tenantId }: Props) {
                           mx-auto
                           w-fit
                           border-b
-                          border-[#fff7e3]/70
                           pb-3
                           text-center
                           font-headline
@@ -926,7 +931,10 @@ export default function MenuClient({ tenantId }: Props) {
                           tracking-[0.16em]
                           md:text-4xl
                         "
-                          style={{ color: `hsl(${ui.categoryTitle})` }}
+                          style={{
+                            color: `hsl(${ui.categoryTitle})`,
+                            borderBottomColor: `hsl(${ui.categoryTitleUnderline})`,
+                          }}
                         >
                           {category.name}
                         </h2>
@@ -944,11 +952,17 @@ export default function MenuClient({ tenantId }: Props) {
                           </p>
                         )}
                       </div>
-                      <div className="h-px w-full bg-border/10" />
+                      <div
+                        className="h-px w-full"
+                        style={{ backgroundColor: `hsl(${ui.itemDivider})` }}
+                      />
                     </div>
                   )}
 
-                  <div className="divide-y divide-border/10">
+                  <div
+                    className="divide-y divide-[hsl(var(--item-divider))]"
+                    style={{ "--item-divider": ui.itemDivider } as CSSProperties}
+                  >
                     {parentItems.map((item) => (
                       <div
                         key={item.id}
@@ -972,11 +986,10 @@ export default function MenuClient({ tenantId }: Props) {
                               </span>
 
                               <div
-                                className={
-                                  tenantId === "picania"
-                                    ? "mx-2 flex-1 border-b border-dotted border-[#fff7e3]/55"
-                                    : "mx-2 flex-1 border-b border-dotted border-foreground/20"
-                                }
+                                className="mx-2 flex-1 border-b border-dotted"
+                                style={{
+                                  borderColor: `hsl(${ui.itemDivider} / 0.45)`,
+                                }}
                               />
                             </div>
 
@@ -1034,11 +1047,15 @@ export default function MenuClient({ tenantId }: Props) {
                     return (
                       <div
                         key={sub.id}
-                        className={`border-b border-border/10 pb-3 ${
+                        className={`border-b pb-3 ${
                           isFridayMenu && isIncluye
-                            ? "mt-3 border-t border-[#fff7e3]/50 pt-3"
+                            ? "mt-3 border-t pt-3"
                             : ""
                         }`}
+                        style={{
+                          borderBottomColor: `hsl(${ui.itemDivider})`,
+                          borderTopColor: `hsl(${ui.itemDivider})`,
+                        }}
                       >
                         {showSubTitle && (
                           <p
@@ -1058,7 +1075,10 @@ export default function MenuClient({ tenantId }: Props) {
                           </p>
                         )}
 
-                        <div className="divide-y divide-border/10">
+                        <div
+                          className="divide-y divide-[hsl(var(--item-divider))]"
+                          style={{ "--item-divider": ui.itemDivider } as CSSProperties}
+                        >
                           {itemsSub.map((item) => {
                             const shownDesc =
                               isFridayMenu && isIncluye
@@ -1139,11 +1159,10 @@ export default function MenuClient({ tenantId }: Props) {
                                     </span>
 
                                     <div
-                                      className={
-                                        tenantId === "picania"
-                                          ? "mx-2 flex-1 border-b border-dotted border-[#fff7e3]/55"
-                                          : "mx-2 flex-1 border-b border-dotted border-foreground/20"
-                                      }
+                                      className="mx-2 flex-1 border-b border-dotted"
+                                      style={{
+                                        borderColor: `hsl(${ui.itemDivider} / 0.45)`,
+                                      }}
                                     />
                                   </div>
 

@@ -20,9 +20,13 @@ export type TenantUI = {
   foreground: string;
 
   categoryTitle: string;
+  categoryTitleUnderline: string;
   categoryNav: string;
   descriptionText: string;
   categoryNavHover: string;
+  categoryNavUnderline: string;
+  itemDivider: string;
+  menuPageBorder: string;
 
   specialBadgeText: string;
   specialBadgeBorder: string;
@@ -33,6 +37,7 @@ export type TenantUI = {
 
   showFriday: boolean;
   showDesktopCategoryList: boolean;
+  showCategorySelector: boolean;
 
   // ===== ADMIN =====
 
