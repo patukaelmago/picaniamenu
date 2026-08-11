@@ -112,6 +112,9 @@ export default function MenuClient({ tenantId }: Props) {
 
   const uiReady = true;
   const isPulpo = tenantId.toLowerCase() === "pulpo";
+  const isPicaniaTenant = ["picana", "picania"].includes(
+    tenantId.toLowerCase()
+  );
   const menuItems = useMemo(
     () =>
       allMenuItems.filter(
@@ -540,11 +543,11 @@ export default function MenuClient({ tenantId }: Props) {
     visibleRootCategories.forEach((category) => {
       const normalizedCategoryName = norm(category.name);
       const isPicaniaLunch =
-        tenantId === "picania" &&
+        isPicaniaTenant &&
         (normalizedCategoryName === "menu viernes" ||
           normalizedCategoryName === "almuerzo ejecutivo");
       const isPicaniaTableService =
-        tenantId === "picania" &&
+        isPicaniaTenant &&
         (normalizedCategoryName === "servicio de mesa" ||
           normalizedCategoryName === "servicios de mesa");
       const childCats = childCategoriesByParent[category.id] ?? [];
@@ -620,7 +623,7 @@ export default function MenuClient({ tenantId }: Props) {
 
     finishPage();
 
-    if (tenantId === "picania") {
+    if (isPicaniaTenant) {
       const isCategory = (entry: PageCategory, names: string[]) =>
         names.includes(norm(entry.category.name));
       const serviceNames = ["servicio de mesa", "servicios de mesa"];
@@ -665,7 +668,13 @@ export default function MenuClient({ tenantId }: Props) {
     }
 
     return pages;
-  }, [visibleRootCategories, childCategoriesByParent, filteredItems, tenantId]);
+  }, [
+    visibleRootCategories,
+    childCategoriesByParent,
+    filteredItems,
+    tenantId,
+    isPicaniaTenant,
+  ]);
 
   if (!uiReady) return null;
 
