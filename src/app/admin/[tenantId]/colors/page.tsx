@@ -2,7 +2,7 @@
 
 import { use, useEffect, useMemo, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Eye, EyeOff, Paintbrush, RefreshCw, Save } from "lucide-react";
+import { Paintbrush, RefreshCw, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -98,7 +98,6 @@ export default function TenantColorsPage({
   );
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
 
   useEffect(() => {
     async function loadColors() {
@@ -118,9 +117,6 @@ export default function TenantColorsPage({
         );
         setAccentColor(hslToHex(brandColors.accent ?? generated.accent, "#ff6b1a"));
         setColors(colorsToHex(effective));
-        setShowDesktopCategoryList(
-          data?.showDesktopCategoryList ?? base.showDesktopCategoryList
-        );
       } catch (error) {
         console.error(error);
         toast({
@@ -182,7 +178,6 @@ export default function TenantColorsPage({
             accent: hexToHsl(accentColor),
           },
           colorOverrides,
-          showDesktopCategoryList,
         },
         { merge: true }
       );
@@ -270,32 +265,6 @@ export default function TenantColorsPage({
           <Button type="button" onClick={generatePalette}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Generar todos los colores
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Navegación de categorías en PC</CardTitle>
-          <CardDescription>
-            Mostrá u ocultá la fila con todas las categorías. El selector principal seguirá visible.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowDesktopCategoryList((current) => !current)}
-            className="gap-2"
-          >
-            {showDesktopCategoryList ? (
-              <Eye className="h-4 w-4" />
-            ) : (
-              <EyeOff className="h-4 w-4" />
-            )}
-            {showDesktopCategoryList
-              ? "Todas las categorías visibles"
-              : "Todas las categorías ocultas"}
           </Button>
         </CardContent>
       </Card>
