@@ -12,6 +12,7 @@ export const MAIDO_UI: Partial<TenantUI> = {
 
   categoryNav: "222 50% 23%",
   categoryNavHover: "355 88% 45%",
+  showDesktopCategoryList: true,
 
   specialBadgeText: "0 0% 100%",
   specialBadgeBorder: "355 88% 45%",
