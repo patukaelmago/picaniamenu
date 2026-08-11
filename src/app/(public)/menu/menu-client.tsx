@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, X } from "lucide-react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useTheme } from "next-themes";
 
@@ -491,19 +491,7 @@ export default function MenuClient({ tenantId }: Props) {
   }, [categoryNavItems.length, categoryNavIndex]);
   const navScrollRef = useRef<HTMLDivElement | null>(null);
 
-  const moveCategoryNav = (dir: "left" | "right") => {
-    setCategoryNavIndex((prev) => {
-      if (dir === "left") {
-        return prev === 0
-          ? categoryNavItems.length - 1
-          : prev - 1;
-      }
 
-      return prev === categoryNavItems.length - 1
-        ? 0
-        : prev + 1;
-    });
-  };
   const menuCategoryPages = useMemo(() => {
     type PageCategory = {
       category: Category;
@@ -707,72 +695,30 @@ export default function MenuClient({ tenantId }: Props) {
                 </h1>
 
                 {categoryNavItems.length > 0 && (
-                  <div className="relative flex w-full items-center justify-center py-2">
-                    <button
-                      type="button"
-                      onClick={() => moveCategoryNav("left")}
-                      className="mr-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label={copy.previous}
-                    >
-                      <ChevronLeft
-                        className="h-10 w-10"
-                        style={{ color: `hsl(${ui.foreground})` }}
-                      />
-                    </button>
+                  <div className="w-full overflow-x-auto py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="mx-auto flex w-max min-w-full items-center justify-start gap-4 px-2 md:justify-center">
+                      {categoryNavItems.map((category, index) => {
+                        const isActive = categoryNavIndex === index;
 
-                    <Button
-                      onClick={() =>
-                        scrollToSection(categoryNavItems[categoryNavIndex].id)
-                      }
-                      className="
-        w-[320px]
-        text-center
-        px-2
-        py-1
-
-        font-headline
-        uppercase
-        tracking-[0.3em]
-
-        text-[14px]
-
-        bg-transparent
-        border-b-2
-        shadow-none
-        ring-0
-        focus:ring-0
-        focus-visible:ring-0
-        focus-visible:outline-none
-
-        hover:bg-transparent
-        hover:shadow-none
-
-        transition-colors
-      "
-                      style={{
-                        color: `hsl(${ui.categoryNav})`,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = `hsl(${ui.categoryNav})`;
-                      }}
-                    >
-                      {categoryNavItems[categoryNavIndex]?.name ?? ""}
-                    </Button>
-
-                    <button
-                      type="button"
-                      onClick={() => moveCategoryNav("right")}
-                      className="ml-7 flex items-center justify-center text-[hsl(var(--foreground))] opacity-90 hover:scale-110 transition-transform"
-                      aria-label={copy.next}
-                    >
-                      <ChevronRight
-                        className="h-10 w-10"
-                        style={{ color: `hsl(${ui.foreground})` }}
-                      />
-                    </button>
+                        return (
+                          <button
+                            key={category.id}
+                            type="button"
+                            onClick={() => {
+                              setCategoryNavIndex(index);
+                              scrollToSection(category.id);
+                            }}
+                            className="shrink-0 border-b-2 bg-transparent px-2 py-2 font-headline text-[13px] uppercase tracking-[0.22em] transition-colors md:text-[14px]"
+                            style={{
+                              color: `hsl(${isActive ? ui.categoryNavHover : ui.categoryNav})`,
+                              borderColor: `hsl(${isActive ? ui.categoryNavHover : ui.categoryNav} / ${isActive ? 1 : 0.35})`,
+                            }}
+                          >
+                            {category.name}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
