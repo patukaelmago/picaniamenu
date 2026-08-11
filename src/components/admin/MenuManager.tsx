@@ -1569,7 +1569,9 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">Especial</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">
+                            {settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                          </TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
