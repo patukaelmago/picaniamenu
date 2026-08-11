@@ -319,7 +319,7 @@ export default function AdminSidebar() {
               alt="Carta Online"
               width={110}
               height={62}
-              className="h-6 w-auto object-contain"
+              className="h-9 w-auto object-contain"
             />
           </div>
         )}
