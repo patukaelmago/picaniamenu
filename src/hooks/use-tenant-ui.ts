@@ -29,7 +29,12 @@ export function useTenantUI(tenantId?: string | null): TenantUI {
         if (cancelled || !snapshot.exists()) return;
         const data = snapshot.data();
         const generated = applyBrandColors(base, data?.brandColors);
-        setUi(applyColorOverrides(generated, data?.colorOverrides));
+        const themed = applyColorOverrides(generated, data?.colorOverrides);
+        setUi({
+          ...themed,
+          showDesktopCategoryList:
+            data?.showDesktopCategoryList ?? base.showDesktopCategoryList,
+        });
       })
       .catch((error) => {
         console.error("Error cargando colores del tenant", error);
