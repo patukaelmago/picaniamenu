@@ -9,6 +9,7 @@ export type RestaurantSettings = {
   websiteUrl: string;
   showLogo: boolean;
   showName: boolean;
+  specialLabel: string;
 };
 
 function getSettingsDocRef(tenantId: string) {
@@ -28,6 +29,7 @@ export async function getRestaurantSettings(
       websiteUrl: "",
       showLogo: true,
       showName: true,
+      specialLabel: "Sugerencia",
     };
   }
 
@@ -40,6 +42,7 @@ export async function getRestaurantSettings(
     websiteUrl: data.websiteUrl ?? "",
     showLogo: data.showLogo ?? true,
     showName: data.showName ?? true,
+    specialLabel: data.specialLabel?.trim().slice(0, 20) || "Sugerencia",
   };
 }
 
@@ -56,6 +59,7 @@ export async function saveRestaurantSettings(
       websiteUrl: data.websiteUrl,
       showLogo: data.showLogo,
       showName: data.showName,
+      specialLabel: data.specialLabel.trim().slice(0, 20) || "Sugerencia",
       updatedAt: serverTimestamp(),
     },
     { merge: true }
