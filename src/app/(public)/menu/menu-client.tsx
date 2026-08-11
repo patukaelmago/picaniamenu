@@ -889,11 +889,7 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className={`mx-auto w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:px-10 md:pb-14 md:pt-14 ${
-                  pageIndex === menuCategoryPages.length - 1
-                    ? "min-h-0"
-                    : "min-h-[calc((100vw-2rem)*297/210)] md:aspect-[210/297] md:min-h-0"
-                }`}
+                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
                 style={{ borderColor: `hsl(${ui.menuPageBorder} / 0.35)` }}
               >
                 <div className="space-y-7">
@@ -922,7 +918,9 @@ export default function MenuClient({ tenantId }: Props) {
                       : undefined
                   }
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
-                  className="relative scroll-mt-24 border-b pb-4 last:border-b-0 last:pb-0"
+                  className={`relative scroll-mt-24 pb-4 last:pb-0 ${
+                    tenantId === "picania" ? "" : "border-b last:border-b-0"
+                  }`}
                   style={{
                     borderBottomColor: `hsl(${ui.itemDivider} / 0.2)`,
                   }}
