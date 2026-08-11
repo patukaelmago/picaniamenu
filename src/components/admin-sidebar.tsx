@@ -302,13 +302,13 @@ export default function AdminSidebar() {
         style={{ backgroundColor: `hsl(${ui.navBg})` }}
       >
         {state === "expanded" && (
-          <div className="relative -left-2 mx-auto inline-flex rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-2">
+          <div className="relative -left-2 mx-auto inline-flex rounded-lg border border-[#3A3A3A] bg-[#2B2B2B] px-2 py-1">
             <Image
               src="/carta-online-logo.png"
               alt="Carta Online"
               width={110}
               height={62}
-              className="h-9 w-auto object-contain"
+              className="h-5 w-auto object-contain"
             />
           </div>
         )}
