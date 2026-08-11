@@ -212,7 +212,7 @@ export default function MenuClient({ tenantId }: Props) {
     if (!hasSpecial && !hasGlutenFree) return null;
 
     return (
-      <div className="col-span-2 mt-1 flex items-center gap-1 md:hidden">
+      <div className="col-start-2 mt-0.5 flex items-center gap-1 md:hidden">
         {specialBadge(item)}
         {sinTaccBadge(item)}
       </div>
@@ -870,14 +870,14 @@ export default function MenuClient({ tenantId }: Props) {
             </div>
           </div>
 
-          <div className="space-y-10">
+          <div className="space-y-4 md:space-y-10">
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
+                className="mx-auto min-h-0 w-full max-w-3xl rounded-sm border px-4 py-5 shadow-sm md:aspect-[210/297] md:px-10 md:pb-14 md:pt-14"
                 style={{ borderColor: `hsl(${ui.foreground} / 0.35)` }}
               >
-                <div className="space-y-7">
+                <div className="space-y-4 md:space-y-7">
                   {page.map((pageCategory) => {
               const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
@@ -995,7 +995,7 @@ export default function MenuClient({ tenantId }: Props) {
                         {mobileIndicators(item)}
 
                         {(item.tags ?? []).length > 0 && (
-                          <div className="col-span-2 mt-1 flex flex-wrap gap-1">
+                          <div className="col-start-2 mt-0.5 flex flex-wrap gap-1 md:col-auto md:mt-1">
                             {(item.tags ?? [])
                               .filter((tag) => tag !== "sin TACC")
                               .map((tag) => (
