@@ -143,7 +143,12 @@ export default function Home() {
               <iframe
                 src="/menu/maido"
                 title="Carta digital de Maido"
-                className="h-full w-full border-0"
+                className="origin-top-left border-0"
+                style={{
+                  width: "142.857%",
+                  height: "142.857%",
+                  transform: "scale(0.7)",
+                }}
                 loading="eager"
               />
             </div>
