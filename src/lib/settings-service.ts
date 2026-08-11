@@ -42,7 +42,7 @@ export async function getRestaurantSettings(
     websiteUrl: data.websiteUrl ?? "",
     showLogo: data.showLogo ?? true,
     showName: data.showName ?? true,
-    specialLabel: data.specialLabel?.trim().slice(0, 20) || "Sugerencia",
+    specialLabel: data.specialLabel?.trim().slice(0, 15) || "Sugerencia",
   };
 }
 
@@ -59,7 +59,7 @@ export async function saveRestaurantSettings(
       websiteUrl: data.websiteUrl,
       showLogo: data.showLogo,
       showName: data.showName,
-      specialLabel: data.specialLabel.trim().slice(0, 20) || "Sugerencia",
+      specialLabel: data.specialLabel.trim().slice(0, 15) || "Sugerencia",
       updatedAt: serverTimestamp(),
     },
     { merge: true }
