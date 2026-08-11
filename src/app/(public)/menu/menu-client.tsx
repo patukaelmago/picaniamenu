@@ -114,7 +114,7 @@ export default function MenuClient({ tenantId }: Props) {
     title: "NUESTRA CARTA",
     search: "Buscar por plato, ingrediente...",
     special:
-      settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia",
+      settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia",
     glutenFree: "Sin TACC",
     empty: "No encontramos platos que coincidan con la búsqueda.",
     previous: "Categoría anterior",
