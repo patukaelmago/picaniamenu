@@ -1181,23 +1181,21 @@ async function saveCategoryEdit() {
 </TabsList>
         {activeMenuTab === "items" && (
         <Button
-          type="button"
-          onClick={() => {
-            setCreateForm({ ...emptyItem, currency: tenantCurrency });
-            setCreateOpen(true);
-          }}
-          className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
-          style={{
-            "--tenant-button-bg": ui.adminAccent,
-            "--tenant-button-text": ui.adminCard,
-            "--tenant-button-border": ui.adminAccent,
-            "--tenant-button-hover-bg": ui.adminSidebarBg,
-            "--tenant-button-hover-text": ui.adminSidebarText,
-          } as CSSProperties}
-        >
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Agregar Item
-        </Button>
+        onClick={() =>
+          setCreateForm({ ...emptyItem, currency: tenantCurrency })
+        }
+        className="self-center border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:self-start"
+        style={{
+          "--tenant-button-bg": ui.adminCardForeground,
+          "--tenant-button-text": ui.adminCard,
+          "--tenant-button-border": ui.adminForeground,
+          "--tenant-button-hover-bg": ui.adminAccent,
+          "--tenant-button-hover-text": ui.adminCard,
+        } as CSSProperties}
+      >
+        <PlusCircle className="mr-2 h-4 w-4" />
+        Agregar Item
+      </Button>
         )}
         </div>
 
