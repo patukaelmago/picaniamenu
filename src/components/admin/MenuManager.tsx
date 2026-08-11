@@ -1572,14 +1572,14 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
                           <TableHead
                             className="text-center text-[hsl(var(--table-head-text))]"
-                            title={settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                            title={settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
                           >
                             <span className="hidden sm:inline">
-                              {settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                              {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
                             </span>
                             <Sparkles
                               className="mx-auto h-4 w-4 sm:hidden"
-                              aria-label={settings?.specialLabel?.trim().slice(0, 20) || "Sugerencia"}
+                              aria-label={settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
                             />
                           </TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
