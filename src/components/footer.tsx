@@ -53,7 +53,7 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Ir a Carta Online"
-            className="mt-1 inline-flex rounded-lg border border-[#3A3A3A] bg-[#2B2B2B] px-2 py-1 transition hover:-translate-y-0.5 hover:border-[#4B75FF] hover:bg-[#343434]"
+            className="mt-1 inline-flex bg-transparent p-0 transition hover:-translate-y-0.5 hover:opacity-80"
           >
             <img
               src="/carta-online-logo.png"
