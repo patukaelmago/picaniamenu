@@ -58,7 +58,7 @@ export default function Footer() {
             <img
               src="/carta-online-logo.png"
               alt="Carta Online"
-              className="h-5 w-auto object-contain"
+              className="h-6 w-auto object-contain"
             />
           </a>
 
