@@ -99,6 +99,17 @@ export default function MenuClient({ tenantId }: Props) {
   const settings = useRestaurantSettings();
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
+
+  useEffect(() => {
+    const fallbackName = tenantId
+      .split("-")
+      .filter(Boolean)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+
+    document.title = settings?.name?.trim() || fallbackName;
+  }, [settings?.name, tenantId]);
+
   const uiReady = true;
   const isPulpo = tenantId.toLowerCase() === "pulpo";
   const menuItems = useMemo(
