@@ -738,7 +738,7 @@ export default function MenuClient({ tenantId }: Props) {
                 </h1>
 
                 {ui.showDesktopCategoryList && categoryNavItems.length > 0 && (
-                  <div className="hidden w-full py-2 md:block">
+                  <div className="hidden py-2 md:relative md:left-1/2 md:block md:w-[min(72rem,calc(100vw-2rem))] md:-translate-x-1/2">
                     <div className="mx-auto flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 px-2">
                       {categoryNavItems.map((category, index) => (
                         <button
