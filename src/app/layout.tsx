@@ -5,7 +5,7 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Carta-Online",
+  title: "Carta Online",
   description: "Carta-Online es una plataforma de menús digitales para restaurantes, bares, cafeterías y comercios gastronómicos. Permite gestionar cartas online, códigos QR, imágenes, promociones y contenido personalizado para cada negocio.",
 };
 
@@ -48,5 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
-
 
