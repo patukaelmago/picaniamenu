@@ -38,7 +38,7 @@ export function useRestaurantSettings() {
               showLogo: raw.showLogo ?? true,
               showName: raw.showName ?? true,
               specialLabel:
-                raw.specialLabel?.trim().slice(0, 20) || "Sugerencia",
+                raw.specialLabel?.trim().slice(0, 15) || "Sugerencia",
             }
           : null
       );
