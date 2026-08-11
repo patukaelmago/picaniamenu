@@ -157,6 +157,17 @@ export default function AdminSidebar() {
     loadTenantLogo();
   }, [tenantId]);
 
+  useEffect(() => {
+    const isTenantRoute =
+      pathname === `/admin/${tenantId}` ||
+      pathname.startsWith(`/admin/${tenantId}/`) ||
+      pathname === `/admin/menu/${tenantId}`;
+
+    document.title = isTenantRoute
+      ? tenantName.trim() || tenantId
+      : "Carta Online";
+  }, [pathname, tenantId, tenantName]);
+
   const logoSrc = tenantLogo;
 
   const navItems = useMemo(
