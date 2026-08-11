@@ -466,7 +466,7 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
             <div className="mt-4 rounded-xl border bg-white p-5 text-center shadow-sm">
               <p className="font-black">QR de tu carta</p>
               <p className="mt-1 text-xs text-[#69708B]">Este código abre directamente el menú de Maido.</p>
-              <div className="mx-auto mt-5 h-48 w-48 overflow-hidden rounded-xl border-8 border-[#1D2E58] bg-white p-2">
+              <div className="mx-auto mt-5 h-48 w-48 overflow-hidden rounded-xl border-4 border-[#1D2E58] bg-white p-2">
                 <img
                   src="/qr-maido.svg"
                   alt="QR real del menú de Maido"
