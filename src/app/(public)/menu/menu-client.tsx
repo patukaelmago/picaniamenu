@@ -733,7 +733,7 @@ export default function MenuClient({ tenantId }: Props) {
                           className="shrink-0 border-b bg-transparent px-2 py-1 font-headline text-xs uppercase tracking-[0.18em] transition-colors"
                           style={{
                             color: `hsl(${ui.categoryNav})`,
-                            borderColor: `hsl(${ui.categoryNavUnderline})`,
+                            borderColor: `hsl(${ui.categoryNavUnderline} / 0.35)`,
                           }}
                           onMouseEnter={(event) => {
                             event.currentTarget.style.color = `hsl(${ui.categoryNavHover})`;
@@ -894,7 +894,7 @@ export default function MenuClient({ tenantId }: Props) {
                     ? "min-h-0"
                     : "min-h-[calc((100vw-2rem)*297/210)] md:aspect-[210/297] md:min-h-0"
                 }`}
-                style={{ borderColor: `hsl(${ui.menuPageBorder})` }}
+                style={{ borderColor: `hsl(${ui.menuPageBorder} / 0.35)` }}
               >
                 <div className="space-y-7">
                   {page.map((pageCategory) => {
@@ -923,7 +923,9 @@ export default function MenuClient({ tenantId }: Props) {
                   }
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
                   className="relative scroll-mt-24 border-b pb-4 last:border-b-0 last:pb-0"
-                  style={{ borderBottomColor: `hsl(${ui.itemDivider})` }}
+                  style={{
+                    borderBottomColor: `hsl(${ui.itemDivider} / 0.2)`,
+                  }}
                 >
                   {pageCategory.isFirstSegment && (
                     <div className="space-y-1">
@@ -965,14 +967,18 @@ export default function MenuClient({ tenantId }: Props) {
                       </div>
                       <div
                         className="h-px w-full"
-                        style={{ backgroundColor: `hsl(${ui.itemDivider})` }}
+                        style={{
+                          backgroundColor: `hsl(${ui.itemDivider} / 0.1)`,
+                        }}
                       />
                     </div>
                   )}
 
                   <div
                     className="divide-y divide-[hsl(var(--item-divider))]"
-                    style={{ "--item-divider": ui.itemDivider } as CSSProperties}
+                    style={{
+                      "--item-divider": `${ui.itemDivider} / 0.12`,
+                    } as CSSProperties}
                   >
                     {parentItems.map((item) => (
                       <div
@@ -1064,8 +1070,8 @@ export default function MenuClient({ tenantId }: Props) {
                             : ""
                         }`}
                         style={{
-                          borderBottomColor: `hsl(${ui.itemDivider})`,
-                          borderTopColor: `hsl(${ui.itemDivider})`,
+                          borderBottomColor: `hsl(${ui.itemDivider} / 0.12)`,
+                          borderTopColor: `hsl(${ui.itemDivider} / 0.25)`,
                         }}
                       >
                         {showSubTitle && (
@@ -1088,7 +1094,9 @@ export default function MenuClient({ tenantId }: Props) {
 
                         <div
                           className="divide-y divide-[hsl(var(--item-divider))]"
-                          style={{ "--item-divider": ui.itemDivider } as CSSProperties}
+                          style={{
+                            "--item-divider": `${ui.itemDivider} / 0.12`,
+                          } as CSSProperties}
                         >
                           {itemsSub.map((item) => {
                             const shownDesc =
