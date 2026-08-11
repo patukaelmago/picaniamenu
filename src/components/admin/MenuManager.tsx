@@ -2059,16 +2059,27 @@ async function saveCategoryEdit() {
                             className="flex items-center gap-4"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div className="flex items-center space-x-2">
-                              <Label htmlFor={`visible-${parent.id}`} className="text-sm">
-                                Visible
-                              </Label>
-                              <Switch
-                                id={`visible-${parent.id}`}
-                                checked={!!parent.isVisible}
-                                onCheckedChange={(v) => onToggleVisible(parent, v)}
-                              />
-                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              title={parent.isVisible ? "Ocultar categoría" : "Mostrar categoría"}
+                              aria-label={parent.isVisible ? `Ocultar ${parent.name}` : `Mostrar ${parent.name}`}
+                              aria-pressed={!!parent.isVisible}
+                              onClick={() => onToggleVisible(parent, !parent.isVisible)}
+                              className={
+                                parent.isVisible
+                                  ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
+                                  : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"
+                              }
+                              style={{ "--visible-eye-color": ui.adminAccent } as CSSProperties}
+                            >
+                              {parent.isVisible ? (
+                                <Eye className="h-5 w-5" />
+                              ) : (
+                                <EyeOff className="h-5 w-5" />
+                              )}
+                            </Button>
 
                             <div className="flex items-center gap-2">
                               <Button
@@ -2116,19 +2127,27 @@ async function saveCategoryEdit() {
                               </div>
 
                               <div className="flex items-center gap-4">
-                                <div className="flex items-center space-x-2">
-                                  <Label
-                                    htmlFor={`visible-${child.id}`}
-                                    className="text-sm"
-                                  >
-                                    Visible
-                                  </Label>
-                                  <Switch
-                                    id={`visible-${child.id}`}
-                                    checked={!!child.isVisible}
-                                    onCheckedChange={(v) => onToggleVisible(child, v)}
-                                  />
-                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  title={child.isVisible ? "Ocultar categoría" : "Mostrar categoría"}
+                                  aria-label={child.isVisible ? `Ocultar ${child.name}` : `Mostrar ${child.name}`}
+                                  aria-pressed={!!child.isVisible}
+                                  onClick={() => onToggleVisible(child, !child.isVisible)}
+                                  className={
+                                    child.isVisible
+                                      ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
+                                      : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"
+                                  }
+                                  style={{ "--visible-eye-color": ui.adminAccent } as CSSProperties}
+                                >
+                                  {child.isVisible ? (
+                                    <Eye className="h-5 w-5" />
+                                  ) : (
+                                    <EyeOff className="h-5 w-5" />
+                                  )}
+                                </Button>
 
                                 <div className="flex items-center gap-2">
                                   <Button
