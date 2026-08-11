@@ -846,7 +846,7 @@ async function saveCategoryEdit() {
           )
         );
 
-      toast({ title: "Orden de categorías padre guardado" });
+      toast({ title: "Orden de secciones principales guardado" });
     } catch (e) {
       console.error(e);
       toast({
@@ -1282,7 +1282,7 @@ async function saveCategoryEdit() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Label className="text-sm">Categoría padre:</Label>
+                    <Label className="text-sm">Sección principal:</Label>
                     <select
                       className="h-9 w-full rounded-md border bg-background px-2 text-sm text-foreground sm:min-w-[220px]"
                       value={parentFilterId}
@@ -1984,14 +1984,14 @@ async function saveCategoryEdit() {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="new-cat-parent">Categoría padre</Label>
+                  <Label htmlFor="new-cat-parent">Sección principal</Label>
                   <select
                     id="new-cat-parent"
                     className="h-9 rounded-md border bg-background px-2 text-sm text-foreground min-w-[180px]"
                     value={formCatParentId}
                     onChange={(e) => setFormCatParentId(e.target.value)}
                   >
-                    <option value="">Ninguna (categoría principal)</option>
+                    <option value="">Ninguna (sección principal)</option>
                     {sortedRootCategories.map((cat) => (
                       <option key={cat.id} value={cat.id}>
                         {cat.name}
@@ -2220,7 +2220,7 @@ async function saveCategoryEdit() {
 
                     <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                       <Label htmlFor="cat-parent" className="sm:text-right">
-                        Categoría padre
+                        Sección principal
                       </Label>
                       <select
                         id="cat-parent"
@@ -2233,7 +2233,7 @@ async function saveCategoryEdit() {
                           }))
                         }
                       >
-                        <option value="">Ninguna (categoría principal)</option>
+                        <option value="">Ninguna (sección principal)</option>
                         {sortedRootCategories
                           .filter((c) => c.id !== catEditingId)
                           .map((cat) => (
