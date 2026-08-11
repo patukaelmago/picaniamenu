@@ -65,6 +65,7 @@ export default function TenantSettingsPage({
 
   const [showLogo, setShowLogo] = useState(true);
   const [showName, setShowName] = useState(true);
+  const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoUrlInput, setLogoUrlInput] = useState("");
@@ -114,6 +115,9 @@ export default function TenantSettingsPage({
 
         if (uiSnap.exists()) {
           const data = uiSnap.data();
+          setShowDesktopCategoryList(
+            data?.showDesktopCategoryList ?? ui.showDesktopCategoryList
+          );
           const images = Array.isArray(data?.carouselImages)
             ? data.carouselImages.filter(
               (img: unknown): img is string =>
@@ -130,6 +134,7 @@ export default function TenantSettingsPage({
           );
         } else {
           setCarouselItems([]);
+          setShowDesktopCategoryList(ui.showDesktopCategoryList);
         }
       } catch (e) {
         console.error(e);
@@ -377,6 +382,7 @@ export default function TenantSettingsPage({
         doc(db, "tenants", tenantId, "settings", "ui"),
         {
           carouselImages: finalCarouselImages.slice(0, MAX_CAROUSEL_IMAGES),
+          showDesktopCategoryList,
         },
         { merge: true }
       );
@@ -741,6 +747,32 @@ export default function TenantSettingsPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Navegación de categorías</CardTitle>
+          <CardDescription>
+            Configurá cómo se muestran las categorías en computadoras.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between rounded-md border p-4">
+            <div className="space-y-0.5">
+              <Label htmlFor="show-desktop-category-list">
+                Mostrar todas las categorías en PC
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                El selector principal seguirá visible aunque desactives esta fila.
+              </p>
+            </div>
+            <Switch
+              id="show-desktop-category-list"
+              checked={showDesktopCategoryList}
+              onCheckedChange={setShowDesktopCategoryList}
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="fixed bottom-0 right-0 z-40 flex w-full justify-start border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
         <Button
