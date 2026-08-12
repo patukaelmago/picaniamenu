@@ -1442,21 +1442,6 @@ async function saveCategoryEdit() {
                           </select>
                         </div>
 
-                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                          <Label className="sm:text-right">Sin TACC</Label>
-                          <div className="sm:col-span-3">
-                            <Switch
-                              checked={hasSinTacc(createForm.tags)}
-                              onCheckedChange={(checked) =>
-                                setCreateForm((prev) => ({
-                                  ...prev,
-                                  tags: withSinTacc(prev.tags, checked),
-                                }))
-                              }
-                            />
-                          </div>
-                        </div>
-
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-start sm:gap-4">
                           <Label className="pt-2 sm:text-right">Imagen</Label>
                           <div className="space-y-3 sm:col-span-3">
