@@ -250,12 +250,15 @@ export default function TenantColorsPage({
               <label key={label} className="space-y-2 text-sm font-medium">
                 <span>{label}</span>
                 <div className="flex items-center gap-3 rounded-md border p-2">
-                  <span className="h-10 w-14 shrink-0 overflow-hidden rounded border border-foreground/35">
+                  <span
+                    className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-foreground/35"
+                    style={{ backgroundColor: value }}
+                  >
                     <input
                       type="color"
                       value={value}
                       onChange={(event) => setter(event.target.value)}
-                      className="h-full w-full cursor-pointer appearance-none border-0 bg-transparent p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
+                      className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
                   </span>
                   <span className="font-mono text-xs uppercase">{value}</span>
@@ -284,7 +287,10 @@ export default function TenantColorsPage({
               <label key={key} className="space-y-2 text-sm font-medium">
                 <span>{label}</span>
                 <div className="flex items-center gap-3 rounded-md border p-2">
-                  <span className="h-9 w-12 shrink-0 overflow-hidden rounded border border-foreground/35">
+                  <span
+                    className="relative h-9 w-12 shrink-0 overflow-hidden rounded border border-foreground/35"
+                    style={{ backgroundColor: colors[key] }}
+                  >
                     <input
                       type="color"
                       value={colors[key]}
@@ -294,7 +300,7 @@ export default function TenantColorsPage({
                           [key]: event.target.value,
                         }))
                       }
-                      className="h-full w-full cursor-pointer appearance-none border-0 bg-transparent p-0 [&::-moz-color-swatch]:border-0 [&::-webkit-color-swatch]:border-0 [&::-webkit-color-swatch-wrapper]:p-0"
+                      className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                     />
                   </span>
                   <span className="font-mono text-xs uppercase">{colors[key]}</span>
