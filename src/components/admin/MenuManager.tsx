@@ -1146,7 +1146,7 @@ async function saveCategoryEdit() {
       </div>
 
       <Tabs value={activeMenuTab} onValueChange={setActiveMenuTab} className="w-full min-w-0">
-        <div className="flex flex-col items-start gap-2">
+        <div className="flex flex-col items-start gap-4">
       <TabsList
   className="grid w-full grid-cols-2 border p-1 sm:inline-flex sm:h-10 sm:w-fit"
   style={{
