@@ -1182,9 +1182,10 @@ async function saveCategoryEdit() {
 </TabsList>
         {activeMenuTab === "items" && (
         <Button
-        onClick={() =>
-          setCreateForm({ ...emptyItem, currency: tenantCurrency })
-        }
+        onClick={() => {
+          setCreateForm({ ...emptyItem, currency: tenantCurrency });
+          setCreateOpen(true);
+        }}
         className="self-center border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:self-start"
         style={{
           "--tenant-button-bg": ui.adminCardForeground,
