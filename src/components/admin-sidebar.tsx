@@ -254,12 +254,10 @@ export default function AdminSidebar() {
       >
         <div className="flex items-center justify-center px-2">
           {logoSrc ? (
-            <Image
+            <img
               src={logoSrc}
               alt={tenantId}
-              width={180}
-              height={60}
-              priority
+              decoding="async"
               className="h-auto w-[180px] object-contain"
             />
           ) : null}
