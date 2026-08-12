@@ -18,6 +18,7 @@ export default function LoginWithGoogle() {
   const [loading, setLoading] = useState(false);
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const redirectAuthorizedUser = async (email: string) => {
@@ -145,7 +146,7 @@ export default function LoginWithGoogle() {
         />
 
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           placeholder="Contraseña"
@@ -154,6 +155,16 @@ export default function LoginWithGoogle() {
           required
           className="w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3 text-sm text-[#F5EEDC] outline-none transition focus:border-[#2563EB]"
         />
+
+        <label className="flex w-fit cursor-pointer items-center gap-2 text-xs text-[#B8B2A7]">
+          <input
+            type="checkbox"
+            checked={showPassword}
+            onChange={(event) => setShowPassword(event.target.checked)}
+            className="h-4 w-4 cursor-pointer accent-[#2563EB]"
+          />
+          Ver contraseña
+        </label>
 
         {errorMessage && (
           <p className="text-center text-sm text-red-400">{errorMessage}</p>
