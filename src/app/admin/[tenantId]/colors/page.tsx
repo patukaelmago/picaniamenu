@@ -263,7 +263,7 @@ export default function TenantColorsPage({
                 <span>{label}</span>
                 <div className="flex items-center gap-3 rounded-md border p-2">
                   <span
-                    className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-foreground/35"
+                    className="relative h-10 w-14 shrink-0 overflow-hidden rounded border border-[#8C94A3]"
                     style={{ backgroundColor: value }}
                   >
                     <input
@@ -284,7 +284,17 @@ export default function TenantColorsPage({
               <RefreshCw className="mr-2 h-4 w-4" />
               Generar todos los colores
             </Button>
-            <Button type="button" variant="outline" onClick={restoreDefaultPalette}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={restoreDefaultPalette}
+              className="hover:brightness-95"
+              style={{
+                borderColor: primaryColor,
+                backgroundColor,
+                color: primaryColor,
+              }}
+            >
               <RotateCcw className="mr-2 h-4 w-4" />
               Restaurar colores originales
             </Button>
@@ -306,7 +316,7 @@ export default function TenantColorsPage({
                 <span>{label}</span>
                 <div className="flex items-center gap-3 rounded-md border p-2">
                   <span
-                    className="relative h-9 w-12 shrink-0 overflow-hidden rounded border border-foreground/35"
+                    className="relative h-9 w-12 shrink-0 overflow-hidden rounded border border-[#8C94A3]"
                     style={{ backgroundColor: colors[key] }}
                   >
                     <input
