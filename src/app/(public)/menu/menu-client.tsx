@@ -903,7 +903,7 @@ export default function MenuClient({ tenantId }: Props) {
                       : undefined
                   }
                   key={`${category.id}-${pageIndex}-${pageCategory.isFirstSegment ? "first" : "continued"}`}
-                  className="relative scroll-mt-24 border-b border-[#fff7e3]/20 pb-4 last:border-b-0 last:pb-0"
+                  className="relative scroll-mt-36 border-b border-[#fff7e3]/20 pb-4 last:border-b-0 last:pb-0"
                 >
                   {pageCategory.isFirstSegment && (
                     <div className="space-y-1">
