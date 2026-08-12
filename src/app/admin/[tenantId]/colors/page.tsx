@@ -2,7 +2,7 @@
 
 import { use, useEffect, useMemo, useState } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { Paintbrush, RefreshCw, Save } from "lucide-react";
+import { Paintbrush, RefreshCw, RotateCcw, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -157,6 +157,18 @@ export default function TenantColorsPage({
     });
   }
 
+  function restoreDefaultPalette() {
+    const defaults = getTenantUI(tenantId);
+    setPrimaryColor(hslToHex(defaults.adminBackground, "#1d2f58"));
+    setBackgroundColor(hslToHex(defaults.adminCard, "#fff6e0"));
+    setAccentColor(hslToHex(defaults.adminAccent, "#ec5122"));
+    setColors(colorsToHex(defaults));
+    toast({
+      title: "Paleta original restaurada",
+      description: "Guardá los colores para aplicar los cambios.",
+    });
+  }
+
   async function saveColors() {
     if (saving) return;
   
@@ -267,10 +279,16 @@ export default function TenantColorsPage({
             ))}
           </div>
 
-          <Button type="button" onClick={generatePalette}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Generar todos los colores
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button type="button" onClick={generatePalette}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Generar todos los colores
+            </Button>
+            <Button type="button" variant="outline" onClick={restoreDefaultPalette}>
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Restaurar colores originales
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
