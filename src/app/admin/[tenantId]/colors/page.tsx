@@ -254,7 +254,7 @@ export default function TenantColorsPage({
                     type="color"
                     value={value}
                     onChange={(event) => setter(event.target.value)}
-                    className="h-10 w-14 cursor-pointer rounded border-0 bg-transparent"
+                    className="h-10 w-14 cursor-pointer rounded border border-foreground/35 bg-transparent p-0.5"
                   />
                   <span className="font-mono text-xs uppercase">{value}</span>
                 </div>
@@ -291,7 +291,7 @@ export default function TenantColorsPage({
                         [key]: event.target.value,
                       }))
                     }
-                    className="h-9 w-12 cursor-pointer rounded border-0 bg-transparent"
+                    className="h-9 w-12 cursor-pointer rounded border border-foreground/35 bg-transparent p-0.5"
                   />
                   <span className="font-mono text-xs uppercase">{colors[key]}</span>
                 </div>
