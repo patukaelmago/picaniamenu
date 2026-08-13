@@ -1808,6 +1808,30 @@ async function saveCategoryEdit() {
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label className="sm:text-right">Sugerencia</Label>
+                  <div className="sm:col-span-3">
+                    <Switch
+                      checked={!!editForm.isSpecial}
+                      onCheckedChange={(checked) =>
+                        onChangeEdit("isSpecial", checked)
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label className="sm:text-right">Visible</Label>
+                  <div className="sm:col-span-3">
+                    <Switch
+                      checked={!!editForm.isVisible}
+                      onCheckedChange={(checked) =>
+                        onChangeEdit("isVisible", checked)
+                      }
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                   <Label className="sm:text-right">Sin TACC</Label>
                   <div className="sm:col-span-3">
                     <Switch
