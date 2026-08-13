@@ -36,7 +36,7 @@ export default function ScrollToTopButton() {
         z-50
         p-3
         rounded-full
-        bg-[#2563EB]
+        bg-[#38BDF8]
         text-white
         shadow-lg
         hover:scale-110
