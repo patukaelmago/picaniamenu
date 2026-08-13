@@ -1808,7 +1808,9 @@ async function saveCategoryEdit() {
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                  <Label className="sm:text-right">Sugerencia</Label>
+                  <Label className="sm:text-right">
+                    {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
+                  </Label>
                   <div className="sm:col-span-3">
                     <Switch
                       checked={!!editForm.isSpecial}
