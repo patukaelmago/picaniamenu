@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Paintbrush, RefreshCw, RotateCcw, Save } from "lucide-react";
 
@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { db } from "@/lib/firebase";
 import { getTenantUI } from "@/lib/tenant-ui";
 import {
@@ -90,6 +91,7 @@ export default function TenantColorsPage({
   params: Promise<{ tenantId: string }>;
 }) {
   const { tenantId } = use(params);
+  const ui = useTenantUI(tenantId);
   const [primaryColor, setPrimaryColor] = useState("#1d2f58");
   const [backgroundColor, setBackgroundColor] = useState("#fff7e3");
   const [accentColor, setAccentColor] = useState("#ff6b1a");
@@ -340,7 +342,20 @@ export default function TenantColorsPage({
       ))}
 
       <div className="fixed bottom-0 right-0 z-40 flex w-full justify-start border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
-        <Button type="button" onClick={saveColors} disabled={saving}>
+        <Button
+          type="button"
+          onClick={saveColors}
+          disabled={saving}
+          className="border border-[hsl(var(--colors-save-border))] bg-[hsl(var(--colors-save-bg))] text-[hsl(var(--colors-save-text))] transition-transform hover:border-[hsl(var(--colors-save-hover-border))] hover:bg-[hsl(var(--colors-save-hover-bg))] hover:text-[hsl(var(--colors-save-hover-text))] active:translate-y-0.5 active:scale-[0.98]"
+          style={{
+            "--colors-save-bg": ui.navBg,
+            "--colors-save-text": ui.navText,
+            "--colors-save-border": ui.navBg,
+            "--colors-save-hover-bg": ui.adminCardForeground,
+            "--colors-save-hover-text": ui.adminCard,
+            "--colors-save-hover-border": ui.adminCard,
+          } as CSSProperties}
+        >
           <Save className="mr-2 h-4 w-4" />
           {saving ? "Guardando…" : "Guardar colores"}
         </Button>

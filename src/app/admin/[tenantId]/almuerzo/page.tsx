@@ -15,7 +15,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { notFound } from "next/navigation";
-import { Pencil, Trash2, PlusCircle } from "lucide-react";
+import { Pencil, Trash2, PlusCircle, Save } from "lucide-react";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
@@ -108,6 +108,7 @@ export default function TenantAlmuerzoPage({
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<LunchItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [savingFridayMenu, setSavingFridayMenu] = useState(false);
 
   const [newItemName, setNewItemName] = useState("");
   const [newItemPrice, setNewItemPrice] = useState("");
@@ -275,13 +276,17 @@ export default function TenantAlmuerzoPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
 
-  async function autosaveFridayMenu(nextData: FridayMenuData) {
+  async function saveFridayMenu() {
+    if (savingFridayMenu) return;
+
+    setSavingFridayMenu(true);
+
     try {
       const ref = doc(db, "tenants", tenantId, "special_menus", "friday");
-      await setDoc(ref, nextData, { merge: true });
+      await setDoc(ref, data, { merge: true });
 
       toast({
-        title: "Guardado automático",
+        title: "Cambios guardados",
         description: "Entrada y postre actualizados.",
       });
     } catch (e) {
@@ -292,10 +297,12 @@ export default function TenantAlmuerzoPage({
         title: "Error",
         description: "No se pudo guardar entrada y postre.",
       });
+    } finally {
+      setSavingFridayMenu(false);
     }
   }
 
-  async function transformFridayField(
+  function transformFridayField(
     field: keyof FridayMenuData,
     mode: "upper" | "lower"
   ) {
@@ -306,7 +313,6 @@ export default function TenantAlmuerzoPage({
 
     const nextData = { ...data, [field]: value };
     setData(nextData);
-    await autosaveFridayMenu(nextData);
   }
 
   async function handleToggleItem(id: string, value: boolean) {
@@ -518,7 +524,7 @@ export default function TenantAlmuerzoPage({
   }
 
   return (
-    <div className="w-full min-w-0 space-y-5 overflow-x-hidden sm:space-y-8">
+    <div className="w-full min-w-0 space-y-5 overflow-x-hidden pb-24 sm:space-y-8">
       <div>
         <h1 className="text-2xl font-bold font-headline text-foreground sm:text-3xl">
           Configuración de Almuerzo
@@ -533,7 +539,7 @@ export default function TenantAlmuerzoPage({
           <CardHeader className="p-4 sm:p-6">
             <CardTitle>Almuerzo Jueves y Viernes</CardTitle>
             <CardDescription>
-              Entrada y postre se guardan automáticamente al salir del campo.
+              Editá la entrada y el postre y guardá los cambios.
             </CardDescription>
           </CardHeader>
 
@@ -545,7 +551,6 @@ export default function TenantAlmuerzoPage({
                   className="min-w-0 flex-1"
                   value={data.entrada}
                   onChange={(e) => setData({ ...data, entrada: e.target.value })}
-                  onBlur={() => autosaveFridayMenu(data)}
                   placeholder="Ej: Focaccia con hummus..."
                 />
                 <Button
@@ -592,7 +597,6 @@ export default function TenantAlmuerzoPage({
                   className="min-w-0 flex-1"
                   value={data.postre}
                   onChange={(e) => setData({ ...data, postre: e.target.value })}
-                  onBlur={() => autosaveFridayMenu(data)}
                   placeholder="Ej: Flan casero..."
                 />
                 <Button
@@ -782,6 +786,26 @@ export default function TenantAlmuerzoPage({
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="fixed bottom-0 right-0 z-40 flex w-full justify-start border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
+        <Button
+          type="button"
+          onClick={saveFridayMenu}
+          disabled={savingFridayMenu}
+          className="border border-[hsl(var(--lunch-save-border))] bg-[hsl(var(--lunch-save-bg))] text-[hsl(var(--lunch-save-text))] transition-transform hover:border-[hsl(var(--lunch-save-hover-border))] hover:bg-[hsl(var(--lunch-save-hover-bg))] hover:text-[hsl(var(--lunch-save-hover-text))] active:translate-y-0.5 active:scale-[0.98]"
+          style={{
+            "--lunch-save-bg": ui.navBg,
+            "--lunch-save-text": ui.navText,
+            "--lunch-save-border": ui.navBg,
+            "--lunch-save-hover-bg": ui.adminCardForeground,
+            "--lunch-save-hover-text": ui.adminCard,
+            "--lunch-save-hover-border": ui.adminCard,
+          } as CSSProperties}
+        >
+          <Save className="mr-2 h-4 w-4" />
+          {savingFridayMenu ? "Guardando..." : "Guardar cambios"}
+        </Button>
       </div>
 
       <Sheet open={editOpen} onOpenChange={setEditOpen}>
