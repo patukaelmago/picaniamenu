@@ -283,6 +283,29 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="bg-white py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[1.15fr_.85fr]">
+          <AdminFeaturePreview section="variants" />
+          <div>
+            <span className="inline-flex rounded-full bg-[#FF6B00] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white">
+              Carta A / Carta B
+            </span>
+            <h2 className="mt-6 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">
+              Dos cartas, un mismo QR.
+            </h2>
+            <p className="mt-6 text-lg leading-8 text-[#5E6573]">
+              Prepará dos versiones de tu menú y elegí cuál publicar. Tus clientes
+              siempre ingresan desde el mismo enlace y el mismo código QR.
+            </p>
+            <div className="mt-8 space-y-4">
+              <Benefit text="Publicá una carta a la vez" />
+              <Benefit text="Asigná productos a A, B o ambas" />
+              <Benefit text="Cambiá la carta publicada al instante" />
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#2563EB] py-20 text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center md:flex-row md:text-left">
           <div>
@@ -425,11 +448,12 @@ function AdminPreview() {
   );
 }
 
-function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings" }) {
+function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings" | "variants" }) {
   const titles = {
     qr: "Código QR",
     colors: "Colores",
     settings: "Ajustes del Cliente",
+    variants: "Carta A / Carta B",
   };
 
   return (
@@ -444,7 +468,7 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
             />
           </div>
           <div className="mt-5 space-y-2 text-xs font-bold">
-            <AdminNav icon={UtensilsCrossed} text="Menú" />
+            <AdminNav icon={UtensilsCrossed} text="Menú" active={section === "variants"} />
             <AdminNav icon={QrCode} text="QR" active={section === "qr"} />
             <AdminNav icon={Palette} text="Colores" active={section === "colors"} />
             <AdminNav icon={Settings} text="Ajustes" active={section === "settings"} />
@@ -540,6 +564,58 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
                   ))}
                 </div>
                 <div className="mt-3 rounded-md bg-[#1D2E58] px-3 py-2 text-center text-[10px] font-bold text-white">Elegir imágenes</div>
+              </div>
+            </div>
+          )}
+
+          {section === "variants" && (
+            <div className="mt-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4 shadow-sm">
+                <div>
+                  <p className="font-black">Carta publicada</p>
+                  <p className="mt-1 text-[10px] text-[#69708B]">
+                    El mismo QR muestra la carta seleccionada.
+                  </p>
+                </div>
+                <div className="flex overflow-hidden rounded-md border border-[#1D2E58] text-xs font-bold">
+                  <span className="bg-[#D80E1F] px-5 py-2 text-white">Carta A</span>
+                  <span className="bg-white px-5 py-2 text-[#1D2E58]">Carta B</span>
+                </div>
+              </div>
+
+              <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+                <div className="grid grid-cols-[1fr_66px_66px] bg-[#1D2E58] px-4 py-3 text-[10px] font-black uppercase text-white">
+                  <span>Producto</span>
+                  <span className="text-center">Carta A</span>
+                  <span className="text-center">Carta B</span>
+                </div>
+                {[
+                  ["Tiradito amazónico", true, false],
+                  ["Nigiri de salmón", true, true],
+                  ["Pesca misoyaki", false, true],
+                  ["Mochi de maracuyá", true, false],
+                ].map(([name, cardA, cardB]) => (
+                  <div
+                    key={String(name)}
+                    className="grid grid-cols-[1fr_66px_66px] items-center border-t px-4 py-3 text-xs"
+                  >
+                    <span className="font-bold">{name}</span>
+                    <span className="flex justify-center">
+                      <span className={`h-5 w-9 rounded-full p-0.5 ${cardA ? "bg-[#D80E1F]" : "bg-[#D5D7DC]"}`}>
+                        <span className={`block h-4 w-4 rounded-full bg-white ${cardA ? "ml-auto" : ""}`} />
+                      </span>
+                    </span>
+                    <span className="flex justify-center">
+                      <span className={`h-5 w-9 rounded-full p-0.5 ${cardB ? "bg-[#D80E1F]" : "bg-[#D5D7DC]"}`}>
+                        <span className={`block h-4 w-4 rounded-full bg-white ${cardB ? "ml-auto" : ""}`} />
+                      </span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="rounded-lg bg-[#EAF0FF] px-4 py-3 text-xs font-bold text-[#1D2E58]">
+                Cambiás de carta sin reemplazar el QR ni el enlace público.
               </div>
             </div>
           )}
