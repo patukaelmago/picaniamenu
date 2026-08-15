@@ -30,6 +30,8 @@ function mapCategory(d: any): Category {
     name: data.name,
     description: data.description ?? "",
     order: typeof data.order === "number" ? data.order : Number(data.order) || 0,
+    orderA: typeof data.orderA === "number" ? data.orderA : undefined,
+    orderB: typeof data.orderB === "number" ? data.orderB : undefined,
     isVisible: data.isVisible ?? true,
     parentCategoryId: data.parentCategoryId ?? null,
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
@@ -52,13 +54,16 @@ export async function listCategories(tenantId: string): Promise<Category[]> {
 // =========================
 export async function createCategory(
   tenantId: string,
-  input: Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId">
+  input: Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId"> &
+    Partial<Pick<Category, "orderA" | "orderB">>
 ): Promise<string> {
   const col = categoriesCollectionRef(tenantId);
   const now = serverTimestamp();
   const docRef = await addDoc(col, {
     name: input.name,
     order: input.order ?? 0,
+    orderA: input.orderA ?? input.order ?? 0,
+    orderB: input.orderB ?? input.order ?? 0,
     isVisible: input.isVisible ?? true,
     parentCategoryId: input.parentCategoryId ?? null,
     createdAt: now,
@@ -70,12 +75,16 @@ export async function createCategory(
 export async function updateCategory(
   tenantId: string,
   id: string,
-  input: Partial<Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId">>
+  input: Partial<
+    Pick<Category, "name" | "order" | "orderA" | "orderB" | "isVisible" | "parentCategoryId">
+  >
 ): Promise<void> {
   const ref = doc(db, "tenants", tenantId, "categories", id);
   await updateDoc(ref, {
     ...input,
     ...(input.order !== undefined ? { order: Number(input.order) || 0 } : {}),
+    ...(input.orderA !== undefined ? { orderA: Number(input.orderA) || 0 } : {}),
+    ...(input.orderB !== undefined ? { orderB: Number(input.orderB) || 0 } : {}),
     updatedAt: serverTimestamp(),
   });
 }

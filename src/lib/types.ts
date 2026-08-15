@@ -28,6 +28,8 @@ export interface MenuItem {
   allergens: string[];
   searchKeywords: string[];
   order: number;
+  orderA?: number;
+  orderB?: number;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
 }
@@ -43,6 +45,8 @@ export interface Category {
   name: string;
   description?: string;
   order: number;
+  orderA?: number;
+  orderB?: number;
   isVisible: boolean;
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;

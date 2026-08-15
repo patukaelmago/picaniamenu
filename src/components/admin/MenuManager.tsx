@@ -57,6 +57,7 @@ import {
   ImagePlus,
   Sparkles,
   X,
+  ListOrdered,
 } from "lucide-react";
 import {
   Sheet,
@@ -74,6 +75,23 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
 
 type Props = { tenantId: string };
+type MenuVariant = "A" | "B";
+type OrderedEntry = { order: number; orderA?: number; orderB?: number };
+
+const getMenuOrder = (entry: OrderedEntry, variant: MenuVariant) =>
+  variant === "A"
+    ? entry.orderA ?? entry.order ?? 0
+    : entry.orderB ?? entry.order ?? 0;
+
+const withMenuOrder = <T extends OrderedEntry>(
+  entry: T,
+  variant: MenuVariant,
+  order: number
+): T =>
+  ({
+    ...entry,
+    ...(variant === "A" ? { order, orderA: order } : { orderB: order }),
+  }) as T;
 
 const formatCurrency = (price: number, currency: "ARS" | "USD") =>
   new Intl.NumberFormat("es-AR", {
@@ -139,7 +157,8 @@ export default function MenuManager({ tenantId }: Props) {
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
   const [activeMenuTab, setActiveMenuTab] = useState("items");
-  const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
+  const [activeMenuVariant, setActiveMenuVariant] = useState<MenuVariant>("A");
+  const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
 
   const [formCatName, setFormCatName] = useState("");
@@ -234,6 +253,8 @@ export default function MenuManager({ tenantId }: Props) {
         name: raw.name ?? "",
         description: raw.description ?? raw.desc ?? "",
         order: typeof raw.order === "number" ? raw.order : Number(raw.order) || 0,
+        orderA: typeof raw.orderA === "number" ? raw.orderA : undefined,
+        orderB: typeof raw.orderB === "number" ? raw.orderB : undefined,
         isVisible,
         parentCategoryId: raw.parentCategoryId ?? null,
       } as Category;
@@ -277,6 +298,8 @@ export default function MenuManager({ tenantId }: Props) {
           allergens: x.allergens ?? [],
           searchKeywords: x.searchKeywords ?? [],
           order: Number(x.order ?? 0),
+          orderA: typeof x.orderA === "number" ? x.orderA : undefined,
+          orderB: typeof x.orderB === "number" ? x.orderB : undefined,
         } as MenuItem)
       )
     );
@@ -404,16 +427,29 @@ export default function MenuManager({ tenantId }: Props) {
     m.forEach((arr, key) => {
       m.set(
         key,
-        arr.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        arr
+          .slice()
+          .sort(
+            (a, b) =>
+              getMenuOrder(a, orderMenuVariant) -
+              getMenuOrder(b, orderMenuVariant)
+          )
       );
     });
 
     return m;
-  }, [categories]);
+  }, [categories, orderMenuVariant]);
 
   const sortedRootCategories = useMemo(
-    () => rootCategories.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
-    [rootCategories]
+    () =>
+      rootCategories
+        .slice()
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, orderMenuVariant) -
+            getMenuOrder(b, orderMenuVariant)
+        ),
+    [rootCategories, orderMenuVariant]
   );
 
   const categoryOptions = useMemo(() => {
@@ -518,6 +554,8 @@ export default function MenuManager({ tenantId }: Props) {
         imageUrl,
         imageId: "",
         order: Number(createForm.order ?? 0),
+        orderA: Number(createForm.order ?? 0),
+        orderB: Number(createForm.order ?? 0),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
@@ -562,6 +600,8 @@ export default function MenuManager({ tenantId }: Props) {
       allergens: item.allergens ?? [],
       searchKeywords: item.searchKeywords ?? [],
       order: item.order ?? 0,
+      orderA: item.orderA ?? item.order ?? 0,
+      orderB: item.orderB ?? item.order ?? 0,
     });
 
     setEditImageFile(null);
@@ -699,6 +739,8 @@ export default function MenuManager({ tenantId }: Props) {
       name,
       description: "",
       order: nextOrder,
+      orderA: nextOrder,
+      orderB: nextOrder,
       isVisible: true,
       parentCategoryId: formCatParentId || null,
       createdAt: serverTimestamp(),
@@ -817,7 +859,9 @@ async function saveCategoryEdit() {
 
       moved.forEach((cat, i) => {
         const idx = next.findIndex((c) => c.id === cat.id);
-        if (idx !== -1) next[idx] = { ...next[idx], order: i };
+        if (idx !== -1) {
+          next[idx] = withMenuOrder(next[idx], orderMenuVariant, i);
+        }
       });
 
       return next;
@@ -836,18 +880,25 @@ async function saveCategoryEdit() {
 
       const parents = rootCategories
         .slice()
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, orderMenuVariant) -
+            getMenuOrder(b, orderMenuVariant)
+        );
+
+      const orderField = orderMenuVariant === "A" ? "orderA" : "orderB";
         
         await Promise.all(
           parents.map((c, i) =>
             updateDoc(doc(catsCol, c.id), {
-              order: i,
+              [orderField]: i,
+              ...(orderMenuVariant === "A" ? { order: i } : {}),
               updatedAt: serverTimestamp(),
             })
           )
         );
 
-      toast({ title: "Orden de secciones principales guardado" });
+      toast({ title: `Orden de Carta ${orderMenuVariant} guardado` });
     } catch (e) {
       console.error(e);
       toast({
@@ -884,7 +935,11 @@ async function saveCategoryEdit() {
       moved.forEach((category, index) => {
         const categoryIndex = next.findIndex((c) => c.id === category.id);
         if (categoryIndex !== -1) {
-          next[categoryIndex] = { ...next[categoryIndex], order: index };
+          next[categoryIndex] = withMenuOrder(
+            next[categoryIndex],
+            orderMenuVariant,
+            index
+          );
         }
       });
 
@@ -904,18 +959,25 @@ async function saveCategoryEdit() {
 
       const siblings = (childrenByParent.get(parentId) ?? [])
         .slice()
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, orderMenuVariant) -
+            getMenuOrder(b, orderMenuVariant)
+        );
+
+      const orderField = orderMenuVariant === "A" ? "orderA" : "orderB";
 
       await Promise.all(
         siblings.map((category, index) =>
           updateDoc(doc(catsCol, category.id), {
-            order: index,
+            [orderField]: index,
+            ...(orderMenuVariant === "A" ? { order: index } : {}),
             updatedAt: serverTimestamp(),
           })
         )
       );
 
-      toast({ title: "Orden de subcategorías guardado" });
+      toast({ title: `Orden de subcategorías de Carta ${orderMenuVariant} guardado` });
     } catch (e) {
       console.error(e);
       toast({
@@ -949,21 +1011,27 @@ async function saveCategoryEdit() {
     const categoryId = targetItem.categoryId;
 
     setItems((prev) => {
-      const updated = [...prev];
-      const fromIndex = updated.findIndex((i) => i.id === dragItem.id);
-      const toIndex = updated.findIndex((i) => i.id === targetItem.id);
+      const categoryItems = prev
+        .filter((item) => item.categoryId === categoryId)
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, orderMenuVariant) -
+            getMenuOrder(b, orderMenuVariant)
+        );
+      const fromIndex = categoryItems.findIndex((i) => i.id === dragItem.id);
+      const toIndex = categoryItems.findIndex((i) => i.id === targetItem.id);
 
       if (fromIndex === -1 || toIndex === -1) return prev;
 
-      const [moved] = updated.splice(fromIndex, 1);
-      updated.splice(toIndex, 0, moved);
+      const moved = arrayMove(categoryItems, fromIndex, toIndex);
+      const orders = new Map(moved.map((item, index) => [item.id, index]));
 
-      let orderCounter = 0;
-      updated.forEach((i) => {
-        if (i.categoryId === categoryId) i.order = orderCounter++;
+      return prev.map((item) => {
+        const nextOrder = orders.get(item.id);
+        return nextOrder === undefined
+          ? item
+          : withMenuOrder(item, orderMenuVariant, nextOrder);
       });
-
-      return updated;
     });
   }
 
@@ -980,18 +1048,25 @@ async function saveCategoryEdit() {
 
       const affected = items
         .filter((i) => i.categoryId === categoryId)
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, orderMenuVariant) -
+            getMenuOrder(b, orderMenuVariant)
+        );
+
+      const orderField = orderMenuVariant === "A" ? "orderA" : "orderB";
         
         await Promise.all(
-          affected.map((item) =>
+          affected.map((item, index) =>
             updateDoc(doc(itemsCol, item.id), {
-              order: item.order ?? 0,
+              [orderField]: index,
+              ...(orderMenuVariant === "A" ? { order: index } : {}),
               updatedAt: serverTimestamp(),
             })
           )
         );
 
-      toast({ title: "Orden de items guardado" });
+      toast({ title: `Orden de items de Carta ${orderMenuVariant} guardado` });
     } catch (e) {
       console.error(e);
       toast({
@@ -1017,7 +1092,11 @@ async function saveCategoryEdit() {
 
     const sortedCategories = localCats
       .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .sort(
+        (a, b) =>
+          getMenuOrder(a, orderMenuVariant) -
+          getMenuOrder(b, orderMenuVariant)
+      );
 
     const result: MenuItem[] = [];
 
@@ -1049,7 +1128,11 @@ async function saveCategoryEdit() {
 
     const sortedCategories = localCats
       .slice()
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      .sort(
+        (a, b) =>
+          getMenuOrder(a, orderMenuVariant) -
+          getMenuOrder(b, orderMenuVariant)
+      );
 
     const result: MenuItem[] = [];
 
@@ -1058,8 +1141,8 @@ async function saveCategoryEdit() {
       if (!arr) return;
 
       arr = arr.slice().sort((a, b) => {
-        const oa = a.order ?? 0;
-        const ob = b.order ?? 0;
+        const oa = getMenuOrder(a, orderMenuVariant);
+        const ob = getMenuOrder(b, orderMenuVariant);
 
         if (oa !== ob) return oa - ob;
 
@@ -1252,6 +1335,96 @@ async function saveCategoryEdit() {
         </Card>
       )}
 
+      <Card
+        className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
+        style={{
+          backgroundColor: `hsl(${ui.adminCard})`,
+          color: `hsl(${ui.adminCardForeground})`,
+        }}
+      >
+        <CardContent className="grid gap-5 p-4 sm:grid-cols-[220px_1fr] sm:p-5">
+          <div
+            className="grid grid-cols-2 gap-3 rounded-lg border p-3"
+            style={{ borderColor: `hsl(${ui.adminCardForeground} / 0.2)` }}
+            aria-label="Ejemplo de dos cartas con órdenes diferentes"
+          >
+            {(["A", "B"] as const).map((variant) => (
+              <div
+                key={variant}
+                className="rounded-md border p-2"
+                style={{
+                  borderColor: `hsl(${ui.adminCardForeground} / 0.25)`,
+                  backgroundColor: `hsl(${ui.adminBackground})`,
+                }}
+              >
+                <div className="mb-2 flex items-center gap-1.5 font-semibold">
+                  <ListOrdered className="h-4 w-4" />
+                  Carta {variant}
+                </div>
+                <div className="space-y-1.5">
+                  {(variant === "A"
+                    ? ["w-11/12", "w-8/12", "w-10/12"]
+                    : ["w-7/12", "w-11/12", "w-9/12"]
+                  ).map((width, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 rounded-full ${width}`}
+                      style={{ backgroundColor: `hsl(${ui.adminCardForeground} / 0.35)` }}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="font-semibold">Cómo funcionan Carta A y Carta B</p>
+              <p className="mt-1 text-sm opacity-75">
+                Las perillas indican en qué carta aparece cada item. Cada carta
+                conserva su propio orden de categorías, subcategorías e items.
+                El mismo QR siempre muestra la carta que figure como publicada.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <Label className="text-sm font-semibold">Orden que estás editando:</Label>
+              <div
+                className="grid w-fit grid-cols-2 overflow-hidden rounded-md border"
+                style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
+                role="group"
+                aria-label="Orden que estás editando"
+              >
+                {(["A", "B"] as const).map((variant) => {
+                  const isSelected = orderMenuVariant === variant;
+
+                  return (
+                    <Button
+                      key={variant}
+                      type="button"
+                      variant="ghost"
+                      aria-pressed={isSelected}
+                      onClick={() => setOrderMenuVariant(variant)}
+                      className="rounded-none px-5 font-semibold hover:opacity-90"
+                      style={{
+                        backgroundColor: isSelected
+                          ? `hsl(${ui.adminSidebarBg})`
+                          : `hsl(${ui.adminCard})`,
+                        color: isSelected
+                          ? `hsl(${ui.adminSidebarText})`
+                          : `hsl(${ui.adminSidebarBg})`,
+                      }}
+                    >
+                      Carta {variant}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
             className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
@@ -1269,7 +1442,9 @@ async function saveCategoryEdit() {
               }}
             >
               <CardTitle>Platos y Bebidas</CardTitle>
-              <CardDescription>Administrá todos los items de tu menú.</CardDescription>
+              <CardDescription>
+                Administrá los items. Al arrastrar estás ordenando la Carta {orderMenuVariant}.
+              </CardDescription>
 
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="grid w-full gap-3 lg:flex lg:items-center lg:gap-4">
@@ -1315,7 +1490,7 @@ async function saveCategoryEdit() {
                 <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto">
                   {isSavingItemsOrder && (
                     <span className="text-xs text-muted-foreground">
-                      Guardando orden de items…
+                      Guardando orden de Carta {orderMenuVariant}…
                     </span>
                   )}
 
@@ -1981,7 +2156,9 @@ async function saveCategoryEdit() {
               }}
             >
               <CardTitle>Categorías del Menú</CardTitle>
-              <CardDescription>Organizá las secciones de tu menú.</CardDescription>
+              <CardDescription>
+                Arrastrá para ordenar las secciones de la Carta {orderMenuVariant}.
+              </CardDescription>
             </CardHeader>
 
             <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-5">

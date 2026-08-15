@@ -50,6 +50,8 @@ export async function listMenuItems(tenantId: string): Promise<MenuItem[]> {
       allergens: data.allergens ?? [],
       searchKeywords: data.searchKeywords ?? [],
       order: data.order ?? 0,
+      orderA: typeof data.orderA === "number" ? data.orderA : undefined,
+      orderB: typeof data.orderB === "number" ? data.orderB : undefined,
       createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
       updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
     } as MenuItem;
@@ -127,6 +129,8 @@ export function listenMenuItems(
         allergens: data.allergens ?? [],
         searchKeywords: data.searchKeywords ?? [],
         order: data.order ?? 0,
+        orderA: typeof data.orderA === "number" ? data.orderA : undefined,
+        orderB: typeof data.orderB === "number" ? data.orderB : undefined,
         createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
         updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
       } as MenuItem;

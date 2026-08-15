@@ -52,6 +52,14 @@ const norm = (s: string) =>
     .replace(/[\u0300-\u036f]/g, "")
     .trim();
 
+type MenuVariant = "A" | "B";
+type OrderedEntry = { order: number; orderA?: number; orderB?: number };
+
+const getMenuOrder = (entry: OrderedEntry, variant: MenuVariant) =>
+  variant === "A"
+    ? entry.orderA ?? entry.order ?? 0
+    : entry.orderB ?? entry.order ?? 0;
+
 const hslLightness = (value: string) => {
   const match = value.match(/(-?\d+(?:\.\d+)?)%\s*$/);
   return match ? Number(match[1]) : 50;
@@ -117,10 +125,15 @@ export default function MenuClient({ tenantId }: Props) {
   );
   const menuItems = useMemo(
     () =>
-      allMenuItems.filter(
-        (item) =>
+      allMenuItems
+        .filter((item) =>
           (item.menuVariants ?? ["A"]).includes(activeMenuVariant)
-      ),
+        )
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, activeMenuVariant) -
+            getMenuOrder(b, activeMenuVariant)
+        ),
     [activeMenuVariant, allMenuItems]
   );
 
@@ -327,10 +340,16 @@ export default function MenuClient({ tenantId }: Props) {
 
   const rootCategories = useMemo(
     () =>
-      categories.filter(
-        (c) => !c.parentCategoryId && (isPulpo || c.isVisible !== false)
-      ),
-    [categories, isPulpo]
+      categories
+        .filter(
+          (c) => !c.parentCategoryId && (isPulpo || c.isVisible !== false)
+        )
+        .sort(
+          (a, b) =>
+            getMenuOrder(a, activeMenuVariant) -
+            getMenuOrder(b, activeMenuVariant)
+        ),
+    [activeMenuVariant, categories, isPulpo]
   );
 
   const childCategoriesByParent = useMemo(() => {
@@ -344,11 +363,15 @@ export default function MenuClient({ tenantId }: Props) {
     });
 
     Object.values(map).forEach((arr) =>
-      arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      arr.sort(
+        (a, b) =>
+          getMenuOrder(a, activeMenuVariant) -
+          getMenuOrder(b, activeMenuVariant)
+      )
     );
 
     return map;
-  }, [categories]);
+  }, [activeMenuVariant, categories]);
 
   const selectedCategoryIds = useMemo(() => {
     if (selectedCategory === "all") return null;
@@ -487,18 +510,17 @@ export default function MenuClient({ tenantId }: Props) {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  const categoryNavItems = [
-    ...(ui.showFriday ? [{ id: "menu-viernes", name: "ALMUERZO EJECUTIVO" }] : []),
-    ...visibleRootCategories
-      .filter((cat) => {
-        const n = norm(cat.name);
-        return n !== "menu viernes" && n !== "almuerzo ejecutivo";
-      })
-      .map((cat) => ({
-        id: `cat-${cat.id}`,
-        name: cat.name,
-      })),
-  ];
+  const categoryNavItems = visibleRootCategories.map((cat) => {
+    const categoryName = norm(cat.name);
+    const isLunch =
+      ui.showFriday &&
+      (categoryName === "menu viernes" || categoryName === "almuerzo ejecutivo");
+
+    return {
+      id: isLunch ? "menu-viernes" : `cat-${cat.id}`,
+      name: isLunch ? "ALMUERZO EJECUTIVO" : cat.name,
+    };
+  });
 
   useEffect(() => {
     if (categoryNavIndex >= categoryNavItems.length) {
