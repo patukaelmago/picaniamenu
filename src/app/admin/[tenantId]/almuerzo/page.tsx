@@ -712,7 +712,7 @@ export default function TenantAlmuerzoPage({
 
               <Button
                 onClick={handleCreateItem}
-                className="w-full bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:w-auto"
+                className="w-auto self-start bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                 style={{
                   "--tenant-button-bg": ui.adminCardForeground,
                   "--tenant-button-text": ui.adminCard,
