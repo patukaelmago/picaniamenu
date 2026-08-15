@@ -1024,7 +1024,9 @@ async function saveCategoryEdit() {
       if (fromIndex === -1 || toIndex === -1) return prev;
 
       const moved = arrayMove(categoryItems, fromIndex, toIndex);
-      const orders = new Map(moved.map((item, index) => [item.id, index]));
+      const orders = new Map(
+        moved.map((item, index) => [item.id, index] as const)
+      );
 
       return prev.map((item) => {
         const nextOrder = orders.get(item.id);
