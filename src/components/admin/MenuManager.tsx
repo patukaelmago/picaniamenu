@@ -1490,9 +1490,9 @@ async function saveCategoryEdit() {
                   </div>
                 </div>
 
-                <div className="flex w-full flex-wrap items-center gap-3 lg:w-auto">
+                <div className="relative flex w-full flex-wrap items-center gap-3 lg:w-auto">
                   {isSavingItemsOrder && (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="absolute -top-5 right-0 whitespace-nowrap text-xs text-muted-foreground">
                       Guardando orden de Carta {orderMenuVariant}…
                     </span>
                   )}
