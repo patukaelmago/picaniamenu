@@ -2167,12 +2167,51 @@ async function saveCategoryEdit() {
               <div className="mb-4 flex flex-wrap items-end gap-3">
                 <div className="grid gap-2">
                   <Label htmlFor="new-cat-name">Nombre</Label>
-                  <Input
-                    id="new-cat-name"
-                    placeholder="Ej: Entradas"
-                    value={formCatName}
-                    onChange={(e) => setFormCatName(e.target.value)}
-                  />
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Input
+                      id="new-cat-name"
+                      className="min-w-0 flex-1"
+                      placeholder="Ej: Entradas"
+                      value={formCatName}
+                      onChange={(e) => setFormCatName(e.target.value)}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      title="Convertir a mayúsculas"
+                      onClick={() =>
+                        setFormCatName(formCatName.toLocaleUpperCase("es-AR"))
+                      }
+                      className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                      style={{
+                        "--case-button-border": ui.adminForeground,
+                        "--case-button-text": ui.adminForeground,
+                        "--case-button-hover-bg": ui.adminAccent,
+                        "--case-button-hover-text": ui.adminCard,
+                      } as CSSProperties}
+                    >
+                      AA
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      title="Convertir a minúsculas"
+                      onClick={() =>
+                        setFormCatName(formCatName.toLocaleLowerCase("es-AR"))
+                      }
+                      className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                      style={{
+                        "--case-button-border": ui.adminForeground,
+                        "--case-button-text": ui.adminForeground,
+                        "--case-button-hover-bg": ui.adminAccent,
+                        "--case-button-hover-text": ui.adminCard,
+                      } as CSSProperties}
+                    >
+                      aa
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid gap-2">
@@ -2386,14 +2425,58 @@ async function saveCategoryEdit() {
                       <Label htmlFor="cat-name" className="sm:text-right">
                         Nombre
                       </Label>
-                      <Input
-                        id="cat-name"
-                        className="sm:col-span-3"
-                        value={catForm.name}
-                        onChange={(e) =>
-                          setCatForm((p) => ({ ...p, name: e.target.value }))
-                        }
-                      />
+                      <div className="flex min-w-0 items-center gap-2 sm:col-span-3">
+                        <Input
+                          id="cat-name"
+                          className="min-w-0 flex-1"
+                          value={catForm.name}
+                          onChange={(e) =>
+                            setCatForm((p) => ({ ...p, name: e.target.value }))
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          title="Convertir a mayúsculas"
+                          onClick={() =>
+                            setCatForm((p) => ({
+                              ...p,
+                              name: p.name.toLocaleUpperCase("es-AR"),
+                            }))
+                          }
+                          className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                          style={{
+                            "--case-button-border": ui.adminForeground,
+                            "--case-button-text": ui.adminForeground,
+                            "--case-button-hover-bg": ui.adminAccent,
+                            "--case-button-hover-text": ui.adminCard,
+                          } as CSSProperties}
+                        >
+                          AA
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          title="Convertir a minúsculas"
+                          onClick={() =>
+                            setCatForm((p) => ({
+                              ...p,
+                              name: p.name.toLocaleLowerCase("es-AR"),
+                            }))
+                          }
+                          className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                          style={{
+                            "--case-button-border": ui.adminForeground,
+                            "--case-button-text": ui.adminForeground,
+                            "--case-button-hover-bg": ui.adminAccent,
+                            "--case-button-hover-text": ui.adminCard,
+                          } as CSSProperties}
+                        >
+                          aa
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
