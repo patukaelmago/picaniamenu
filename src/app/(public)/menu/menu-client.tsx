@@ -947,7 +947,7 @@ export default function MenuClient({ tenantId }: Props) {
                 className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
                 style={{ borderColor: `hsl(${ui.menuPageBorder} / 0.35)` }}
               >
-                <div className="space-y-7">
+                <div className="space-y-8">
                   {page.map((pageCategory) => {
               const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
