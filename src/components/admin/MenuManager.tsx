@@ -55,7 +55,6 @@ import {
   ChevronRight,
   ChevronDown,
   ImagePlus,
-  Sparkles,
   X,
   ListOrdered,
 } from "lucide-react";
@@ -680,7 +679,7 @@ export default function MenuManager({ tenantId }: Props) {
 
   async function handleToggleItem(
     id: string,
-    field: "inStock" | "isVisible" | "isSpecial",
+    field: "inStock" | "isVisible",
     value: boolean
   ) {
     setItems((prev) =>
@@ -705,32 +704,6 @@ export default function MenuManager({ tenantId }: Props) {
         variant: "destructive",
         title: "Error",
         description: "No se pudo actualizar el estado del item.",
-      });
-    }
-  }
-
-  async function handleToggleSinTacc(item: MenuItem, value: boolean) {
-    const tags = withSinTacc(item.tags, value);
-    setItems((prev) =>
-      prev.map((current) => (current.id === item.id ? { ...current, tags } : current))
-    );
-
-    try {
-      await updateDoc(doc(itemsCol, item.id), {
-        tags,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (e) {
-      console.error(e);
-      setItems((prev) =>
-        prev.map((current) =>
-          current.id === item.id ? { ...current, tags: item.tags } : current
-        )
-      );
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar Sin TACC.",
       });
     }
   }
@@ -1671,6 +1644,23 @@ async function saveCategoryEdit() {
                         </div>
 
                         <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                          <Label className="sm:text-right">
+                            {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
+                          </Label>
+                          <div className="sm:col-span-3">
+                            <Switch
+                              checked={!!createForm.isSpecial}
+                              onCheckedChange={(checked) =>
+                                setCreateForm((prev) => ({
+                                  ...prev,
+                                  isSpecial: checked,
+                                }))
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                           <Label className="sm:text-right">Sin TACC</Label>
                           <div className="sm:col-span-3">
                             <Switch
@@ -1781,7 +1771,7 @@ async function saveCategoryEdit() {
                 <p>Cargando platos...</p>
               ) : (
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-                  <div className="min-w-[840px] overflow-hidden rounded-md">
+                  <div className="min-w-[680px] overflow-hidden rounded-md">
                     <Table>
                       <TableHeader
                         style={{
@@ -1797,19 +1787,6 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
-                          <TableHead
-                            className="text-center text-[hsl(var(--table-head-text))]"
-                            title={settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
-                          >
-                            <span className="hidden sm:inline">
-                              {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
-                            </span>
-                            <Sparkles
-                              className="mx-auto h-4 w-4 sm:hidden"
-                              aria-label={settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
-                            />
-                          </TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">Sin TACC</TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -1918,22 +1895,6 @@ async function saveCategoryEdit() {
                                     handleToggleMenuVariant(item, "B", value)
                                   }
                                   aria-label={`${item.name} en Carta B`}
-                                />
-                              </TableCell>
-
-                              <TableCell>
-                                <Switch
-                                  checked={!!item.isSpecial}
-                                  onCheckedChange={(v) =>
-                                    handleToggleItem(item.id, "isSpecial", v)
-                                  }
-                                />
-                              </TableCell>
-
-                              <TableCell>
-                                <Switch
-                                  checked={hasSinTacc(item.tags)}
-                                  onCheckedChange={(v) => handleToggleSinTacc(item, v)}
                                 />
                               </TableCell>
 
@@ -2078,6 +2039,23 @@ async function saveCategoryEdit() {
                       </option>
                     ))}
                   </select>
+                </div>
+
+                <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                  <Label className="sm:text-right">
+                    {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
+                  </Label>
+                  <div className="sm:col-span-3">
+                    <Switch
+                      checked={!!editForm.isSpecial}
+                      onCheckedChange={(checked) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          isSpecial: checked,
+                        }))
+                      }
+                    />
+                  </div>
                 </div>
 
                 <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
