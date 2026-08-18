@@ -59,8 +59,8 @@ const features = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-white text-[#151A24]">
-      <header className="sticky top-0 z-50 border-b border-[#DED9CF] bg-[#F3F1EC]/95 backdrop-blur">
+    <main className="min-h-screen overflow-hidden bg-white pt-20 text-[#151A24]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#DED9CF] bg-[#F3F1EC]/95 backdrop-blur">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="Carta Online">
             <img
