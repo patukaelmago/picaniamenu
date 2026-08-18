@@ -48,6 +48,7 @@ export interface Category {
   orderA?: number;
   orderB?: number;
   isVisible: boolean;
+  menuVariants?: ("A" | "B")[];
   createdAt: FirestoreDate;
   updatedAt: FirestoreDate;
   parentCategoryId?: string | null;

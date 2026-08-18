@@ -33,6 +33,9 @@ function mapCategory(d: any): Category {
     orderA: typeof data.orderA === "number" ? data.orderA : undefined,
     orderB: typeof data.orderB === "number" ? data.orderB : undefined,
     isVisible: data.isVisible ?? true,
+    menuVariants: Array.isArray(data.menuVariants)
+      ? data.menuVariants.filter((variant: unknown) => variant === "A" || variant === "B")
+      : undefined,
     parentCategoryId: data.parentCategoryId ?? null,
     createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
     updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date(),
@@ -55,7 +58,7 @@ export async function listCategories(tenantId: string): Promise<Category[]> {
 export async function createCategory(
   tenantId: string,
   input: Pick<Category, "name" | "order" | "isVisible" | "parentCategoryId"> &
-    Partial<Pick<Category, "orderA" | "orderB">>
+    Partial<Pick<Category, "orderA" | "orderB" | "menuVariants">>
 ): Promise<string> {
   const col = categoriesCollectionRef(tenantId);
   const now = serverTimestamp();
@@ -65,6 +68,7 @@ export async function createCategory(
     orderA: input.orderA ?? input.order ?? 0,
     orderB: input.orderB ?? input.order ?? 0,
     isVisible: input.isVisible ?? true,
+    menuVariants: input.menuVariants ?? ["A", "B"],
     parentCategoryId: input.parentCategoryId ?? null,
     createdAt: now,
     updatedAt: now,
@@ -76,7 +80,7 @@ export async function updateCategory(
   tenantId: string,
   id: string,
   input: Partial<
-    Pick<Category, "name" | "order" | "orderA" | "orderB" | "isVisible" | "parentCategoryId">
+    Pick<Category, "name" | "order" | "orderA" | "orderB" | "isVisible" | "menuVariants" | "parentCategoryId">
   >
 ): Promise<void> {
   const ref = doc(db, "tenants", tenantId, "categories", id);

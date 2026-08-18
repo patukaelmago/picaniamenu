@@ -60,6 +60,13 @@ const getMenuOrder = (entry: OrderedEntry, variant: MenuVariant) =>
     ? entry.orderA ?? entry.order ?? 0
     : entry.orderB ?? entry.order ?? 0;
 
+const isCategoryVisibleInVariant = (
+  category: Category,
+  variant: MenuVariant
+) =>
+  category.isVisible !== false &&
+  (category.menuVariants ?? ["A", "B"]).includes(variant);
+
 const hslLightness = (value: string) => {
   const match = value.match(/(-?\d+(?:\.\d+)?)%\s*$/);
   return match ? Number(match[1]) : 50;
@@ -119,7 +126,6 @@ export default function MenuClient({ tenantId }: Props) {
   }, [settings?.name, tenantId]);
 
   const uiReady = true;
-  const isPulpo = tenantId.toLowerCase() === "pulpo";
   const isPicaniaTenant = ["picana", "picania"].includes(
     tenantId.toLowerCase()
   );
@@ -342,21 +348,26 @@ export default function MenuClient({ tenantId }: Props) {
     () =>
       categories
         .filter(
-          (c) => !c.parentCategoryId && (isPulpo || c.isVisible !== false)
+          (c) =>
+            !c.parentCategoryId &&
+            isCategoryVisibleInVariant(c, activeMenuVariant)
         )
         .sort(
           (a, b) =>
             getMenuOrder(a, activeMenuVariant) -
             getMenuOrder(b, activeMenuVariant)
         ),
-    [activeMenuVariant, categories, isPulpo]
+    [activeMenuVariant, categories]
   );
 
   const childCategoriesByParent = useMemo(() => {
     const map: Record<string, Category[]> = {};
 
     categories.forEach((c) => {
-      if (c.parentCategoryId) {
+      if (
+        c.parentCategoryId &&
+        isCategoryVisibleInVariant(c, activeMenuVariant)
+      ) {
         if (!map[c.parentCategoryId]) map[c.parentCategoryId] = [];
         map[c.parentCategoryId].push(c);
       }
@@ -377,11 +388,15 @@ export default function MenuClient({ tenantId }: Props) {
     if (selectedCategory === "all") return null;
 
     const children = categories
-      .filter((c) => c.parentCategoryId === selectedCategory)
+      .filter(
+        (c) =>
+          c.parentCategoryId === selectedCategory &&
+          isCategoryVisibleInVariant(c, activeMenuVariant)
+      )
       .map((c) => c.id);
 
     return [selectedCategory, ...children];
-  }, [selectedCategory, categories]);
+  }, [selectedCategory, categories, activeMenuVariant]);
 
   const filteredItems = useMemo(() => {
     const term = search.toLowerCase().trim();
@@ -1096,7 +1111,7 @@ export default function MenuClient({ tenantId }: Props) {
 
                     const isIncluye = norm(sub.name) === "incluye";
                     const showSubTitle =
-                      (isPulpo || sub.isVisible !== false) &&
+                      isCategoryVisibleInVariant(sub, activeMenuVariant) &&
                       itemsSub[0]?.id === allSubItems[0]?.id;
 
                     return (
