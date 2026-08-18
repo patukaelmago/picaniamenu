@@ -124,6 +124,8 @@ export default function Home() {
               <Link
                 href="/menu/maido"
                 className="rounded-xl border-2 border-[#151A24] px-6 py-4 font-bold transition hover:border-[#FF6B00] hover:text-[#FF6B00]"
+                target="_blank" 
+                rel="noopener noreferrer"
               >
                 Ver demo
               </Link>
