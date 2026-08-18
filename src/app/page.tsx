@@ -142,17 +142,19 @@ export default function Home() {
             <div className="absolute right-4 top-8 h-[460px] w-[390px] rounded-[64px] bg-[#F3F1EC]" />
             <div className="relative h-[570px] w-[294px] overflow-hidden rounded-[44px] border-[10px] border-[#151A24] bg-white shadow-[0_28px_70px_rgba(243,241,236,.95)]">
               <div className="absolute left-1/2 top-2 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-[#151A24]" />
-              <iframe
-                src="/menu/maido"
-                title="Carta digital de Maido"
-                className="origin-top-left border-0"
-                style={{
-                  width: "142.857%",
-                  height: "142.857%",
-                  transform: "scale(0.7)",
-                }}
-                loading="eager"
-              />
+              <div className="h-full bg-[#1D2E58] pt-[14px]">
+                <iframe
+                  src="/menu/maido"
+                  title="Carta digital de Maido"
+                  className="block origin-top-left border-0"
+                  style={{
+                    width: "142.857%",
+                    height: "142.857%",
+                    transform: "scale(0.7)",
+                  }}
+                  loading="eager"
+                />
+              </div>
             </div>
           </div>
         </div>
