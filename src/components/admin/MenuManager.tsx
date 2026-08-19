@@ -56,7 +56,6 @@ import {
   ChevronDown,
   ImagePlus,
   X,
-  ListOrdered,
 } from "lucide-react";
 import {
   Sheet,
@@ -1371,42 +1370,7 @@ async function saveCategoryEdit() {
           color: `hsl(${ui.adminCardForeground})`,
         }}
       >
-        <CardContent className="grid gap-5 p-4 sm:grid-cols-[220px_1fr] sm:p-5">
-          <div
-            className="grid grid-cols-2 gap-3 rounded-lg border p-3"
-            style={{ borderColor: `hsl(${ui.adminCardForeground} / 0.2)` }}
-            aria-label="Ejemplo de dos cartas con órdenes diferentes"
-          >
-            {(["A", "B"] as const).map((variant) => (
-              <div
-                key={variant}
-                className="rounded-md border p-2"
-                style={{
-                  borderColor: `hsl(${ui.adminCardForeground} / 0.25)`,
-                  backgroundColor: `hsl(${ui.adminBackground})`,
-                  color: `hsl(${ui.adminSidebarText})`,
-                }}
-              >
-                <div className="mb-2 flex items-center gap-1.5 font-semibold">
-                  <ListOrdered className="h-4 w-4" />
-                  Carta {variant}
-                </div>
-                <div className="space-y-1.5">
-                  {(variant === "A"
-                    ? ["w-11/12", "w-8/12", "w-10/12"]
-                    : ["w-7/12", "w-11/12", "w-9/12"]
-                  ).map((width, index) => (
-                    <div
-                      key={index}
-                      className={`h-2 rounded-full ${width}`}
-                      style={{ backgroundColor: `hsl(${ui.adminCardForeground} / 0.35)` }}
-                    />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <CardContent className="p-4 sm:p-5">
           <div className="space-y-4">
             <div>
               <p className="font-semibold">Cómo funcionan Carta A y Carta B</p>
