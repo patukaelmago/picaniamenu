@@ -1315,7 +1315,6 @@ async function saveCategoryEdit() {
         )}
         </div>
 
-      {activeMenuTab === "items" && (
       <Card
           className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
           style={{
@@ -1364,7 +1363,6 @@ async function saveCategoryEdit() {
             </div>
           </CardContent>
         </Card>
-      )}
 
       <Card
         className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
