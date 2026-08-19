@@ -155,7 +155,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
-  const [activeMenuTab, setActiveMenuTab] = useState("items");
+  const [activeMenuTab, setActiveMenuTab] = useState("categories");
   const [activeMenuVariant, setActiveMenuVariant] = useState<MenuVariant>("A");
   const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
@@ -1261,19 +1261,6 @@ async function saveCategoryEdit() {
   }}
 >
   <TabsTrigger
-    value="items"
-    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
-    style={{
-      "--tab-active-bg": ui.adminSidebarBg,
-      "--tab-active-text": ui.adminSidebarText,
-      "--tab-hover-bg": ui.adminAccent,
-      "--tab-hover-text": ui.adminCard,
-    } as CSSProperties}
-  >
-    Items del Menú
-  </TabsTrigger>
-
-  <TabsTrigger
     value="categories"
     className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
     style={{
@@ -1285,10 +1272,31 @@ async function saveCategoryEdit() {
   >
     Categorías
   </TabsTrigger>
+
+  <TabsTrigger
+    value="items"
+    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    style={{
+      "--tab-active-bg": ui.adminSidebarBg,
+      "--tab-active-text": ui.adminSidebarText,
+      "--tab-hover-bg": ui.adminAccent,
+      "--tab-hover-text": ui.adminCard,
+    } as CSSProperties}
+  >
+    Items del Menú
+  </TabsTrigger>
 </TabsList>
         {activeMenuTab === "items" && (
         <Button
         onClick={() => {
+          if (categories.length === 0) {
+            setActiveMenuTab("categories");
+            toast({
+              title: "Creá primero una categoría",
+              description: "Después vas a poder agregar items dentro de ella.",
+            });
+            return;
+          }
           setCreateForm({ ...emptyItem, currency: tenantCurrency });
           setCreateOpen(true);
         }}
@@ -1467,7 +1475,7 @@ async function saveCategoryEdit() {
             >
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>
-                Administrá los items. Al arrastrar estás ordenando la Carta {orderMenuVariant}.
+                Cada item debe pertenecer a una categoría. Al arrastrar estás ordenando la Carta {orderMenuVariant}.
               </CardDescription>
 
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -2169,6 +2177,24 @@ async function saveCategoryEdit() {
         </TabsContent>
 
         <TabsContent value="categories" className="mt-3 sm:mt-6">
+          <div
+            className="mb-4 rounded-lg border p-4 text-sm"
+            style={{
+              backgroundColor: `hsl(${ui.adminCard})`,
+              color: `hsl(${ui.adminCardForeground})`,
+              borderColor: `hsl(${ui.adminAccent} / 0.35)`,
+            }}
+          >
+            <p className="font-semibold">1. Creá primero una categoría.</p>
+            <p className="mt-1 opacity-80">
+              Después pasá a Items del Menú para agregar los platos o productos.
+            </p>
+            <p className="mt-3 flex items-start gap-2 opacity-80">
+              <EyeOff className="mt-0.5 h-4 w-4 shrink-0" />
+              Podés ocultar una categoría completa o esconder solamente los items que quieras usando sus controles de visibilidad.
+            </p>
+          </div>
+
           <Card
             className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
             style={{
@@ -2186,7 +2212,7 @@ async function saveCategoryEdit() {
             >
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>
-                Arrastrá para ordenar las secciones de la Carta {orderMenuVariant}.
+                Creá y ordená las secciones de la Carta {orderMenuVariant}.
               </CardDescription>
             </CardHeader>
 
