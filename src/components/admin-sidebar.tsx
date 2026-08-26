@@ -304,14 +304,9 @@ export default function AdminSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
-      </SidebarContent>
 
-      <SidebarFooter
-        className="text-[hsl(var(--nav-text))]"
-        style={{ backgroundColor: `hsl(${ui.navBg})` }}
-      >
         {state === "expanded" && (
-          <div className="relative -left-2 mx-auto inline-flex bg-transparent p-0">
+          <div className="mt-auto flex justify-center pb-3 pt-4">
             <Image
               src="/carta-online-logo.png"
               alt="Carta Online"
@@ -321,7 +316,12 @@ export default function AdminSidebar() {
             />
           </div>
         )}
+      </SidebarContent>
 
+      <SidebarFooter
+        className="text-[hsl(var(--nav-text))]"
+        style={{ backgroundColor: `hsl(${ui.navBg})` }}
+      >
         <Separator className="my-2 bg-white/10" />
 
         <DropdownMenu>
