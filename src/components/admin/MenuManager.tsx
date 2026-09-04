@@ -1562,7 +1562,15 @@ async function saveCategoryEdit() {
                               ),
                             }))
                           }
-                          style={selected ? { backgroundColor: `hsl(${ui.adminAccent})` } : undefined}
+                          style={{
+                            backgroundColor: selected
+                              ? `hsl(${ui.adminAccent})`
+                              : `hsl(${ui.adminCard})`,
+                            color: selected
+                              ? `hsl(${ui.adminCard})`
+                              : `hsl(${ui.adminCardForeground})`,
+                            borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                          }}
                         >
                           {day.label}
                         </Button>
@@ -1632,6 +1640,11 @@ async function saveCategoryEdit() {
               <Button
                 type="button"
                 variant="outline"
+                style={{
+                  backgroundColor: `hsl(${ui.adminCard})`,
+                  color: `hsl(${ui.adminCardForeground})`,
+                  borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                }}
                 onClick={() =>
                   setMenuAutomation((current) => ({
                     ...current,
