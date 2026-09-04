@@ -382,23 +382,35 @@ export default function MenuManager({ tenantId }: Props) {
   }, [manualMenuVariant, menuAutomation]);
 
   async function handleActiveMenuVariant(next: "A" | "B") {
-    if (next === manualMenuVariant || menuAutomation.enabled) return;
+    if (next === manualMenuVariant && !menuAutomation.enabled) return;
 
+    const previousManualMenuVariant = manualMenuVariant;
+    const previousActiveMenuVariant = activeMenuVariant;
+    const previousMenuAutomation = menuAutomation;
+    const nextMenuAutomation = menuAutomation.enabled
+      ? { ...menuAutomation, enabled: false }
+      : menuAutomation;
     setManualMenuVariant(next);
     setActiveMenuVariant(next);
+    setMenuAutomation(nextMenuAutomation);
     setSavingMenuVariant(true);
 
     try {
       await setDoc(
         doc(db, "tenants", tenantId, "settings", "menuVariants"),
-        { activeVariant: next, updatedAt: serverTimestamp() },
+        {
+          activeVariant: next,
+          automation: nextMenuAutomation,
+          updatedAt: serverTimestamp(),
+        },
         { merge: true }
       );
       toast({ title: `Carta ${next} publicada` });
     } catch (e) {
       console.error(e);
-      setManualMenuVariant(next === "A" ? "B" : "A");
-      setActiveMenuVariant(next === "A" ? "B" : "A");
+      setManualMenuVariant(previousManualMenuVariant);
+      setActiveMenuVariant(previousActiveMenuVariant);
+      setMenuAutomation(previousMenuAutomation);
       toast({
         variant: "destructive",
         title: "Error",
@@ -1437,7 +1449,7 @@ async function saveCategoryEdit() {
                     key={variant}
                     type="button"
                     variant="ghost"
-                    disabled={savingMenuVariant || menuAutomation.enabled}
+                    disabled={savingMenuVariant}
                     aria-pressed={isActive}
                     onClick={() => handleActiveMenuVariant(variant)}
                     className="rounded-none px-5 font-semibold hover:opacity-90"
