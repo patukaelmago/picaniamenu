@@ -13,6 +13,12 @@ import { listCategories, listenCategories } from "@/lib/categories-service";
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { db } from "@/lib/firebase";
+import {
+  DEFAULT_MENU_VARIANT_SCHEDULE,
+  parseMenuVariantSchedule,
+  resolveMenuVariant,
+  type MenuVariantSchedule,
+} from "@/lib/menu-variant-schedule";
 
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -100,6 +106,10 @@ export default function MenuClient({ tenantId }: Props) {
 
   const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
   const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
+  const [manualMenuVariant, setManualMenuVariant] = useState<"A" | "B">("A");
+  const [menuAutomation, setMenuAutomation] = useState<MenuVariantSchedule>(
+    DEFAULT_MENU_VARIANT_SCHEDULE
+  );
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
@@ -306,10 +316,21 @@ export default function MenuClient({ tenantId }: Props) {
     return onSnapshot(
       doc(db, "tenants", tenantId, "settings", "menuVariants"),
       (snapshot) => {
-        setActiveMenuVariant(snapshot.data()?.activeVariant === "B" ? "B" : "A");
+        const data = snapshot.data();
+        setManualMenuVariant(data?.activeVariant === "B" ? "B" : "A");
+        setMenuAutomation(parseMenuVariantSchedule(data?.automation));
       }
     );
   }, [tenantId]);
+
+  useEffect(() => {
+    const updateVariant = () =>
+      setActiveMenuVariant(resolveMenuVariant(manualMenuVariant, menuAutomation));
+
+    updateVariant();
+    const timer = window.setInterval(updateVariant, 30_000);
+    return () => window.clearInterval(timer);
+  }, [manualMenuVariant, menuAutomation]);
 
   useEffect(() => {
     return listenCategories(tenantId, (cats) => {
