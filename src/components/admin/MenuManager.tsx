@@ -179,6 +179,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
   const [savingMenuAutomation, setSavingMenuAutomation] = useState(false);
+  const [menuPublicationOpen, setMenuPublicationOpen] = useState(false);
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
@@ -1402,13 +1403,26 @@ async function saveCategoryEdit() {
             color: `hsl(${ui.adminCardForeground})`,
           }}
         >
-          <CardContent className="flex items-center justify-between gap-4 p-4 sm:p-5">
-            <div>
-              <p className="font-semibold">Carta publicada</p>
-              <p className="text-sm opacity-70">
-                El mismo QR muestra la Carta {activeMenuVariant}.
-              </p>
-            </div>
+          <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+            <button
+              type="button"
+              className="flex flex-1 items-center justify-between gap-4 text-left"
+              aria-expanded={menuPublicationOpen}
+              aria-controls="menu-publication-details"
+              onClick={() => setMenuPublicationOpen((current) => !current)}
+            >
+              <div>
+                <p className="font-semibold">Carta publicada</p>
+                <p className="text-sm opacity-70">
+                  El mismo QR muestra la Carta {activeMenuVariant}.
+                </p>
+              </div>
+              {menuPublicationOpen ? (
+                <ChevronDown className="h-5 w-5 shrink-0" />
+              ) : (
+                <ChevronRight className="h-5 w-5 shrink-0" />
+              )}
+            </button>
             <div
               className="grid shrink-0 grid-cols-2 overflow-hidden rounded-md border"
               style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
@@ -1444,6 +1458,8 @@ async function saveCategoryEdit() {
           </CardContent>
         </Card>
 
+      {menuPublicationOpen && (
+        <div id="menu-publication-details">
       <Card
         className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
         style={{
@@ -1546,7 +1562,15 @@ async function saveCategoryEdit() {
                               ),
                             }))
                           }
-                          style={selected ? { backgroundColor: `hsl(${ui.adminAccent})` } : undefined}
+                          style={{
+                            backgroundColor: selected
+                              ? `hsl(${ui.adminAccent})`
+                              : `hsl(${ui.adminCard})`,
+                            color: selected
+                              ? `hsl(${ui.adminCard})`
+                              : `hsl(${ui.adminCardForeground})`,
+                            borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                          }}
                         >
                           {day.label}
                         </Button>
@@ -1616,6 +1640,11 @@ async function saveCategoryEdit() {
               <Button
                 type="button"
                 variant="outline"
+                style={{
+                  backgroundColor: `hsl(${ui.adminCard})`,
+                  color: `hsl(${ui.adminCardForeground})`,
+                  borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                }}
                 onClick={() =>
                   setMenuAutomation((current) => ({
                     ...current,
@@ -1703,6 +1732,8 @@ async function saveCategoryEdit() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      )}
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
@@ -2424,24 +2455,6 @@ async function saveCategoryEdit() {
         </TabsContent>
 
         <TabsContent value="categories" className="mt-3 sm:mt-6">
-          <div
-            className="mb-4 rounded-lg border p-4 text-sm"
-            style={{
-              backgroundColor: `hsl(${ui.adminCard})`,
-              color: `hsl(${ui.adminCardForeground})`,
-              borderColor: `hsl(${ui.adminAccent} / 0.35)`,
-            }}
-          >
-            <p className="font-semibold">1. Creá primero una categoría.</p>
-            <p className="mt-1 opacity-80">
-              Después pasá a Items del Menú para agregar los platos o productos.
-            </p>
-            <p className="mt-3 flex items-start gap-2 opacity-80">
-              <EyeOff className="mt-0.5 h-4 w-4 shrink-0" />
-              Podés ocultar una categoría completa o esconder solamente los items que quieras usando sus controles de visibilidad.
-            </p>
-          </div>
-
           <Card
             className="w-full min-w-0 overflow-hidden border-0 shadow-sm ring-1 ring-black/5"
             style={{
@@ -2458,8 +2471,19 @@ async function saveCategoryEdit() {
               }}
             >
               <CardTitle>Categorías del Menú</CardTitle>
-              <CardDescription>
-                Creá y ordená las secciones de la Carta {orderMenuVariant}.
+              <CardDescription className="space-y-1">
+                <span className="block">
+                  Creá y ordená las secciones de la Carta {orderMenuVariant}.
+                </span>
+                <span className="block">
+                  Creá primero una categoría. Después pasá a Items del Menú para
+                  agregar los platos o productos.
+                </span>
+                <span className="flex items-start gap-2">
+                  <EyeOff className="mt-0.5 h-4 w-4 shrink-0" />
+                  Podés ocultar una categoría completa o esconder solamente los
+                  items que quieras usando sus controles de visibilidad.
+                </span>
               </CardDescription>
             </CardHeader>
 
