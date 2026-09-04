@@ -71,10 +71,26 @@ import {
 import type { Category, MenuItem, MenuItemInput } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DEFAULT_MENU_VARIANT_SCHEDULE,
+  findScheduleConflict,
+  parseMenuVariantSchedule,
+  resolveMenuVariant,
+  type MenuVariantSchedule,
+} from "@/lib/menu-variant-schedule";
 
 type Props = { tenantId: string };
 type MenuVariant = "A" | "B";
 type OrderedEntry = { order: number; orderA?: number; orderB?: number };
+const WEEK_DAYS = [
+  { value: 1, label: "Lun" },
+  { value: 2, label: "Mar" },
+  { value: 3, label: "Mié" },
+  { value: 4, label: "Jue" },
+  { value: 5, label: "Vie" },
+  { value: 6, label: "Sáb" },
+  { value: 0, label: "Dom" },
+];
 
 const getMenuOrder = (entry: OrderedEntry, variant: MenuVariant) =>
   variant === "A"
@@ -156,8 +172,13 @@ export default function MenuManager({ tenantId }: Props) {
   const [tenantName, setTenantName] = useState("");
   const [activeMenuTab, setActiveMenuTab] = useState("categories");
   const [activeMenuVariant, setActiveMenuVariant] = useState<MenuVariant>("A");
+  const [manualMenuVariant, setManualMenuVariant] = useState<MenuVariant>("A");
+  const [menuAutomation, setMenuAutomation] = useState<MenuVariantSchedule>(
+    DEFAULT_MENU_VARIANT_SCHEDULE
+  );
   const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
+  const [savingMenuAutomation, setSavingMenuAutomation] = useState(false);
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
@@ -341,15 +362,28 @@ export default function MenuManager({ tenantId }: Props) {
     return onSnapshot(
       doc(db, "tenants", tenantId, "settings", "menuVariants"),
       (snapshot) => {
-        const value = snapshot.data()?.activeVariant;
-        setActiveMenuVariant(value === "B" ? "B" : "A");
+        const data = snapshot.data();
+        const manual = data?.activeVariant === "B" ? "B" : "A";
+        const automation = parseMenuVariantSchedule(data?.automation);
+        setManualMenuVariant(manual);
+        setMenuAutomation(automation);
+        setActiveMenuVariant(resolveMenuVariant(manual, automation));
       }
     );
   }, [tenantId]);
 
-  async function handleActiveMenuVariant(next: "A" | "B") {
-    if (next === activeMenuVariant) return;
+  useEffect(() => {
+    const updateVariant = () =>
+      setActiveMenuVariant(resolveMenuVariant(manualMenuVariant, menuAutomation));
+    updateVariant();
+    const timer = window.setInterval(updateVariant, 30_000);
+    return () => window.clearInterval(timer);
+  }, [manualMenuVariant, menuAutomation]);
 
+  async function handleActiveMenuVariant(next: "A" | "B") {
+    if (next === manualMenuVariant || menuAutomation.enabled) return;
+
+    setManualMenuVariant(next);
     setActiveMenuVariant(next);
     setSavingMenuVariant(true);
 
@@ -362,6 +396,7 @@ export default function MenuManager({ tenantId }: Props) {
       toast({ title: `Carta ${next} publicada` });
     } catch (e) {
       console.error(e);
+      setManualMenuVariant(next === "A" ? "B" : "A");
       setActiveMenuVariant(next === "A" ? "B" : "A");
       toast({
         variant: "destructive",
@@ -370,6 +405,52 @@ export default function MenuManager({ tenantId }: Props) {
       });
     } finally {
       setSavingMenuVariant(false);
+    }
+  }
+
+  async function saveMenuAutomation() {
+    if (
+      menuAutomation.enabled &&
+      menuAutomation.rules.some(
+        (rule) => rule.days.length === 0 || rule.startTime === rule.endTime
+      )
+    ) {
+      toast({
+        variant: "destructive",
+        title: "Revisá los horarios",
+        description: "Cada horario debe tener días elegidos y horas diferentes.",
+      });
+      return;
+    }
+
+    const conflict = findScheduleConflict(menuAutomation.rules);
+    if (menuAutomation.enabled && conflict) {
+      toast({
+        variant: "destructive",
+        title: "Hay horarios superpuestos",
+        description: `El horario ${conflict[0] + 1} se superpone con el horario ${conflict[1] + 1}.`,
+      });
+      return;
+    }
+
+    setSavingMenuAutomation(true);
+    try {
+      await setDoc(
+        doc(db, "tenants", tenantId, "settings", "menuVariants"),
+        { automation: menuAutomation, updatedAt: serverTimestamp() },
+        { merge: true }
+      );
+      setActiveMenuVariant(resolveMenuVariant(manualMenuVariant, menuAutomation));
+      toast({ title: "Automatización guardada" });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar la automatización.",
+      });
+    } finally {
+      setSavingMenuAutomation(false);
     }
   }
 
@@ -1342,7 +1423,7 @@ async function saveCategoryEdit() {
                     key={variant}
                     type="button"
                     variant="ghost"
-                    disabled={savingMenuVariant}
+                    disabled={savingMenuVariant || menuAutomation.enabled}
                     aria-pressed={isActive}
                     onClick={() => handleActiveMenuVariant(variant)}
                     className="rounded-none px-5 font-semibold hover:opacity-90"
@@ -1362,6 +1443,210 @@ async function saveCategoryEdit() {
             </div>
           </CardContent>
         </Card>
+
+      <Card
+        className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
+        style={{
+          backgroundColor: `hsl(${ui.adminCard})`,
+          color: `hsl(${ui.adminCardForeground})`,
+        }}
+      >
+        <CardContent className="space-y-5 p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="font-semibold">Cambio automático de carta</p>
+              <p className="mt-1 text-sm opacity-70">
+                La Carta {activeMenuVariant} es la que se muestra ahora.
+              </p>
+            </div>
+            <Switch
+              checked={menuAutomation.enabled}
+              onCheckedChange={(enabled) =>
+                setMenuAutomation((current) => ({ ...current, enabled }))
+              }
+              aria-label="Activar cambio automático"
+            />
+          </div>
+
+          {menuAutomation.enabled && (
+            <div className="space-y-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <Label className="font-semibold">Fuera de estos horarios:</Label>
+                <div className="grid grid-cols-2 overflow-hidden rounded-md border">
+                  {(["A", "B"] as const).map((variant) => (
+                    <Button
+                      key={variant}
+                      type="button"
+                      variant="ghost"
+                      onClick={() =>
+                        setMenuAutomation((current) => ({
+                          ...current,
+                          defaultVariant: variant,
+                        }))
+                      }
+                      className="rounded-none px-4"
+                      style={{
+                        backgroundColor:
+                          menuAutomation.defaultVariant === variant
+                            ? `hsl(${ui.adminAccent})`
+                            : `hsl(${ui.adminCard})`,
+                        color:
+                          menuAutomation.defaultVariant === variant
+                            ? `hsl(${ui.adminCard})`
+                            : `hsl(${ui.adminCardForeground})`,
+                      }}
+                    >
+                      Carta {variant}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
+              {menuAutomation.rules.map((rule, ruleIndex) => (
+                <div key={rule.id} className="space-y-3 rounded-lg border p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-semibold">Horario {ruleIndex + 1}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={`Eliminar horario ${ruleIndex + 1}`}
+                      onClick={() =>
+                        setMenuAutomation((current) => ({
+                          ...current,
+                          rules: current.rules.filter((item) => item.id !== rule.id),
+                        }))
+                      }
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2">
+                    {WEEK_DAYS.map((day) => {
+                      const selected = rule.days.includes(day.value);
+                      return (
+                        <Button
+                          key={day.value}
+                          type="button"
+                          size="sm"
+                          variant={selected ? "default" : "outline"}
+                          onClick={() =>
+                            setMenuAutomation((current) => ({
+                              ...current,
+                              rules: current.rules.map((item) =>
+                                item.id === rule.id
+                                  ? {
+                                      ...item,
+                                      days: selected
+                                        ? item.days.filter((value) => value !== day.value)
+                                        : [...item.days, day.value],
+                                    }
+                                  : item
+                              ),
+                            }))
+                          }
+                          style={selected ? { backgroundColor: `hsl(${ui.adminAccent})` } : undefined}
+                        >
+                          {day.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                    <div className="space-y-1">
+                      <Label>Desde</Label>
+                      <Input
+                        type="time"
+                        value={rule.startTime}
+                        onChange={(event) =>
+                          setMenuAutomation((current) => ({
+                            ...current,
+                            rules: current.rules.map((item) =>
+                              item.id === rule.id ? { ...item, startTime: event.target.value } : item
+                            ),
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label>Hasta</Label>
+                      <Input
+                        type="time"
+                        value={rule.endTime}
+                        onChange={(event) =>
+                          setMenuAutomation((current) => ({
+                            ...current,
+                            rules: current.rules.map((item) =>
+                              item.id === rule.id ? { ...item, endTime: event.target.value } : item
+                            ),
+                          }))
+                        }
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 overflow-hidden rounded-md border">
+                      {(["A", "B"] as const).map((variant) => (
+                        <Button
+                          key={variant}
+                          type="button"
+                          variant="ghost"
+                          onClick={() =>
+                            setMenuAutomation((current) => ({
+                              ...current,
+                              rules: current.rules.map((item) =>
+                                item.id === rule.id ? { ...item, variant } : item
+                              ),
+                            }))
+                          }
+                          className="rounded-none"
+                          style={{
+                            backgroundColor: rule.variant === variant ? `hsl(${ui.adminAccent})` : undefined,
+                            color: rule.variant === variant ? `hsl(${ui.adminCard})` : undefined,
+                          }}
+                        >
+                          Carta {variant}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() =>
+                  setMenuAutomation((current) => ({
+                    ...current,
+                    rules: [
+                      ...current.rules,
+                      {
+                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        days: [],
+                        startTime: "10:00",
+                        endTime: "17:00",
+                        variant: current.defaultVariant === "A" ? "B" : "A",
+                      },
+                    ],
+                  }))
+                }
+              >
+                Agregar horario
+              </Button>
+            </div>
+          )}
+
+          <Button
+            type="button"
+            disabled={savingMenuAutomation}
+            onClick={saveMenuAutomation}
+            style={{ backgroundColor: `hsl(${ui.adminAccent})`, color: `hsl(${ui.adminCard})` }}
+          >
+            {savingMenuAutomation ? "Guardando..." : "Guardar automatización"}
+          </Button>
+        </CardContent>
+      </Card>
 
       <Card
         className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
