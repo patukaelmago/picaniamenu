@@ -387,9 +387,11 @@ export default function MenuManager({ tenantId }: Props) {
     const previousManualMenuVariant = manualMenuVariant;
     const previousActiveMenuVariant = activeMenuVariant;
     const previousMenuAutomation = menuAutomation;
-    const nextMenuAutomation = menuAutomation.enabled
-      ? { ...menuAutomation, enabled: false }
-      : menuAutomation;
+    const nextMenuAutomation = {
+      ...menuAutomation,
+      enabled: false,
+      defaultVariant: next,
+    };
     setManualMenuVariant(next);
     setActiveMenuVariant(next);
     setMenuAutomation(nextMenuAutomation);
@@ -1498,38 +1500,6 @@ async function saveCategoryEdit() {
 
           {menuAutomation.enabled && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <Label className="font-semibold">Fuera de estos horarios:</Label>
-                <div className="grid grid-cols-2 overflow-hidden rounded-md border">
-                  {(["A", "B"] as const).map((variant) => (
-                    <Button
-                      key={variant}
-                      type="button"
-                      variant="ghost"
-                      onClick={() =>
-                        setMenuAutomation((current) => ({
-                          ...current,
-                          defaultVariant: variant,
-                        }))
-                      }
-                      className="rounded-none px-4"
-                      style={{
-                        backgroundColor:
-                          menuAutomation.defaultVariant === variant
-                            ? `hsl(${ui.adminAccent})`
-                            : `hsl(${ui.adminCard})`,
-                        color:
-                          menuAutomation.defaultVariant === variant
-                            ? `hsl(${ui.adminCard})`
-                            : `hsl(${ui.adminCardForeground})`,
-                      }}
-                    >
-                      Carta {variant}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
               {menuAutomation.rules.map((rule, ruleIndex) => (
                 <div key={rule.id} className="space-y-3 rounded-lg border p-3">
                   <div className="flex items-center justify-between gap-3">
