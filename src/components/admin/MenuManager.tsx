@@ -152,6 +152,14 @@ function norm(s: string) {
 const hasSinTacc = (tags: MenuItemInput["tags"] | undefined) =>
   (tags ?? []).includes("sin TACC");
 
+const isVisibleInMenu = (
+  entry: { isVisible: boolean; menuVariants?: MenuVariant[] },
+  variant: MenuVariant,
+  defaultVariants: MenuVariant[]
+) =>
+  entry.isVisible !== false &&
+  (entry.menuVariants ?? defaultVariants).includes(variant);
+
 const withSinTacc = (
   tags: MenuItemInput["tags"] | undefined,
   enabled: boolean
@@ -475,20 +483,22 @@ export default function MenuManager({ tenantId }: Props) {
     variant: "A" | "B",
     enabled: boolean
   ) {
-    const current = item.menuVariants ?? ["A"];
+    const current = item.isVisible === false ? [] : item.menuVariants ?? ["A"];
     const menuVariants = enabled
       ? Array.from(new Set([...current, variant]))
       : current.filter((value) => value !== variant);
+    const isVisible = enabled ? true : item.isVisible;
   
     setItems((prev) =>
       prev.map((entry) =>
-        entry.id === item.id ? { ...entry, menuVariants } : entry
+        entry.id === item.id ? { ...entry, menuVariants, isVisible } : entry
       )
     );
   
     try {
       await updateDoc(doc(itemsCol, item.id), {
         menuVariants,
+        isVisible,
         updatedAt: serverTimestamp(),
       });
     } catch (e) {
@@ -496,7 +506,11 @@ export default function MenuManager({ tenantId }: Props) {
       setItems((prev) =>
         prev.map((entry) =>
           entry.id === item.id
-            ? { ...entry, menuVariants: item.menuVariants }
+            ? {
+                ...entry,
+                menuVariants: item.menuVariants,
+                isVisible: item.isVisible,
+              }
             : entry
         )
       );
@@ -654,7 +668,7 @@ export default function MenuManager({ tenantId }: Props) {
   
       await addDoc(itemsCol, {
         ...createForm,
-        menuVariants: ["A"],
+        menuVariants: [orderMenuVariant],
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
@@ -773,37 +787,6 @@ export default function MenuManager({ tenantId }: Props) {
     }
   }
 
-  async function handleToggleItem(
-    id: string,
-    field: "inStock" | "isVisible",
-    value: boolean
-  ) {
-    setItems((prev) =>
-      prev.map((it) => (it.id === id ? ({ ...it, [field]: value } as MenuItem) : it))
-    );
-
-    try {
-      await updateDoc(doc(itemsCol, id), {
-        [field]: value,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (e) {
-      console.error(e);
-    
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === id ? ({ ...it, [field]: !value } as MenuItem) : it
-        )
-      );
-
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo actualizar el estado del item.",
-      });
-    }
-  }
-
   async function onCreateCategory() {
   const name = formCatName.trim();
   if (!name) return;
@@ -821,7 +804,7 @@ export default function MenuManager({ tenantId }: Props) {
       orderA: nextOrder,
       orderB: nextOrder,
       isVisible: true,
-      menuVariants: ["A", "B"],
+      menuVariants: [orderMenuVariant],
       parentCategoryId: formCatParentId || null,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
@@ -883,49 +866,28 @@ async function saveCategoryEdit() {
   }
 }
 
-  async function onToggleCategoryVisible(cat: Category, isVisible: boolean) {
-    setCategories((previous) =>
-      previous.map((category) =>
-        category.id === cat.id ? { ...category, isVisible } : category
-      )
-    );
-
-    try {
-      await updateDoc(doc(catsCol, cat.id), {
-        isVisible,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error(error);
-      setCategories((previous) =>
-        previous.map((category) => (category.id === cat.id ? cat : category))
-      );
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo cambiar la visibilidad de la categoría.",
-      });
-    }
-  }
-
   async function onToggleCategoryVariant(
     cat: Category,
     variant: MenuVariant,
     enabled: boolean
   ) {
-    const current = cat.menuVariants ?? (cat.isVisible ? ["A", "B"] : []);
+    const current = cat.isVisible === false
+      ? []
+      : cat.menuVariants ?? ["A", "B"];
     const menuVariants = enabled
       ? Array.from(new Set([...current, variant]))
       : current.filter((entry) => entry !== variant);
+    const isVisible = enabled ? true : cat.isVisible;
     setCategories((prev) =>
       prev.map((c) =>
-        c.id === cat.id ? { ...c, menuVariants } : c
+        c.id === cat.id ? { ...c, menuVariants, isVisible } : c
       )
     );
 
     try {
       await updateDoc(doc(catsCol, cat.id), {
         menuVariants,
+        isVisible,
         updatedAt: serverTimestamp(),
       });
     } catch (e) {
@@ -1686,9 +1648,9 @@ async function saveCategoryEdit() {
             <div>
               <p className="font-semibold">Cómo funcionan Carta A y Carta B</p>
               <p className="mt-1 text-sm opacity-75">
-                Las perillas indican en qué carta aparece cada item. Cada carta
-                conserva su propio orden de categorías, subcategorías e items.
-                El mismo QR siempre muestra la carta que figure como publicada.
+                Elegí Carta A o Carta B y usá el ojo para decidir qué categorías,
+                subcategorías e items se muestran. Cada carta conserva su propio
+                orden. El mismo QR siempre muestra la carta que figure como publicada.
               </p>
             </div>
 
@@ -2054,7 +2016,7 @@ async function saveCategoryEdit() {
                 <p>Cargando platos...</p>
               ) : (
                 <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
-                  <div className="min-w-[680px] overflow-hidden rounded-md">
+                  <div className="min-w-[580px] overflow-hidden rounded-md">
                     <Table>
                       <TableHeader
                         style={{
@@ -2067,9 +2029,9 @@ async function saveCategoryEdit() {
                           <TableHead className="text-[hsl(var(--table-head-text))]">Nombre</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Categoría</TableHead>
                           <TableHead className="text-[hsl(var(--table-head-text))]">Precio</TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">Visible</TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">Carta A</TableHead>
-                          <TableHead className="text-[hsl(var(--table-head-text))]">Carta B</TableHead>
+                          <TableHead className="text-[hsl(var(--table-head-text))]">
+                            Visible en {orderMenuVariant}
+                          </TableHead>
                           <TableHead className="w-[100px] rounded-tr-md text-[hsl(var(--table-head-text))]">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -2084,6 +2046,11 @@ async function saveCategoryEdit() {
 
                           const placeholder = PlaceHolderImages.find((p) => p.id === item.imageId);
                           const imageUrl = item.imageUrl || placeholder?.imageUrl || "";
+                          const isVisibleInSelectedMenu = isVisibleInMenu(
+                            item,
+                            orderMenuVariant,
+                            ["A"]
+                          );
 
                           return (
                             <TableRow
@@ -2139,14 +2106,26 @@ async function saveCategoryEdit() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  title={item.isVisible ? "Ocultar item" : "Mostrar item"}
-                                  aria-label={item.isVisible ? `Ocultar ${item.name}` : `Mostrar ${item.name}`}
-                                  aria-pressed={!!item.isVisible}
+                                  title={
+                                    isVisibleInSelectedMenu
+                                      ? `Ocultar de Carta ${orderMenuVariant}`
+                                      : `Mostrar en Carta ${orderMenuVariant}`
+                                  }
+                                  aria-label={
+                                    isVisibleInSelectedMenu
+                                      ? `Ocultar ${item.name} de Carta ${orderMenuVariant}`
+                                      : `Mostrar ${item.name} en Carta ${orderMenuVariant}`
+                                  }
+                                  aria-pressed={isVisibleInSelectedMenu}
                                   onClick={() =>
-                                    handleToggleItem(item.id, "isVisible", !item.isVisible)
+                                    handleToggleMenuVariant(
+                                      item,
+                                      orderMenuVariant,
+                                      !isVisibleInSelectedMenu
+                                    )
                                   }
                                   className={
-                                    item.isVisible
+                                    isVisibleInSelectedMenu
                                       ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
                                       : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"
                                   }
@@ -2154,31 +2133,12 @@ async function saveCategoryEdit() {
                                     "--visible-eye-color": ui.adminAccent,
                                   } as CSSProperties}
                                 >
-                                  {item.isVisible ? (
+                                  {isVisibleInSelectedMenu ? (
                                     <Eye className="h-5 w-5" />
                                   ) : (
                                     <EyeOff className="h-5 w-5" />
                                   )}
                                 </Button>
-                              </TableCell>
-
-                              <TableCell>
-                                <Switch
-                                  checked={(item.menuVariants ?? ["A"]).includes("A")}
-                                  onCheckedChange={(value) =>
-                                    handleToggleMenuVariant(item, "A", value)
-                                  }
-                                  aria-label={`${item.name} en Carta A`}
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Switch
-                                  checked={(item.menuVariants ?? ["A"]).includes("B")}
-                                  onCheckedChange={(value) =>
-                                    handleToggleMenuVariant(item, "B", value)
-                                  }
-                                  aria-label={`${item.name} en Carta B`}
-                                />
                               </TableCell>
 
                               <TableCell>
@@ -2478,8 +2438,8 @@ async function saveCategoryEdit() {
                 </span>
                 <span className="flex items-start gap-2">
                   <EyeOff className="mt-0.5 h-4 w-4 shrink-0" />
-                  Podés ocultar una categoría completa o esconder solamente los
-                  items que quieras usando sus controles de visibilidad.
+                  El ojo muestra u oculta cada categoría en la Carta
+                  {` ${orderMenuVariant}`}.
                 </span>
               </CardDescription>
             </CardHeader>
@@ -2579,6 +2539,11 @@ async function saveCategoryEdit() {
                 <div className="space-y-3">
                   {sortedRootCategories.map((parent, index) => {
                     const children = childrenByParent.get(parent.id) ?? [];
+                    const isParentVisibleInSelectedMenu = isVisibleInMenu(
+                      parent,
+                      orderMenuVariant,
+                      ["A", "B"]
+                    );
 
                     return (
                       <div key={parent.id} className="space-y-2">
@@ -2615,27 +2580,35 @@ async function saveCategoryEdit() {
                               type="button"
                               variant="ghost"
                               size="icon"
-                              title={parent.isVisible ? "Ocultar categoría" : "Mostrar categoría"}
-                              aria-label={parent.isVisible ? `Ocultar ${parent.name}` : `Mostrar ${parent.name}`}
-                              aria-pressed={parent.isVisible}
-                              onClick={() => onToggleCategoryVisible(parent, !parent.isVisible)}
-                              className={parent.isVisible
+                              title={
+                                isParentVisibleInSelectedMenu
+                                  ? `Ocultar de Carta ${orderMenuVariant}`
+                                  : `Mostrar en Carta ${orderMenuVariant}`
+                              }
+                              aria-label={
+                                isParentVisibleInSelectedMenu
+                                  ? `Ocultar ${parent.name} de Carta ${orderMenuVariant}`
+                                  : `Mostrar ${parent.name} en Carta ${orderMenuVariant}`
+                              }
+                              aria-pressed={isParentVisibleInSelectedMenu}
+                              onClick={() =>
+                                onToggleCategoryVariant(
+                                  parent,
+                                  orderMenuVariant,
+                                  !isParentVisibleInSelectedMenu
+                                )
+                              }
+                              className={isParentVisibleInSelectedMenu
                                 ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
                                 : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"}
                               style={{ "--visible-eye-color": ui.adminAccent } as CSSProperties}
                             >
-                              {parent.isVisible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                              {isParentVisibleInSelectedMenu ? (
+                                <Eye className="h-5 w-5" />
+                              ) : (
+                                <EyeOff className="h-5 w-5" />
+                              )}
                             </Button>
-                            {(["A", "B"] as MenuVariant[]).map((variant) => (
-                              <label key={variant} className="flex items-center gap-1">
-                                <span className="text-xs font-semibold">{variant}</span>
-                                <Switch
-                                  checked={(parent.menuVariants ?? ["A", "B"]).includes(variant)}
-                                  onCheckedChange={(enabled) => onToggleCategoryVariant(parent, variant, enabled)}
-                                  aria-label={`${parent.name} en Carta ${variant}`}
-                                />
-                              </label>
-                            ))}
 
                             <div className="flex items-center gap-2">
                               <Button
@@ -2663,7 +2636,14 @@ async function saveCategoryEdit() {
                         </div>
 
                         {openParents[parent.id] &&
-                          children.map((child, childIndex) => (
+                          children.map((child, childIndex) => {
+                            const isChildVisibleInSelectedMenu = isVisibleInMenu(
+                              child,
+                              orderMenuVariant,
+                              ["A", "B"]
+                            );
+
+                            return (
                             <div
                               key={child.id}
                               className="ml-8 flex cursor-grab items-center justify-between rounded-md border border-border/40 bg-secondary/60 p-3 active:cursor-grabbing"
@@ -2687,27 +2667,35 @@ async function saveCategoryEdit() {
                                   type="button"
                                   variant="ghost"
                                   size="icon"
-                                  title={child.isVisible ? "Ocultar categoría" : "Mostrar categoría"}
-                                  aria-label={child.isVisible ? `Ocultar ${child.name}` : `Mostrar ${child.name}`}
-                                  aria-pressed={child.isVisible}
-                                  onClick={() => onToggleCategoryVisible(child, !child.isVisible)}
-                                  className={child.isVisible
+                                  title={
+                                    isChildVisibleInSelectedMenu
+                                      ? `Ocultar de Carta ${orderMenuVariant}`
+                                      : `Mostrar en Carta ${orderMenuVariant}`
+                                  }
+                                  aria-label={
+                                    isChildVisibleInSelectedMenu
+                                      ? `Ocultar ${child.name} de Carta ${orderMenuVariant}`
+                                      : `Mostrar ${child.name} en Carta ${orderMenuVariant}`
+                                  }
+                                  aria-pressed={isChildVisibleInSelectedMenu}
+                                  onClick={() =>
+                                    onToggleCategoryVariant(
+                                      child,
+                                      orderMenuVariant,
+                                      !isChildVisibleInSelectedMenu
+                                    )
+                                  }
+                                  className={isChildVisibleInSelectedMenu
                                     ? "text-[hsl(var(--visible-eye-color))] hover:bg-[hsl(var(--visible-eye-color))] hover:text-white"
                                     : "text-muted-foreground opacity-55 hover:bg-[hsl(var(--visible-eye-color))] hover:text-white hover:opacity-100"}
                                   style={{ "--visible-eye-color": ui.adminAccent } as CSSProperties}
                                 >
-                                  {child.isVisible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
+                                  {isChildVisibleInSelectedMenu ? (
+                                    <Eye className="h-5 w-5" />
+                                  ) : (
+                                    <EyeOff className="h-5 w-5" />
+                                  )}
                                 </Button>
-                                {(["A", "B"] as MenuVariant[]).map((variant) => (
-                                  <label key={variant} className="flex items-center gap-1">
-                                    <span className="text-xs font-semibold">{variant}</span>
-                                    <Switch
-                                      checked={(child.menuVariants ?? ["A", "B"]).includes(variant)}
-                                      onCheckedChange={(enabled) => onToggleCategoryVariant(child, variant, enabled)}
-                                      aria-label={`${child.name} en Carta ${variant}`}
-                                    />
-                                  </label>
-                                ))}
 
                                 <div className="flex items-center gap-2">
                                   <Button
@@ -2733,7 +2721,8 @@ async function saveCategoryEdit() {
                                 </div>
                               </div>
                             </div>
-                          ))}
+                            );
+                          })}
                       </div>
                     );
                   })}
@@ -2745,7 +2734,7 @@ async function saveCategoryEdit() {
                   <SheetHeader>
                     <SheetTitle>Editar categoría</SheetTitle>
                     <SheetDescription>
-                      Modificá el nombre o la visibilidad.
+                      Modificá el nombre o la sección principal.
                     </SheetDescription>
                   </SheetHeader>
 
@@ -2848,43 +2837,6 @@ async function saveCategoryEdit() {
                       </select>
                     </div>
 
-                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                      <Label className="sm:text-right">Visible</Label>
-                      <div className="sm:col-span-3">
-                        <Switch
-                          checked={catForm.isVisible}
-                          onCheckedChange={(isVisible) =>
-                            setCatForm((previous) => ({ ...previous, isVisible }))
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
-                      <Label className="sm:text-right">Cartas</Label>
-                      <div className="flex gap-3 sm:col-span-3">
-                        {(["A", "B"] as MenuVariant[]).map((variant) => (
-                          <label key={variant} className="flex items-center gap-2">
-                            <Switch
-                              checked={catForm.menuVariants.includes(variant)}
-                              onCheckedChange={(enabled) =>
-                                setCatForm((previous) => ({
-                                  ...previous,
-                                  menuVariants: enabled
-                                    ? Array.from(
-                                        new Set([...previous.menuVariants, variant])
-                                      )
-                                    : previous.menuVariants.filter(
-                                        (entry) => entry !== variant
-                                      ),
-                                }))
-                              }
-                            />
-                            Carta {variant}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
                   </div>
 
                   <SheetFooter>
