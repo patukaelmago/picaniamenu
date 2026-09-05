@@ -1635,6 +1635,8 @@ async function saveCategoryEdit() {
           </Button>
         </CardContent>
       </Card>
+        </div>
+      )}
 
       <Card
         className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
@@ -1691,8 +1693,6 @@ async function saveCategoryEdit() {
           </div>
         </CardContent>
       </Card>
-        </div>
-      )}
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
