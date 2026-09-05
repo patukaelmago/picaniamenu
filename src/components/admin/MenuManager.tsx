@@ -54,6 +54,7 @@ import {
   GripVertical,
   ChevronRight,
   ChevronDown,
+  Clock,
   ImagePlus,
   X,
 } from "lucide-react";
@@ -1563,33 +1564,47 @@ async function saveCategoryEdit() {
                   <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                     <div className="space-y-1">
                       <Label>Desde</Label>
-                      <Input
-                        type="time"
-                        value={rule.startTime}
-                        onChange={(event) =>
-                          setMenuAutomation((current) => ({
-                            ...current,
-                            rules: current.rules.map((item) =>
-                              item.id === rule.id ? { ...item, startTime: event.target.value } : item
-                            ),
-                          }))
-                        }
-                      />
+                      <div className="relative">
+                        <Input
+                          type="time"
+                          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
+                          value={rule.startTime}
+                          onChange={(event) =>
+                            setMenuAutomation((current) => ({
+                              ...current,
+                              rules: current.rules.map((item) =>
+                                item.id === rule.id ? { ...item, startTime: event.target.value } : item
+                              ),
+                            }))
+                          }
+                        />
+                        <Clock
+                          className="pointer-events-none absolute left-[4.25rem] top-1/2 h-4 w-4 -translate-y-1/2"
+                          style={{ color: `hsl(${ui.adminCard})` }}
+                        />
+                      </div>
                     </div>
                     <div className="space-y-1">
                       <Label>Hasta</Label>
-                      <Input
-                        type="time"
-                        value={rule.endTime}
-                        onChange={(event) =>
-                          setMenuAutomation((current) => ({
-                            ...current,
-                            rules: current.rules.map((item) =>
-                              item.id === rule.id ? { ...item, endTime: event.target.value } : item
-                            ),
-                          }))
-                        }
-                      />
+                      <div className="relative">
+                        <Input
+                          type="time"
+                          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
+                          value={rule.endTime}
+                          onChange={(event) =>
+                            setMenuAutomation((current) => ({
+                              ...current,
+                              rules: current.rules.map((item) =>
+                                item.id === rule.id ? { ...item, endTime: event.target.value } : item
+                              ),
+                            }))
+                          }
+                        />
+                        <Clock
+                          className="pointer-events-none absolute left-[4.25rem] top-1/2 h-4 w-4 -translate-y-1/2"
+                          style={{ color: `hsl(${ui.adminCard})` }}
+                        />
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 overflow-hidden rounded-md border">
                       {(["A", "B"] as const).map((variant) => (
