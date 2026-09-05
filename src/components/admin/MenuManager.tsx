@@ -192,6 +192,8 @@ export default function MenuManager({ tenantId }: Props) {
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
+  const [createCategoryOpen, setCreateCategoryOpen] = useState(false);
+  const [categorySearchTerm, setCategorySearchTerm] = useState("");
 
   const [openParents, setOpenParents] = useState<Record<string, boolean>>({});
   const toggleParent = (id: string) =>
@@ -812,6 +814,7 @@ export default function MenuManager({ tenantId }: Props) {
 
     setFormCatName("");
     setFormCatParentId("");
+    setCreateCategoryOpen(false);
     await loadCategories();
     toast({ title: "Categoría creada" });
   } catch (e) {
@@ -1285,6 +1288,19 @@ async function saveCategoryEdit() {
     ? visibleAdminItems
     : visibleAdminItems.filter((item) => getItemParentId(item) === parentFilterId);
 
+  const normalizedCategorySearch = norm(categorySearchTerm);
+  const categoryMatchesSearch = (category: Category) =>
+    norm(`${category.name} ${category.description ?? ""}`).includes(
+      normalizedCategorySearch
+    );
+  const displayedRootCategories = !normalizedCategorySearch
+    ? sortedRootCategories
+    : sortedRootCategories.filter(
+        (parent) =>
+          categoryMatchesSearch(parent) ||
+          (childrenByParent.get(parent.id) ?? []).some(categoryMatchesSearch)
+      );
+
   return (
     <div
       className="min-h-screen w-full min-w-0 space-y-4 overflow-x-hidden p-0 sm:space-y-6 sm:p-2"
@@ -1344,33 +1360,38 @@ async function saveCategoryEdit() {
     Items del Menú
   </TabsTrigger>
 </TabsList>
-        {activeMenuTab === "items" && (
         <Button
-        onClick={() => {
-          if (categories.length === 0) {
-            setActiveMenuTab("categories");
-            toast({
-              title: "Creá primero una categoría",
-              description: "Después vas a poder agregar items dentro de ella.",
-            });
-            return;
-          }
-          setCreateForm({ ...emptyItem, currency: tenantCurrency });
-          setCreateOpen(true);
-        }}
-        className="self-center border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:self-start"
-        style={{
-          "--tenant-button-bg": ui.adminCardForeground,
-          "--tenant-button-text": ui.adminCard,
-          "--tenant-button-border": ui.adminForeground,
-          "--tenant-button-hover-bg": ui.adminAccent,
-          "--tenant-button-hover-text": ui.adminCard,
-        } as CSSProperties}
-      >
-        <PlusCircle className="mr-2 h-4 w-4" />
-        Agregar Item
-      </Button>
-        )}
+          onClick={() => {
+            if (activeMenuTab === "categories") {
+              setFormCatName("");
+              setFormCatParentId("");
+              setCreateCategoryOpen(true);
+              return;
+            }
+
+            if (categories.length === 0) {
+              setActiveMenuTab("categories");
+              toast({
+                title: "Creá primero una categoría",
+                description: "Después vas a poder agregar items dentro de ella.",
+              });
+              return;
+            }
+            setCreateForm({ ...emptyItem, currency: tenantCurrency });
+            setCreateOpen(true);
+          }}
+          className="self-center border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:self-start"
+          style={{
+            "--tenant-button-bg": ui.adminCardForeground,
+            "--tenant-button-text": ui.adminCard,
+            "--tenant-button-border": ui.adminForeground,
+            "--tenant-button-hover-bg": ui.adminAccent,
+            "--tenant-button-hover-text": ui.adminCard,
+          } as CSSProperties}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          {activeMenuTab === "categories" ? "Agregar categoría" : "Agregar Item"}
+        </Button>
         </div>
 
       <Card
@@ -1806,8 +1827,8 @@ async function saveCategoryEdit() {
                               }
                               className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                               style={{
-                                "--case-button-border": ui.adminForeground,
-                                "--case-button-text": ui.adminForeground,
+                                "--case-button-border": ui.adminCardForeground,
+                                "--case-button-text": ui.adminCardForeground,
                                 "--case-button-hover-bg": ui.adminAccent,
                                 "--case-button-hover-text": ui.adminCard,
                               } as CSSProperties}
@@ -1827,8 +1848,8 @@ async function saveCategoryEdit() {
                               }
                               className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                               style={{
-                                "--case-button-border": ui.adminForeground,
-                                "--case-button-text": ui.adminForeground,
+                                "--case-button-border": ui.adminCardForeground,
+                                "--case-button-text": ui.adminCardForeground,
                                 "--case-button-hover-bg": ui.adminAccent,
                                 "--case-button-hover-text": ui.adminCard,
                               } as CSSProperties}
@@ -2208,8 +2229,8 @@ async function saveCategoryEdit() {
                       }
                       className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                       style={{
-                        "--case-button-border": ui.adminForeground,
-                        "--case-button-text": ui.adminForeground,
+                        "--case-button-border": ui.adminCardForeground,
+                        "--case-button-text": ui.adminCardForeground,
                         "--case-button-hover-bg": ui.adminAccent,
                         "--case-button-hover-text": ui.adminCard,
                       } as CSSProperties}
@@ -2229,8 +2250,8 @@ async function saveCategoryEdit() {
                       }
                       className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                       style={{
-                        "--case-button-border": ui.adminForeground,
-                        "--case-button-text": ui.adminForeground,
+                        "--case-button-border": ui.adminCardForeground,
+                        "--case-button-text": ui.adminCardForeground,
                         "--case-button-hover-bg": ui.adminAccent,
                         "--case-button-hover-text": ui.adminCard,
                       } as CSSProperties}
@@ -2442,103 +2463,38 @@ async function saveCategoryEdit() {
                   {` ${orderMenuVariant}`}.
                 </span>
               </CardDescription>
+
+              <div className="mt-4 flex items-center gap-2">
+                <Label htmlFor="category-search" className="text-sm">
+                  Buscar:
+                </Label>
+                <Input
+                  id="category-search"
+                  className="h-9 w-full sm:w-64"
+                  placeholder="Nombre de categoría..."
+                  value={categorySearchTerm}
+                  onChange={(event) => setCategorySearchTerm(event.target.value)}
+                />
+              </div>
             </CardHeader>
 
             <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-5">
-              <div className="mb-4 flex flex-wrap items-end gap-3">
-                <div className="grid gap-2">
-                  <Label htmlFor="new-cat-name">Nombre</Label>
-                  <div className="flex min-w-0 items-center gap-2">
-                    <Input
-                      id="new-cat-name"
-                      className="min-w-0 flex-1"
-                      placeholder="Ej: Entradas"
-                      value={formCatName}
-                      onChange={(e) => setFormCatName(e.target.value)}
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      title="Convertir a mayúsculas"
-                      onClick={() =>
-                        setFormCatName(formCatName.toLocaleUpperCase("es-AR"))
-                      }
-                      className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
-                      style={{
-                        "--case-button-border": ui.adminForeground,
-                        "--case-button-text": ui.adminForeground,
-                        "--case-button-hover-bg": ui.adminAccent,
-                        "--case-button-hover-text": ui.adminCard,
-                      } as CSSProperties}
-                    >
-                      AA
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      title="Convertir a minúsculas"
-                      onClick={() =>
-                        setFormCatName(formCatName.toLocaleLowerCase("es-AR"))
-                      }
-                      className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
-                      style={{
-                        "--case-button-border": ui.adminForeground,
-                        "--case-button-text": ui.adminForeground,
-                        "--case-button-hover-bg": ui.adminAccent,
-                        "--case-button-hover-text": ui.adminCard,
-                      } as CSSProperties}
-                    >
-                      aa
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="new-cat-parent">Sección principal</Label>
-                  <select
-                    id="new-cat-parent"
-                    className="h-9 rounded-md border bg-background px-2 text-sm text-foreground min-w-[180px]"
-                    value={formCatParentId}
-                    onChange={(e) => setFormCatParentId(e.target.value)}
-                  >
-                    <option value="">Ninguna (sección principal)</option>
-                    {sortedRootCategories.map((cat) => (
-                      <option key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label className="invisible">.</Label>
-                  <Button
-                    onClick={onCreateCategory}
-                    className="border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
-                    style={{
-                      "--tenant-button-bg": ui.adminCardForeground,
-                      "--tenant-button-text": ui.adminCard,
-                      "--tenant-button-border": ui.adminCardForeground,
-                      "--tenant-button-hover-bg": ui.adminAccent,
-                      "--tenant-button-hover-text": ui.adminCard,
-                    } as CSSProperties}
-                  >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Crear
-                  </Button>
-                </div>
-              </div>
-
               {categories.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   Aún no hay categorías.
                 </p>
+              ) : displayedRootCategories.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No se encontraron categorías.
+                </p>
               ) : (
                 <div className="space-y-3">
-                  {sortedRootCategories.map((parent, index) => {
-                    const children = childrenByParent.get(parent.id) ?? [];
+                  {displayedRootCategories.map((parent, index) => {
+                    const allChildren = childrenByParent.get(parent.id) ?? [];
+                    const children =
+                      normalizedCategorySearch && !categoryMatchesSearch(parent)
+                        ? allChildren.filter(categoryMatchesSearch)
+                        : allChildren;
                     const isParentVisibleInSelectedMenu = isVisibleInMenu(
                       parent,
                       orderMenuVariant,
@@ -2549,7 +2505,7 @@ async function saveCategoryEdit() {
                       <div key={parent.id} className="space-y-2">
                         <div
                           className="flex items-center justify-between p-3 bg-secondary rounded-md cursor-pointer select-none"
-                          draggable
+                          draggable={!normalizedCategorySearch}
                           onClick={() => toggleParent(parent.id)}
                           onDragStart={() => handleRootDragStart(index)}
                           onDragOver={(e) => handleRootDragOver(e, index)}
@@ -2647,7 +2603,7 @@ async function saveCategoryEdit() {
                             <div
                               key={child.id}
                               className="ml-8 flex cursor-grab items-center justify-between rounded-md border border-border/40 bg-secondary/60 p-3 active:cursor-grabbing"
-                              draggable
+                              draggable={!normalizedCategorySearch}
                               onDragStart={() =>
                                 handleChildDragStart(parent.id, childIndex)
                               }
@@ -2729,6 +2685,116 @@ async function saveCategoryEdit() {
                 </div>
               )}
 
+              <Sheet
+                open={createCategoryOpen}
+                onOpenChange={setCreateCategoryOpen}
+              >
+                <SheetContent className="sm:max-w-lg">
+                  <SheetHeader>
+                    <SheetTitle>Agregar nueva categoría</SheetTitle>
+                    <SheetDescription>
+                      Creá una categoría o una subcategoría para la Carta
+                      {` ${orderMenuVariant}`}.
+                    </SheetDescription>
+                  </SheetHeader>
+
+                  <div className="grid gap-4 py-4">
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="new-cat-name" className="sm:text-right">
+                        Nombre
+                      </Label>
+                      <div className="flex min-w-0 items-center gap-2 sm:col-span-3">
+                        <Input
+                          id="new-cat-name"
+                          className="min-w-0 flex-1"
+                          placeholder="Ej: Entradas"
+                          value={formCatName}
+                          onChange={(event) => setFormCatName(event.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          title="Convertir a mayúsculas"
+                          onClick={() =>
+                            setFormCatName(
+                              formCatName.toLocaleUpperCase("es-AR")
+                            )
+                          }
+                          className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                          style={{
+                            "--case-button-border": ui.adminCardForeground,
+                            "--case-button-text": ui.adminCardForeground,
+                            "--case-button-hover-bg": ui.adminAccent,
+                            "--case-button-hover-text": ui.adminCard,
+                          } as CSSProperties}
+                        >
+                          AA
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          title="Convertir a minúsculas"
+                          onClick={() =>
+                            setFormCatName(
+                              formCatName.toLocaleLowerCase("es-AR")
+                            )
+                          }
+                          className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                          style={{
+                            "--case-button-border": ui.adminCardForeground,
+                            "--case-button-text": ui.adminCardForeground,
+                            "--case-button-hover-bg": ui.adminAccent,
+                            "--case-button-hover-text": ui.adminCard,
+                          } as CSSProperties}
+                        >
+                          aa
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+                      <Label htmlFor="new-cat-parent" className="sm:text-right">
+                        Sección principal
+                      </Label>
+                      <select
+                        id="new-cat-parent"
+                        className="col-span-3 h-9 rounded-md border bg-background px-2 text-sm"
+                        value={formCatParentId}
+                        onChange={(event) =>
+                          setFormCatParentId(event.target.value)
+                        }
+                      >
+                        <option value="">Ninguna (sección principal)</option>
+                        {sortedRootCategories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <SheetFooter>
+                    <SheetClose asChild>
+                      <Button variant="secondary">Cancelar</Button>
+                    </SheetClose>
+                    <Button
+                      type="button"
+                      disabled={!formCatName.trim()}
+                      onClick={onCreateCategory}
+                      style={{
+                        backgroundColor: `hsl(${ui.navBg})`,
+                        color: `hsl(${ui.navText})`,
+                      }}
+                    >
+                      Crear categoría
+                    </Button>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+
               <Sheet open={catModalOpen} onOpenChange={setCatModalOpen}>
                 <SheetContent className="sm:max-w-lg">
                   <SheetHeader>
@@ -2765,8 +2831,8 @@ async function saveCategoryEdit() {
                           }
                           className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                           style={{
-                            "--case-button-border": ui.adminForeground,
-                            "--case-button-text": ui.adminForeground,
+                            "--case-button-border": ui.adminCardForeground,
+                            "--case-button-text": ui.adminCardForeground,
                             "--case-button-hover-bg": ui.adminAccent,
                             "--case-button-hover-text": ui.adminCard,
                           } as CSSProperties}
@@ -2786,8 +2852,8 @@ async function saveCategoryEdit() {
                           }
                           className="border-[hsl(var(--case-button-border))] bg-transparent px-3 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
                           style={{
-                            "--case-button-border": ui.adminForeground,
-                            "--case-button-text": ui.adminForeground,
+                            "--case-button-border": ui.adminCardForeground,
+                            "--case-button-text": ui.adminCardForeground,
                             "--case-button-hover-bg": ui.adminAccent,
                             "--case-button-hover-text": ui.adminCard,
                           } as CSSProperties}
