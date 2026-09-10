@@ -132,7 +132,7 @@ export default function MenuClient({ tenantId }: Props) {
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
 
-    document.title = settings?.name?.trim() || fallbackName;
+    document.title = `${settings?.name?.trim() || fallbackName} | Carta Online`;
   }, [settings?.name, tenantId]);
 
   const uiReady = true;
