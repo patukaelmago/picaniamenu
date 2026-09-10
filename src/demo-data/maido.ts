@@ -595,6 +595,34 @@ export const maidoDemo = {
       "categoryId": "SaRL4960YikuQIl9GYH7"
     },
     {
+      "id": "maidoTiraditoNikkei",
+      "price": 19800,
+      "tags": [],
+      "createdAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1785264687,
+        "nanoseconds": 500000000
+      },
+      "name": "Tiradito nikkei",
+      "isSpecial": false,
+      "order": 3,
+      "showImage": true,
+      "imageUrl": "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fmaido%2Fmenu-items%2Ftiradito-de-salmon-1785693285301.png?alt=media&token=6219ca24-aa76-45e0-84bc-c337a5804f6f",
+      "description": "Pesca blanca, leche de tigre al ají amarillo, ponzu y aceite de sésamo.",
+      "inStock": true,
+      "currency": "ARS",
+      "allergens": [],
+      "imageId": "",
+      "updatedAt": {
+        "type": "firestore/timestamp/1.0",
+        "seconds": 1785693151,
+        "nanoseconds": 500000000
+      },
+      "isVisible": true,
+      "searchKeywords": [],
+      "categoryId": "SaRL4960YikuQIl9GYH7"
+    },
+    {
       "id": "iBSYKtrDj18Ds1Pwd2Dc",
       "searchKeywords": [],
       "currency": "ARS",
