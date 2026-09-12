@@ -23,6 +23,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/administracion-de-cartas-digitales`,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     ...PUBLIC_TENANTS.map((tenantId) => ({
       url: `${SITE_URL}/menu/${tenantId}`,
       changeFrequency: "daily" as const,
