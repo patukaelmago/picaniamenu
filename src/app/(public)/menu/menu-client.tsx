@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import { useTheme } from "next-themes";
 
 import { listenFridayData, type FridayData } from "@/lib/menu-viernes-service";
@@ -12,7 +13,8 @@ import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories, listenCategories } from "@/lib/categories-service";
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
+import { restoreMaidoDemo } from "@/lib/restoreMaidoDemo";
 import {
   DEFAULT_MENU_VARIANT_SCHEDULE,
   parseMenuVariantSchedule,
@@ -55,7 +57,7 @@ const norm = (s: string) =>
   (s ?? "")
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[    special:\n      tenantId.toLowerCase() === "maido"\n        ? "Sugerencia"\n        : settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia",u0300-\u036f]/g, "")
     .trim();
 
 type MenuVariant = "A" | "B";
@@ -301,6 +303,18 @@ export default function MenuClient({ tenantId }: Props) {
   }, [tenantId, uiReady, ui.showFriday]);
 
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (tenantId.toLowerCase() !== "maido") return;
+
+    return onAuthStateChanged(auth, (user) => {
+      if (user?.email?.toLowerCase() !== "demo-maido@carta-online.com") return;
+
+      restoreMaidoDemo().catch((error) => {
+        console.error("No se pudo restaurar el demo de Maido:", error);
+      });
+    });
+  }, [tenantId]);
 
   useEffect(() => {
     return listenMenuItems(
