@@ -57,9 +57,53 @@ const features = [
   },
 ];
 
+const FAQ_ITEMS = [
+  {
+    question: "¿Cuánto cuesta Carta Online?",
+    answer: "El precio lanzamiento es de $25.000 ARS por mes, con la configuración inicial incluida.",
+  },
+  {
+    question: "¿La configuración inicial está incluida?",
+    answer: "Sí. Configuramos la identidad visual, las categorías, los productos y el código QR para dejar tu carta lista.",
+  },
+  {
+    question: "¿El código QR cambia cuando actualizo la carta?",
+    answer: "No. El mismo código QR sigue funcionando aunque cambies productos, precios, imágenes o categorías.",
+  },
+  {
+    question: "¿Necesito instalar una aplicación?",
+    answer: "No. Carta Online funciona directamente desde el navegador, tanto para tus clientes como para la administración.",
+  },
+  {
+    question: "¿Puedo modificar productos y precios?",
+    answer: "Sí. Podés actualizar productos, precios, descripciones, imágenes y disponibilidad desde cualquier dispositivo.",
+  },
+  {
+    question: "¿Hay permanencia mínima?",
+    answer: "No. El servicio es mensual y no exige permanencia mínima.",
+  },
+];
+
+const FAQ_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
+
 export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden bg-white pt-20 text-[#151A24]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
+      />
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#DED9CF] bg-[#F3F1EC]/95 backdrop-blur">
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="Carta Online">
@@ -547,32 +591,7 @@ export default function Home() {
           </div>
 
           <div className="mt-12 space-y-4">
-            {[
-              {
-                question: "¿Cuánto cuesta Carta Online?",
-                answer: "El precio lanzamiento es de $25.000 ARS por mes, con la configuración inicial incluida.",
-              },
-              {
-                question: "¿La configuración inicial está incluida?",
-                answer: "Sí. Configuramos la identidad visual, las categorías, los productos y el código QR para dejar tu carta lista.",
-              },
-              {
-                question: "¿El código QR cambia cuando actualizo la carta?",
-                answer: "No. El mismo código QR sigue funcionando aunque cambies productos, precios, imágenes o categorías.",
-              },
-              {
-                question: "¿Necesito instalar una aplicación?",
-                answer: "No. Carta Online funciona directamente desde el navegador, tanto para tus clientes como para la administración.",
-              },
-              {
-                question: "¿Puedo modificar productos y precios?",
-                answer: "Sí. Podés actualizar productos, precios, descripciones, imágenes y disponibilidad desde cualquier dispositivo.",
-              },
-              {
-                question: "¿Hay permanencia mínima?",
-                answer: "No. El servicio es mensual y no exige permanencia mínima.",
-              },
-            ].map((item) => (
+            {FAQ_ITEMS.map((item) => (
               <details
                 key={item.question}
                 className="group rounded-2xl border border-[#DDE0E5] bg-[#F8F6F1] px-6 py-5"
