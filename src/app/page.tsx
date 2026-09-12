@@ -522,9 +522,9 @@ export default function Home() {
               siempre ingresan desde el mismo enlace y el mismo código QR.
             </p>
             <div className="mt-8 space-y-4">
-              <Benefit text="Publicá una carta a la vez" />
-              <Benefit text="Asigná productos a A, B o ambas" />
-              <Benefit text="Cambiá la carta publicada al instante" />
+              <Benefit text="Editá Carta A o Carta B por separado" />
+              <Benefit text="Mostrá u ocultá productos con el ojo" />
+              <Benefit text="Publicá otra carta sin cambiar el QR" />
             </div>
           </div>
         </div>
