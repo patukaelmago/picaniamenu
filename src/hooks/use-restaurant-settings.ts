@@ -13,6 +13,7 @@ export type RestaurantSettings = {
   showLogo?: boolean;
   showName?: boolean;
   specialLabel?: string;
+  paymentMethods?: string[];
 };
 
 export function useRestaurantSettings() {
@@ -39,6 +40,11 @@ export function useRestaurantSettings() {
               showName: raw.showName ?? true,
               specialLabel:
                 raw.specialLabel?.trim().slice(0, 15) || "Sugerencia",
+              paymentMethods: Array.isArray(raw.paymentMethods)
+                ? raw.paymentMethods.filter((method): method is string =>
+                    typeof method === "string"
+                  )
+                : [],
             }
           : null
       );

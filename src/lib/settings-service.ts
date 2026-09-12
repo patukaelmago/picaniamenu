@@ -10,6 +10,7 @@ export type RestaurantSettings = {
   showLogo: boolean;
   showName: boolean;
   specialLabel: string;
+  paymentMethods: string[];
 };
 
 function getSettingsDocRef(tenantId: string) {
@@ -30,6 +31,7 @@ export async function getRestaurantSettings(
       showLogo: true,
       showName: true,
       specialLabel: "Sugerencia",
+      paymentMethods: [],
     };
   }
 
@@ -43,6 +45,11 @@ export async function getRestaurantSettings(
     showLogo: data.showLogo ?? true,
     showName: data.showName ?? true,
     specialLabel: data.specialLabel?.trim().slice(0, 15) || "Sugerencia",
+    paymentMethods: Array.isArray(data.paymentMethods)
+      ? data.paymentMethods.filter((method: unknown): method is string =>
+          typeof method === "string"
+        )
+      : [],
   };
 }
 
@@ -60,6 +67,7 @@ export async function saveRestaurantSettings(
       showLogo: data.showLogo,
       showName: data.showName,
       specialLabel: data.specialLabel.trim().slice(0, 15) || "Sugerencia",
+      paymentMethods: data.paymentMethods,
       updatedAt: serverTimestamp(),
     },
     { merge: true }

@@ -38,6 +38,12 @@ import {
 
 const MAX_CAROUSEL_IMAGES = 20;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
+const PAYMENT_METHODS = [
+  { id: "visa", name: "Visa", image: "/visa.png" },
+  { id: "mastercard", name: "Mastercard", image: "/mastercard.png" },
+  { id: "amex", name: "American Express", image: "/amex.png" },
+  { id: "mercado-pago", name: "Mercado Pago", image: "/mp.png" },
+] as const;
 
 type CarouselItem =
   | { kind: "saved"; id: string; url: string }
@@ -51,6 +57,7 @@ type RestaurantSettingsExtra = {
   showLogo?: boolean;
   showName?: boolean;
   specialLabel?: string;
+  paymentMethods?: string[];
 };
 
 export default function TenantSettingsPage({
@@ -67,6 +74,7 @@ export default function TenantSettingsPage({
   const [showLogo, setShowLogo] = useState(true);
   const [showName, setShowName] = useState(true);
   const [specialLabel, setSpecialLabel] = useState("Sugerencia");
+  const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
   const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
   const [showCategorySelector, setShowCategorySelector] = useState(true);
 
@@ -109,6 +117,13 @@ export default function TenantSettingsPage({
         setShowName(settings.showName ?? true);
         setSpecialLabel(
           settings.specialLabel?.trim().slice(0, 15) || "Sugerencia"
+        );
+        setPaymentMethods(
+          Array.isArray(settings.paymentMethods)
+            ? settings.paymentMethods.filter((method) =>
+                PAYMENT_METHODS.some((option) => option.id === method)
+              )
+            : []
         );
 
         const initialLogo = settings.logoUrl?.trim() || DEFAULT_TENANT_LOGO;
@@ -387,6 +402,7 @@ export default function TenantSettingsPage({
         showLogo,
         showName,
         specialLabel: specialLabel.trim().slice(0, 15) || "Sugerencia",
+        paymentMethods,
       } as any);
 
       await setDoc(
@@ -778,6 +794,48 @@ export default function TenantSettingsPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Medios de pago</CardTitle>
+          <CardDescription>
+            Elegí cuáles acepta el restaurante. Si no seleccionás ninguno, no se mostrará esta sección en la carta.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {PAYMENT_METHODS.map((method) => {
+              const isSelected = paymentMethods.includes(method.id);
+
+              return (
+                <label
+                  key={method.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-md border p-4 transition ${isSelected ? "ring-2 ring-primary" : ""}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={(event) =>
+                      setPaymentMethods((current) =>
+                        event.target.checked
+                          ? [...current, method.id]
+                          : current.filter((id) => id !== method.id)
+                      )
+                    }
+                    className="h-4 w-4"
+                  />
+                  <img
+                    src={method.image}
+                    alt=""
+                    className="h-7 max-w-20 object-contain"
+                  />
+                  <span className="text-sm font-medium">{method.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
