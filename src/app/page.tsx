@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Check,
   Eye,
+  EyeOff,
   GripVertical,
   ImageIcon,
   LogIn,
@@ -905,44 +906,44 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
 
           {section === "variants" && (
             <div className="mt-4 space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-white p-4 shadow-sm">
-                <div>
-                  <p className="font-black">Carta publicada</p>
-                  <p className="mt-1 text-[10px] text-[#69708B]">
-                    El mismo QR muestra la carta seleccionada.
-                  </p>
-                </div>
-                <div className="flex overflow-hidden rounded-md border border-[#1D2E58] text-xs font-bold">
-                  <span className="bg-[#D80E1F] px-5 py-2 text-white">Carta A</span>
-                  <span className="bg-white px-5 py-2 text-[#1D2E58]">Carta B</span>
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <p className="font-black">Carta que estás editando</p>
+                    <p className="mt-1 text-[10px] text-[#69708B]">
+                      Elegí una carta y usá el ojo para definir qué se muestra.
+                    </p>
+                  </div>
+                  <div className="flex overflow-hidden rounded-md border border-[#1D2E58] text-xs font-bold">
+                    <span className="bg-[#D80E1F] px-5 py-2 text-white">Carta A</span>
+                    <span className="bg-white px-5 py-2 text-[#1D2E58]">Carta B</span>
+                  </div>
                 </div>
               </div>
 
               <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
-                <div className="grid grid-cols-[1fr_66px_66px] bg-[#1D2E58] px-4 py-3 text-[10px] font-black uppercase text-white">
+                <div className="grid grid-cols-[1fr_74px] bg-[#1D2E58] px-4 py-3 text-[10px] font-black uppercase text-white">
                   <span>Producto</span>
-                  <span className="text-center">Carta A</span>
-                  <span className="text-center">Carta B</span>
+                  <span className="text-center">Visible</span>
                 </div>
                 {[
-                  ["Tiradito amazónico", true, false],
-                  ["Nigiri de salmón", true, true],
-                  ["Pesca misoyaki", false, true],
-                  ["Mochi de maracuyá", true, false],
-                ].map(([name, cardA, cardB]) => (
+                  ["Tiradito amazónico", true],
+                  ["Nigiri de salmón", true],
+                  ["Pesca misoyaki", false],
+                  ["Mochi de maracuyá", true],
+                ].map(([name, visible]) => (
                   <div
                     key={String(name)}
-                    className="grid grid-cols-[1fr_66px_66px] items-center border-t px-4 py-3 text-xs"
+                    className="grid grid-cols-[1fr_74px] items-center border-t px-4 py-3 text-xs"
                   >
                     <span className="font-bold">{name}</span>
                     <span className="flex justify-center">
-                      <span className={`h-5 w-9 rounded-full p-0.5 ${cardA ? "bg-[#D80E1F]" : "bg-[#D5D7DC]"}`}>
-                        <span className={`block h-4 w-4 rounded-full bg-white ${cardA ? "ml-auto" : ""}`} />
-                      </span>
-                    </span>
-                    <span className="flex justify-center">
-                      <span className={`h-5 w-9 rounded-full p-0.5 ${cardB ? "bg-[#D80E1F]" : "bg-[#D5D7DC]"}`}>
-                        <span className={`block h-4 w-4 rounded-full bg-white ${cardB ? "ml-auto" : ""}`} />
+                      <span
+                        className={`flex h-8 w-8 items-center justify-center rounded-md ${
+                          visible ? "text-[#D80E1F]" : "text-[#A7ABB4]"
+                        }`}
+                      >
+                        {visible ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5" />}
                       </span>
                     </span>
                   </div>
@@ -950,7 +951,7 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
               </div>
 
               <div className="rounded-lg bg-[#EAF0FF] px-4 py-3 text-xs font-bold text-[#1D2E58]">
-                Cambiás de carta sin reemplazar el QR ni el enlace público.
+                Cada carta conserva su visibilidad y orden. El mismo QR muestra la carta publicada.
               </div>
             </div>
           )}
