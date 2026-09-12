@@ -643,15 +643,9 @@ export default function Home() {
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Consultar por WhatsApp"
-        className="fixed bottom-8 left-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition hover:scale-110 hover:bg-[#20BA5A]"
+        className="fixed bottom-8 left-6 z-50 block h-14 w-14 rounded-full shadow-lg transition hover:scale-110"
       >
-        <svg
-          viewBox="0 0 32 32"
-          aria-hidden="true"
-          className="h-8 w-8 fill-current"
-        >
-          <path d="M19.11 17.21c-.26-.13-1.54-.76-1.78-.85-.24-.09-.41-.13-.59.13-.17.26-.67.85-.83 1.02-.15.17-.3.2-.56.07-.26-.13-1.09-.4-2.08-1.29-.77-.68-1.29-1.53-1.44-1.79-.15-.26-.02-.4.11-.53.12-.12.26-.3.39-.46.13-.15.17-.26.26-.43.09-.17.04-.33-.02-.46-.07-.13-.59-1.41-.8-1.94-.21-.51-.43-.44-.59-.45h-.5c-.17 0-.46.07-.7.33-.24.26-.91.89-.91 2.18s.93 2.53 1.06 2.7c.13.17 1.84 2.8 4.45 3.93.62.27 1.11.43 1.48.55.62.2 1.19.17 1.64.1.5-.07 1.54-.63 1.76-1.24.22-.61.22-1.13.15-1.24-.06-.11-.24-.17-.5-.3m-3.04 7.42h-.01a8.55 8.55 0 0 1-4.36-1.19l-.31-.18-3.24.85.86-3.15-.2-.32a8.52 8.52 0 0 1-1.31-4.56 8.58 8.58 0 1 1 8.57 8.55m7.3-15.87A10.27 10.27 0 0 0 16.08 5.75 10.35 10.35 0 0 0 7.1 21.25L5.64 26.6l5.47-1.43a10.34 10.34 0 0 0 4.96 1.26h.01A10.35 10.35 0 0 0 26.4 16.08a10.28 10.28 0 0 0-3.03-7.32" />
-        </svg>
+        <img src="/whatsapp-logo.svg" alt="" className="h-14 w-14" />
       </a>
 
       <footer className="border-t border-[#DED9CF] bg-[#F3F1EC] py-10">
