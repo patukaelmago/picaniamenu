@@ -6,6 +6,7 @@ import {
   EyeOff,
   GripVertical,
   ImageIcon,
+  Instagram,
   LogIn,
   Menu,
   Palette,
@@ -263,18 +264,21 @@ export default function Home() {
               {
                 name: "Picaña",
                 href: "/menu/picana",
+                instagram: "https://www.instagram.com/picaniarosario/",
                 logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fpicana%2Flogos%2Flogo-1781101466505.png?alt=media&token=ef4386f1-42ce-4830-949e-53b8d0301861",
                 background: "#FFF7E3",
               },
               {
                 name: "La Roti",
                 href: "/menu/laroti",
+                instagram: "https://www.instagram.com/larotipicania.ros/",
                 logo: "/laroti_logo_dark.png",
                 background: "#0C1014",
               },
               {
                 name: "Pulpo",
                 href: "/menu/pulpo",
+                instagram: "https://www.instagram.com/pulposushi/",
                 logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fpulpo%2Flogos%2Flogo-1780243823688.png?alt=media&token=87f5846f-5e18-444f-9ffc-d42a0842a587",
                 background: "#1D2E58",
               },
@@ -296,15 +300,27 @@ export default function Home() {
                 <div className="p-6">
                   <h3 className="text-2xl font-black">{client.name}</h3>
                   <p className="mt-2 text-[#69708B]">Carta digital activa</p>
-                  <Link
-                    href={client.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-5 inline-flex items-center gap-2 font-black text-[#2563EB] transition hover:text-[#174BC1]"
-                  >
-                    Ver carta
-                    <ArrowRight className="h-5 w-5" />
-                  </Link>
+                  <div className="mt-5 flex items-center justify-between gap-4">
+                    <Link
+                      href={client.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 font-black text-[#2563EB] transition hover:text-[#174BC1]"
+                    >
+                      Ver carta
+                      <ArrowRight className="h-5 w-5" />
+                    </Link>
+                    <Link
+                      href={client.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Instagram de ${client.name}`}
+                      title={`Instagram de ${client.name}`}
+                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[#DDE0E5] text-[#151A24] transition hover:border-[#E1306C] hover:bg-[#E1306C] hover:text-white"
+                    >
+                      <Instagram className="h-5 w-5" />
+                    </Link>
+                  </div>
                 </div>
               </article>
             ))}
