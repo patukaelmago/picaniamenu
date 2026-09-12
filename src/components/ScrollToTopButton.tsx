@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { ArrowUp } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function ScrollToTopButton() {
   const [isVisible, setIsVisible] = useState(false);
+  const pathname = usePathname();
+  const isHome = pathname === "/";
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -31,17 +34,18 @@ export default function ScrollToTopButton() {
   return (
     <button
       onClick={scrollToTop}
-      className="
+      className={`
         fixed bottom-8 right-6
         z-50
         p-3
         rounded-full
-        bg-[#2563EB]
-        text-white
         shadow-lg
         hover:scale-110
         transition-all
-      "
+        ${isHome
+          ? "bg-[#2563EB] text-white"
+          : "bg-[hsl(var(--nav-bg))] text-[hsl(var(--nav-text))]"}
+      `}
     >
       <ArrowUp className="w-5 h-5" />
     </button>
