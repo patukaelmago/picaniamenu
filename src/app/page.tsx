@@ -77,6 +77,9 @@ export default function Home() {
             <a href="#panel" className="transition hover:text-[#2563EB]">
               Panel
             </a>
+            <a href="#precio" className="transition hover:text-[#2563EB]">
+              Precio
+            </a>
             <Link href="/menu/maido" className="transition hover:text-[#2563EB]">
               Demo
             </Link>
@@ -313,6 +316,56 @@ export default function Home() {
               <Benefit text="Asigná productos a A, B o ambas" />
               <Benefit text="Cambiá la carta publicada al instante" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="precio" className="border-t border-[#E5E7EB] bg-[#F8F6F1] py-24">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex rounded-full bg-[#EAF0FF] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#2563EB]">
+              Precio lanzamiento
+            </span>
+            <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
+              Un plan simple, sin sorpresas.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#5E6573]">
+              Todo lo necesario para tener tu carta online y mantenerla siempre actualizada.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-12 max-w-xl rounded-3xl border border-[#DDE0E5] bg-white p-8 shadow-[0_24px_70px_rgba(21,26,36,0.10)] sm:p-10">
+            <p className="text-sm font-black uppercase tracking-[0.14em] text-[#FF6B00]">
+              Plan Carta Online
+            </p>
+            <div className="mt-4 flex items-end gap-2">
+              <span className="text-5xl font-black tracking-[-0.045em] text-[#151A24]">
+                $25.000
+              </span>
+              <span className="pb-2 font-bold text-[#69708B]">ARS / mes</span>
+            </div>
+            <p className="mt-3 font-bold text-[#2563EB]">
+              Configuración inicial incluida
+            </p>
+
+            <div className="mt-8 space-y-4">
+              <Benefit text="Carta digital personalizada" />
+              <Benefit text="Código QR siempre vigente" />
+              <Benefit text="Productos y categorías sin límite" />
+              <Benefit text="Actualizaciones en tiempo real" />
+              <Benefit text="Soporte directo por WhatsApp" />
+              <Benefit text="Sin costo de instalación ni permanencia" />
+            </div>
+
+            <Link
+              href="https://wa.me/543412172916?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-black text-white transition hover:bg-[#174BC1]"
+            >
+              Quiero contratar
+              <ArrowRight className="h-5 w-5" />
+            </Link>
           </div>
         </div>
       </section>
