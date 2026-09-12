@@ -8,6 +8,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${SITE_URL}/carta-digital-para-restaurantes`,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
     ...PUBLIC_TENANTS.map((tenantId) => ({
       url: `${SITE_URL}/menu/${tenantId}`,
       changeFrequency: "daily" as const,
