@@ -183,6 +183,37 @@ export default function AdministracionDeCartasDigitalesPage() {
               </article>
             ))}
           </div>
+
+          <div className="mt-16 rounded-3xl border border-[#DDE0E5] bg-white p-8 sm:p-10">
+            <h2 className="text-3xl font-black tracking-[-0.03em]">
+              Funciones disponibles
+            </h2>
+            <div className="mt-8 grid gap-x-10 gap-y-5 md:grid-cols-2">
+              {[
+                "Crear, editar y eliminar productos",
+                "Categorías y subcategorías",
+                "Precios, descripciones e imágenes",
+                "Ordenar productos y categorías",
+                "Mostrar u ocultar productos y categorías",
+                "Mostrar u ocultar imágenes individuales",
+                "Buscador de productos para el cliente",
+                "Etiquetas y opciones SIN TACC",
+                "Sugerencias y productos destacados",
+                "Carrusel de imágenes configurable",
+                "Colores, logo y nombre personalizados",
+                "Carta A y Carta B con un mismo QR",
+                "Descarga y uso del código QR",
+                "Acceso privado para cada restaurante",
+              ].map((item) => (
+                <div key={item} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EAF0FF] text-[#2563EB]">
+                    <Check className="h-4 w-4" />
+                  </span>
+                  <span className="font-bold leading-7">{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
