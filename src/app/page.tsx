@@ -535,6 +535,61 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="preguntas" className="border-t border-[#E5E7EB] bg-white py-24">
+        <div className="mx-auto max-w-4xl px-6">
+          <div className="text-center">
+            <span className="inline-flex rounded-full bg-[#EAF0FF] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#2563EB]">
+              Preguntas frecuentes
+            </span>
+            <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
+              Todo lo que necesitás saber.
+            </h2>
+          </div>
+
+          <div className="mt-12 space-y-4">
+            {[
+              {
+                question: "¿Cuánto cuesta Carta Online?",
+                answer: "El precio lanzamiento es de $25.000 ARS por mes, con la configuración inicial incluida.",
+              },
+              {
+                question: "¿La configuración inicial está incluida?",
+                answer: "Sí. Configuramos la identidad visual, las categorías, los productos y el código QR para dejar tu carta lista.",
+              },
+              {
+                question: "¿El código QR cambia cuando actualizo la carta?",
+                answer: "No. El mismo código QR sigue funcionando aunque cambies productos, precios, imágenes o categorías.",
+              },
+              {
+                question: "¿Necesito instalar una aplicación?",
+                answer: "No. Carta Online funciona directamente desde el navegador, tanto para tus clientes como para la administración.",
+              },
+              {
+                question: "¿Puedo modificar productos y precios?",
+                answer: "Sí. Podés actualizar productos, precios, descripciones, imágenes y disponibilidad desde cualquier dispositivo.",
+              },
+              {
+                question: "¿Hay permanencia mínima?",
+                answer: "No. El servicio es mensual y no exige permanencia mínima.",
+              },
+            ].map((item) => (
+              <details
+                key={item.question}
+                className="group rounded-2xl border border-[#DDE0E5] bg-[#F8F6F1] px-6 py-5"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-left text-lg font-black">
+                  {item.question}
+                  <span className="text-2xl text-[#2563EB] transition group-open:rotate-45">+</span>
+                </summary>
+                <p className="mt-4 max-w-3xl pr-8 leading-7 text-[#5E6573]">
+                  {item.answer}
+                </p>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section className="bg-[#2563EB] py-20 text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center md:flex-row md:text-left">
           <div>
