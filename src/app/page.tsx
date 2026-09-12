@@ -610,23 +610,29 @@ export default function Home() {
       </section>
 
       <section className="bg-[#2563EB] py-20 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 text-center md:flex-row md:text-left">
-          <div>
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-10 px-6 text-center md:flex-row md:text-left">
+          <div className="max-w-3xl">
             <p className="font-black uppercase tracking-[0.15em] text-white/70">
               Empezá hoy
             </p>
             <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] sm:text-4xl">
-              Tu carta puede estar online en minutos.
+              Tu carta puede estar online en pocos días.
             </h2>
+            <p className="mt-5 text-lg leading-8 text-white/85">
+              Escribinos por WhatsApp. Configuramos tu carta y te entregamos el acceso junto con el código QR.
+            </p>
+            <p className="mt-3 font-black text-white">
+              $25.000 por mes — configuración inicial incluida.
+            </p>
           </div>
 
           <Link
-            href="https://wa.me/543412172916?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
+            href="https://wa.me/543412172916?text=Hola%2C%20quiero%20empezar%20con%20Carta%20Online."
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-xl bg-[#FF6B00] px-7 py-4 font-black text-white transition hover:bg-white hover:text-[#151A24]"
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#FF6B00] px-7 py-4 font-black text-white transition hover:bg-white hover:text-[#151A24]"
           >
-            Quiero mi carta
+            Quiero empezar
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
