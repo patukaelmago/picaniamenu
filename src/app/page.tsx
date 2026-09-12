@@ -268,7 +268,7 @@ export default function Home() {
               {
                 name: "La Roti",
                 href: "/menu/laroti",
-                logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Flaroti%2Flogos%2Flogo-1782758153400.png?alt=media&token=91029eb0-6ba5-4157-b050-0c05ac3c0958",
+                logo: "/laroti_logo_dark.png",
                 background: "#0C1014",
               },
               {
