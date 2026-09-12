@@ -314,6 +314,53 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="testimonios" className="border-b border-[#E5E7EB] bg-white py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex rounded-full bg-[#EAF0FF] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#2563EB]">
+              Experiencias
+            </span>
+            <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
+              Lo que valoran nuestros clientes.
+            </h2>
+            <p className="mt-5 text-sm font-bold text-[#FF6B00]">
+              Textos provisorios para visualizar la sección.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                quote: "Ahora podemos cambiar precios y productos en el momento, sin depender de nadie.",
+                detail: "Administración simple",
+              },
+              {
+                quote: "La carta representa la identidad del restaurante y se ve muy bien desde el celular.",
+                detail: "Diseño personalizado",
+              },
+              {
+                quote: "El mismo QR nos sirve siempre, aunque actualicemos toda la carta.",
+                detail: "Actualización inmediata",
+              },
+            ].map((testimonial) => (
+              <article
+                key={testimonial.detail}
+                className="flex h-full flex-col rounded-3xl border border-[#DDE0E5] bg-[#F8F6F1] p-8"
+              >
+                <span className="text-5xl font-black leading-none text-[#FF6B00]">“</span>
+                <blockquote className="mt-4 flex-1 text-xl font-bold leading-8 text-[#151A24]">
+                  {testimonial.quote}
+                </blockquote>
+                <div className="mt-8 border-t border-[#DED9CF] pt-5">
+                  <p className="font-black text-[#2563EB]">{testimonial.detail}</p>
+                  <p className="mt-1 text-sm text-[#69708B]">Testimonio provisorio</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="panel" className="bg-white py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[1.15fr_.85fr]">
           <AdminPreview />
