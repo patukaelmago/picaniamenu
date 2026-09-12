@@ -267,6 +267,53 @@ export default function Home() {
         </div>
       </section>
 
+      <section id="como-funciona" className="bg-[#F3F1EC] py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex rounded-full bg-[#FFF2DE] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#FF6B00]">
+              Cómo funciona
+            </span>
+            <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
+              Tu carta online en tres pasos.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#5E6573]">
+              Nosotros hacemos la configuración inicial. Después, vos mantenés todo actualizado desde tu panel.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                number: "01",
+                title: "Nos contactás",
+                text: "Escribinos por WhatsApp y contanos sobre tu restaurante.",
+              },
+              {
+                number: "02",
+                title: "Configuramos tu carta",
+                text: "Cargamos tu identidad, categorías y productos para dejarla lista.",
+              },
+              {
+                number: "03",
+                title: "Recibís tu QR y acceso",
+                text: "Compartís la carta y administrás cambios desde tu propio panel.",
+              },
+            ].map((step) => (
+              <article
+                key={step.number}
+                className="rounded-3xl border border-[#DED9CF] bg-white p-8 shadow-[0_16px_50px_rgba(21,26,36,0.06)]"
+              >
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#2563EB] text-sm font-black text-white">
+                  {step.number}
+                </span>
+                <h3 className="mt-6 text-2xl font-black">{step.title}</h3>
+                <p className="mt-3 leading-7 text-[#5E6573]">{step.text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <section id="panel" className="bg-white py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[1.15fr_.85fr]">
           <AdminPreview />
