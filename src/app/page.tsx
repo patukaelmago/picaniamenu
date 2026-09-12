@@ -74,6 +74,9 @@ export default function Home() {
             <a href="#funciones" className="transition hover:text-[#2563EB]">
               Funciones
             </a>
+            <a href="#clientes" className="transition hover:text-[#2563EB]">
+              Clientes
+            </a>
             <a href="#panel" className="transition hover:text-[#2563EB]">
               Panel
             </a>
@@ -190,6 +193,74 @@ export default function Home() {
                 </div>
                 <h3 className="mt-4 text-lg font-black">{title}</h3>
                 <p className="mt-2 text-sm leading-6 text-[#646B78]">{text}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="clientes" className="border-b border-[#E5E7EB] bg-white py-24">
+        <div className="mx-auto max-w-7xl px-6">
+          <div className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex rounded-full bg-[#EAF0FF] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#2563EB]">
+              Clientes reales
+            </span>
+            <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
+              Restaurantes que ya usan Carta Online.
+            </h2>
+            <p className="mt-5 text-lg leading-8 text-[#5E6573]">
+              Conocé cartas reales creadas y administradas desde nuestra plataforma.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {[
+              {
+                name: "Picaña",
+                href: "/menu/picana",
+                logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fpicana%2Flogos%2Flogo-1781101466505.png?alt=media&token=ef4386f1-42ce-4830-949e-53b8d0301861",
+                background: "#FFF7E3",
+              },
+              {
+                name: "La Roti",
+                href: "/menu/laroti",
+                logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Flaroti%2Flogos%2Flogo-1782758153400.png?alt=media&token=91029eb0-6ba5-4157-b050-0c05ac3c0958",
+                background: "#0C1014",
+              },
+              {
+                name: "Pulpo",
+                href: "/menu/pulpo",
+                logo: "https://firebasestorage.googleapis.com/v0/b/studio-4948282065-ea24d.firebasestorage.app/o/tenants%2Fpulpo%2Flogos%2Flogo-1780243823688.png?alt=media&token=87f5846f-5e18-444f-9ffc-d42a0842a587",
+                background: "#1D2E58",
+              },
+            ].map((client) => (
+              <article
+                key={client.href}
+                className="overflow-hidden rounded-3xl border border-[#DDE0E5] bg-white shadow-[0_18px_55px_rgba(21,26,36,0.08)] transition hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(21,26,36,0.14)]"
+              >
+                <div
+                  className="flex h-52 items-center justify-center p-10"
+                  style={{ backgroundColor: client.background }}
+                >
+                  <img
+                    src={client.logo}
+                    alt={client.name}
+                    className="max-h-28 max-w-full object-contain"
+                  />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-2xl font-black">{client.name}</h3>
+                  <p className="mt-2 text-[#69708B]">Carta digital activa</p>
+                  <Link
+                    href={client.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-5 inline-flex items-center gap-2 font-black text-[#2563EB] transition hover:text-[#174BC1]"
+                  >
+                    Ver carta
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </div>
               </article>
             ))}
           </div>
