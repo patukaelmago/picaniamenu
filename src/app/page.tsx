@@ -62,7 +62,7 @@ const features = [
 const FAQ_ITEMS = [
   {
     question: "¿Cuánto cuesta Carta Online?",
-    answer: "El precio lanzamiento es de $28.000 ARS por mes, con la configuración inicial incluida.",
+    answer: "El precio lanzamiento es de $25.000 ARS por mes, con la configuración inicial incluida.",
   },
   {
     question: "¿La configuración inicial está incluida?",
@@ -573,7 +573,7 @@ export default function Home() {
             </p>
             <div className="mt-4 flex items-end gap-2">
               <span className="text-5xl font-black tracking-[-0.045em] text-[#151A24]">
-                $28.000
+                $25.000
               </span>
               <span className="pb-2 font-bold text-[#69708B]">ARS / mes</span>
             </div>
@@ -591,7 +591,7 @@ export default function Home() {
             </div>
 
             <Link
-              href="https://wa.me/543412172916?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2428.000%20mensuales."
+              href="https://wa.me/543412172916?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
               target="_blank"
               rel="noopener noreferrer"
               className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-black text-white transition hover:bg-[#174BC1]"
@@ -646,7 +646,7 @@ export default function Home() {
               Escribinos por WhatsApp. Configuramos tu carta y te entregamos el acceso junto con el código QR.
             </p>
             <p className="mt-3 font-black text-white">
-              $28.000 por mes — configuración inicial incluida.
+              $25.000 por mes — configuración inicial incluida.
             </p>
           </div>
 
