@@ -555,7 +555,7 @@ export default function Home() {
               Precio lanzamiento
             </span>
             <h2 className="mt-6 text-4xl font-black tracking-[-0.035em] sm:text-5xl">
-              Un plan simple, sin sorpresas.
+              Un plan simple.
             </h2>
             <p className="mt-5 text-lg leading-8 text-[#5E6573]">
               Todo lo necesario para tener tu carta online y mantenerla siempre actualizada.
