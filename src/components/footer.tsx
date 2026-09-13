@@ -1,13 +1,7 @@
 "use client";
 
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
-
-const PAYMENT_METHODS = [
-  { id: "visa", name: "Visa", image: "/visa.png", className: "h-7 lg:h-12" },
-  { id: "mastercard", name: "Mastercard", image: "/mastercard.png", className: "h-7 lg:h-10" },
-  { id: "amex", name: "American Express", image: "/amex.png", className: "h-7 lg:h-9" },
-  { id: "mercado-pago", name: "Mercado Pago", image: "/mp.png", className: "h-7 lg:h-8" },
-] as const;
+import { PAYMENT_METHODS } from "@/lib/payment-methods";
 
 export default function Footer() {
   const settings = useRestaurantSettings();
@@ -31,7 +25,7 @@ export default function Footer() {
                   key={method.id}
                   src={method.image}
                   alt={method.name}
-                  className={`${method.className} w-auto opacity-80 grayscale-[40%] transition-all hover:scale-105 hover:grayscale-0 hover:opacity-100`}
+                  className={`${method.footerClassName} w-auto max-w-24 object-contain opacity-90 transition-transform hover:scale-105`}
                 />
               ))}
             </div>

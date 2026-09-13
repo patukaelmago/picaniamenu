@@ -35,16 +35,10 @@ import {
   ImageUp,
   X,
 } from "lucide-react";
+import { PAYMENT_METHODS } from "@/lib/payment-methods";
 
 const MAX_CAROUSEL_IMAGES = 20;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
-const PAYMENT_METHODS = [
-  { id: "visa", name: "Visa", image: "/visa.png" },
-  { id: "mastercard", name: "Mastercard", image: "/mastercard.png" },
-  { id: "amex", name: "American Express", image: "/amex.png" },
-  { id: "mercado-pago", name: "Mercado Pago", image: "/mp.png" },
-] as const;
-
 type CarouselItem =
   | { kind: "saved"; id: string; url: string }
   | { kind: "draft"; id: string; file: File; previewUrl: string };
