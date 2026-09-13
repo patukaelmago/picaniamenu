@@ -375,6 +375,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Sección de experiencias reservada para testimonios reales.
       <section id="testimonios" className="border-b border-[#E5E7EB] bg-white py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mx-auto max-w-3xl text-center">
@@ -421,6 +422,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+      */}
 
       <section id="panel" className="bg-white py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-16 px-6 lg:grid-cols-[1.15fr_.85fr]">
