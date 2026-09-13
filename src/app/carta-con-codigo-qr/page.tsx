@@ -26,7 +26,7 @@ const faqItems = [
   {
     question: "¿Cuánto cuesta la carta con QR?",
     answer:
-      "El precio lanzamiento de Carta Online es de $25.000 ARS por mes e incluye la configuración inicial.",
+      "El precio lanzamiento de Carta Online es de $28.000 ARS por mes e incluye la configuración inicial.",
   },
 ];
 
@@ -42,7 +42,7 @@ const structuredData = {
       areaServed: { "@type": "Country", name: "Argentina" },
       offers: {
         "@type": "Offer",
-        price: "25000",
+        price: "28000",
         priceCurrency: "ARS",
         category: "Suscripción mensual",
       },
@@ -228,7 +228,7 @@ export default function CartaConCodigoQrPage() {
           <h2 className="mt-6 text-4xl font-black tracking-[-0.035em]">
             Recibí tu carta y tu QR listos para usar.
           </h2>
-          <p className="mt-5 text-lg text-white/85">$25.000 por mes — configuración inicial incluida.</p>
+          <p className="mt-5 text-lg text-white/85">$28.000 por mes — configuración inicial incluida.</p>
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#FF6B00] px-7 py-4 font-black text-white transition hover:bg-white hover:text-[#151A24]">
             Consultar por WhatsApp
             <ArrowRight className="h-5 w-5" />

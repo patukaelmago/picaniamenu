@@ -26,7 +26,7 @@ const faqItems = [
   {
     question: "¿Cuánto cuesta Carta Online?",
     answer:
-      "El precio lanzamiento es de $25.000 ARS por mes e incluye la configuración inicial.",
+      "El precio lanzamiento es de $28.000 ARS por mes e incluye la configuración inicial.",
   },
 ];
 
@@ -42,7 +42,7 @@ const structuredData = {
       areaServed: { "@type": "Country", name: "Argentina" },
       offers: {
         "@type": "Offer",
-        price: "25000",
+        price: "28000",
         priceCurrency: "ARS",
         category: "Suscripción mensual",
       },
@@ -152,7 +152,7 @@ export default function CartaDigitalParaRestaurantesPage() {
             <p className="text-sm font-black uppercase tracking-[0.15em] text-white/65">
               Precio lanzamiento
             </p>
-            <p className="mt-4 text-5xl font-black">$25.000</p>
+            <p className="mt-4 text-5xl font-black">$28.000</p>
             <p className="mt-2 font-bold text-white/75">ARS por mes</p>
             <p className="mt-6 rounded-xl bg-white/10 px-4 py-3 font-black">
               Configuración inicial incluida
