@@ -129,7 +129,12 @@ export default function Home() {
             <a href="#precio" className="transition hover:text-[#2563EB]">
               Precio
             </a>
-            <Link href="/menu/maido" className="transition hover:text-[#2563EB]">
+            <Link
+              href="/menu/maido"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-[#2563EB]"
+            >
               Demo
             </Link>
           </nav>
