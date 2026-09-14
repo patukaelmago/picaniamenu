@@ -72,7 +72,7 @@ export const metadata: Metadata = {
 };
 
 const whatsappUrl =
-  "https://wa.me/543412172916?text=Hola%2C%20quiero%20administrar%20la%20carta%20digital%20de%20mi%20restaurante.";
+  "https://wa.me/543417510112?text=Hola%2C%20quiero%20administrar%20la%20carta%20digital%20de%20mi%20restaurante.";
 
 export default function AdministracionDeCartasDigitalesPage() {
   return (

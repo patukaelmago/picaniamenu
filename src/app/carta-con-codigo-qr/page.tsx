@@ -78,7 +78,7 @@ export const metadata: Metadata = {
 };
 
 const whatsappUrl =
-  "https://wa.me/543412172916?text=Hola%2C%20quiero%20una%20carta%20con%20c%C3%B3digo%20QR%20para%20mi%20restaurante.";
+  "https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20con%20c%C3%B3digo%20QR%20para%20mi%20restaurante.";
 
 export default function CartaConCodigoQrPage() {
   return (

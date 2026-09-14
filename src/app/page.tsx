@@ -171,7 +171,7 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap gap-4">
               <Link
-                href="https://wa.me/543412172916?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
+                href="https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-bold text-white transition hover:bg-[#174BC1]"
@@ -591,7 +591,7 @@ export default function Home() {
             </div>
 
             <Link
-              href="https://wa.me/543412172916?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
+              href="https://wa.me/543417510112?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
               target="_blank"
               rel="noopener noreferrer"
               className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-black text-white transition hover:bg-[#174BC1]"
@@ -651,7 +651,7 @@ export default function Home() {
           </div>
 
           <Link
-            href="https://wa.me/543412172916?text=Hola%2C%20quiero%20empezar%20con%20Carta%20Online."
+            href="https://wa.me/543417510112?text=Hola%2C%20quiero%20empezar%20con%20Carta%20Online."
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#FF6B00] px-7 py-4 font-black text-white transition hover:bg-white hover:text-[#151A24]"
@@ -663,7 +663,7 @@ export default function Home() {
       </section>
 
       <a
-        href="https://wa.me/543412172916?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
+        href="https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Consultar por WhatsApp"
@@ -682,7 +682,7 @@ export default function Home() {
 
           <div className="flex flex-col items-center gap-3 md:items-end">
             <a
-              href="https://wa.me/543412172916?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
+              href="https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 font-black text-[#151A24] transition hover:text-[#25A953]"
