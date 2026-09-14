@@ -118,7 +118,7 @@ export default function Home() {
 
           <nav className="hidden items-center gap-8 text-sm font-bold md:flex">
             <a href="#funciones" className="transition hover:text-[#2563EB]">
-              Funciones
+              Qué incluye
             </a>
             <a href="#clientes" className="transition hover:text-[#2563EB]">
               Clientes
