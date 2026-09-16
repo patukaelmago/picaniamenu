@@ -201,7 +201,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
   const [savingMenuAutomation, setSavingMenuAutomation] = useState(false);
-  const [menuPublicationOpen, setMenuPublicationOpen] = useState(false);
+  const [menuPublicationOpen, setMenuPublicationOpen] = useState(true);
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
@@ -1498,6 +1498,76 @@ async function saveCategoryEdit() {
             />
           </div>
 
+          <div className="rounded-lg border p-3">
+            <p className="font-semibold">¿Cómo querés programar el cambio?</p>
+            <p className="mt-1 text-sm opacity-70">
+              Podés repetirlo por días de la semana o elegir una fecha exacta del calendario.
+            </p>
+            {!menuAutomation.enabled && (
+              <p className="mt-2 text-xs font-medium opacity-70">
+                Activá el cambio automático para agregar una programación.
+              </p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!menuAutomation.enabled}
+                style={{
+                  backgroundColor: `hsl(${ui.adminCard})`,
+                  color: `hsl(${ui.adminCardForeground})`,
+                  borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                }}
+                onClick={() =>
+                  setMenuAutomation((current) => ({
+                    ...current,
+                    rules: [
+                      ...current.rules,
+                      {
+                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        days: [],
+                        startTime: "10:00",
+                        endTime: "17:00",
+                        variant: current.defaultVariant === "A" ? "B" : "A",
+                      },
+                    ],
+                  }))
+                }
+              >
+                Agregar horario semanal
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!menuAutomation.enabled}
+                style={{
+                  backgroundColor: `hsl(${ui.adminCard})`,
+                  color: `hsl(${ui.adminCardForeground})`,
+                  borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                }}
+                onClick={() =>
+                  setMenuAutomation((current) => ({
+                    ...current,
+                    rules: [
+                      ...current.rules,
+                      {
+                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        date: getTodayInArgentina(),
+                        days: [],
+                        startTime: "10:00",
+                        endTime: "17:00",
+                        variant: current.defaultVariant === "A" ? "B" : "A",
+                      },
+                    ],
+                  }))
+                }
+              >
+                <CalendarDays className="mr-2 h-4 w-4" />
+                Agregar fecha específica
+              </Button>
+            </div>
+          </div>
+
           {menuAutomation.enabled && (
             <div className="space-y-4">
               {menuAutomation.rules.map((rule, ruleIndex) => (
@@ -1660,62 +1730,6 @@ async function saveCategoryEdit() {
                 </div>
               ))}
 
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  style={{
-                    backgroundColor: `hsl(${ui.adminCard})`,
-                    color: `hsl(${ui.adminCardForeground})`,
-                    borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
-                  }}
-                  onClick={() =>
-                    setMenuAutomation((current) => ({
-                      ...current,
-                      rules: [
-                        ...current.rules,
-                        {
-                          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                          days: [],
-                          startTime: "10:00",
-                          endTime: "17:00",
-                          variant: current.defaultVariant === "A" ? "B" : "A",
-                        },
-                      ],
-                    }))
-                  }
-                >
-                  Agregar horario semanal
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  style={{
-                    backgroundColor: `hsl(${ui.adminCard})`,
-                    color: `hsl(${ui.adminCardForeground})`,
-                    borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
-                  }}
-                  onClick={() =>
-                    setMenuAutomation((current) => ({
-                      ...current,
-                      rules: [
-                        ...current.rules,
-                        {
-                          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                          date: getTodayInArgentina(),
-                          days: [],
-                          startTime: "10:00",
-                          endTime: "17:00",
-                          variant: current.defaultVariant === "A" ? "B" : "A",
-                        },
-                      ],
-                    }))
-                  }
-                >
-                  <CalendarDays className="mr-2 h-4 w-4" />
-                  Agregar fecha específica
-                </Button>
-              </div>
             </div>
           )}
 
