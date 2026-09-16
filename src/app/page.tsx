@@ -2,6 +2,8 @@ import Link from "next/link";
 import {
   ArrowRight,
   Check,
+  CalendarDays,
+  Clock,
   Eye,
   EyeOff,
   GripVertical,
@@ -538,16 +540,19 @@ export default function Home() {
               Carta A / Carta B
             </span>
             <h2 className="mt-6 text-4xl font-black leading-tight tracking-[-0.035em] sm:text-5xl">
-              Dos cartas, un mismo QR.
+              Dos cartas, un mismo QR. Cambios programados.
             </h2>
             <p className="mt-6 text-lg leading-8 text-[#5E6573]">
-              Prepará dos versiones de tu menú y elegí cuál publicar. Tus clientes
-              siempre ingresan desde el mismo enlace y el mismo código QR.
+              Prepará dos versiones de tu menú y cambiá cuál se publica manualmente
+              o de forma automática. Programá días y horarios semanales, o elegí una
+              fecha específica del calendario. Tus clientes siempre ingresan desde
+              el mismo enlace y el mismo código QR.
             </p>
             <div className="mt-8 space-y-4">
               <Benefit text="Editá Carta A o Carta B por separado" />
-              <Benefit text="Mostrá u ocultá productos con el ojo" />
-              <Benefit text="Publicá otra carta sin cambiar el QR" />
+              <Benefit text="Programá cambios semanales por día y horario" />
+              <Benefit text="Agendá fechas específicas desde el calendario" />
+              <Benefit text="Volvé automáticamente a la carta habitual" />
             </div>
           </div>
         </div>
@@ -942,6 +947,32 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
                 </div>
               </div>
 
+              <div className="rounded-xl border bg-white p-4 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="font-black">Cambio automático</p>
+                    <p className="mt-1 text-[10px] text-[#69708B]">
+                      Programá cuándo se publica cada carta.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-[#E8F7EE] px-3 py-1 text-[10px] font-black text-[#16794A]">
+                    Activo
+                  </span>
+                </div>
+                <div className="mt-4 space-y-2 text-[11px]">
+                  <div className="flex items-center gap-3 rounded-lg bg-[#F8F6F1] px-3 py-3">
+                    <Clock className="h-4 w-4 shrink-0 text-[#2563EB]" />
+                    <span className="min-w-0 flex-1 font-bold">Jue y Vie · 10:00 a 17:00</span>
+                    <span className="rounded bg-[#1D2E58] px-2 py-1 font-black text-white">Carta B</span>
+                  </div>
+                  <div className="flex items-center gap-3 rounded-lg bg-[#F8F6F1] px-3 py-3">
+                    <CalendarDays className="h-4 w-4 shrink-0 text-[#FF6B00]" />
+                    <span className="min-w-0 flex-1 font-bold">24 de diciembre · 19:00 a 23:59</span>
+                    <span className="rounded bg-[#D80E1F] px-2 py-1 font-black text-white">Carta A</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
                 <div className="grid grid-cols-[1fr_74px] bg-[#1D2E58] px-4 py-3 text-[10px] font-black uppercase text-white">
                   <span>Producto</span>
@@ -972,7 +1003,7 @@ function AdminFeaturePreview({ section }: { section: "qr" | "colors" | "settings
               </div>
 
               <div className="rounded-lg bg-[#EAF0FF] px-4 py-3 text-xs font-bold text-[#1D2E58]">
-                Cada carta conserva su visibilidad y orden. El mismo QR muestra la carta publicada.
+                La fecha específica tiene prioridad. Al terminar, vuelve la programación habitual.
               </div>
             </div>
           )}
