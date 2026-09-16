@@ -79,3 +79,4 @@ jobs:
           git add src/app/page.tsx
           git commit -m "feat: explicar automatización de Carta A/B en landing"
           git push
+# trigger
