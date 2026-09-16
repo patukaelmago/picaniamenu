@@ -55,6 +55,7 @@ import {
   ChevronRight,
   ChevronDown,
   Clock,
+  CalendarDays,
   ImagePlus,
   X,
 } from "lucide-react";
@@ -92,6 +93,18 @@ const WEEK_DAYS = [
   { value: 6, label: "Sáb" },
   { value: 0, label: "Dom" },
 ];
+
+const getTodayInArgentina = () => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Argentina/Buenos_Aires",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}`;
+};
 
 const getMenuOrder = (entry: OrderedEntry, variant: MenuVariant) =>
   variant === "A"
@@ -438,13 +451,16 @@ export default function MenuManager({ tenantId }: Props) {
     if (
       menuAutomation.enabled &&
       menuAutomation.rules.some(
-        (rule) => rule.days.length === 0 || rule.startTime === rule.endTime
+        (rule) =>
+          (rule.date !== undefined
+            ? !/^\d{4}-\d{2}-\d{2}$/.test(rule.date)
+            : rule.days.length === 0) || rule.startTime === rule.endTime
       )
     ) {
       toast({
         variant: "destructive",
         title: "Revisá los horarios",
-        description: "Cada horario debe tener días elegidos y horas diferentes.",
+        description: "Cada programación debe tener días o fecha elegidos y horas diferentes.",
       });
       return;
     }
@@ -1487,7 +1503,9 @@ async function saveCategoryEdit() {
               {menuAutomation.rules.map((rule, ruleIndex) => (
                 <div key={rule.id} className="space-y-3 rounded-lg border p-3">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="font-semibold">Horario {ruleIndex + 1}</p>
+                    <p className="font-semibold">
+                      {rule.date !== undefined ? "Fecha específica" : "Horario semanal"} {ruleIndex + 1}
+                    </p>
                     <Button
                       type="button"
                       variant="ghost"
@@ -1504,8 +1522,32 @@ async function saveCategoryEdit() {
                     </Button>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {WEEK_DAYS.map((day) => {
+                  {rule.date !== undefined ? (
+                    <div className="max-w-xs space-y-1">
+                      <Label>Fecha</Label>
+                      <div className="relative">
+                        <Input
+                          type="date"
+                          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
+                          value={rule.date}
+                          onChange={(event) =>
+                            setMenuAutomation((current) => ({
+                              ...current,
+                              rules: current.rules.map((item) =>
+                                item.id === rule.id ? { ...item, date: event.target.value } : item
+                              ),
+                            }))
+                          }
+                        />
+                        <CalendarDays className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 opacity-60" />
+                      </div>
+                      <p className="text-xs opacity-65">
+                        Esta fecha tiene prioridad sobre los horarios semanales.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {WEEK_DAYS.map((day) => {
                       const selected = rule.days.includes(day.value);
                       return (
                         <Button
@@ -1541,8 +1583,9 @@ async function saveCategoryEdit() {
                           {day.label}
                         </Button>
                       );
-                    })}
-                  </div>
+                      })}
+                    </div>
+                  )}
 
                   <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
                     <div className="space-y-1">
@@ -1617,32 +1660,62 @@ async function saveCategoryEdit() {
                 </div>
               ))}
 
-              <Button
-                type="button"
-                variant="outline"
-                style={{
-                  backgroundColor: `hsl(${ui.adminCard})`,
-                  color: `hsl(${ui.adminCardForeground})`,
-                  borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
-                }}
-                onClick={() =>
-                  setMenuAutomation((current) => ({
-                    ...current,
-                    rules: [
-                      ...current.rules,
-                      {
-                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-                        days: [],
-                        startTime: "10:00",
-                        endTime: "17:00",
-                        variant: current.defaultVariant === "A" ? "B" : "A",
-                      },
-                    ],
-                  }))
-                }
-              >
-                Agregar horario
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  style={{
+                    backgroundColor: `hsl(${ui.adminCard})`,
+                    color: `hsl(${ui.adminCardForeground})`,
+                    borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                  }}
+                  onClick={() =>
+                    setMenuAutomation((current) => ({
+                      ...current,
+                      rules: [
+                        ...current.rules,
+                        {
+                          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                          days: [],
+                          startTime: "10:00",
+                          endTime: "17:00",
+                          variant: current.defaultVariant === "A" ? "B" : "A",
+                        },
+                      ],
+                    }))
+                  }
+                >
+                  Agregar horario semanal
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  style={{
+                    backgroundColor: `hsl(${ui.adminCard})`,
+                    color: `hsl(${ui.adminCardForeground})`,
+                    borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
+                  }}
+                  onClick={() =>
+                    setMenuAutomation((current) => ({
+                      ...current,
+                      rules: [
+                        ...current.rules,
+                        {
+                          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                          date: getTodayInArgentina(),
+                          days: [],
+                          startTime: "10:00",
+                          endTime: "17:00",
+                          variant: current.defaultVariant === "A" ? "B" : "A",
+                        },
+                      ],
+                    }))
+                  }
+                >
+                  <CalendarDays className="mr-2 h-4 w-4" />
+                  Agregar fecha específica
+                </Button>
+              </div>
             </div>
           )}
 
