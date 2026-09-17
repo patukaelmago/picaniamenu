@@ -54,7 +54,6 @@ import {
   GripVertical,
   ChevronRight,
   ChevronDown,
-  Clock,
   CalendarDays,
   ImagePlus,
   X,
@@ -202,6 +201,23 @@ export default function MenuManager({ tenantId }: Props) {
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
   const [savingMenuAutomation, setSavingMenuAutomation] = useState(false);
   const [menuPublicationOpen, setMenuPublicationOpen] = useState(true);
+  const [recentlyAddedRuleId, setRecentlyAddedRuleId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!recentlyAddedRuleId) return;
+
+    const scrollTimer = window.setTimeout(() => {
+      document
+        .getElementById(`automation-rule-${recentlyAddedRuleId}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 100);
+    const highlightTimer = window.setTimeout(() => setRecentlyAddedRuleId(null), 2500);
+
+    return () => {
+      window.clearTimeout(scrollTimer);
+      window.clearTimeout(highlightTimer);
+    };
+  }, [recentlyAddedRuleId]);
 
   const [formCatName, setFormCatName] = useState("");
   const [formCatParentId, setFormCatParentId] = useState<string>("");
@@ -1518,21 +1534,24 @@ async function saveCategoryEdit() {
                   color: `hsl(${ui.adminCardForeground})`,
                   borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
                 }}
-                onClick={() =>
+                onClick={() => {
+                  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
                   setMenuAutomation((current) => ({
                     ...current,
                     rules: [
                       ...current.rules,
                       {
-                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        id,
                         days: [],
                         startTime: "10:00",
                         endTime: "17:00",
                         variant: current.defaultVariant === "A" ? "B" : "A",
                       },
                     ],
-                  }))
-                }
+                  }));
+                  setRecentlyAddedRuleId(id);
+                  toast({ title: "Horario semanal agregado", description: "Completalo y guardá la automatización." });
+                }}
               >
                 Agregar horario semanal
               </Button>
@@ -1545,13 +1564,14 @@ async function saveCategoryEdit() {
                   color: `hsl(${ui.adminCardForeground})`,
                   borderColor: `hsl(${ui.adminCardForeground} / 0.3)`,
                 }}
-                onClick={() =>
+                onClick={() => {
+                  const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
                   setMenuAutomation((current) => ({
                     ...current,
                     rules: [
                       ...current.rules,
                       {
-                        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+                        id,
                         date: getTodayInArgentina(),
                         days: [],
                         startTime: "10:00",
@@ -1559,8 +1579,10 @@ async function saveCategoryEdit() {
                         variant: current.defaultVariant === "A" ? "B" : "A",
                       },
                     ],
-                  }))
-                }
+                  }));
+                  setRecentlyAddedRuleId(id);
+                  toast({ title: "Fecha específica agregada", description: "Elegí la fecha, completá el horario y guardá." });
+                }}
               >
                 <CalendarDays className="mr-2 h-4 w-4" />
                 Agregar fecha específica
@@ -1571,7 +1593,18 @@ async function saveCategoryEdit() {
           {menuAutomation.enabled && (
             <div className="space-y-4">
               {menuAutomation.rules.map((rule, ruleIndex) => (
-                <div key={rule.id} className="space-y-3 rounded-lg border p-3">
+                <div
+                  id={`automation-rule-${rule.id}`}
+                  key={rule.id}
+                  className={`space-y-3 rounded-lg border p-3 transition-shadow duration-300 ${
+                    recentlyAddedRuleId === rule.id ? "ring-2 ring-offset-2" : ""
+                  }`}
+                  style={
+                    recentlyAddedRuleId === rule.id
+                      ? ({ "--tw-ring-color": `hsl(${ui.adminAccent})` } as CSSProperties)
+                      : undefined
+                  }
+                >
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold">
                       {rule.date !== undefined ? "Fecha específica" : "Horario semanal"} {ruleIndex + 1}
@@ -1663,7 +1696,6 @@ async function saveCategoryEdit() {
                       <div className="relative">
                         <Input
                           type="time"
-                          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
                           value={rule.startTime}
                           onChange={(event) =>
                             setMenuAutomation((current) => ({
@@ -1674,10 +1706,6 @@ async function saveCategoryEdit() {
                             }))
                           }
                         />
-                        <Clock
-                          className="pointer-events-none absolute left-[4.25rem] top-1/2 h-4 w-4 -translate-y-1/2"
-                          style={{ color: `hsl(${ui.adminCard})` }}
-                        />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -1685,7 +1713,6 @@ async function saveCategoryEdit() {
                       <div className="relative">
                         <Input
                           type="time"
-                          className="[&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0"
                           value={rule.endTime}
                           onChange={(event) =>
                             setMenuAutomation((current) => ({
@@ -1695,10 +1722,6 @@ async function saveCategoryEdit() {
                               ),
                             }))
                           }
-                        />
-                        <Clock
-                          className="pointer-events-none absolute left-[4.25rem] top-1/2 h-4 w-4 -translate-y-1/2"
-                          style={{ color: `hsl(${ui.adminCard})` }}
                         />
                       </div>
                     </div>
