@@ -1696,6 +1696,7 @@ async function saveCategoryEdit() {
                       <div className="relative">
                         <Input
                           type="time"
+                          style={{ colorScheme: "dark" }}
                           value={rule.startTime}
                           onChange={(event) =>
                             setMenuAutomation((current) => ({
@@ -1713,6 +1714,7 @@ async function saveCategoryEdit() {
                       <div className="relative">
                         <Input
                           type="time"
+                          style={{ colorScheme: "dark" }}
                           value={rule.endTime}
                           onChange={(event) =>
                             setMenuAutomation((current) => ({
