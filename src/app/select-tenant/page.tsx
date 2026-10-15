@@ -156,7 +156,7 @@ export default function SelectTenantPage() {
             {tenants.map((tenant) => (
               <Link
                 key={tenant.id}
-                href={`/admin/${tenant.id}/menu`}
+                href={`/admin/${tenant.id}`}
                 className="group flex w-full items-center gap-4 rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-[#4B75FF] hover:bg-[#343434]"
               >
                 <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#F5EEDC] p-1.5">

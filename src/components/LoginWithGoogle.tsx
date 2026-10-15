@@ -36,7 +36,7 @@ export default function LoginWithGoogle() {
 
       router.replace(
         tenants.length === 1
-          ? `/admin/${tenants[0]}/menu`
+          ? `/admin/${tenants[0]}`
           : "/select-tenant"
       );
       return;
@@ -50,7 +50,7 @@ export default function LoginWithGoogle() {
       );
 
       if (adminSnap.exists() && adminSnap.data()?.enabled === true) {
-        router.replace(`/admin/${tenant.id}/menu`);
+        router.replace(`/admin/${tenant.id}`);
         return;
       }
     }
