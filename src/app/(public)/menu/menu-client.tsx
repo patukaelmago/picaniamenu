@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import { useTheme } from "next-themes";
@@ -104,6 +104,9 @@ export default function MenuClient({ tenantId }: Props) {
 
 
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);
+  const [expandedCategoryIds, setExpandedCategoryIds] = useState<Set<string>>(
+    () => new Set()
+  );
   const categorySwipeStartX = useRef<number | null>(null);
 
   const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
@@ -555,7 +558,10 @@ export default function MenuClient({ tenantId }: Props) {
     setActiveSlide(0);
   }, [carouselImages]);
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = (id: string, categoryId?: string) => {
+    if (categoryId) {
+      setExpandedCategoryIds((current) => new Set(current).add(categoryId));
+    }
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -568,6 +574,7 @@ export default function MenuClient({ tenantId }: Props) {
 
     return {
       id: isLunch ? "menu-viernes" : `cat-${cat.id}`,
+      categoryId: cat.id,
       name: isLunch ? "ALMUERZO EJECUTIVO" : cat.name,
     };
   });
@@ -634,6 +641,24 @@ export default function MenuClient({ tenantId }: Props) {
       ];
 
       if (isPicaniaLunch) finishPage();
+
+      if (!expandedCategoryIds.has(category.id) && !search.trim()) {
+        const headerWeight = 2.5;
+        if (
+          currentPage.length > 0 &&
+          currentWeight + headerWeight > pageCapacity
+        ) {
+          finishPage();
+        }
+        currentPage.push({
+          category,
+          itemIds: [],
+          isFirstSegment: true,
+        });
+        currentWeight += headerWeight;
+        if (isPicaniaLunch) finishPage();
+        return;
+      }
 
       let currentEntry: PageCategory | null = null;
       let isFirstSegment = true;
@@ -731,6 +756,8 @@ export default function MenuClient({ tenantId }: Props) {
     filteredItems,
     tenantId,
     isPicaniaTenant,
+    expandedCategoryIds,
+    search,
   ]);
 
   if (!uiReady) return null;
@@ -803,7 +830,7 @@ export default function MenuClient({ tenantId }: Props) {
                           type="button"
                           onClick={() => {
                             setCategoryNavIndex(index);
-                            scrollToSection(category.id);
+                            scrollToSection(category.id, category.categoryId);
                           }}
                           className="shrink-0 border-b bg-transparent px-2 py-1 font-headline text-xs uppercase tracking-[0.18em] transition-colors"
                           style={{
@@ -856,7 +883,10 @@ export default function MenuClient({ tenantId }: Props) {
 
                     <Button
                       onClick={() =>
-                        scrollToSection(categoryNavItems[categoryNavIndex].id)
+                        scrollToSection(
+                          categoryNavItems[categoryNavIndex].id,
+                          categoryNavItems[categoryNavIndex].categoryId
+                        )
                       }
                       className="
         w-[320px]
@@ -961,10 +991,20 @@ export default function MenuClient({ tenantId }: Props) {
           </div>
 
           <div className="space-y-10">
-            {menuCategoryPages.map((page, pageIndex) => (
+            {menuCategoryPages.map((page, pageIndex) => {
+              const hasExpandedCategory = page.some(
+                (entry) =>
+                  expandedCategoryIds.has(entry.category.id) ||
+                  Boolean(search.trim())
+              );
+              return (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
+                className={`mx-auto w-full max-w-3xl rounded-sm border px-5 shadow-sm ${
+                  hasExpandedCategory
+                    ? "min-h-[calc((100vw-2rem)*297/210)] pb-10 pt-10 md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
+                    : "py-4 md:px-10"
+                }`}
                 style={{ borderColor: `hsl(${ui.menuPageBorder} / 0.35)` }}
               >
                 <div className="space-y-8">
@@ -977,6 +1017,8 @@ export default function MenuClient({ tenantId }: Props) {
                 (normalizedForId === "menu viernes" ||
                   normalizedForId === "almuerzo ejecutivo") &&
                 ui.showFriday;
+              const isExpanded =
+                expandedCategoryIds.has(category.id) || Boolean(search.trim());
 
               const parentItems = filteredItems.filter(
                 (item) =>
@@ -1022,7 +1064,28 @@ export default function MenuClient({ tenantId }: Props) {
                             borderBottomColor: `hsl(${ui.categoryTitleUnderline})`,
                           }}
                         >
-                          {category.name}
+                          <button
+                            type="button"
+                            aria-expanded={isExpanded}
+                            aria-controls={`menu-category-${category.id}`}
+                            onClick={() => {
+                              setExpandedCategoryIds((current) => {
+                                const next = new Set(current);
+                                if (next.has(category.id)) next.delete(category.id);
+                                else next.add(category.id);
+                                return next;
+                              });
+                            }}
+                            className="flex items-center justify-center gap-2"
+                          >
+                            <span>{category.name}</span>
+                            <ChevronDown
+                              aria-hidden="true"
+                              className={`h-5 w-5 transition-transform ${
+                                isExpanded ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
                         </h2>
 
                         {category.description && (
@@ -1047,6 +1110,14 @@ export default function MenuClient({ tenantId }: Props) {
                     </div>
                   )}
 
+                  <div
+                    id={
+                      pageCategory.isFirstSegment
+                        ? `menu-category-${category.id}`
+                        : undefined
+                    }
+                    hidden={!isExpanded}
+                  >
                   <div
                     className="divide-y divide-[hsl(var(--item-divider))]"
                     style={{
@@ -1275,17 +1346,19 @@ export default function MenuClient({ tenantId }: Props) {
                                 {mobileIndicators(item)}
                               </div>
                             );
-                          })}
-                        </div>
+                      })}
+                  </div>
                       </div>
                     );
                   })}
+                  </div>
                 </div>
               );
                   })}
                 </div>
               </section>
-            ))}
+              );
+            })}
 
             {filteredItems.length === 0 && (
               <p className="text-sm text-center opacity-70">
