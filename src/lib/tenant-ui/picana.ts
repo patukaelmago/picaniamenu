@@ -7,6 +7,7 @@ import type { TenantUI } from "./ui-types";
 
 export const PICANA_UI: Partial<TenantUI> = {
   menuTemplate: "editorial",
+  adminHomeSection: "almuerzo",
 
   logoLight: "",
   logoDark: "",

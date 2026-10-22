@@ -9,6 +9,7 @@ import type { TenantUI } from "./ui-types";
 
 const TENANTS: Record<string, Partial<TenantUI>> = {
   picana: PICANA_UI,
+  picania: PICANA_UI,
   laroti: LAROTI_UI,
   pulpo: PULPO_UI,
   sucre: SUCRE_UI,

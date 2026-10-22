@@ -15,7 +15,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { notFound } from "next/navigation";
-import { Pencil, Trash2, PlusCircle, Save } from "lucide-react";
+import { Pencil, Trash2, PlusCircle, Save, Copy, ClipboardPaste } from "lucide-react";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
@@ -117,7 +117,7 @@ export default function TenantAlmuerzoPage({
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<LunchItem>>({});
 
-  if (tenantId.toLowerCase() !== "picana") {
+  if (!["picana", "picania"].includes(tenantId.toLowerCase())) {
     return notFound();
   }
 
@@ -313,6 +313,33 @@ export default function TenantAlmuerzoPage({
 
     const nextData = { ...data, [field]: value };
     setData(nextData);
+  }
+
+  async function copyText(value: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast({ title: "Texto copiado" });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "No se pudo copiar",
+        description: "Revisá los permisos del navegador.",
+      });
+    }
+  }
+
+  async function pasteText(onPaste: (value: string) => void) {
+    try {
+      const value = await navigator.clipboard.readText();
+      onPaste(value);
+      toast({ title: "Texto pegado" });
+    } catch {
+      toast({
+        variant: "destructive",
+        title: "No se pudo pegar",
+        description: "Permití el acceso al portapapeles en el navegador.",
+      });
+    }
   }
 
   async function handleToggleItem(id: string, value: boolean) {
@@ -587,6 +614,44 @@ export default function TenantAlmuerzoPage({
                 >
                   aa
                 </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Copiar texto"
+                  aria-label="Copiar texto de entrada"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => copyText(data.entrada)}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Pegar texto"
+                  aria-label="Pegar texto en entrada"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() =>
+                    pasteText((entrada) => setData((prev) => ({ ...prev, entrada })))
+                  }
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <ClipboardPaste className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
@@ -632,6 +697,44 @@ export default function TenantAlmuerzoPage({
                   } as CSSProperties}
                 >
                   aa
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Copiar texto"
+                  aria-label="Copiar texto de postre o café"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => copyText(data.postre)}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Pegar texto"
+                  aria-label="Pegar texto en postre o café"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() =>
+                    pasteText((postre) => setData((prev) => ({ ...prev, postre })))
+                  }
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminCardForeground,
+                    "--case-button-text": ui.adminCardForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <ClipboardPaste className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -697,6 +800,42 @@ export default function TenantAlmuerzoPage({
                   >
                     aa
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Copiar texto"
+                    aria-label="Copiar nombre del nuevo plato"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => copyText(newItemName)}
+                    className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                    style={{
+                      "--case-button-border": ui.adminCardForeground,
+                      "--case-button-text": ui.adminCardForeground,
+                      "--case-button-hover-bg": ui.adminAccent,
+                      "--case-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    title="Pegar texto"
+                    aria-label="Pegar nombre del nuevo plato"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => pasteText(setNewItemName)}
+                    className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                    style={{
+                      "--case-button-border": ui.adminCardForeground,
+                      "--case-button-text": ui.adminCardForeground,
+                      "--case-button-hover-bg": ui.adminAccent,
+                      "--case-button-hover-text": ui.adminCard,
+                    } as CSSProperties}
+                  >
+                    <ClipboardPaste className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
@@ -712,7 +851,7 @@ export default function TenantAlmuerzoPage({
 
               <Button
                 onClick={handleCreateItem}
-                className="w-auto self-start bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+                className="w-auto self-start sm:self-end bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                 style={{
                   "--tenant-button-bg": ui.adminCardForeground,
                   "--tenant-button-text": ui.adminCard,
@@ -870,6 +1009,44 @@ export default function TenantAlmuerzoPage({
                   } as CSSProperties}
                 >
                   aa
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Copiar texto"
+                  aria-label="Copiar nombre del plato"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => copyText(editForm.name ?? "")}
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminForeground,
+                    "--case-button-text": ui.adminForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  title="Pegar texto"
+                  aria-label="Pegar nombre del plato"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() =>
+                    pasteText((name) => setEditForm((prev) => ({ ...prev, name })))
+                  }
+                  className="border-[hsl(var(--case-button-border))] bg-transparent px-2 text-[hsl(var(--case-button-text))] hover:bg-[hsl(var(--case-button-hover-bg))] hover:text-[hsl(var(--case-button-hover-text))]"
+                  style={{
+                    "--case-button-border": ui.adminForeground,
+                    "--case-button-text": ui.adminForeground,
+                    "--case-button-hover-bg": ui.adminAccent,
+                    "--case-button-hover-text": ui.adminCard,
+                  } as CSSProperties}
+                >
+                  <ClipboardPaste className="h-4 w-4" />
                 </Button>
               </div>
             </div>

@@ -50,7 +50,7 @@ export default function AdminRootPage() {
         }
 
         if (allowedTenants.length === 1) {
-          router.replace(`/admin/${allowedTenants[0]}/menu`);
+          router.replace(`/admin/${allowedTenants[0]}`);
           return;
         }
 

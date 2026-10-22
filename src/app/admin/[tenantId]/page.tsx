@@ -2,6 +2,7 @@
 
 import { use, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTenantUI } from "@/hooks/use-tenant-ui";
 
 /**
  * Página de inicio del admin de un tenant específico.
@@ -14,15 +15,12 @@ export default function TenantAdminIndex({
 }) {
   const { tenantId } = use(params);
   const router = useRouter();
+  const ui = useTenantUI(tenantId);
 
   useEffect(() => {
-    // Redirección inteligente basada en el tenantId dinámico
-    if (tenantId.toLowerCase() === "picana") {
-      router.replace(`/admin/${tenantId}/almuerzo`);
-    } else {
-      router.replace(`/admin/${tenantId}/menu`);
-    }
-  }, [tenantId, router]);
+    const section = ui.adminHomeSection ?? "menu";
+    router.replace(`/admin/${tenantId}/${section}`);
+  }, [tenantId, router, ui.adminHomeSection]);
 
   return (
     <div className="flex items-center justify-center p-10">

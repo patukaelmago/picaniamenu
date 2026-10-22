@@ -1,7 +1,9 @@
 export type MenuTemplate = "default" | "editorial";
+export type AdminHomeSection = "menu" | "almuerzo";
 
 export type TenantUI = {
   menuTemplate: MenuTemplate;
+  adminHomeSection?: AdminHomeSection;
 
   logoLight: string;
   logoDark: string;
