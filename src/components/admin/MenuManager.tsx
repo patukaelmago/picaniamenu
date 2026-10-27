@@ -200,7 +200,7 @@ export default function MenuManager({ tenantId }: Props) {
   const [orderMenuVariant, setOrderMenuVariant] = useState<MenuVariant>("A");
   const [savingMenuVariant, setSavingMenuVariant] = useState(false);
   const [savingMenuAutomation, setSavingMenuAutomation] = useState(false);
-  const [menuPublicationOpen, setMenuPublicationOpen] = useState(true);
+  const [menuPublicationOpen, setMenuPublicationOpen] = useState(false);
   const [recentlyAddedRuleId, setRecentlyAddedRuleId] = useState<string | null>(null);
 
   useEffect(() => {

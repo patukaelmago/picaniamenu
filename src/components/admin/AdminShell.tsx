@@ -19,7 +19,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   return (
     <AdminAuthGuard>
-      <SidebarProvider defaultOpen={false}>
+      <SidebarProvider>
         <AdminSidebar />
         <SidebarInset
           className="min-w-0 overflow-x-hidden"
