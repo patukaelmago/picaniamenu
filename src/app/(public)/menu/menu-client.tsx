@@ -138,6 +138,9 @@ export default function MenuClient({ tenantId }: Props) {
   }, [settings?.name, tenantId]);
 
   const uiReady = true;
+  const isPicaniaTenant = ["picana", "picania"].includes(
+    tenantId.toLowerCase()
+  );
   const menuItems = useMemo(
     () =>
       allMenuItems
@@ -603,15 +606,16 @@ export default function MenuClient({ tenantId }: Props) {
     const pages: MenuPage[] = [];
     let currentPage: PageCategory[] = [];
     let currentWeight = 0;
-    // Los títulos, descripciones e imágenes ocupan más alto que una fila simple.
-    // Esta capacidad ampliada permite que entre aproximadamente un plato más.
-    const pageCapacity = 22;
+    // Deja margen real para el borde inferior de la hoja. Los títulos,
+    // descripciones e imágenes ocupan más alto que una fila simple.
+    const pageCapacity = 19.5;
 
     const finishPage = (categoryComplete = false) => {
       if (currentPage.length > 0) {
         pages.push({
           categories: currentPage,
           isHalfPage:
+            isPicaniaTenant &&
             categoryComplete &&
             currentWeight < pageCapacity / 2,
         });
@@ -621,6 +625,15 @@ export default function MenuClient({ tenantId }: Props) {
     };
 
     visibleRootCategories.forEach((category) => {
+      const normalizedCategoryName = norm(category.name);
+      const isPicaniaLunch =
+        isPicaniaTenant &&
+        (normalizedCategoryName === "menu viernes" ||
+          normalizedCategoryName === "almuerzo ejecutivo");
+      const isPicaniaTableService =
+        isPicaniaTenant &&
+        (normalizedCategoryName === "servicio de mesa" ||
+          normalizedCategoryName === "servicios de mesa");
       const childCats = childCategoriesByParent[category.id] ?? [];
       const parentItems = filteredItems.filter(
         (item) => item.categoryId === category.id
@@ -632,7 +645,7 @@ export default function MenuClient({ tenantId }: Props) {
         ),
       ];
 
-      finishPage();
+      if (isPicaniaTenant || isPicaniaLunch) finishPage();
 
       let currentEntry: PageCategory | null = null;
       let isFirstSegment = true;
@@ -657,7 +670,8 @@ export default function MenuClient({ tenantId }: Props) {
 
         const shouldSplitPage =
           currentPage.length > 0 &&
-          currentWeight + requiredWeight > pageCapacity;
+          currentWeight + requiredWeight > pageCapacity &&
+          (isPicaniaTenant || (!isPicaniaTableService && !isPicaniaLunch));
 
         if (shouldSplitPage) {
           finishPage();
@@ -688,15 +702,23 @@ export default function MenuClient({ tenantId }: Props) {
         currentWeight += itemWeight;
       });
 
-      finishPage(true);
+      if (isPicaniaTenant) finishPage(true);
+      else if (isPicaniaLunch) finishPage();
     });
 
     finishPage();
+
+    if (isPicaniaTenant) {
+      return pages;
+    }
+
     return pages;
   }, [
     visibleRootCategories,
     childCategoriesByParent,
     filteredItems,
+    tenantId,
+    isPicaniaTenant,
   ]);
 
   if (!uiReady) return null;
