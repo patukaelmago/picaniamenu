@@ -597,7 +597,6 @@ export default function MenuClient({ tenantId }: Props) {
       category: Category;
       itemIds: string[];
       isFirstSegment: boolean;
-      showHeader: boolean;
     };
     type MenuPage = {
       categories: PageCategory[];
@@ -665,7 +664,7 @@ export default function MenuClient({ tenantId }: Props) {
           );
         const itemWeight = hasVisibleImage ? 2.25 : item.description ? 1.5 : 1;
         const categoryHeaderWeight =
-          startsSegment && (isFirstSegment || isPicaniaTenant) ? 2.5 : 0;
+          startsSegment && isFirstSegment ? 2.5 : 0;
         const requiredWeight =
           itemWeight + categoryHeaderWeight + (startsSubcategory ? 1 : 0);
 
@@ -685,7 +684,6 @@ export default function MenuClient({ tenantId }: Props) {
             category,
             itemIds: [],
             isFirstSegment,
-            showHeader: isFirstSegment || isPicaniaTenant,
           };
           currentPage.push(currentEntry);
           currentWeight += categoryHeaderWeight;
@@ -994,7 +992,7 @@ export default function MenuClient({ tenantId }: Props) {
                     borderBottomColor: `hsl(${ui.itemDivider} / 0.2)`,
                   }}
                 >
-                  {pageCategory.showHeader && (
+                  {pageCategory.isFirstSegment && (
                     <div className="space-y-1">
                       <div className="mb-4">
                         <h2
