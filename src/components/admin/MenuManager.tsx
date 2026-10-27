@@ -1453,45 +1453,62 @@ async function saveCategoryEdit() {
                 <ChevronRight className="h-5 w-5 shrink-0" />
               )}
             </button>
-            <div
-              className="grid shrink-0 grid-cols-2 overflow-hidden rounded-md border"
-              style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
-              role="group"
-              aria-label="Carta publicada"
-            >
-              {(["A", "B"] as const).map((variant) => {
-                const isActive = activeMenuVariant === variant;
-
-                return (
-                  <Button
-                    key={variant}
-                    type="button"
-                    variant="ghost"
-                    disabled={savingMenuVariant}
-                    aria-pressed={isActive}
-                    onClick={() => handleActiveMenuVariant(variant)}
-                    className="rounded-none px-5 font-semibold hover:opacity-90"
-                    style={{
-                      backgroundColor: isActive
-                        ? `hsl(${ui.adminAccent})`
-                        : `hsl(${ui.adminCard})`,
-                      color: isActive
-                        ? `hsl(${ui.adminCard})`
-                        : `hsl(${ui.adminSidebarBg})`,
-                    }}
-                  >
-                    Carta {variant}
-                  </Button>
-                );
-              })}
-            </div>
           </CardContent>
         </Card>
 
       {menuPublicationOpen && (
-        <div id="menu-publication-details">
+        <div id="menu-publication-details" className="space-y-4">
       <Card
-        className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
+        className="border-0 shadow-sm ring-1 ring-black/5"
+        style={{
+          backgroundColor: `hsl(${ui.adminCard})`,
+          color: `hsl(${ui.adminCardForeground})`,
+        }}
+      >
+        <CardContent className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div>
+            <p className="font-semibold">Elegí qué carta queda publicada</p>
+            <p className="mt-1 text-sm opacity-70">
+              El mismo QR va a mostrar la carta seleccionada.
+            </p>
+          </div>
+          <div
+            className="grid w-fit shrink-0 grid-cols-2 overflow-hidden rounded-md border"
+            style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
+            role="group"
+            aria-label="Carta publicada"
+          >
+            {(["A", "B"] as const).map((variant) => {
+              const isActive = activeMenuVariant === variant;
+
+              return (
+                <Button
+                  key={variant}
+                  type="button"
+                  variant="ghost"
+                  disabled={savingMenuVariant}
+                  aria-pressed={isActive}
+                  onClick={() => handleActiveMenuVariant(variant)}
+                  className="rounded-none px-5 font-semibold hover:opacity-90"
+                  style={{
+                    backgroundColor: isActive
+                      ? `hsl(${ui.adminAccent})`
+                      : `hsl(${ui.adminCard})`,
+                    color: isActive
+                      ? `hsl(${ui.adminCard})`
+                      : `hsl(${ui.adminSidebarBg})`,
+                  }}
+                >
+                  Carta {variant}
+                </Button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card
+        className="border-0 shadow-sm ring-1 ring-black/5"
         style={{
           backgroundColor: `hsl(${ui.adminCard})`,
           color: `hsl(${ui.adminCardForeground})`,
@@ -1768,11 +1785,9 @@ async function saveCategoryEdit() {
           </Button>
         </CardContent>
       </Card>
-        </div>
-      )}
 
       <Card
-        className="mt-4 border-0 shadow-sm ring-1 ring-black/5"
+        className="border-0 shadow-sm ring-1 ring-black/5"
         style={{
           backgroundColor: `hsl(${ui.adminCard})`,
           color: `hsl(${ui.adminCardForeground})`,
@@ -1826,6 +1841,8 @@ async function saveCategoryEdit() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      )}
 
         <TabsContent value="items" className="mt-3 sm:mt-6">
           <Card
