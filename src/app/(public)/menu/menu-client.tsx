@@ -597,17 +597,30 @@ export default function MenuClient({ tenantId }: Props) {
       category: Category;
       itemIds: string[];
       isFirstSegment: boolean;
+      showHeader: boolean;
+    };
+    type MenuPage = {
+      categories: PageCategory[];
+      isHalfPage: boolean;
     };
 
-    const pages: PageCategory[][] = [];
+    const pages: MenuPage[] = [];
     let currentPage: PageCategory[] = [];
     let currentWeight = 0;
     // Deja margen real para el borde inferior de la hoja. Los títulos,
     // descripciones e imágenes ocupan más alto que una fila simple.
     const pageCapacity = 19.5;
 
-    const finishPage = () => {
-      if (currentPage.length > 0) pages.push(currentPage);
+    const finishPage = (categoryComplete = false) => {
+      if (currentPage.length > 0) {
+        pages.push({
+          categories: currentPage,
+          isHalfPage:
+            isPicaniaTenant &&
+            categoryComplete &&
+            currentWeight < pageCapacity / 2,
+        });
+      }
       currentPage = [];
       currentWeight = 0;
     };
@@ -633,7 +646,7 @@ export default function MenuClient({ tenantId }: Props) {
         ),
       ];
 
-      if (isPicaniaLunch) finishPage();
+      if (isPicaniaTenant || isPicaniaLunch) finishPage();
 
       let currentEntry: PageCategory | null = null;
       let isFirstSegment = true;
@@ -652,16 +665,16 @@ export default function MenuClient({ tenantId }: Props) {
           );
         const itemWeight = hasVisibleImage ? 2.25 : item.description ? 1.5 : 1;
         const categoryHeaderWeight =
-          startsSegment && isFirstSegment ? 2.5 : 0;
+          startsSegment && (isFirstSegment || isPicaniaTenant) ? 2.5 : 0;
         const requiredWeight =
           itemWeight + categoryHeaderWeight + (startsSubcategory ? 1 : 0);
 
-        if (
-          !isPicaniaTableService &&
-          !isPicaniaLunch &&
+        const shouldSplitPage =
           currentPage.length > 0 &&
-          currentWeight + requiredWeight > pageCapacity
-        ) {
+          currentWeight + requiredWeight > pageCapacity &&
+          (isPicaniaTenant || (!isPicaniaTableService && !isPicaniaLunch));
+
+        if (shouldSplitPage) {
           finishPage();
           currentEntry = null;
           subcategoriesOnSegment = new Set<string>();
@@ -672,6 +685,7 @@ export default function MenuClient({ tenantId }: Props) {
             category,
             itemIds: [],
             isFirstSegment,
+            showHeader: isFirstSegment || isPicaniaTenant,
           };
           currentPage.push(currentEntry);
           currentWeight += categoryHeaderWeight;
@@ -690,38 +704,14 @@ export default function MenuClient({ tenantId }: Props) {
         currentWeight += itemWeight;
       });
 
-      if (isPicaniaLunch) finishPage();
+      if (isPicaniaTenant) finishPage(true);
+      else if (isPicaniaLunch) finishPage();
     });
 
     finishPage();
 
     if (isPicaniaTenant) {
-      const isCategory = (entry: PageCategory, names: string[]) =>
-        names.includes(norm(entry.category.name));
-      const serviceNames = ["servicio de mesa", "servicios de mesa"];
-
-      const serviceEntries = pages
-        .flat()
-        .filter((entry) => isCategory(entry, serviceNames));
-      const cleanPages = pages
-        .map((page) =>
-          page.filter(
-            (entry) => !isCategory(entry, serviceNames)
-          )
-        )
-        .filter((page) => page.length > 0);
-
-      const spiritsPageIndex = cleanPages
-        .map((page) =>
-          page.some((entry) => norm(entry.category.name) === "destilados")
-        )
-        .lastIndexOf(true);
-
-      if (spiritsPageIndex >= 0 && serviceEntries.length > 0) {
-        cleanPages[spiritsPageIndex].push(...serviceEntries);
-      }
-
-      return cleanPages;
+      return pages;
     }
 
     return pages;
@@ -964,11 +954,15 @@ export default function MenuClient({ tenantId }: Props) {
             {menuCategoryPages.map((page, pageIndex) => (
               <section
                 key={`menu-page-${pageIndex}`}
-                className="mx-auto min-h-[calc((100vw-2rem)*297/210)] w-full max-w-3xl rounded-sm border px-5 pb-10 pt-10 shadow-sm md:aspect-[210/297] md:min-h-0 md:px-10 md:pb-14 md:pt-14"
+                className={`mx-auto w-full max-w-3xl rounded-sm border px-5 pt-10 shadow-sm md:min-h-0 md:px-10 md:pt-14 ${
+                  page.isHalfPage
+                    ? "min-h-[calc((100vw-2rem)*148.5/210)] pb-6 md:aspect-[210/148.5] md:pb-8"
+                    : "min-h-[calc((100vw-2rem)*297/210)] pb-10 md:aspect-[210/297] md:pb-14"
+                }`}
                 style={{ borderColor: `hsl(${ui.menuPageBorder} / 0.35)` }}
               >
                 <div className="space-y-8">
-                  {page.map((pageCategory) => {
+                  {page.categories.map((pageCategory) => {
               const category = pageCategory.category;
               const childCats = childCategoriesByParent[category.id] ?? [];
               const normalizedForId = norm(category.name);
@@ -1000,7 +994,7 @@ export default function MenuClient({ tenantId }: Props) {
                     borderBottomColor: `hsl(${ui.itemDivider} / 0.2)`,
                   }}
                 >
-                  {pageCategory.isFirstSegment && (
+                  {pageCategory.showHeader && (
                     <div className="space-y-1">
                       <div className="mb-4">
                         <h2
