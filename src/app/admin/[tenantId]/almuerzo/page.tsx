@@ -753,13 +753,13 @@ export default function TenantAlmuerzoPage({
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
               <div className="grid gap-2 flex-1">
                 <Label>Nombre</Label>
+                <Input
+                  className="w-full"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  placeholder="Ej: Milanesa con puré"
+                />
                 <div className="flex items-center gap-2">
-                  <Input
-                    className="min-w-0 flex-1"
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                    placeholder="Ej: Milanesa con puré"
-                  />
                   <Button
                     type="button"
                     variant="outline"
@@ -959,15 +959,16 @@ export default function TenantAlmuerzoPage({
               <Label htmlFor="e-name" className="sm:text-right">
                 Nombre
               </Label>
-              <div className="flex min-w-0 items-center gap-2 sm:col-span-3">
+              <div className="grid min-w-0 gap-2 sm:col-span-3">
                 <Input
                   id="e-name"
-                  className="min-w-0 flex-1"
+                  className="w-full"
                   value={editForm.name ?? ""}
                   onChange={(e) =>
                     setEditForm((p) => ({ ...p, name: e.target.value }))
                   }
                 />
+                <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -1048,6 +1049,7 @@ export default function TenantAlmuerzoPage({
                 >
                   <ClipboardPaste className="h-4 w-4" />
                 </Button>
+                </div>
               </div>
             </div>
 
