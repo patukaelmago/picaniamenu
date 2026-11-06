@@ -1,4 +1,4 @@
-"use client";
+use client";
 
 import { use, useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
@@ -498,6 +498,7 @@ export default function TenantAlmuerzoPage({
         isVisible: true,
         inStock: true,
         isSpecial: false,
+        menuVariants: ["A", "B"],
         tags: [],
         allergens: [],
         searchKeywords: [],
@@ -520,6 +521,7 @@ export default function TenantAlmuerzoPage({
           isVisible: true,
           inStock: true,
           isSpecial: false,
+          menuVariants: ["A", "B"],
           tags: [],
           allergens: [],
           searchKeywords: [],
