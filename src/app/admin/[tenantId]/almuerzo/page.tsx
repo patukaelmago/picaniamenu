@@ -752,7 +752,7 @@ export default function TenantAlmuerzoPage({
           </CardHeader>
 
           <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
               <div className="grid gap-2 flex-1">
                 <Label>Nombre</Label>
                 <Input
@@ -853,7 +853,7 @@ export default function TenantAlmuerzoPage({
 
               <Button
                 onClick={handleCreateItem}
-                className="w-auto self-start sm:self-end bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
+                className="w-auto self-start sm:mt-7 sm:self-start bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))]"
                 style={{
                   "--tenant-button-bg": ui.adminCardForeground,
                   "--tenant-button-text": ui.adminCard,
