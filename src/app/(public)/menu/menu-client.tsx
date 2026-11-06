@@ -144,18 +144,20 @@ export default function MenuClient({ tenantId }: Props) {
   const menuItems = useMemo(
     () => {
       const defaultVariantsForItem = (item: MenuItem): MenuVariant[] => {
-        if (item.menuVariants) return item.menuVariants;
-
         const category = categories.find((entry) => entry.id === item.categoryId);
         const parentCategory = category?.parentCategoryId
           ? categories.find((entry) => entry.id === category.parentCategoryId)
           : category;
         const parentName = norm(parentCategory?.name ?? "");
+        const isLunchItem =
+          parentName === "almuerzo ejecutivo" || parentName === "menu viernes";
+
+        if (item.menuVariants?.length) return item.menuVariants;
 
         // El panel de Almuerzo Ejecutivo no permite elegir Carta A o B.
-        return parentName === "almuerzo ejecutivo" || parentName === "menu viernes"
-          ? ["A", "B"]
-          : ["A"];
+        if (isLunchItem) return ["A", "B"];
+
+        return item.menuVariants ?? ["A"];
       };
 
       return allMenuItems
