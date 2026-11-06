@@ -1,4 +1,4 @@
-"use client";
+use client";
 
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
@@ -57,7 +57,7 @@ const norm = (s: string) =>
   (s ?? "")
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[    special:\n      tenantId.toLowerCase() === "maido"\n        ? "Sugerencia"\n        : settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia",u0300-\u036f]/g, "")
+    .replace(/[\u0300-\u036f]/g, "")
     .trim();
 
 type MenuVariant = "A" | "B";
@@ -142,17 +142,31 @@ export default function MenuClient({ tenantId }: Props) {
     tenantId.toLowerCase()
   );
   const menuItems = useMemo(
-    () =>
-      allMenuItems
-        .filter((item) =>
-          (item.menuVariants ?? ["A"]).includes(activeMenuVariant)
-        )
+    () => {
+      const defaultVariantsForItem = (item: MenuItem): MenuVariant[] => {
+        if (item.menuVariants) return item.menuVariants;
+
+        const category = categories.find((entry) => entry.id === item.categoryId);
+        const parentCategory = category?.parentCategoryId
+          ? categories.find((entry) => entry.id === category.parentCategoryId)
+          : category;
+        const parentName = norm(parentCategory?.name ?? "");
+
+        // El panel de Almuerzo Ejecutivo no permite elegir Carta A o B.
+        return parentName === "almuerzo ejecutivo" || parentName === "menu viernes"
+          ? ["A", "B"]
+          : ["A"];
+      };
+
+      return allMenuItems
+        .filter((item) => defaultVariantsForItem(item).includes(activeMenuVariant))
         .sort(
           (a, b) =>
             getMenuOrder(a, activeMenuVariant) -
             getMenuOrder(b, activeMenuVariant)
-        ),
-    [activeMenuVariant, allMenuItems]
+        );
+    },
+    [activeMenuVariant, allMenuItems, categories]
   );
 
   const copy = {
