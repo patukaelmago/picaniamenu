@@ -7,6 +7,7 @@ import { ArrowLeft, Building2, ImageUp, Loader2 } from "lucide-react";
 
 import { db, storage } from "@/lib/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { prepareImageForUpload } from "@/lib/compress-image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -134,12 +135,12 @@ export default function NewTenantPage() {
       let finalLogoUrl = logoUrl.trim();
 
       if (logoFile) {
-        const extension = logoFile.name.split(".").pop() || "png";
+        const prepared = await prepareImageForUpload(logoFile, "logo");
         const logoRef = ref(
           storage,
-          `tenants/${id}/logos/logo-${Date.now()}.${extension}`
+          `tenants/${id}/logos/logo-${Date.now()}.${prepared.ext}`
         );
-        await uploadBytes(logoRef, logoFile);
+        await uploadBytes(logoRef, prepared.file, prepared.metadata);
         finalLogoUrl = await getDownloadURL(logoRef);
       }
 

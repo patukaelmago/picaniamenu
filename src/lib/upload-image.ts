@@ -1,6 +1,7 @@
 // src/lib/upload-image.ts
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "./firebase";
+import { prepareImageForUpload } from "./compress-image";
 
 /**
  * Sube una imagen a Firebase Storage y devuelve la URL pública.
@@ -10,11 +11,12 @@ import { storage } from "./firebase";
 export async function uploadImage(file: File): Promise<string> {
   if (!file) throw new Error("No se seleccionó ningún archivo.");
 
-  const filePath = `menu-images/${Date.now()}-${file.name}`;
+  const prepared = await prepareImageForUpload(file, "photo");
+  const filePath = `menu-images/${Date.now()}-${prepared.file.name}`;
   const storageRef = ref(storage, filePath);
 
   // Subir el archivo
-  await uploadBytes(storageRef, file);
+  await uploadBytes(storageRef, prepared.file, prepared.metadata);
 
   // Obtener la URL pública
   const url = await getDownloadURL(storageRef);

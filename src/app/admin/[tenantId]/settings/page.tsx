@@ -24,9 +24,11 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 import {
   ref,
   uploadBytesResumable,
+  type UploadMetadata,
   getDownloadURL,
   type UploadTask,
 } from "firebase/storage";
+import { prepareImageForUpload } from "@/lib/compress-image";
 import {
   GripVertical,
   ImagePlus,
@@ -309,10 +311,11 @@ export default function TenantSettingsPage({
   async function uploadFile(
     file: File,
     path: string,
-    onProgress?: (percent: number) => void
+    onProgress?: (percent: number) => void,
+    metadata?: UploadMetadata
   ): Promise<string> {
     const storageReference = ref(storage, path);
-    const task: UploadTask = uploadBytesResumable(storageReference, file);
+    const task: UploadTask = uploadBytesResumable(storageReference, file, metadata);
 
     return new Promise<string>((resolve, reject) => {
       task.on(
@@ -350,11 +353,12 @@ export default function TenantSettingsPage({
       let finalLogoUrl = logoUrlInput.trim() || DEFAULT_TENANT_LOGO;
 
       if (logoFile) {
-        const ext = logoFile.name.split(".").pop() || "png";
+        const prepared = await prepareImageForUpload(logoFile, "logo");
         finalLogoUrl = await uploadFile(
-          logoFile,
-          `tenants/${tenantId}/logos/logo-${Date.now()}.${ext}`,
-          setLogoProgress
+          prepared.file,
+          `tenants/${tenantId}/logos/logo-${Date.now()}.${prepared.ext}`,
+          setLogoProgress,
+          prepared.metadata
         );
       }
 
@@ -373,16 +377,17 @@ export default function TenantSettingsPage({
         }
 
         pendingCarouselCurrent += 1;
-        const ext = item.file.name.split(".").pop() || "jpg";
+        const prepared = await prepareImageForUpload(item.file, "banner");
         const url = await uploadFile(
-          item.file,
-          `tenants/${tenantId}/carousel/carousel-${Date.now()}-${i}.${ext}`,
+          prepared.file,
+          `tenants/${tenantId}/carousel/carousel-${Date.now()}-${i}.${prepared.ext}`,
           (percent) =>
             setCarouselProgress({
               current: pendingCarouselCurrent,
               total: pendingCarouselTotal,
               percent,
-            })
+            }),
+          prepared.metadata
         );
 
         finalCarouselImages.push(url);

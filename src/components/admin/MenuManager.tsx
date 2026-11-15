@@ -24,6 +24,7 @@ import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
 import { db, storage } from "@/lib/firebase";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { prepareImageForUpload } from "@/lib/compress-image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -656,13 +657,13 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function uploadItemImage(file: File, itemName: string) {
-    const ext = file.name.split(".").pop() || "jpg";
+    const prepared = await prepareImageForUpload(file, "photo");
     const safeName = norm(itemName).replace(/[^a-z0-9]+/g, "-") || "item";
     const imageRef = ref(
       storage,
-      `tenants/${tenantId}/menu-items/${safeName}-${Date.now()}.${ext}`
+      `tenants/${tenantId}/menu-items/${safeName}-${Date.now()}.${prepared.ext}`
     );
-    await uploadBytes(imageRef, file);
+    await uploadBytes(imageRef, prepared.file, prepared.metadata);
     return getDownloadURL(imageRef);
   }
 

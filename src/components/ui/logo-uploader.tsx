@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { storage, db } from "@/lib/firebase";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { prepareImageForUpload } from "@/lib/compress-image";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 export default function LogoUploader() {
@@ -30,9 +31,10 @@ export default function LogoUploader() {
     setSaving(true);
     setError(null);
     try {
-      const path = `logos/restaurant-${Date.now()}-${file.name}`;
+      const prepared = await prepareImageForUpload(file, "logo");
+      const path = `logos/restaurant-${Date.now()}-${prepared.file.name}`;
       const sref = ref(storage, path);
-      const task = uploadBytesResumable(sref, file);
+      const task = uploadBytesResumable(sref, prepared.file, prepared.metadata);
 
       await new Promise<string>((resolve, reject) => {
         task.on(
