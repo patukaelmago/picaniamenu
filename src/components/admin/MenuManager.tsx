@@ -687,6 +687,21 @@ export default function MenuManager({ tenantId }: Props) {
     return getDownloadURL(imageRef);
   }
 
+  // Borra de Storage una foto que ya no se usa. Solo toca fotos de este restaurante
+  // y solo si ningún otro producto usa la misma imagen. Si falla, no frena nada.
+  async function deleteImageIfUnused(url: string | undefined, exceptItemId?: string) {
+    if (!url || !url.includes("firebasestorage")) return;
+    if (!url.includes(`/o/tenants%2F${encodeURIComponent(tenantId)}%2F`)) return;
+
+    try {
+      const snap = await getDocs(query(itemsCol, where("imageUrl", "==", url)));
+      if (snap.docs.some((d) => d.id !== exceptItemId)) return;
+      await deleteObject(ref(storage, url));
+    } catch (e) {
+      console.warn("No se pudo borrar la foto vieja:", e);
+    }
+  }
+
   function validateImage(file: File) {
     if (!file.type.startsWith("image/")) {
       toast({
@@ -791,6 +806,7 @@ export default function MenuManager({ tenantId }: Props) {
         ? await uploadItemImage(editImageFile, editForm.name)
         : editForm.imageUrl;
   
+      const previousImageUrl = items.find((i) => i.id === editId)?.imageUrl;
       const { menuVariants, ...itemFields } = editForm;
       
       await updateDoc(doc(itemsCol, editId), {
@@ -803,6 +819,10 @@ export default function MenuManager({ tenantId }: Props) {
         updatedAt: serverTimestamp(),
       });
   
+      if (previousImageUrl && previousImageUrl !== imageUrl) {
+        await deleteImageIfUnused(previousImageUrl, editId);
+      }
+
       toast({ title: "Plato actualizado" });
       setEditOpen(false);
       setEditId(null);
@@ -829,7 +849,9 @@ export default function MenuManager({ tenantId }: Props) {
     if (!confirm("¿Eliminar este plato?")) return;
   
     try {
+      const imageUrl = items.find((i) => i.id === id)?.imageUrl;
       await deleteDoc(doc(itemsCol, id));
+      await deleteImageIfUnused(imageUrl, id);
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast({ title: "Plato eliminado" });
     } catch (e) {
@@ -1009,12 +1031,10 @@ async function saveCategoryEdit() {
         await batch.commit();
       }
 
-      // Borra las fotos subidas a Storage (si falla alguna, no frena nada).
-      await Promise.allSettled(
-        itemsToDelete
-          .filter((item) => item.imageUrl.includes("firebasestorage"))
-          .map((item) => deleteObject(ref(storage, item.imageUrl)))
-      );
+      // Borra las fotos subidas a Storage que ya no usa ningún otro producto.
+      for (const url of new Set(itemsToDelete.map((item) => item.imageUrl))) {
+        await deleteImageIfUnused(url);
+      }
 
       const deletedItemIds = new Set(itemsToDelete.map((item) => item.id));
       setCategories((prev) => prev.filter((c) => !categoryIds.includes(c.id)));
