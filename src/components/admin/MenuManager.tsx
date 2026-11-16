@@ -16,6 +16,8 @@ import {
   serverTimestamp,
   setDoc,
   onSnapshot,
+  where,
+  writeBatch,
 } from "firebase/firestore";
 
 import { useTenantUI } from "@/hooks/use-tenant-ui";
@@ -23,9 +25,18 @@ import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import MenuCsvImporter from "@/components/admin/MenuCsvImporter";
 
 import { db, storage } from "@/lib/firebase";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { deleteObject, getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { prepareImageForUpload } from "@/lib/compress-image";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Card,
   CardContent,
@@ -190,6 +201,12 @@ export default function MenuManager({ tenantId }: Props) {
 
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [categoryToDelete, setCategoryToDelete] = useState<{
+    category: Category;
+    subcategories: Category[];
+    items: { id: string; imageUrl: string }[];
+  } | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
   const [activeMenuTab, setActiveMenuTab] = useState("categories");
@@ -941,13 +958,70 @@ async function saveCategoryEdit() {
     }
   }
 
+  // Paso 1: junta subcategorías y productos y abre la advertencia.
   async function onDeleteCategory(cat: Category) {
-    if (!confirm(`¿Eliminar la categoría "${cat.name}"?`)) return;
-  
     try {
-      await deleteDoc(doc(catsCol, cat.id));
-      setCategories((prev) => prev.filter((c) => c.id !== cat.id));
-      toast({ title: "Categoría eliminada" });
+      const subcategories = categories.filter((c) => c.parentCategoryId === cat.id);
+      const categoryIds = [cat.id, ...subcategories.map((c) => c.id)];
+
+      // Se consulta la base (no solo lo cargado en pantalla) para no dejar productos huérfanos.
+      const found: { id: string; imageUrl: string }[] = [];
+      for (let i = 0; i < categoryIds.length; i += 30) {
+        const snap = await getDocs(
+          query(itemsCol, where("categoryId", "in", categoryIds.slice(i, i + 30)))
+        );
+        snap.docs.forEach((d) =>
+          found.push({ id: d.id, imageUrl: String(d.data().imageUrl ?? "") })
+        );
+      }
+
+      setCategoryToDelete({ category: cat, subcategories, items: found });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo preparar la eliminación de la categoría.",
+      });
+    }
+  }
+
+  // Paso 2: el usuario confirmó; se borra todo junto.
+  async function confirmDeleteCategory() {
+    if (!categoryToDelete || deletingCategory) return;
+    const { category, subcategories, items: itemsToDelete } = categoryToDelete;
+    const categoryIds = [category.id, ...subcategories.map((c) => c.id)];
+    const refsToDelete = [
+      ...itemsToDelete.map((item) => doc(itemsCol, item.id)),
+      ...subcategories.map((c) => doc(catsCol, c.id)),
+      doc(catsCol, category.id),
+    ];
+
+    setDeletingCategory(true);
+    try {
+      // Firestore permite hasta 500 operaciones por lote.
+      for (let i = 0; i < refsToDelete.length; i += 450) {
+        const batch = writeBatch(db);
+        refsToDelete.slice(i, i + 450).forEach((r) => batch.delete(r));
+        await batch.commit();
+      }
+
+      // Borra las fotos subidas a Storage (si falla alguna, no frena nada).
+      await Promise.allSettled(
+        itemsToDelete
+          .filter((item) => item.imageUrl.includes("firebasestorage"))
+          .map((item) => deleteObject(ref(storage, item.imageUrl)))
+      );
+
+      const deletedItemIds = new Set(itemsToDelete.map((item) => item.id));
+      setCategories((prev) => prev.filter((c) => !categoryIds.includes(c.id)));
+      setItems((prev) => prev.filter((item) => !deletedItemIds.has(item.id)));
+      setCategoryToDelete(null);
+
+      toast({
+        title: "Categoría eliminada",
+        description: `Se borraron ${subcategories.length} subcategoría(s) y ${itemsToDelete.length} producto(s).`,
+      });
     } catch (e) {
       console.error(e);
       toast({
@@ -955,6 +1029,8 @@ async function saveCategoryEdit() {
         title: "Error",
         description: "No se pudo eliminar la categoría.",
       });
+    } finally {
+      setDeletingCategory(false);
     }
   }
 
@@ -1336,9 +1412,48 @@ async function saveCategoryEdit() {
 
   return (
     <div
+
       className="min-h-screen w-full min-w-0 space-y-4 overflow-x-hidden p-0 sm:space-y-6 sm:p-2"
       style={{ backgroundColor: `hsl(${ui.adminBackground})` }}
     >
+      <AlertDialog
+        open={categoryToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open && !deletingCategory) setCategoryToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              ¿Eliminar la categoría &quot;{categoryToDelete?.category.name}&quot;?
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2 text-sm">
+                <p>
+                  Si continuás, también se van a borrar{" "}
+                  <strong>
+                    {categoryToDelete?.subcategories.length ?? 0} subcategoría(s)
+                  </strong>{" "}
+                  y{" "}
+                  <strong>{categoryToDelete?.items.length ?? 0} producto(s)</strong>{" "}
+                  que están dentro de esta categoría, con sus fotos.
+                </p>
+                <p className="font-semibold">Esta acción no se puede deshacer.</p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingCategory}>Cancelar</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              disabled={deletingCategory}
+              onClick={confirmDeleteCategory}
+            >
+              {deletingCategory ? "Eliminando..." : "Eliminar todo"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div
         className="rounded-xl border-l-4 px-5 py-5 shadow-sm sm:px-7 sm:py-6"
         style={{
