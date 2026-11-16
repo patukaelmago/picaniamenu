@@ -98,9 +98,7 @@ function fridayDescOverride(
 type Props = { tenantId: string };
 
 export default function MenuClient({ tenantId }: Props) {
-  const { setTheme, resolvedTheme } = useTheme();
-  console.log("TENANT:", tenantId);
-  console.log("THEME:", resolvedTheme);
+  const { setTheme } = useTheme();
 
 
   const [categoryNavIndex, setCategoryNavIndex] = useState(0);

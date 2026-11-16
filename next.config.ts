@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
 
   typescript: {
-    ignoreBuildErrors: true,
+    // El build falla si hay errores de TypeScript (antes se ignoraban).
+    ignoreBuildErrors: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
