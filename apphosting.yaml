@@ -1,2 +1,2 @@
-zrunConfig:
+runConfig:
   maxInstances: 1
