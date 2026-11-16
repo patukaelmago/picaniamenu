@@ -15,9 +15,10 @@ service cloud.firestore {
       return request.auth.token.email.lower();
     }
 
-    // Email verificado (Google siempre lo está). La cuenta demo usa email/contraseña.
+    // Login con Google, o email verificado. La cuenta demo usa email/contraseña.
     function trustedEmail() {
       return signedIn() && (
+        request.auth.token.firebase.sign_in_provider == 'google.com' ||
         request.auth.token.email_verified == true ||
         myEmail() == 'demo-maido@carta-online.com'
       );
@@ -65,11 +66,11 @@ service cloud.firestore {
         allow write: if isSuperadmin();
       }
 
-      // Carta pública: productos, categorías, configuración y menú especial.
+      // Carta pública: productos, categorías, configuración, menú especial, etc.
+      // (todo menos la lista de admins, que tiene su propia regla arriba).
       match /{section}/{docId} {
-        allow read: if section in ['menuItems', 'categories', 'settings', 'special_menus'];
-        allow write: if section in ['menuItems', 'categories', 'settings', 'special_menus']
-          && canManage(tenantId);
+        allow read: if section != 'admins';
+        allow write: if section != 'admins' && canManage(tenantId);
       }
     }
 
