@@ -60,19 +60,36 @@ function parseBoolean(value: string, fallback: boolean) {
   return fallback;
 }
 
+// Interpreta precios en formato argentino: "$15.000", "15.000,50", "1500", "12,5".
+// El punto se toma como separador de miles cuando agrupa de a 3 dígitos.
 function parsePrice(value: string) {
-  const clean = value.trim().replace(/\s/g, "");
+  const clean = value.replace(/[^\d.,-]/g, "");
   if (!clean) return 0;
 
-  if (clean.includes(",") && clean.includes(".")) {
-    return Number(clean.replace(/\./g, "").replace(",", ".")) || 0;
+  const lastDot = clean.lastIndexOf(".");
+  const lastComma = clean.lastIndexOf(",");
+  let normalized: string;
+
+  if (lastDot !== -1 && lastComma !== -1) {
+    // Ambos: el que aparece último es el decimal.
+    normalized =
+      lastComma > lastDot
+        ? clean.replace(/\./g, "").replace(",", ".")
+        : clean.replace(/,/g, "");
+  } else if (lastComma !== -1) {
+    // Solo comas: varias = miles ("1,500,000"); una sola = decimal ("12,5").
+    normalized = (clean.match(/,/g) ?? []).length > 1
+      ? clean.replace(/,/g, "")
+      : clean.replace(",", ".");
+  } else if (/^-?\d{1,3}(\.\d{3})+$/.test(clean)) {
+    // Solo puntos agrupando de a 3: miles ("15.000", "1.500.000").
+    normalized = clean.replace(/\./g, "");
+  } else {
+    normalized = clean;
   }
 
-  if (clean.includes(",")) {
-    return Number(clean.replace(",", ".")) || 0;
-  }
-
-  return Number(clean) || 0;
+  const n = Number(normalized);
+  return Number.isFinite(n) ? n : 0;
 }
 
 function parseCsvLine(line: string, delimiter: string) {
