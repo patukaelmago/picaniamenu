@@ -23,7 +23,18 @@ export default function AdminRootPage() {
         const superSnap = await getDoc(doc(db, "superadmins", email));
 
         if (superSnap.exists() && superSnap.data()?.enabled === true) {
-          router.replace("/admin/select-tenant");
+          router.replace("/select-tenant");
+          return;
+        }
+
+        // Supervisor (acceso a varios restaurantes)
+        const supervisorSnap = await getDoc(doc(db, "supervisors", email));
+
+        if (supervisorSnap.exists() && supervisorSnap.data()?.enabled === true) {
+          const tenants: string[] = supervisorSnap.data()?.tenants ?? [];
+          router.replace(
+            tenants.length === 1 ? `/admin/${tenants[0]}` : "/select-tenant"
+          );
           return;
         }
 
@@ -55,7 +66,7 @@ export default function AdminRootPage() {
         }
 
         // Tiene acceso a más de un restaurante
-        router.replace("/admin/select-tenant");
+        router.replace("/select-tenant");
       } catch (e) {
         console.error("Error redirecting admin:", e);
         router.replace("/admin/login");
