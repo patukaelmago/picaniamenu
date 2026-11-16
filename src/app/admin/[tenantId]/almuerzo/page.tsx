@@ -117,9 +117,9 @@ export default function TenantAlmuerzoPage({
   const [editId, setEditId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<LunchItem>>({});
 
-  if (!["picana", "picania"].includes(tenantId.toLowerCase())) {
-    return notFound();
-  }
+  // Esta sección existe solo para Picaña. El chequeo se hace después de los hooks
+  // (más abajo) para que React siempre los ejecute en el mismo orden.
+  const hasLunchSection = ["picana", "picania"].includes(tenantId.toLowerCase());
 
   const categoryById = useMemo(() => {
     const m = new Map<string, Category>();
@@ -257,6 +257,8 @@ export default function TenantAlmuerzoPage({
   }
 
   useEffect(() => {
+    if (!hasLunchSection) return;
+
     const run = async () => {
       try {
         await loadAll();
@@ -542,6 +544,10 @@ export default function TenantAlmuerzoPage({
         description: "No se pudo crear el item.",
       });
     }
+  }
+
+  if (!hasLunchSection) {
+    notFound();
   }
 
   if (loading) {

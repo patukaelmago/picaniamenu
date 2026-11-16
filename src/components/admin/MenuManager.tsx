@@ -158,6 +158,9 @@ const emptyItem: MenuItemInput = {
   order: 0,
 };
 
+const plural = (n: number, singular: string, pluralForm: string) =>
+  `${n} ${n === 1 ? singular : pluralForm}`;
+
 function arrayMove<T>(arr: T[], from: number, to: number) {
   const copy = arr.slice();
   const item = copy.splice(from, 1)[0];
@@ -1020,7 +1023,7 @@ async function saveCategoryEdit() {
 
       toast({
         title: "Categoría eliminada",
-        description: `Se borraron ${subcategories.length} subcategoría(s) y ${itemsToDelete.length} producto(s).`,
+        description: `Se borraron ${plural(subcategories.length, "subcategoría", "subcategorías")} y ${plural(itemsToDelete.length, "producto", "productos")}.`,
       });
     } catch (e) {
       console.error(e);
@@ -1432,10 +1435,12 @@ async function saveCategoryEdit() {
                 <p>
                   Si continuás, también se van a borrar{" "}
                   <strong>
-                    {categoryToDelete?.subcategories.length ?? 0} subcategoría(s)
+                    {plural(categoryToDelete?.subcategories.length ?? 0, "subcategoría", "subcategorías")}
                   </strong>{" "}
                   y{" "}
-                  <strong>{categoryToDelete?.items.length ?? 0} producto(s)</strong>{" "}
+                  <strong>
+                    {plural(categoryToDelete?.items.length ?? 0, "producto", "productos")}
+                  </strong>{" "}
                   que están dentro de esta categoría, con sus fotos.
                 </p>
                 <p className="font-semibold">Esta acción no se puede deshacer.</p>
