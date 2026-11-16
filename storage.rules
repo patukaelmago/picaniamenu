@@ -1,0 +1,52 @@
+rules_version = '2';
+
+// Imágenes de Carta Online: lectura pública, escritura solo para quien administra el restaurante.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function trustedEmail() {
+      return request.auth != null && request.auth.token.email != null && (
+        request.auth.token.email_verified == true ||
+        request.auth.token.email.lower() == 'demo-maido@carta-online.com'
+      );
+    }
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    function isSuperadmin() {
+      let path = /databases/(default)/documents/superadmins/$(myEmail());
+      return trustedEmail() && firestore.exists(path) && firestore.get(path).data.enabled == true;
+    }
+
+    function canManage(tenantId) {
+      let admin = /databases/(default)/documents/tenants/$(tenantId)/admins/$(myEmail());
+      let supervisor = /databases/(default)/documents/supervisors/$(myEmail());
+      return isSuperadmin() || (trustedEmail() && (
+        (firestore.exists(admin) && firestore.get(admin).data.enabled == true) ||
+        (firestore.exists(supervisor) && firestore.get(supervisor).data.enabled == true
+          && tenantId in firestore.get(supervisor).data.tenants)
+      ));
+    }
+
+    // Solo imágenes de hasta 10 MB.
+    function isImage() {
+      return request.resource == null || (
+        request.resource.contentType.matches('image/.*') &&
+        request.resource.size < 10 * 1024 * 1024
+      );
+    }
+
+    match /tenants/{tenantId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if canManage(tenantId) && isImage();
+    }
+
+    // Rutas viejas: lectura pública, escritura solo superadmin.
+    match /{folder}/{allPaths=**} {
+      allow read: if folder in ['menu-images', 'logos'];
+      allow write: if folder in ['menu-images', 'logos'] && isSuperadmin() && isImage();
+    }
+  }
+}

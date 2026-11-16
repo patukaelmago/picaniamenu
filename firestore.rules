@@ -1,0 +1,87 @@
+rules_version = '2';
+
+// Reglas de Carta Online.
+// - La carta pública (productos, categorías, configuración) se puede LEER sin login.
+// - Solo pueden ESCRIBIR: superadmins, supervisores del restaurante y admins del restaurante.
+// - Los permisos se guardan en: superadmins/{email}, supervisors/{email}, tenants/{id}/admins/{email}.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+
+    // Email verificado (Google siempre lo está). La cuenta demo usa email/contraseña.
+    function trustedEmail() {
+      return signedIn() && (
+        request.auth.token.email_verified == true ||
+        myEmail() == 'demo-maido@carta-online.com'
+      );
+    }
+
+    function isSuperadmin() {
+      let path = /databases/$(database)/documents/superadmins/$(myEmail());
+      return trustedEmail() && exists(path) && get(path).data.enabled == true;
+    }
+
+    function isSupervisorOf(tenantId) {
+      let path = /databases/$(database)/documents/supervisors/$(myEmail());
+      return trustedEmail() && exists(path)
+        && get(path).data.enabled == true
+        && tenantId in get(path).data.tenants;
+    }
+
+    function isAdminOf(tenantId) {
+      let path = /databases/$(database)/documents/tenants/$(tenantId)/admins/$(myEmail());
+      return trustedEmail() && exists(path) && get(path).data.enabled == true;
+    }
+
+    function canManage(tenantId) {
+      return isSuperadmin() || isSupervisorOf(tenantId) || isAdminOf(tenantId);
+    }
+
+    // Permisos globales: cada uno puede leer el suyo; solo el superadmin los gestiona.
+    match /superadmins/{email} {
+      allow read: if signedIn() && email == myEmail();
+      allow write: if false; // se cargan a mano desde la consola
+    }
+
+    match /supervisors/{email} {
+      allow read: if signedIn() && (email == myEmail() || isSuperadmin());
+      allow write: if isSuperadmin();
+    }
+
+    match /tenants/{tenantId} {
+      allow read: if true;
+      allow create, delete: if isSuperadmin();
+      allow update: if canManage(tenantId);
+
+      match /admins/{email} {
+        allow read: if signedIn() && (email == myEmail() || canManage(tenantId));
+        allow write: if isSuperadmin();
+      }
+
+      // Carta pública: productos, categorías, configuración y menú especial.
+      match /{section}/{docId} {
+        allow read: if section in ['menuItems', 'categories', 'settings', 'special_menus'];
+        allow write: if section in ['menuItems', 'categories', 'settings', 'special_menus']
+          && canManage(tenantId);
+      }
+    }
+
+    // Colecciones viejas (compatibilidad).
+    match /menu_viernes/{docId} {
+      allow read: if true;
+      allow write: if isSuperadmin();
+    }
+
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isSuperadmin();
+    }
+  }
+}
