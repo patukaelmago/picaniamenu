@@ -29,6 +29,7 @@ import {
   Store,
   Sparkles,
   Palette,
+  Home,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -173,6 +174,11 @@ export default function AdminSidebar() {
   const navItems = useMemo(
     () =>
       [
+        {
+          href: `/admin/${tenantId}/inicio`,
+          label: "Inicio",
+          icon: Home,
+        },
         ui.showFriday && {
           href: `/admin/${tenantId}/almuerzo`,
           label: "Almuerzo Ejecutivo",
@@ -260,6 +266,10 @@ export default function AdminSidebar() {
               decoding="async"
               className="h-auto w-[180px] object-contain"
             />
+          ) : tenantName.trim() ? (
+            <p className="px-2 text-center font-headline text-xl font-bold leading-tight">
+              {tenantName.trim()}
+            </p>
           ) : null}
         </div>
 

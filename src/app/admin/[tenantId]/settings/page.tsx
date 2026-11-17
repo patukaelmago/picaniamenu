@@ -878,17 +878,21 @@ export default function TenantSettingsPage({
         </CardContent>
       </Card>
 
-      <div className="fixed bottom-0 right-0 z-40 flex w-full justify-start border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
+      <div className="fixed bottom-0 right-0 z-40 flex w-full items-center justify-between gap-3 border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
+        <p className="hidden text-sm opacity-70 sm:block">
+          Los cambios de esta página se aplican cuando tocás Guardar.
+        </p>
         <Button
           onClick={handleSave}
           disabled={isSaving}
-          className="border border-transparent bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] transition-transform hover:border-[hsl(var(--tenant-button-hover-border))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] active:translate-y-0.5 active:scale-[0.98]"
+          size="lg"
+          className="w-full border border-transparent bg-[hsl(var(--tenant-button-bg))] px-8 text-base font-semibold text-[hsl(var(--tenant-button-text))] shadow-md transition-transform sm:w-auto hover:border-[hsl(var(--tenant-button-hover-border))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] active:translate-y-0.5 active:scale-[0.98]"
           style={{
-            "--tenant-button-bg": ui.navBg,
-            "--tenant-button-text": ui.navText,
-            "--tenant-button-hover-bg": ui.adminCardForeground,
+            "--tenant-button-bg": ui.adminSidebarBg,
+            "--tenant-button-text": ui.adminSidebarText,
+            "--tenant-button-hover-bg": ui.adminAccent,
             "--tenant-button-hover-text": ui.adminCard,
-            "--tenant-button-hover-border": ui.adminCard,
+            "--tenant-button-hover-border": ui.adminAccent,
           } as CSSProperties}
         >
           <Upload className="mr-2 h-4 w-4" />

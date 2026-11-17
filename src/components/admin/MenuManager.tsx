@@ -69,6 +69,8 @@ import {
   CalendarDays,
   ImagePlus,
   X,
+  Camera,
+  CheckCircle2,
 } from "lucide-react";
 import {
   Sheet,
@@ -212,6 +214,13 @@ export default function MenuManager({ tenantId }: Props) {
   const [deletingCategory, setDeletingCategory] = useState(false);
   const [loading, setLoading] = useState(true);
   const [tenantName, setTenantName] = useState("");
+  // Si el color de "eliminar" es igual al de los botones normales, se usa rojo
+  // para que borrar no se confunda con otras acciones.
+  const deleteColor =
+    ui.adminDelete.replace(/\s+/g, " ").trim() === ui.adminAccent.replace(/\s+/g, " ").trim()
+      ? "0 72% 51%"
+      : ui.adminDelete;
+  const [itemToDelete, setItemToDelete] = useState<{ id: string; name: string } | null>(null);
   const [activeMenuTab, setActiveMenuTab] = useState("categories");
   const [activeMenuVariant, setActiveMenuVariant] = useState<MenuVariant>("A");
   const [manualMenuVariant, setManualMenuVariant] = useState<MenuVariant>("A");
@@ -846,7 +855,6 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleDeleteItem(id: string) {
-    if (!confirm("¿Eliminar este plato?")) return;
   
     try {
       const imageUrl = items.find((i) => i.id === id)?.imageUrl;
@@ -1479,6 +1487,37 @@ async function saveCategoryEdit() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <AlertDialog
+        open={itemToDelete !== null}
+        onOpenChange={(open) => {
+          if (!open) setItemToDelete(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              ¿Eliminar &quot;{itemToDelete?.name}&quot;?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              El plato se borra de la Carta A y de la Carta B, junto con su foto.
+              Esta acción no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                const target = itemToDelete;
+                setItemToDelete(null);
+                if (target) void handleDeleteItem(target.id);
+              }}
+            >
+              Eliminar
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <div
         className="rounded-xl border-l-4 px-5 py-5 shadow-sm sm:px-7 sm:py-6"
         style={{
@@ -1509,8 +1548,9 @@ async function saveCategoryEdit() {
 >
   <TabsTrigger
     value="categories"
-    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    className="transition-colors text-[hsl(var(--tab-inactive-text))] hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
     style={{
+      "--tab-inactive-text": ui.adminCardForeground,
       "--tab-active-bg": ui.adminSidebarBg,
       "--tab-active-text": ui.adminSidebarText,
       "--tab-hover-bg": ui.adminAccent,
@@ -1522,8 +1562,9 @@ async function saveCategoryEdit() {
 
   <TabsTrigger
     value="items"
-    className="transition-colors hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
+    className="transition-colors text-[hsl(var(--tab-inactive-text))] hover:bg-[hsl(var(--tab-hover-bg))] hover:text-[hsl(var(--tab-hover-text))] data-[state=active]:bg-[hsl(var(--tab-active-bg))] data-[state=active]:text-[hsl(var(--tab-active-text))] sm:px-5"
     style={{
+      "--tab-inactive-text": ui.adminCardForeground,
       "--tab-active-bg": ui.adminSidebarBg,
       "--tab-active-text": ui.adminSidebarText,
       "--tab-hover-bg": ui.adminAccent,
@@ -1583,9 +1624,11 @@ async function saveCategoryEdit() {
               onClick={() => setMenuPublicationOpen((current) => !current)}
             >
               <div>
-                <p className="font-semibold">Carta publicada</p>
+                <p className="font-semibold">
+                  Tus clientes ven la Carta {activeMenuVariant}
+                </p>
                 <p className="text-sm opacity-70">
-                  El mismo QR muestra la Carta {activeMenuVariant}.
+                  Tocá acá para cambiar la carta publicada o programar el cambio automático.
                 </p>
               </div>
               {menuPublicationOpen ? (
@@ -1596,6 +1639,63 @@ async function saveCategoryEdit() {
             </button>
           </CardContent>
         </Card>
+
+      <Card
+        className="mt-3 border-0 shadow-sm ring-1 ring-black/5"
+        style={{
+          backgroundColor: `hsl(${ui.adminCard})`,
+          color: `hsl(${ui.adminCardForeground})`,
+        }}
+      >
+        <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div>
+            <p className="font-semibold">Estás editando</p>
+            <p className="text-sm opacity-70">
+              Lo que ocultes u ordenes se aplica solo a la carta elegida.
+            </p>
+          </div>
+          <div
+            className="grid w-full grid-cols-2 overflow-hidden rounded-md border sm:w-fit"
+            style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
+            role="group"
+            aria-label="Carta que estás editando"
+          >
+            {(["A", "B"] as const).map((variant) => {
+              const isSelected = orderMenuVariant === variant;
+              const isPublished = activeMenuVariant === variant;
+              return (
+                <Button
+                  key={variant}
+                  type="button"
+                  variant="ghost"
+                  aria-pressed={isSelected}
+                  onClick={() => setOrderMenuVariant(variant)}
+                  className="h-auto flex-col gap-0.5 rounded-none px-5 py-2 font-semibold hover:opacity-90"
+                  style={{
+                    backgroundColor: isSelected
+                      ? `hsl(${ui.adminSidebarBg})`
+                      : `hsl(${ui.adminCard})`,
+                    color: isSelected
+                      ? `hsl(${ui.adminSidebarText})`
+                      : `hsl(${ui.adminSidebarBg})`,
+                  }}
+                >
+                  <span>Carta {variant}</span>
+                  <span className="flex items-center gap-1 text-[11px] font-normal opacity-80">
+                    {isPublished ? (
+                      <>
+                        <CheckCircle2 className="h-3 w-3" /> Publicada
+                      </>
+                    ) : (
+                      "No publicada"
+                    )}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
       {menuPublicationOpen && (
         <div id="menu-publication-details" className="space-y-4">
@@ -1939,46 +2039,12 @@ async function saveCategoryEdit() {
             <div>
               <p className="font-semibold">Cómo funcionan Carta A y Carta B</p>
               <p className="mt-1 text-sm opacity-75">
-                Elegí Carta A o Carta B y usá el ojo para decidir qué categorías,
-                subcategorías e items se muestran. Cada carta conserva su propio
-                orden. El mismo QR siempre muestra la carta que figure como publicada.
+                Con el selector "Estás editando" elegís qué carta modificar. El ojo
+                muestra u oculta categorías e items, y cada carta conserva su propio
+                orden. El mismo QR siempre muestra la carta publicada.
               </p>
             </div>
 
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <Label className="text-sm font-semibold">Orden que estás editando:</Label>
-              <div
-                className="grid w-fit grid-cols-2 overflow-hidden rounded-md border"
-                style={{ borderColor: `hsl(${ui.adminSidebarBg})` }}
-                role="group"
-                aria-label="Orden que estás editando"
-              >
-                {(["A", "B"] as const).map((variant) => {
-                  const isSelected = orderMenuVariant === variant;
-
-                  return (
-                    <Button
-                      key={variant}
-                      type="button"
-                      variant="ghost"
-                      aria-pressed={isSelected}
-                      onClick={() => setOrderMenuVariant(variant)}
-                      className="rounded-none px-5 font-semibold hover:opacity-90"
-                      style={{
-                        backgroundColor: isSelected
-                          ? `hsl(${ui.adminSidebarBg})`
-                          : `hsl(${ui.adminCard})`,
-                        color: isSelected
-                          ? `hsl(${ui.adminSidebarText})`
-                          : `hsl(${ui.adminSidebarBg})`,
-                      }}
-                    >
-                      Carta {variant}
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
         </CardContent>
       </Card>
@@ -2003,7 +2069,7 @@ async function saveCategoryEdit() {
             >
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>
-                Cada item debe pertenecer a una categoría. Al arrastrar estás ordenando la Carta {orderMenuVariant}.
+                Arrastrá las filas para ordenar los platos de la Carta {orderMenuVariant}.
               </CardDescription>
 
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -2357,6 +2423,19 @@ async function saveCategoryEdit() {
                               onDragEnd={handleDragItemEnd}
                             >
                               <TableCell>
+                                {!imageUrl && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleStartEdit(item)}
+                                    className="flex h-[50px] w-[50px] flex-col items-center justify-center rounded-md border border-dashed text-[10px] opacity-60 transition-opacity hover:opacity-100"
+                                    style={{ borderColor: `hsl(${ui.adminCardForeground} / 0.4)` }}
+                                    title="Agregar foto"
+                                    aria-label={`Agregar foto a ${item.name}`}
+                                  >
+                                    <Camera className="h-4 w-4" />
+                                    Foto
+                                  </button>
+                                )}
                                 {imageUrl && (
                                   <Image
                                     src={imageUrl}
@@ -2377,10 +2456,8 @@ async function saveCategoryEdit() {
                               <TableCell>
                                 {parentName && category?.parentCategoryId ? (
                                   <span className="text-sm">
-                                    <span className="text-muted-foreground group-hover:text-[hsl(var(--row-hover-text))]">
-                                      {parentName}
-                                    </span>
-                                    <span className="text-muted-foreground group-hover:text-[hsl(var(--row-hover-text))]"> {" > "} </span>
+                                    <span className="opacity-60">{parentName}</span>
+                                    <span className="opacity-60"> › </span>
                                     <span>{category?.name}</span>
                                   </span>
                                 ) : (
@@ -2447,10 +2524,10 @@ async function saveCategoryEdit() {
                                     size="icon"
                                     className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
                                     style={{
-                                      "--delete-color": ui.adminDelete,
+                                      "--delete-color": deleteColor,
                                       "--delete-hover-text": ui.adminCard,
                                     } as CSSProperties}
-                                    onClick={() => handleDeleteItem(item.id)}
+                                    onClick={() => setItemToDelete({ id: item.id, name: item.name })}
                                   >
                                     <Trash2 className="h-4 w-4" />
                                   </Button>
@@ -2719,19 +2796,9 @@ async function saveCategoryEdit() {
               }}
             >
               <CardTitle>Categorías del Menú</CardTitle>
-              <CardDescription className="space-y-1">
-                <span className="block">
-                  Creá y ordená las secciones de la Carta {orderMenuVariant}.
-                </span>
-                <span className="block">
-                  Creá primero una categoría. Después pasá a Items del Menú para
-                  agregar los platos o productos.
-                </span>
-                <span className="flex items-start gap-2">
-                  <EyeOff className="mt-0.5 h-4 w-4 shrink-0" />
-                  El ojo muestra u oculta cada categoría en la Carta
-                  {` ${orderMenuVariant}`}.
-                </span>
+              <CardDescription>
+                Las secciones de la Carta {orderMenuVariant}. Usá el ojo para mostrar u
+                ocultar cada una y arrastralas para ordenarlas.
               </CardDescription>
 
               <div className="mt-4 flex items-center gap-2">
@@ -2750,9 +2817,14 @@ async function saveCategoryEdit() {
 
             <CardContent className="px-4 pb-4 pt-5 sm:px-6 sm:pb-6 sm:pt-5">
               {categories.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Aún no hay categorías.
-                </p>
+                <div className="space-y-3 text-sm">
+                  <p className="font-semibold">Armá tu carta en 3 pasos:</p>
+                  <ol className="space-y-2">
+                    <li><span className="font-semibold">1.</span> Creá una categoría (por ejemplo "Entradas") con el botón Agregar categoría.</li>
+                    <li><span className="font-semibold">2.</span> Pasá a la pestaña Items del Menú y agregá tus platos.</li>
+                    <li><span className="font-semibold">3.</span> Descargá tu QR desde la sección QR y compartilo.</li>
+                  </ol>
+                </div>
               ) : displayedRootCategories.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No se encontraron categorías.
@@ -2850,7 +2922,7 @@ async function saveCategoryEdit() {
                                 size="icon"
                                 className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
                                     style={{
-                                      "--delete-color": ui.adminDelete,
+                                      "--delete-color": deleteColor,
                                       "--delete-hover-text": ui.adminCard,
                                     } as CSSProperties}
                                 onClick={() => onDeleteCategory(parent)}
@@ -2937,7 +3009,7 @@ async function saveCategoryEdit() {
                                     size="icon"
                                     className="text-[hsl(var(--delete-color))] transition-colors hover:bg-[hsl(var(--delete-color))] hover:text-[hsl(var(--delete-hover-text))]"
                                     style={{
-                                      "--delete-color": ui.adminDelete,
+                                      "--delete-color": deleteColor,
                                       "--delete-hover-text": ui.adminCard,
                                     } as CSSProperties}
                                     onClick={() => onDeleteCategory(child)}
