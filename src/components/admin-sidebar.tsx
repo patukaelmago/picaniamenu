@@ -80,7 +80,11 @@ const getTenantIdFromPath = (pathname: string) => {
   return "picana";
 };
 
-export default function AdminSidebar() {
+export default function AdminSidebar({
+  onTenantName,
+}: {
+  onTenantName?: (name: string) => void;
+} = {}) {
   const pathname = usePathname();
   const { state } = useSidebar();
 
@@ -167,7 +171,8 @@ export default function AdminSidebar() {
     document.title = isTenantRoute
       ? tenantName.trim() || tenantId
       : "Carta Online";
-  }, [pathname, tenantId, tenantName]);
+    onTenantName?.(isTenantRoute ? tenantName.trim() : "");
+  }, [pathname, tenantId, tenantName, onTenantName]);
 
   const logoSrc = tenantLogo;
 

@@ -71,6 +71,8 @@ import {
   X,
   Camera,
   CheckCircle2,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import {
   Sheet,
@@ -1108,6 +1110,117 @@ async function saveCategoryEdit() {
     }
   }
 
+  // ---- Ordenar con flechas (en el celular el arrastre no funciona con el dedo)
+  async function saveOrder(
+    col: typeof catsCol,
+    list: { id: string }[],
+    successTitle: string,
+    onError: () => Promise<void>
+  ) {
+    const orderField = orderMenuVariant === "A" ? "orderA" : "orderB";
+    try {
+      await Promise.all(
+        list.map((entry, index) =>
+          updateDoc(doc(col, entry.id), {
+            [orderField]: index,
+            ...(orderMenuVariant === "A" ? { order: index } : {}),
+            updatedAt: serverTimestamp(),
+          })
+        )
+      );
+      toast({ title: successTitle });
+    } catch (e) {
+      console.error(e);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudo guardar el nuevo orden.",
+      });
+      await onError();
+    }
+  }
+
+  async function moveCategoryInList(list: Category[], index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (isSavingOrder || target < 0 || target >= list.length) return;
+    const moved = arrayMove(list, index, target);
+    setCategories((prev) =>
+      prev.map((c) => {
+        const i = moved.findIndex((m) => m.id === c.id);
+        return i === -1 ? c : withMenuOrder(c, orderMenuVariant, i);
+      })
+    );
+    setIsSavingOrder(true);
+    await saveOrder(catsCol, moved, `Orden de Carta ${orderMenuVariant} guardado`, loadCategories);
+    setIsSavingOrder(false);
+  }
+
+  async function moveItem(item: MenuItem, direction: -1 | 1) {
+    if (isSavingItemsOrder || sortMode !== "manual") return;
+    const siblings = items
+      .filter((i) => i.categoryId === item.categoryId)
+      .sort((a, b) => getMenuOrder(a, orderMenuVariant) - getMenuOrder(b, orderMenuVariant));
+    const from = siblings.findIndex((i) => i.id === item.id);
+    // Se salta los platos que no se muestran en la lista para que la flecha siempre haga algo.
+    const shownIds = new Set(sortedItems.map((i) => i.id));
+    let to = from + direction;
+    while (to >= 0 && to < siblings.length && !shownIds.has(siblings[to].id)) to += direction;
+    if (from === -1 || to < 0 || to >= siblings.length) return;
+    const moved = arrayMove(siblings, from, to);
+    setItems((prev) =>
+      prev.map((i) => {
+        const idx = moved.findIndex((m) => m.id === i.id);
+        return idx === -1 ? i : withMenuOrder(i, orderMenuVariant, idx);
+      })
+    );
+    setIsSavingItemsOrder(true);
+    await saveOrder(itemsCol as typeof catsCol, moved, `Orden de items de Carta ${orderMenuVariant} guardado`, loadItems);
+    setIsSavingItemsOrder(false);
+  }
+
+  const itemNeighbors = (item: MenuItem) => {
+    const siblings = sortedItems
+      .filter((i) => i.categoryId === item.categoryId)
+      .sort((a, b) => getMenuOrder(a, orderMenuVariant) - getMenuOrder(b, orderMenuVariant));
+    const index = siblings.findIndex((i) => i.id === item.id);
+    return { canUp: index > 0, canDown: index !== -1 && index < siblings.length - 1 };
+  };
+
+  const renderMoveButtons = (
+    name: string,
+    canUp: boolean,
+    canDown: boolean,
+    onUp: () => void,
+    onDown: () => void
+  ) => (
+    <div className="flex items-center sm:hidden">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        disabled={!canUp}
+        onClick={onUp}
+        aria-label={`Subir ${name}`}
+        title="Subir"
+      >
+        <ArrowUp className="h-4 w-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8"
+        disabled={!canDown}
+        onClick={onDown}
+        aria-label={`Bajar ${name}`}
+        title="Bajar"
+      >
+        <ArrowDown className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+
   function handleRootDragStart(index: number) {
     setDragRootIndex(index);
   }
@@ -2113,7 +2226,8 @@ async function saveCategoryEdit() {
             >
               <CardTitle>Platos y Bebidas</CardTitle>
               <CardDescription>
-                Arrastrá las filas para ordenar los platos de la Carta {orderMenuVariant}.
+                <span className="sm:hidden">Usá las flechas ↑↓ para ordenar los platos de la Carta {orderMenuVariant}.</span>
+                <span className="hidden sm:inline">Arrastrá las filas para ordenar los platos de la Carta {orderMenuVariant}.</span>
               </CardDescription>
 
               <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -2434,7 +2548,127 @@ async function saveCategoryEdit() {
               {loading ? (
                 <p>Cargando platos...</p>
               ) : (
-                <div className="w-full min-w-0 overflow-x-auto overscroll-x-contain">
+                <>
+                {/* Celular: una tarjeta por plato, sin mover la pantalla de costado */}
+                <div className="space-y-2 sm:hidden">
+                  {sortedItems.length === 0 && (
+                    <p className="text-sm opacity-70">No hay platos para mostrar.</p>
+                  )}
+                  {sortedItems.map((item) => {
+                    const category = categories.find((c) => c.id === item.categoryId);
+                    const parentId = getItemParentId(item);
+                    const parentName = parentId ? categoryById.get(parentId)?.name : undefined;
+                    const placeholder = PlaceHolderImages.find((p) => p.id === item.imageId);
+                    const imageUrl = item.imageUrl || placeholder?.imageUrl || "";
+                    const isVisibleInSelectedMenu = isVisibleInMenu(item, orderMenuVariant, ["A"]);
+                    const { canUp, canDown } = itemNeighbors(item);
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="rounded-lg border p-3"
+                        style={{ borderColor: `hsl(${ui.adminCardForeground} / 0.15)` }}
+                      >
+                        <div className="flex gap-3">
+                          {imageUrl ? (
+                            <Image
+                              src={imageUrl}
+                              alt={item.name}
+                              width={56}
+                              height={56}
+                              className={`h-14 w-14 shrink-0 rounded-md object-cover ${
+                                item.showImage === false ? "opacity-35" : ""
+                              }`}
+                            />
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleStartEdit(item)}
+                              className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-md border border-dashed text-[10px] opacity-60"
+                              style={{ borderColor: `hsl(${ui.adminCardForeground} / 0.4)` }}
+                              aria-label={`Agregar foto a ${item.name}`}
+                            >
+                              <Camera className="h-4 w-4" />
+                              Foto
+                            </button>
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <p className="break-words font-semibold leading-tight">{item.name}</p>
+                            <p className="mt-0.5 text-xs opacity-60">
+                              {parentName && category?.parentCategoryId
+                                ? `${parentName} › ${category?.name ?? ""}`
+                                : category?.name}
+                            </p>
+                            <p className="mt-1 text-sm font-medium">
+                              {formatCurrency(item.price, tenantCurrency)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                          {sortMode === "manual" ? (
+                            renderMoveButtons(
+                              item.name,
+                              canUp,
+                              canDown,
+                              () => moveItem(item, -1),
+                              () => moveItem(item, 1)
+                            )
+                          ) : (
+                            <span />
+                          )}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-pressed={isVisibleInSelectedMenu}
+                              aria-label={
+                                isVisibleInSelectedMenu
+                                  ? `Ocultar ${item.name} de Carta ${orderMenuVariant}`
+                                  : `Mostrar ${item.name} en Carta ${orderMenuVariant}`
+                              }
+                              onClick={() =>
+                                handleToggleMenuVariant(item, orderMenuVariant, !isVisibleInSelectedMenu)
+                              }
+                              className={isVisibleInSelectedMenu ? "" : "opacity-55"}
+                              style={{
+                                color: isVisibleInSelectedMenu ? `hsl(${ui.adminAccent})` : undefined,
+                              }}
+                            >
+                              {isVisibleInSelectedMenu ? (
+                                <Eye className="h-5 w-5" />
+                              ) : (
+                                <EyeOff className="h-5 w-5" />
+                              )}
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Editar ${item.name}`}
+                              onClick={() => handleStartEdit(item)}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              aria-label={`Eliminar ${item.name}`}
+                              style={{ color: `hsl(${deleteColor})` }}
+                              onClick={() => setItemToDelete({ id: item.id, name: item.name })}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Computadora: la tabla de siempre */}
+                <div className="hidden w-full min-w-0 overflow-x-auto overscroll-x-contain sm:block">
                   <div className="min-w-[580px] overflow-hidden rounded-md">
                     <Table>
                       <TableHeader
@@ -2602,6 +2836,7 @@ async function saveCategoryEdit() {
                     </Table>
                   </div>
                 </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -2858,7 +3093,7 @@ async function saveCategoryEdit() {
               <CardTitle>Categorías del Menú</CardTitle>
               <CardDescription>
                 Las secciones de la Carta {orderMenuVariant}. Usá el ojo para mostrar u
-                ocultar cada una y arrastralas para ordenarlas.
+                ocultar cada una y <span className="sm:hidden">las flechas ↑↓</span><span className="hidden sm:inline">arrastralas</span> para ordenarlas.
               </CardDescription>
 
               <div className="mt-4 flex items-center gap-2">
@@ -2906,7 +3141,7 @@ async function saveCategoryEdit() {
                     return (
                       <div key={parent.id} className="space-y-2">
                         <div
-                          className="flex items-center justify-between p-3 bg-secondary rounded-md cursor-pointer select-none"
+                          className="flex flex-col gap-2 p-3 bg-secondary rounded-md cursor-pointer select-none sm:flex-row sm:items-center sm:justify-between"
                           draggable={!normalizedCategorySearch}
                           onClick={() => toggleParent(parent.id)}
                           onDragStart={() => handleRootDragStart(index)}
@@ -2920,8 +3155,8 @@ async function saveCategoryEdit() {
                               <ChevronRight className="h-4 w-4 text-muted-foreground" />
                             )}
 
-                            <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab" />
-                            <span className="font-semibold">{parent.name}</span>
+                            <GripVertical className="hidden h-5 w-5 text-muted-foreground cursor-grab sm:block" />
+                            <span className="min-w-0 break-words font-semibold">{parent.name}</span>
 
                             {isSavingOrder && (
                               <span className="text-xs text-muted-foreground">
@@ -2931,9 +3166,16 @@ async function saveCategoryEdit() {
                           </div>
 
                           <div
-                            className="flex items-center gap-4"
+                            className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4"
                             onClick={(e) => e.stopPropagation()}
                           >
+                            {renderMoveButtons(
+                              parent.name,
+                              !normalizedCategorySearch && index > 0,
+                              !normalizedCategorySearch && index < sortedRootCategories.length - 1,
+                              () => moveCategoryInList(sortedRootCategories, index, -1),
+                              () => moveCategoryInList(sortedRootCategories, index, 1)
+                            )}
                             <Button
                               type="button"
                               variant="ghost"
@@ -2983,7 +3225,7 @@ async function saveCategoryEdit() {
                                 className="gap-1 px-2"
                               >
                                 <PlusCircle className="h-4 w-4" />
-                                <span className="hidden sm:inline">Sub</span>
+                                <span>Sub</span>
                               </Button>
 
                               <Button
@@ -2996,7 +3238,7 @@ async function saveCategoryEdit() {
                                 className="gap-1 px-2"
                               >
                                 <PlusCircle className="h-4 w-4" />
-                                <span className="hidden sm:inline">Plato</span>
+                                <span>Plato</span>
                               </Button>
 
                               <Button
@@ -3034,7 +3276,7 @@ async function saveCategoryEdit() {
                             return (
                             <div
                               key={child.id}
-                              className="ml-8 flex cursor-grab items-center justify-between rounded-md border border-border/40 bg-secondary/60 p-3 active:cursor-grabbing"
+                              className="ml-4 flex cursor-grab flex-col gap-2 rounded-md border border-border/40 bg-secondary/60 p-3 active:cursor-grabbing sm:ml-8 sm:flex-row sm:items-center sm:justify-between"
                               draggable={!normalizedCategorySearch}
                               onDragStart={() =>
                                 handleChildDragStart(parent.id, childIndex)
@@ -3046,11 +3288,18 @@ async function saveCategoryEdit() {
                             >
                               <div className="flex w-full items-center gap-3 lg:w-auto">
                                 <span className="text-muted-foreground">↳</span>
-                                <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                <span className="font-medium">{child.name}</span>
+                                <GripVertical className="hidden h-5 w-5 text-muted-foreground sm:block" />
+                                <span className="min-w-0 break-words font-medium">{child.name}</span>
                               </div>
 
-                              <div className="flex items-center gap-4">
+                              <div className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4">
+                                {renderMoveButtons(
+                                  child.name,
+                                  !normalizedCategorySearch && childIndex > 0,
+                                  !normalizedCategorySearch && childIndex < allChildren.length - 1,
+                                  () => moveCategoryInList(allChildren, childIndex, -1),
+                                  () => moveCategoryInList(allChildren, childIndex, 1)
+                                )}
                                 <Button
                                   type="button"
                                   variant="ghost"
@@ -3096,7 +3345,7 @@ async function saveCategoryEdit() {
                                     className="gap-1 px-2"
                                   >
                                     <PlusCircle className="h-4 w-4" />
-                                    <span className="hidden sm:inline">Plato</span>
+                                    <span>Plato</span>
                                   </Button>
 
                                   <Button
