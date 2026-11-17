@@ -288,6 +288,8 @@ export default function MenuManager({ tenantId }: Props) {
   const [createOpen, setCreateOpen] = useState(false);
   const [savingItem, setSavingItem] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
+  // El precio del plato nuevo arranca vacío (no en 0) para no guardar platos a $0 por olvido.
+  const [createPriceText, setCreatePriceText] = useState("");
   const [createImageFile, setCreateImageFile] = useState<File | null>(null);
   const [createImagePreview, setCreateImagePreview] = useState("");
 
@@ -740,6 +742,12 @@ export default function MenuManager({ tenantId }: Props) {
     setEditForm((prev) => ({ ...prev, showImage: true }));
   }
 
+  const createMissing = [
+    !createForm.name.trim() && "el nombre",
+    createPriceText.trim() === "" && "el precio",
+    !createForm.categoryId && "la categoría",
+  ].filter(Boolean) as string[];
+
   async function handleCreateItem(addAnother = false) {
     if (savingItem) return;
     setSavingItem(true);
@@ -773,6 +781,7 @@ export default function MenuManager({ tenantId }: Props) {
         description: addAnother ? "Podés cargar el siguiente." : undefined,
       });
       const keptCategoryId = createForm.categoryId;
+      setCreatePriceText("");
       setCreateForm(
         addAnother
           ? { ...emptyItem, currency: tenantCurrency, categoryId: keptCategoryId }
@@ -939,6 +948,7 @@ export default function MenuManager({ tenantId }: Props) {
 
 function openCreateItemIn(categoryId: string) {
   setCreateForm({ ...emptyItem, currency: tenantCurrency, categoryId });
+  setCreatePriceText("");
   setActiveMenuTab("items");
   setCreateOpen(true);
 }
@@ -1625,6 +1635,7 @@ async function saveCategoryEdit() {
               return;
             }
             setCreateForm({ ...emptyItem, currency: tenantCurrency });
+            setCreatePriceText("");
             setCreateOpen(true);
           }}
           className="self-center border border-[hsl(var(--tenant-button-border))] bg-[hsl(var(--tenant-button-bg))] text-[hsl(var(--tenant-button-text))] hover:border-[hsl(var(--tenant-button-hover-bg))] hover:bg-[hsl(var(--tenant-button-hover-bg))] hover:text-[hsl(var(--tenant-button-hover-text))] sm:self-start"
@@ -2249,11 +2260,15 @@ async function saveCategoryEdit() {
                           <Input
                             id="c-price"
                             type="number"
+                            inputMode="decimal"
+                            min={0}
+                            placeholder="Ej: 12000"
                             className="sm:col-span-3"
-                            value={createForm.price}
-                            onChange={(e) =>
-                              onChangeCreate("price", Number(e.target.value))
-                            }
+                            value={createPriceText}
+                            onChange={(e) => {
+                              setCreatePriceText(e.target.value);
+                              onChangeCreate("price", Number(e.target.value) || 0);
+                            }}
                           />
                         </div>
 
@@ -2282,7 +2297,7 @@ async function saveCategoryEdit() {
                           <Label className="sm:text-right">
                             {settings?.specialLabel?.trim().slice(0, 15) || "Sugerencia"}
                           </Label>
-                          <div className="sm:col-span-3">
+                          <div className="flex items-center gap-3 sm:col-span-3">
                             <Switch
                               checked={!!createForm.isSpecial}
                               onCheckedChange={(checked) =>
@@ -2292,6 +2307,9 @@ async function saveCategoryEdit() {
                                 }))
                               }
                             />
+                            <span className="text-xs opacity-70">
+                              Marca el plato con un ícono destacado en la carta.
+                            </span>
                           </div>
                         </div>
 
@@ -2382,18 +2400,23 @@ async function saveCategoryEdit() {
                       </div>
 
                       <SheetFooter>
+                        {createMissing.length > 0 && (
+                          <p className="text-sm sm:mr-auto sm:self-center" role="status">
+                            Falta: {createMissing.join(", ")}.
+                          </p>
+                        )}
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => handleCreateItem(true)}
-                          disabled={savingItem || !createForm.name || !createForm.categoryId}
+                          disabled={savingItem || createMissing.length > 0}
                         >
                           Guardar y agregar otro
                         </Button>
                         <Button
                           type="button"
                           onClick={() => handleCreateItem()}
-                          disabled={savingItem || !createForm.name || !createForm.categoryId}
+                          disabled={savingItem || createMissing.length > 0}
                         >
                           {savingItem ? "Guardando..." : "Guardar Item"}
                         </Button>
