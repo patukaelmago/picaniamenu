@@ -2973,6 +2973,23 @@ async function saveCategoryEdit() {
                                 type="button"
                                 variant="ghost"
                                 size="sm"
+                                title={`Agregar subcategoría en ${parent.name}`}
+                                aria-label={`Agregar subcategoría en ${parent.name}`}
+                                onClick={() => {
+                                  setFormCatName("");
+                                  setFormCatParentId(parent.id);
+                                  setCreateCategoryOpen(true);
+                                }}
+                                className="gap-1 px-2"
+                              >
+                                <PlusCircle className="h-4 w-4" />
+                                <span className="hidden sm:inline">Sub</span>
+                              </Button>
+
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
                                 title={`Agregar plato en ${parent.name}`}
                                 aria-label={`Agregar plato en ${parent.name}`}
                                 onClick={() => openCreateItemIn(parent.id)}
@@ -3119,10 +3136,13 @@ async function saveCategoryEdit() {
               >
                 <SheetContent className="sm:max-w-lg">
                   <SheetHeader>
-                    <SheetTitle>Agregar nueva categoría</SheetTitle>
+                    <SheetTitle>
+                      {formCatParentId ? "Agregar subcategoría" : "Agregar nueva categoría"}
+                    </SheetTitle>
                     <SheetDescription>
-                      Creá una categoría o una subcategoría para la Carta
-                      {` ${orderMenuVariant}`}.
+                      {formCatParentId
+                        ? `Va a quedar dentro de "${categories.find((c) => c.id === formCatParentId)?.name ?? ""}", en la Carta ${orderMenuVariant}.`
+                        : `Creá una categoría para la Carta ${orderMenuVariant}. Si va dentro de otra, elegila abajo.`}
                     </SheetDescription>
                   </SheetHeader>
 
@@ -3184,7 +3204,7 @@ async function saveCategoryEdit() {
 
                     <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                       <Label htmlFor="new-cat-parent" className="sm:text-right">
-                        Sección principal
+                        ¿Va dentro de otra categoría?
                       </Label>
                       <select
                         id="new-cat-parent"
@@ -3194,7 +3214,7 @@ async function saveCategoryEdit() {
                           setFormCatParentId(event.target.value)
                         }
                       >
-                        <option value="">Ninguna (sección principal)</option>
+                        <option value="">No, es una categoría principal</option>
                         {sortedRootCategories.map((category) => (
                           <option key={category.id} value={category.id}>
                             {category.name}
@@ -3217,7 +3237,7 @@ async function saveCategoryEdit() {
                         color: `hsl(${ui.navText})`,
                       }}
                     >
-                      Crear categoría
+                      {formCatParentId ? "Crear subcategoría" : "Crear categoría"}
                     </Button>
                   </SheetFooter>
                 </SheetContent>
@@ -3307,7 +3327,7 @@ async function saveCategoryEdit() {
 
                     <div className="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
                       <Label htmlFor="cat-parent" className="sm:text-right">
-                        Sección principal
+                        ¿Va dentro de otra categoría?
                       </Label>
                       <select
                         id="cat-parent"
@@ -3320,7 +3340,7 @@ async function saveCategoryEdit() {
                           }))
                         }
                       >
-                        <option value="">Ninguna (sección principal)</option>
+                        <option value="">No, es una categoría principal</option>
                         {sortedRootCategories
                           .filter((c) => c.id !== catEditingId)
                           .map((cat) => (
