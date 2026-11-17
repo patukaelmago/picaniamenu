@@ -748,15 +748,22 @@ export default function MenuManager({ tenantId }: Props) {
         ? await uploadItemImage(createImageFile, createForm.name)
         : createForm.imageUrl;
   
+      // El plato nuevo va al final de su categoría, en las dos cartas.
+      const sameCategory = items.filter((i) => i.categoryId === createForm.categoryId);
+      const nextOrder = (values: number[]) =>
+        values.length === 0 ? 0 : Math.max(...values) + 1;
+      const nextA = nextOrder(sameCategory.map((i) => getMenuOrder(i, "A")));
+      const nextB = nextOrder(sameCategory.map((i) => getMenuOrder(i, "B")));
+
       await addDoc(itemsCol, {
         ...createForm,
         menuVariants: [orderMenuVariant],
         currency: tenantCurrency,
         imageUrl,
         imageId: "",
-        order: Number(createForm.order ?? 0),
-        orderA: Number(createForm.order ?? 0),
-        orderB: Number(createForm.order ?? 0),
+        order: nextA,
+        orderA: nextA,
+        orderB: nextB,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });
