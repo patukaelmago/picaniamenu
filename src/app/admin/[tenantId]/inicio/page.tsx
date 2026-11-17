@@ -71,9 +71,16 @@ export default function TenantHomePage({
     backgroundColor: `hsl(${ui.adminCard})`,
     color: `hsl(${ui.adminCardForeground})`,
   };
-  const actionStyle = {
+  const headerStyle = {
     backgroundColor: `hsl(${ui.adminSidebarBg})`,
     color: `hsl(${ui.adminSidebarText})`,
+  };
+  // Los botones van sobre fondo de tarjeta para que se vean aunque el fondo
+  // del panel sea del mismo color que la barra lateral.
+  const actionStyle = {
+    backgroundColor: `hsl(${ui.adminCard})`,
+    color: `hsl(${ui.adminCardForeground})`,
+    borderColor: `hsl(${ui.adminAccent})`,
   };
 
   if (error) {
@@ -96,7 +103,7 @@ export default function TenantHomePage({
   ];
 
   const actionClass =
-    "flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90";
+    "flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-semibold shadow-sm transition-opacity hover:opacity-90";
 
   return (
     <div
@@ -105,7 +112,7 @@ export default function TenantHomePage({
     >
       <div
         className="rounded-xl border-l-4 px-5 py-5 shadow-sm sm:px-7 sm:py-6"
-        style={{ ...actionStyle, borderLeftColor: `hsl(${ui.adminAccent})` }}
+        style={{ ...headerStyle, borderLeftColor: `hsl(${ui.adminAccent})` }}
       >
         <h1 className="font-headline text-2xl font-bold sm:text-3xl">
           {summary.name || tenantId}
