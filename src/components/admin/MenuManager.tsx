@@ -924,6 +924,12 @@ export default function MenuManager({ tenantId }: Props) {
   }
 }
 
+function openCreateItemIn(categoryId: string) {
+  setCreateForm({ ...emptyItem, currency: tenantCurrency, categoryId });
+  setActiveMenuTab("items");
+  setCreateOpen(true);
+}
+
 function startEditCategory(cat: Category) {
   setCatEditingId(cat.id);
   setCatForm({
@@ -2920,6 +2926,19 @@ async function saveCategoryEdit() {
 
                             <div className="flex items-center gap-2">
                               <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                title={`Agregar plato en ${parent.name}`}
+                                aria-label={`Agregar plato en ${parent.name}`}
+                                onClick={() => openCreateItemIn(parent.id)}
+                                className="gap-1 px-2"
+                              >
+                                <PlusCircle className="h-4 w-4" />
+                                <span className="hidden sm:inline">Plato</span>
+                              </Button>
+
+                              <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => startEditCategory(parent)}
@@ -3006,6 +3025,19 @@ async function saveCategoryEdit() {
                                 </Button>
 
                                 <div className="flex items-center gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    title={`Agregar plato en ${child.name}`}
+                                    aria-label={`Agregar plato en ${child.name}`}
+                                    onClick={() => openCreateItemIn(child.id)}
+                                    className="gap-1 px-2"
+                                  >
+                                    <PlusCircle className="h-4 w-4" />
+                                    <span className="hidden sm:inline">Plato</span>
+                                  </Button>
+
                                   <Button
                                     variant="ghost"
                                     size="icon"
