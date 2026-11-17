@@ -1155,11 +1155,17 @@ async function saveCategoryEdit() {
     setIsSavingOrder(false);
   }
 
+  // Mismo criterio que la lista: primero el orden y, si empatan, el nombre.
+  const compareItemsForMenu = (a: MenuItem, b: MenuItem) => {
+    const diff = getMenuOrder(a, orderMenuVariant) - getMenuOrder(b, orderMenuVariant);
+    return diff !== 0 ? diff : a.name.localeCompare(b.name, "es", { sensitivity: "base" });
+  };
+
   async function moveItem(item: MenuItem, direction: -1 | 1) {
     if (isSavingItemsOrder || sortMode !== "manual") return;
     const siblings = items
       .filter((i) => i.categoryId === item.categoryId)
-      .sort((a, b) => getMenuOrder(a, orderMenuVariant) - getMenuOrder(b, orderMenuVariant));
+      .sort(compareItemsForMenu);
     const from = siblings.findIndex((i) => i.id === item.id);
     // Se salta los platos que no se muestran en la lista para que la flecha siempre haga algo.
     const shownIds = new Set(sortedItems.map((i) => i.id));
@@ -1181,7 +1187,7 @@ async function saveCategoryEdit() {
   const itemNeighbors = (item: MenuItem) => {
     const siblings = sortedItems
       .filter((i) => i.categoryId === item.categoryId)
-      .sort((a, b) => getMenuOrder(a, orderMenuVariant) - getMenuOrder(b, orderMenuVariant));
+      .sort(compareItemsForMenu);
     const index = siblings.findIndex((i) => i.id === item.id);
     return { canUp: index > 0, canDown: index !== -1 && index < siblings.length - 1 };
   };
@@ -2605,7 +2611,7 @@ async function saveCategoryEdit() {
                           </div>
                         </div>
                         <div className="mt-2 flex items-center justify-between">
-                          {sortMode === "manual" ? (
+                          {sortMode === "manual" && (canUp || canDown) ? (
                             renderMoveButtons(
                               item.name,
                               canUp,
