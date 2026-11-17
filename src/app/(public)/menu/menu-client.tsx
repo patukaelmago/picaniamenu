@@ -1,5 +1,6 @@
 "use client";
 
+import { trackEvent } from "@/lib/analytics";
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Search, Leaf, Sparkles, PackageX, WheatOff, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -217,14 +218,15 @@ export default function MenuClient({ tenantId }: Props) {
     return (
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
+          trackEvent("ver_plato", { local: tenantId, plato: item.name });
           setOpenItemImage({
             src,
             name: item.name,
             description: item.description || "",
             price: item.price,
-          })
-        }
+          });
+        }}
         className="group/item-image float-none m-0 h-14 w-14 overflow-hidden rounded-md border shadow-sm md:float-left md:mr-3 md:mb-2 md:h-16 md:w-16"
         style={{ borderColor: `hsl(${ui.foreground} / 0.3)` }}
         aria-label={`Ver imagen de ${item.name}`}
@@ -570,6 +572,8 @@ export default function MenuClient({ tenantId }: Props) {
   }, [carouselImages]);
 
   const scrollToSection = (id: string) => {
+    const categoria = categoryNavItems.find((c) => c.id === id)?.name;
+    if (categoria) trackEvent("ver_categoria", { local: tenantId, categoria });
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
