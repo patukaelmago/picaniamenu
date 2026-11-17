@@ -286,6 +286,7 @@ export default function MenuManager({ tenantId }: Props) {
   });
 
   const [createOpen, setCreateOpen] = useState(false);
+  const [savingItem, setSavingItem] = useState(false);
   const [createForm, setCreateForm] = useState<MenuItemInput>(emptyItem);
   const [createImageFile, setCreateImageFile] = useState<File | null>(null);
   const [createImagePreview, setCreateImagePreview] = useState("");
@@ -740,6 +741,8 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleCreateItem() {
+    if (savingItem) return;
+    setSavingItem(true);
     try {
       const imageUrl = createImageFile
         ? await uploadItemImage(createImageFile, createForm.name)
@@ -774,8 +777,10 @@ export default function MenuManager({ tenantId }: Props) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo crear el plato.",
+        description: "No se pudo crear el plato. Lo que cargaste sigue en el formulario, probá de nuevo.",
       });
+    } finally {
+      setSavingItem(false);
     }
   }
 
@@ -808,8 +813,8 @@ export default function MenuManager({ tenantId }: Props) {
   }
 
   async function handleUpdateItem() {
-    if (!editId) return;
-  
+    if (!editId || savingItem) return;
+    setSavingItem(true);
     try {
       const imageUrl = editImageFile
         ? await uploadItemImage(editImageFile, editForm.name)
@@ -849,8 +854,10 @@ export default function MenuManager({ tenantId }: Props) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "No se pudo actualizar el plato.",
+        description: "No se pudieron guardar los cambios. Siguen en el formulario, probá de nuevo.",
       });
+    } finally {
+      setSavingItem(false);
     }
   }
 
@@ -2127,7 +2134,7 @@ async function saveCategoryEdit() {
                     onImported={reloadAll}
                   />
 
-                  <Sheet open={createOpen} onOpenChange={setCreateOpen}>
+                  <Sheet open={createOpen} onOpenChange={(open) => { if (!savingItem) setCreateOpen(open); }}>
 
 
                     <SheetContent className="sm:max-w-lg overflow-y-auto">
@@ -2349,15 +2356,13 @@ async function saveCategoryEdit() {
                       </div>
 
                       <SheetFooter>
-                        <SheetClose asChild>
-                          <Button
-                            type="button"
-                            onClick={handleCreateItem}
-                            disabled={!createForm.name || !createForm.categoryId}
-                          >
-                            Guardar Item
-                          </Button>
-                        </SheetClose>
+                        <Button
+                          type="button"
+                          onClick={handleCreateItem}
+                          disabled={savingItem || !createForm.name || !createForm.categoryId}
+                        >
+                          {savingItem ? "Guardando..." : "Guardar Item"}
+                        </Button>
                       </SheetFooter>
                     </SheetContent>
                   </Sheet>
@@ -2544,7 +2549,7 @@ async function saveCategoryEdit() {
             </CardContent>
           </Card>
 
-          <Sheet open={editOpen} onOpenChange={setEditOpen}>
+          <Sheet open={editOpen} onOpenChange={(open) => { if (!savingItem) setEditOpen(open); }}>
             <SheetContent className="sm:max-w-lg overflow-y-auto">
               <SheetHeader>
                 <SheetTitle>Editar Item</SheetTitle>
@@ -2760,20 +2765,18 @@ async function saveCategoryEdit() {
               </div>
 
               <SheetFooter>
-                <SheetClose asChild>
-                  <Button
-                    type="button"
-                    onClick={handleUpdateItem}
-                    disabled={!editId}
-                    className="transition-transform active:translate-y-0.5 active:scale-[0.98]"
-                    style={{
-                      backgroundColor: `hsl(${ui.navBg})`,
-                      color: `hsl(${ui.navText})`,
-                    }}
-                  >
-                    Guardar Cambios
-                  </Button>
-                </SheetClose>
+                <Button
+                  type="button"
+                  onClick={handleUpdateItem}
+                  disabled={!editId || savingItem}
+                  className="transition-transform active:translate-y-0.5 active:scale-[0.98]"
+                  style={{
+                    backgroundColor: `hsl(${ui.navBg})`,
+                    color: `hsl(${ui.navText})`,
+                  }}
+                >
+                  {savingItem ? "Guardando..." : "Guardar Cambios"}
+                </Button>
               </SheetFooter>
             </SheetContent>
           </Sheet>
