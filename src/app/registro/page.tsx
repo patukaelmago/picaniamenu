@@ -1,0 +1,185 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  GoogleAuthProvider,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  setPersistence,
+  signInWithPopup,
+  signOut,
+  type User,
+} from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
+const toSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 40);
+
+const inputClass =
+  "w-full rounded-xl border border-[#3A3A3A] bg-[#171717] px-4 py-3 text-sm text-[#F5EEDC] outline-none transition focus:border-[#2563EB]";
+
+export default function RegistroPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [checking, setChecking] = useState(true);
+  const [name, setName] = useState("");
+  const [slug, setSlug] = useState("");
+  const [slugEdited, setSlugEdited] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(
+    () =>
+      onAuthStateChanged(auth, (u) => {
+        setUser(u);
+        setChecking(false);
+      }),
+    []
+  );
+
+  async function loginWithGoogle() {
+    setError("");
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: "select_account" });
+      await signInWithPopup(auth, provider);
+    } catch (e) {
+      console.error(e);
+      setError("No se pudo ingresar con Google.");
+    }
+  }
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!user || sending) return;
+    setSending(true);
+    setError("");
+    try {
+      const token = await user.getIdToken();
+      const res = await fetch("/api/registro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name, slug }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || "No se pudo completar el registro.");
+      router.replace(`/admin/${data.tenantId}/inicio`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo completar el registro.");
+      setSending(false);
+    }
+  }
+
+  const missing = name.trim().length < 2 || slug.length < 3;
+
+  return (
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F3F1EC] px-5 py-6 text-[#F5EEDC]">
+      <div className="relative w-full max-w-md">
+        <Link href="/" className="mx-auto mb-4 block w-fit" aria-label="Carta Online">
+          <img src="/carta-online-logo-orange.svg" alt="Carta Online" className="h-16 w-auto object-contain" />
+        </Link>
+
+        <section className="overflow-hidden rounded-3xl border border-[#3A3A3A] bg-[#202020] shadow-2xl">
+          <div className="h-1 bg-gradient-to-r from-[#2563EB] to-[#FF6B00]" />
+          <div className="space-y-5 p-6">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold">Registrá tu restaurante</h1>
+              <p className="mt-2 text-sm leading-5 text-[#B8B2A7]">
+                Armá tu carta digital con código QR. La revisamos y te avisamos cuando esté publicada.
+              </p>
+            </div>
+
+            {checking ? (
+              <p className="text-center text-sm text-[#B8B2A7]">Cargando...</p>
+            ) : !user ? (
+              <button
+                type="button"
+                onClick={loginWithGoogle}
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#3A3A3A] bg-[#2B2B2B] px-4 py-3 text-sm font-semibold transition hover:border-[#2563EB]"
+              >
+                <img
+                  src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                  alt=""
+                  className="h-4 w-4"
+                />
+                Continuar con Google
+              </button>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <p className="text-center text-xs text-[#B8B2A7]">
+                  Vas a registrarte con {user.email}.{" "}
+                  <button type="button" onClick={() => signOut(auth)} className="underline">
+                    Usar otra cuenta
+                  </button>
+                </p>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="r-name" className="text-sm font-semibold">
+                    Nombre del restaurante
+                  </label>
+                  <input
+                    id="r-name"
+                    value={name}
+                    maxLength={60}
+                    placeholder="Ej: La Esquina"
+                    className={inputClass}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (!slugEdited) setSlug(toSlug(e.target.value));
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="r-slug" className="text-sm font-semibold">
+                    Dirección de tu carta
+                  </label>
+                  <input
+                    id="r-slug"
+                    value={slug}
+                    placeholder="la-esquina"
+                    className={inputClass}
+                    onChange={(e) => {
+                      setSlugEdited(true);
+                      setSlug(toSlug(e.target.value));
+                    }}
+                  />
+                  <p className="text-xs text-[#B8B2A7]">
+                    carta-online.com/menu/<span className="text-[#F5EEDC]">{slug || "..."}</span>
+                  </p>
+                </div>
+
+                {error && <p className="text-center text-sm text-red-400">{error}</p>}
+
+                <button
+                  type="submit"
+                  disabled={missing || sending}
+                  className="w-full rounded-xl bg-[#FF6B00] px-4 py-3 text-sm font-semibold text-[#171717] transition hover:bg-[#ff8a2e] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {sending ? "Creando tu carta..." : "Crear mi carta"}
+                </button>
+              </form>
+            )}
+
+            <p className="text-center text-xs text-[#8F8A82]">
+              ¿Ya tenés cuenta?{" "}
+              <Link href="/login" className="text-[#FF8A2A] underline">
+                Ingresá acá
+              </Link>
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+  );
+}

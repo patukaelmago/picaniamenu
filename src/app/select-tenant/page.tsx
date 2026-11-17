@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, serverTimestamp, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { ArrowRight, Store } from "lucide-react";
@@ -17,6 +17,27 @@ export default function SelectTenantPage() {
   const [tenants, setTenants] = useState<Tenant[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [pendingTenants, setPendingTenants] = useState<(Tenant & { ownerEmail?: string })[]>([]);
+  const [approving, setApproving] = useState("");
+
+  async function approveTenant(id: string) {
+    setApproving(id);
+    try {
+      await updateDoc(doc(db, "tenants", id), {
+        active: true,
+        pending: false,
+        approvedAt: serverTimestamp(),
+      });
+      const approved = pendingTenants.find((t) => t.id === id);
+      setPendingTenants((prev) => prev.filter((t) => t.id !== id));
+      if (approved) setTenants((prev) => [...prev, approved]);
+    } catch (e) {
+      console.error(e);
+      alert("No se pudo aprobar. Probá de nuevo.");
+    } finally {
+      setApproving("");
+    }
+  }
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -54,6 +75,16 @@ export default function SelectTenantPage() {
         // Superadmin
         if (superSnap.exists() && superSnap.data()?.enabled === true) {
           setIsSuperAdmin(true);
+
+          setPendingTenants(
+            snap.docs
+              .filter((t) => t.data()?.pending === true && t.data()?.active !== true)
+              .map((t) => ({
+                id: t.id,
+                name: t.data()?.name || t.id,
+                ownerEmail: t.data()?.ownerEmail || "",
+              }))
+          );
 
           for (const tenant of snap.docs) {
             if (tenant.data()?.active !== true) continue;
@@ -150,6 +181,36 @@ export default function SelectTenantPage() {
             >
               Crear nuevo tenant
             </Link>
+          )}
+
+          {isSuperAdmin && pendingTenants.length > 0 && (
+            <div className="mb-6 space-y-3 rounded-xl border border-[#FF7A00]/50 bg-[#FF7A00]/10 p-4">
+              <p className="font-semibold">Registros pendientes de aprobación</p>
+              {pendingTenants.map((tenant) => (
+                <div key={tenant.id} className="rounded-lg bg-[#2B2B2B] p-3 text-sm">
+                  <p className="font-semibold">{tenant.name}</p>
+                  <p className="text-xs text-[#B8B2A7]">
+                    /menu/{tenant.id} · {tenant.ownerEmail}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Link
+                      href={`/admin/${tenant.id}`}
+                      className="rounded-lg border border-[#3A3A3A] px-3 py-1.5 text-xs hover:border-[#4B75FF]"
+                    >
+                      Ver panel
+                    </Link>
+                    <button
+                      type="button"
+                      disabled={approving === tenant.id}
+                      onClick={() => approveTenant(tenant.id)}
+                      className="rounded-lg bg-[#FF7A00] px-3 py-1.5 text-xs font-semibold text-[#171717] disabled:opacity-60"
+                    >
+                      {approving === tenant.id ? "Aprobando..." : "Aprobar y publicar"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
 
           <div className="space-y-3">

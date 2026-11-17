@@ -290,6 +290,14 @@ export default function MenuClient({ tenantId }: Props) {
   const [activeSlide, setActiveSlide] = useState(0);
   const [loadedSlides, setLoadedSlides] = useState<Record<number, boolean>>({});
   const [tenantCarouselImages, setTenantCarouselImages] = useState<string[]>([]);
+  // Un local registrado que todavía no fue aprobado no muestra su carta.
+  const [unpublished, setUnpublished] = useState(false);
+
+  useEffect(() => {
+    getDoc(doc(db, "tenants", tenantId))
+      .then((snap) => setUnpublished(snap.exists() && snap.data()?.active === false))
+      .catch(() => setUnpublished(false));
+  }, [tenantId]);
 
   useEffect(() => {
     const r = document.documentElement;
@@ -740,6 +748,17 @@ export default function MenuClient({ tenantId }: Props) {
   ]);
 
   if (!uiReady) return null;
+
+  if (unpublished) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#fff7e3] px-6 text-center">
+        <div>
+          <h1 className="text-2xl font-semibold text-[#1b3059]">Carta en preparación</h1>
+          <p className="mt-2 text-sm text-slate-600">Esta carta todavía no está publicada.</p>
+        </div>
+      </main>
+    );
+  }
 
 
 
