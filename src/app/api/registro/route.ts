@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { REGISTRO_ABIERTO } from "@/lib/registro";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,6 +30,9 @@ function normalizeSlug(value: string) {
 }
 
 export async function POST(request: Request) {
+  if (!REGISTRO_ABIERTO) {
+    return NextResponse.json({ error: "El registro no está disponible por ahora." }, { status: 403 });
+  }
   const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
   if (!token) return NextResponse.json({ error: "Iniciá sesión para registrarte." }, { status: 401 });
 

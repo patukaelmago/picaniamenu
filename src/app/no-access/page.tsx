@@ -8,12 +8,7 @@ export default function NoAccessPage() {
           <p className="text-sm text-slate-600">
             Esta sección del panel es solo para administradores autorizados.
           </p>
-          <a
-            href="/registro"
-            className="mt-5 inline-block rounded-xl bg-[#FF6B00] px-5 py-3 text-sm font-semibold text-[#171717]"
-          >
-            Registrar mi restaurante
-          </a>
+
         </div>
       </div>
     );

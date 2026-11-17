@@ -13,6 +13,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
+import { REGISTRO_ABIERTO } from "@/lib/registro";
 
 const toSlug = (value: string) =>
   value
@@ -99,7 +100,11 @@ export default function RegistroPage() {
               </p>
             </div>
 
-            {checking ? (
+            {!REGISTRO_ABIERTO ? (
+              <p className="text-center text-sm text-[#B8B2A7]">
+                El registro todavía no está disponible. Si querés tu carta, escribinos y la armamos con vos.
+              </p>
+            ) : checking ? (
               <p className="text-center text-sm text-[#B8B2A7]">Cargando...</p>
             ) : !user ? (
               <button
