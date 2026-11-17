@@ -740,7 +740,7 @@ export default function MenuManager({ tenantId }: Props) {
     setEditForm((prev) => ({ ...prev, showImage: true }));
   }
 
-  async function handleCreateItem() {
+  async function handleCreateItem(addAnother = false) {
     if (savingItem) return;
     setSavingItem(true);
     try {
@@ -768,8 +768,16 @@ export default function MenuManager({ tenantId }: Props) {
         updatedAt: serverTimestamp(),
       });
   
-      toast({ title: "Plato creado" });
-      setCreateForm(emptyItem);
+      toast({
+        title: "Plato creado",
+        description: addAnother ? "Podés cargar el siguiente." : undefined,
+      });
+      const keptCategoryId = createForm.categoryId;
+      setCreateForm(
+        addAnother
+          ? { ...emptyItem, currency: tenantCurrency, categoryId: keptCategoryId }
+          : emptyItem
+      );
   
       if (createImagePreview.startsWith("blob:")) {
         URL.revokeObjectURL(createImagePreview);
@@ -777,7 +785,12 @@ export default function MenuManager({ tenantId }: Props) {
   
       setCreateImageFile(null);
       setCreateImagePreview("");
-      setCreateOpen(false);
+      if (createImageInputRef.current) createImageInputRef.current.value = "";
+      if (addAnother) {
+        window.setTimeout(() => document.getElementById("c-name")?.focus(), 50);
+      } else {
+        setCreateOpen(false);
+      }
       await loadItems();
     } catch (e) {
       console.error(e);
@@ -2371,7 +2384,15 @@ async function saveCategoryEdit() {
                       <SheetFooter>
                         <Button
                           type="button"
-                          onClick={handleCreateItem}
+                          variant="outline"
+                          onClick={() => handleCreateItem(true)}
+                          disabled={savingItem || !createForm.name || !createForm.categoryId}
+                        >
+                          Guardar y agregar otro
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={() => handleCreateItem()}
                           disabled={savingItem || !createForm.name || !createForm.categoryId}
                         >
                           {savingItem ? "Guardando..." : "Guardar Item"}
