@@ -38,6 +38,7 @@ import {
   X,
 } from "lucide-react";
 import { PAYMENT_METHODS } from "@/lib/payment-methods";
+import BackupCard from "@/components/admin/BackupCard";
 
 const MAX_CAROUSEL_IMAGES = 20;
 const DEFAULT_TENANT_LOGO = "/img/carta-online-logo-default.png";
@@ -877,6 +878,8 @@ export default function TenantSettingsPage({
           </div>
         </CardContent>
       </Card>
+
+      <BackupCard tenantId={tenantId} />
 
       <div className="fixed bottom-0 right-0 z-40 flex w-full items-center justify-between gap-3 border-t border-border bg-background/95 p-4 shadow-lg backdrop-blur md:w-[calc(100%-var(--sidebar-width))]">
         <p className="hidden text-sm opacity-70 sm:block">
