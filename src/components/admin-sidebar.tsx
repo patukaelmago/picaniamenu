@@ -30,6 +30,7 @@ import {
   Sparkles,
   Palette,
   Home,
+  BarChart3,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -193,6 +194,11 @@ export default function AdminSidebar({
           href: `/admin/${tenantId}/menu`,
           label: "Menú",
           icon: UtensilsCrossed,
+        },
+        {
+          href: `/admin/${tenantId}/estadisticas`,
+          label: "Estadísticas",
+          icon: BarChart3,
         },
         {
           href: `/admin/${tenantId}/qr`,

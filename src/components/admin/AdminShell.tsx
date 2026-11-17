@@ -16,6 +16,7 @@ const SECTION_LABELS: Record<string, string> = {
   almuerzo: "Almuerzo Ejecutivo",
   menu: "Menú",
   qr: "QR",
+  estadisticas: "Estadísticas",
   colors: "Colores",
   settings: "Ajustes",
 };
