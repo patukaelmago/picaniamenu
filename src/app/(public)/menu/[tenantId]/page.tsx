@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import MenuClient from "../menu-client";
 import { isTenant } from "@/lib/tenants";
 import type { Metadata } from "next";
+import { cache } from "react";
+import { getMenuSeo } from "@/lib/menu-seo";
 import {
   jsonLd,
   PUBLIC_TENANTS,
@@ -12,13 +14,19 @@ import {
 // AGREGA ESTA LINEA PARA ARREGLAR EL ERROR DE BUILD
 export const dynamicParams = true;
 
+// El HTML para Google se renueva como máximo una vez por hora (pocas lecturas de Firebase).
+export const revalidate = 3600;
+
+const loadSeo = cache((tenantId: string) => getMenuSeo(tenantId));
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ tenantId: string }>;
 }): Promise<Metadata> {
   const { tenantId } = await params;
-  const name = tenantDisplayName(tenantId);
+  const seo = await loadSeo(tenantId);
+  const name = seo?.name || tenantDisplayName(tenantId);
   const title = `Carta de ${name}`;
   const description = `Consultá la carta digital actualizada de ${name}: platos, bebidas, precios y sugerencias.`;
   const canonical = `/menu/${tenantId}`;
@@ -27,7 +35,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical },
-    robots: { index: true, follow: true },
+    robots: seo?.active === false ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
       type: "website",
       locale: "es_AR",
@@ -53,8 +61,37 @@ export default async function MenuTenantPage({
 
   if (!isTenant(tenantId)) return notFound();
 
-  const name = tenantDisplayName(tenantId);
+  const seo = await loadSeo(tenantId);
+  const name = seo?.name || tenantDisplayName(tenantId);
   const url = `${SITE_URL}/menu/${tenantId}`;
+  const menuGraph =
+    seo && seo.active && seo.sections.length > 0
+      ? [
+          {
+            "@type": "Restaurant",
+            "@id": `${url}#restaurant`,
+            name,
+            url,
+            hasMenu: {
+              "@type": "Menu",
+              name: `Carta de ${name}`,
+              inLanguage: "es-AR",
+              hasMenuSection: seo.sections.map((section) => ({
+                "@type": "MenuSection",
+                name: section.name,
+                hasMenuItem: section.items.map((item) => ({
+                  "@type": "MenuItem",
+                  name: item.name,
+                  ...(item.description ? { description: item.description } : {}),
+                  ...(item.price > 0
+                    ? { offers: { "@type": "Offer", price: item.price, priceCurrency: "ARS" } }
+                    : {}),
+                })),
+              })),
+            },
+          },
+        ]
+      : [];
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -84,6 +121,7 @@ export default async function MenuTenantPage({
           },
         ],
       },
+      ...menuGraph,
     ],
   };
 

@@ -106,6 +106,8 @@ export default function MenuClient({ tenantId }: Props) {
   const categorySwipeStartX = useRef<number | null>(null);
 
   const [allMenuItems, setAllMenuItems] = useState<MenuItem[]>([]);
+  // Hasta que llegan los platos no se muestra "No encontramos platos" (Google lo tomaba como página vacía).
+  const [itemsLoaded, setItemsLoaded] = useState(false);
   const [activeMenuVariant, setActiveMenuVariant] = useState<"A" | "B">("A");
   const [manualMenuVariant, setManualMenuVariant] = useState<"A" | "B">("A");
   const [menuAutomation, setMenuAutomation] = useState<MenuVariantSchedule>(
@@ -345,6 +347,7 @@ export default function MenuClient({ tenantId }: Props) {
       tenantId,
       (items) => {
         setAllMenuItems(items.filter((i) => i.isVisible !== false));
+        setItemsLoaded(true);
       },
       { onlyVisible: true }
     );
@@ -1316,7 +1319,7 @@ export default function MenuClient({ tenantId }: Props) {
               </section>
             ))}
 
-            {filteredItems.length === 0 && (
+            {itemsLoaded && filteredItems.length === 0 && (
               <p className="text-sm text-center opacity-70">
                 {copy.empty}
               </p>
