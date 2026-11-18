@@ -1,6 +1,7 @@
 // Mercado Pago: abono mensual de los locales que se registran solos.
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
+import { avisar } from "@/lib/avisos";
 
 export const ABONO_MENSUAL_ARS = 25000;
 export const SITE = "https://carta-online.com";
@@ -88,5 +89,23 @@ export async function syncSubscription(p: Preapproval) {
     if (snap.data()?.subscription?.id === p.id || snap.data()?.active === true) update.active = false;
   }
   await ref.set(update, { merge: true });
+
+  // Aviso por mail solo cuando el estado cambia.
+  const before = snap.data()?.subscription?.status;
+  if (before !== p.status && ["authorized", "cancelled", "paused"].includes(p.status)) {
+    const nombre = String(snap.data()?.name ?? slug);
+    const titulo =
+      p.status === "authorized"
+        ? `pago acreditado: ${nombre}`
+        : `suscripción ${p.status === "paused" ? "pausada" : "cancelada"}: ${nombre}`;
+    await avisar(titulo, [
+      p.status === "authorized"
+        ? "Se acreditó el abono y la carta quedó publicada."
+        : "La carta dejó de verse por el QR.",
+      ``,
+      `Carta: https://carta-online.com/menu/${slug}`,
+      `Cuenta: ${snap.data()?.ownerEmail ?? ""}`,
+    ]);
+  }
   return { slug, active: update.active ?? snap.data()?.active === true, status: p.status };
 }

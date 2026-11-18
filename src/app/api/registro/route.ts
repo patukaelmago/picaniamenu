@@ -3,6 +3,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { REGISTRO_ABIERTO } from "@/lib/registro";
 import { createSubscription } from "@/lib/mercadopago";
+import { avisar } from "@/lib/avisos";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -143,6 +144,15 @@ export async function POST(request: Request) {
     console.error("Registro:", e);
     return NextResponse.json({ error: "No se pudo completar el registro. Probá de nuevo." }, { status: 500 });
   }
+
+  await avisar(`nuevo registro: ${name}`, [
+    `Se registró un restaurante nuevo (todavía sin pagar).`,
+    ``,
+    `Nombre: ${name}`,
+    `Carta: https://carta-online.com/menu/${slug}`,
+    `Cuenta: ${email}`,
+    `Email de Mercado Pago: ${mpEmail}`,
+  ]);
 
   try {
     const sub = await createSubscription(slug, mpEmail);

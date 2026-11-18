@@ -6,3 +6,7 @@ env:
     secret: MP_ACCESS_TOKEN
     availability:
       - RUNTIME
+  - variable: GMAIL_APP_PASSWORD
+    secret: GMAIL_APP_PASSWORD
+    availability:
+      - RUNTIME
