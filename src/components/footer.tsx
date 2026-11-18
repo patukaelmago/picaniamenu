@@ -5,7 +5,8 @@ import { PAYMENT_METHODS } from "@/lib/payment-methods";
 
 export default function Footer() {
   const settings = useRestaurantSettings();
-  const restaurantName = settings?.name || "Picaña";
+  // Sin nombre por defecto: antes decía "Picaña" en todas las cartas hasta que cargaba.
+  const restaurantName = settings?.name?.trim() ?? "";
   const selectedPaymentMethods = settings?.paymentMethods ?? [];
   const visiblePaymentMethods = PAYMENT_METHODS.filter((method) =>
     selectedPaymentMethods.includes(method.id)
@@ -32,7 +33,7 @@ export default function Footer() {
           )}
 
           <p className="text-center text-xs text-[hsl(var(--nav-text))]/70">
-            © {new Date().getFullYear()} {restaurantName} — Todos los derechos reservados.
+            © {new Date().getFullYear()}{restaurantName ? ` ${restaurantName}` : ""} — Todos los derechos reservados.
           </p>
 
           <a
