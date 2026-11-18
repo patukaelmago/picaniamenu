@@ -14,6 +14,7 @@ import {
 } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { REGISTRO_ABIERTO } from "@/lib/registro";
+import LoginWithGoogle from "@/components/LoginWithGoogle";
 
 const toSlug = (value: string) =>
   value
@@ -37,9 +38,12 @@ export default function RegistroPage() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [mpEmail, setMpEmail] = useState("");
   const [soloPagar, setSoloPagar] = useState(false);
+  const [modo, setModo] = useState<null | "registro" | "login">(null);
 
   useEffect(() => {
-    setSoloPagar(new URLSearchParams(window.location.search).get("pagar") === "1");
+    const pagar = new URLSearchParams(window.location.search).get("pagar") === "1";
+    setSoloPagar(pagar);
+    if (pagar) setModo("registro");
   }, []);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -105,6 +109,50 @@ export default function RegistroPage() {
         <section className="overflow-hidden rounded-3xl border border-[#3A3A3A] bg-[#202020] shadow-2xl">
           <div className="h-1 bg-gradient-to-r from-[#2563EB] to-[#FF6B00]" />
           <div className="space-y-5 p-6">
+            {modo === null ? (
+              <>
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">Bienvenido</h1>
+                  <p className="mt-2 text-sm leading-5 text-[#B8B2A7]">¿Qué querés hacer?</p>
+                </div>
+                <div className="space-y-3">
+                  <button
+                    type="button"
+                    onClick={() => setModo("login")}
+                    className="w-full rounded-2xl border border-[#3A3A3A] bg-[#2B2B2B] px-5 py-4 text-left transition hover:border-[#2563EB]"
+                  >
+                    <span className="block text-base font-bold">Ya tengo cuenta</span>
+                    <span className="mt-0.5 block text-sm text-[#B8B2A7]">Ingresar a mi panel</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModo("registro")}
+                    className="w-full rounded-2xl bg-[#FF6B00] px-5 py-4 text-left text-[#171717] transition hover:bg-[#ff8a2e]"
+                  >
+                    <span className="block text-base font-bold">Registrar mi restaurante</span>
+                    <span className="mt-0.5 block text-sm">Carta digital con QR por $25.000 por mes</span>
+                  </button>
+                </div>
+              </>
+            ) : modo === "login" ? (
+              <>
+                <div className="text-center">
+                  <h1 className="text-2xl font-bold">Ingresá a tu panel</h1>
+                  <p className="mt-2 text-sm leading-5 text-[#B8B2A7]">
+                    Iniciá sesión para gestionar tu carta.
+                  </p>
+                </div>
+                <LoginWithGoogle />
+                <button
+                  type="button"
+                  onClick={() => setModo(null)}
+                  className="mx-auto block text-xs text-[#8F8A82] underline"
+                >
+                  Volver
+                </button>
+              </>
+            ) : (
+            <>
             <div className="text-center">
               <h1 className="text-2xl font-bold">Registrá tu restaurante</h1>
               <p className="mt-2 text-sm leading-5 text-[#B8B2A7]">
@@ -207,12 +255,16 @@ export default function RegistroPage() {
               </form>
             )}
 
-            <p className="text-center text-xs text-[#8F8A82]">
-              ¿Ya tenés cuenta?{" "}
-              <Link href="/login" className="text-[#FF8A2A] underline">
-                Ingresá acá
-              </Link>
-            </p>
+            {!soloPagar && (
+              <p className="text-center text-xs text-[#8F8A82]">
+                ¿Ya tenés cuenta?{" "}
+                <button type="button" onClick={() => setModo("login")} className="text-[#FF8A2A] underline">
+                  Ingresá acá
+                </button>
+              </p>
+            )}
+            </>
+            )}
           </div>
         </section>
       </div>
