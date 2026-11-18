@@ -39,7 +39,10 @@ export default function LoginPage() {
             <LoginWithGoogle />
 
             <p className="mt-4 text-center text-xs leading-4 text-[#8F8A82]">
-              Acceso exclusivo para clientes autorizados.
+              ¿Tenés un restaurante?{" "}
+              <Link href="/registro" className="font-semibold text-[#FF8A2A] underline">
+                Creá tu carta
+              </Link>
             </p>
           </div>
         </section>

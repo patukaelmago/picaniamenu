@@ -72,8 +72,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           </div>
           {pendingTenant && (
             <div className="mx-3 mt-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:mx-6 lg:mx-8">
-              <strong>Tu carta está en revisión.</strong> Podés armarla mientras tanto; tus clientes la
-              van a ver por el QR cuando la aprobemos.
+              <strong>Tu carta todavía no está publicada.</strong> Podés armarla mientras tanto; se
+              publica cuando se acredita el abono.{" "}
+              <a href="/registro?pagar=1" className="font-semibold underline">
+                Pagar con Mercado Pago
+              </a>
             </div>
           )}
           <div className="min-w-0 p-3 sm:p-6 lg:p-8">{children}</div>

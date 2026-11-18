@@ -1,2 +1,8 @@
 runConfig:
   maxInstances: 1
+
+env:
+  - variable: MP_ACCESS_TOKEN
+    secret: MP_ACCESS_TOKEN
+    availability:
+      - RUNTIME

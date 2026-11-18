@@ -35,6 +35,12 @@ export default function RegistroPage() {
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
+  const [mpEmail, setMpEmail] = useState("");
+  const [soloPagar, setSoloPagar] = useState(false);
+
+  useEffect(() => {
+    setSoloPagar(new URLSearchParams(window.location.search).get("pagar") === "1");
+  }, []);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
@@ -42,6 +48,7 @@ export default function RegistroPage() {
     () =>
       onAuthStateChanged(auth, (u) => {
         setUser(u);
+        if (u?.email) setMpEmail((prev) => prev || u.email!.toLowerCase());
         setChecking(false);
       }),
     []
@@ -70,10 +77,14 @@ export default function RegistroPage() {
       const res = await fetch("/api/registro", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ name, slug }),
+        body: JSON.stringify({ name, slug, mpEmail }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || "No se pudo completar el registro.");
+      if (data.pagoUrl) {
+        window.location.href = data.pagoUrl;
+        return;
+      }
       router.replace(`/admin/${data.tenantId}/inicio`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo completar el registro.");
@@ -81,7 +92,8 @@ export default function RegistroPage() {
     }
   }
 
-  const missing = name.trim().length < 2 || slug.length < 3;
+  const missing =
+    !mpEmail.includes("@") || (!soloPagar && (name.trim().length < 2 || slug.length < 3));
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#F3F1EC] px-5 py-6 text-[#F5EEDC]">
@@ -96,7 +108,8 @@ export default function RegistroPage() {
             <div className="text-center">
               <h1 className="text-2xl font-bold">Registrá tu restaurante</h1>
               <p className="mt-2 text-sm leading-5 text-[#B8B2A7]">
-                Armá tu carta digital con código QR. La revisamos y te avisamos cuando esté publicada.
+                Tu carta digital con código QR por $25.000 por mes. Se paga con Mercado Pago y la
+                carta se publica apenas se acredita el pago.
               </p>
             </div>
 
@@ -128,6 +141,8 @@ export default function RegistroPage() {
                   </button>
                 </p>
 
+                {!soloPagar && (
+                <>
                 <div className="space-y-1.5">
                   <label htmlFor="r-name" className="text-sm font-semibold">
                     Nombre del restaurante
@@ -163,6 +178,22 @@ export default function RegistroPage() {
                     carta-online.com/menu/<span className="text-[#F5EEDC]">{slug || "..."}</span>
                   </p>
                 </div>
+                </>
+                )}
+
+                <div className="space-y-1.5">
+                  <label htmlFor="r-mp" className="text-sm font-semibold">
+                    Email de tu cuenta de Mercado Pago
+                  </label>
+                  <input
+                    id="r-mp"
+                    type="email"
+                    value={mpEmail}
+                    className={inputClass}
+                    onChange={(e) => setMpEmail(e.target.value.trim())}
+                  />
+                  <p className="text-xs text-[#B8B2A7]">Con esa cuenta vas a pagar el abono mensual.</p>
+                </div>
 
                 {error && <p className="text-center text-sm text-red-400">{error}</p>}
 
@@ -171,7 +202,7 @@ export default function RegistroPage() {
                   disabled={missing || sending}
                   className="w-full rounded-xl bg-[#FF6B00] px-4 py-3 text-sm font-semibold text-[#171717] transition hover:bg-[#ff8a2e] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {sending ? "Creando tu carta..." : "Crear mi carta"}
+                  {sending ? "Un momento..." : soloPagar ? "Ir a pagar" : "Crear mi carta y pagar"}
                 </button>
               </form>
             )}

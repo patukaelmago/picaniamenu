@@ -1,2 +1,2 @@
-// Registro de restaurantes por su cuenta. Cerrado hasta que esté el pago con Mercado Pago.
-export const REGISTRO_ABIERTO = false;
+// Registro de restaurantes por su cuenta, con abono mensual por Mercado Pago.
+export const REGISTRO_ABIERTO = true;

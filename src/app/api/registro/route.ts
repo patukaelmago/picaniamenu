@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { FieldValue } from "firebase-admin/firestore";
 import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { REGISTRO_ABIERTO } from "@/lib/registro";
+import { createSubscription } from "@/lib/mercadopago";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -49,7 +50,32 @@ export async function POST(request: Request) {
   }
   if (!email) return NextResponse.json({ error: "No pudimos leer tu email." }, { status: 400 });
 
-  const body = (await request.json().catch(() => ({}))) as { name?: string; slug?: string };
+  const body = (await request.json().catch(() => ({}))) as {
+    name?: string;
+    slug?: string;
+    mpEmail?: string;
+  };
+  const mpEmail = String(body.mpEmail ?? email).trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mpEmail)) {
+    return NextResponse.json({ error: "Escribí el email de tu cuenta de Mercado Pago." }, { status: 400 });
+  }
+
+  // Si ya se registró pero no pagó, se genera un nuevo link de pago para su local.
+  const previo = await adminDb.doc(`registros/${email}`).get();
+  if (previo.exists) {
+    const prevSlug = String(previo.data()?.tenantId ?? "");
+    const prevTenant = prevSlug ? await adminDb.doc(`tenants/${prevSlug}`).get() : null;
+    if (prevTenant?.exists && prevTenant.data()?.active !== true) {
+      try {
+        const sub = await createSubscription(prevSlug, mpEmail);
+        return NextResponse.json({ tenantId: prevSlug, pagoUrl: sub.init_point });
+      } catch {
+        return NextResponse.json({ error: "No se pudo generar el pago. Probá de nuevo." }, { status: 502 });
+      }
+    }
+    return NextResponse.json({ error: "Ya registraste un restaurante con esta cuenta." }, { status: 409 });
+  }
+
   const name = String(body.name ?? "").trim().slice(0, 60);
   const slug = normalizeSlug(String(body.slug ?? ""));
 
@@ -111,5 +137,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No se pudo completar el registro. Probá de nuevo." }, { status: 500 });
   }
 
-  return NextResponse.json({ tenantId: slug });
+  try {
+    const sub = await createSubscription(slug, mpEmail);
+    return NextResponse.json({ tenantId: slug, pagoUrl: sub.init_point });
+  } catch {
+    // La carta quedó creada; puede pagar después desde el panel.
+    return NextResponse.json({ tenantId: slug, pagoUrl: null });
+  }
 }
