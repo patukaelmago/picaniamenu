@@ -173,12 +173,10 @@ export default function Home() {
 
             <div className="mt-9 flex flex-wrap gap-4">
               <Link
-                href="https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/registro"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-bold text-white transition hover:bg-[#174BC1]"
               >
-                Quiero mi carta
+                Creá tu carta
                 <ArrowRight className="h-5 w-5" />
               </Link>
 
@@ -191,6 +189,18 @@ export default function Home() {
                 Ver demo
               </Link>
             </div>
+
+            <p className="mt-4 text-sm text-[#5E6573]">
+              ¿Preferís que la armemos nosotros?{" "}
+              <Link
+                href="https://wa.me/543417510112?text=Hola%2C%20quiero%20una%20carta%20digital%20para%20mi%20restaurante."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-[#2563EB] underline"
+              >
+                Escribinos por WhatsApp
+              </Link>
+            </p>
 
             <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 text-sm font-bold text-[#3E4655]">
               <SmallCheck text="Sin instalar aplicaciones" />
@@ -596,14 +606,23 @@ export default function Home() {
             </div>
 
             <Link
-              href="https://wa.me/543417510112?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/registro"
               className="mt-9 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2563EB] px-6 py-4 font-black text-white transition hover:bg-[#174BC1]"
             >
-              Quiero contratar
+              Contratar ahora
               <ArrowRight className="h-5 w-5" />
             </Link>
+            <p className="mt-3 text-center text-sm text-[#5E6573]">
+              Pagás con Mercado Pago y tu carta se publica al instante.{" "}
+              <Link
+                href="https://wa.me/543417510112?text=Hola%2C%20quiero%20contratar%20Carta%20Online%20por%20%2425.000%20mensuales."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-[#2563EB] underline"
+              >
+                O escribinos
+              </Link>
+            </p>
           </div>
         </div>
       </section>
@@ -648,7 +667,8 @@ export default function Home() {
               Tu carta puede estar online en pocos días.
             </h2>
             <p className="mt-5 text-lg leading-8 text-white/85">
-              Escribinos por WhatsApp. Configuramos tu carta y te entregamos el acceso junto con el código QR.
+              Registrate, pagá con Mercado Pago y armá tu carta hoy mismo. Si preferís, escribinos por
+              WhatsApp y la configuramos nosotros.
             </p>
             <p className="mt-3 font-black text-white">
               $25.000 por mes — configuración inicial incluida.
@@ -656,12 +676,10 @@ export default function Home() {
           </div>
 
           <Link
-            href="https://wa.me/543417510112?text=Hola%2C%20quiero%20empezar%20con%20Carta%20Online."
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/registro"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-[#FF6B00] px-7 py-4 font-black text-white transition hover:bg-white hover:text-[#151A24]"
           >
-            Quiero empezar
+            Creá tu carta
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
