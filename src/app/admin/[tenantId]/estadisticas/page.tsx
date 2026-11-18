@@ -95,8 +95,16 @@ export default function TenantStatsPage({
     { label: "Visitas, últimos 30 días", value: stats.mes.visitas },
     { label: "Personas, últimos 30 días", value: stats.mes.personas },
   ];
-  const maxDia = Math.max(1, ...stats.porDia.map((d) => d.visitas));
-  const ultimos14 = stats.porDia.slice(-14);
+  
+  // Analytics solo devuelve los días con visitas: se completan los días sin visitas con 0.
+  const visitasPorFecha = new Map(stats.porDia.map((d) => [d.fecha, d.visitas]));
+  const ultimos14 = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (13 - i));
+    const fecha = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+    return { fecha, visitas: visitasPorFecha.get(fecha) ?? 0 };
+  });
+  const maxDia = Math.max(1, ...ultimos14.map((d) => d.visitas));
 
   const ranking = (title: string, rows: Ranking, empty: string) => (
     <Card className="border-0 shadow-sm ring-1 ring-black/5" style={cardStyle}>
@@ -142,7 +150,7 @@ export default function TenantStatsPage({
       <Card className="border-0 shadow-sm ring-1 ring-black/5" style={cardStyle}>
         <CardContent className="p-4 sm:p-5">
           <p className="mb-4 font-semibold">Visitas por día (últimas 2 semanas)</p>
-          {ultimos14.length === 0 ? (
+          {ultimos14.every((d) => d.visitas === 0) ? (
             <p className="text-sm opacity-70">Todavía no hay visitas registradas.</p>
           ) : (
             <div className="flex h-40 items-end gap-1">

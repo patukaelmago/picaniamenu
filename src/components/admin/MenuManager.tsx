@@ -3172,7 +3172,7 @@ async function saveCategoryEdit() {
                           </div>
 
                           <div
-                            className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4"
+                            className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4 max-sm:gap-0 max-sm:[&_div]:gap-0 max-sm:[&_button]:h-8 max-sm:[&_button]:px-1.5 max-sm:[&_.w-10]:w-8"
                             onClick={(e) => e.stopPropagation()}
                           >
                             {renderMoveButtons(
@@ -3298,7 +3298,7 @@ async function saveCategoryEdit() {
                                 <span className="min-w-0 break-words font-medium">{child.name}</span>
                               </div>
 
-                              <div className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4">
+                              <div className="flex flex-wrap items-center gap-1 sm:flex-nowrap sm:gap-4 max-sm:gap-0 max-sm:[&_div]:gap-0 max-sm:[&_button]:h-8 max-sm:[&_button]:px-1.5 max-sm:[&_.w-10]:w-8">
                                 {renderMoveButtons(
                                   child.name,
                                   !normalizedCategorySearch && childIndex > 0,
