@@ -73,7 +73,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "No se pudo generar el pago. Probá de nuevo." }, { status: 502 });
       }
     }
-    return NextResponse.json({ error: "Ya registraste un restaurante con esta cuenta." }, { status: 409 });
+    if (prevTenant?.exists) {
+      return NextResponse.json({ error: "Ya registraste un restaurante con esta cuenta." }, { status: 409 });
+    }
+    // Su local anterior fue borrado: puede registrarse de nuevo.
   }
 
   const name = String(body.name ?? "").trim().slice(0, 60);
@@ -95,7 +98,11 @@ export async function POST(request: Request) {
   try {
     await adminDb.runTransaction(async (tx) => {
       const [registro, tenant] = await Promise.all([tx.get(registroRef), tx.get(tenantRef)]);
-      if (registro.exists) throw new Error("YA_REGISTRADO");
+      if (registro.exists) {
+        const prevId = String(registro.data()?.tenantId ?? "");
+        const prev = prevId ? await tx.get(adminDb.doc(`tenants/${prevId}`)) : null;
+        if (prev?.exists) throw new Error("YA_REGISTRADO");
+      }
       if (tenant.exists) throw new Error("OCUPADA");
 
       const now = FieldValue.serverTimestamp();
