@@ -256,12 +256,13 @@ export default function RegistroPage() {
             )}
 
             {!soloPagar && (
-              <p className="text-center text-xs text-[#8F8A82]">
-                ¿Ya tenés cuenta?{" "}
-                <button type="button" onClick={() => setModo("login")} className="text-[#FF8A2A] underline">
-                  Ingresá acá
-                </button>
-              </p>
+              <button
+                type="button"
+                onClick={() => setModo(null)}
+                className="mx-auto block text-xs text-[#8F8A82] underline"
+              >
+                Volver
+              </button>
             )}
             </>
             )}
