@@ -581,13 +581,13 @@ export default function TenantAlmuerzoPage({
           <CardContent className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6">
             <div className="space-y-2">
               <Label>Entrada del Día</Label>
+              <Input
+                className="w-full"
+                value={data.entrada}
+                onChange={(e) => setData({ ...data, entrada: e.target.value })}
+                placeholder="Ej: Focaccia con hummus..."
+              />
               <div className="flex items-center gap-2">
-                <Input
-                  className="min-w-0 flex-1"
-                  value={data.entrada}
-                  onChange={(e) => setData({ ...data, entrada: e.target.value })}
-                  placeholder="Ej: Focaccia con hummus..."
-                />
                 <Button
                   type="button"
                   variant="outline"
@@ -665,13 +665,13 @@ export default function TenantAlmuerzoPage({
 
             <div className="space-y-2">
               <Label>Postre o Café</Label>
+              <Input
+                className="w-full"
+                value={data.postre}
+                onChange={(e) => setData({ ...data, postre: e.target.value })}
+                placeholder="Ej: Flan casero..."
+              />
               <div className="flex items-center gap-2">
-                <Input
-                  className="min-w-0 flex-1"
-                  value={data.postre}
-                  onChange={(e) => setData({ ...data, postre: e.target.value })}
-                  placeholder="Ej: Flan casero..."
-                />
                 <Button
                   type="button"
                   variant="outline"
