@@ -214,6 +214,7 @@ export default function BackupCard({ tenantId }: { tenantId: string }) {
         <Button
           type="button"
           variant="outline"
+          className="border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground"
           onClick={() => fileRef.current?.click()}
           disabled={busy !== ""}
         >
