@@ -4,6 +4,7 @@ import { adminDb } from "@/lib/firebase-admin";
 
 export type MenuSeo = {
   name: string;
+  logoUrl: string;
   active: boolean;
   sections: { name: string; items: { name: string; description: string; price: number }[] }[];
 };
@@ -44,6 +45,7 @@ export async function getMenuSeo(tenantId: string): Promise<MenuSeo | null> {
 
         return {
           name: String(restaurant.data()?.name ?? "").trim(),
+          logoUrl: String(restaurant.data()?.logoUrl ?? "").trim(),
           active: tenant.data()?.active !== false,
           sections: categories
             .map((c) => ({ name: String(c.name ?? "").trim(), items: byCategory.get(c.id) ?? [] }))

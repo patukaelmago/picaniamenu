@@ -30,6 +30,7 @@ export async function generateMetadata({
   const title = `Carta de ${name}`;
   const description = `Consultá la carta digital actualizada de ${name}: platos, bebidas, precios y sugerencias.`;
   const canonical = `/menu/${tenantId}`;
+  const image = seo?.logoUrl || "/carta-online-logo.png";
 
   return {
     title,
@@ -43,11 +44,13 @@ export async function generateMetadata({
       siteName: "Carta Online",
       title: `${title} | Carta Online`,
       description,
+      images: [{ url: image, alt: name }],
     },
     twitter: {
       card: "summary",
       title: `${title} | Carta Online`,
       description,
+      images: [image],
     },
   };
 }
