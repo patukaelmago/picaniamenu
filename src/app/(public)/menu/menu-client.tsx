@@ -12,6 +12,7 @@ import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories, listenCategories } from "@/lib/categories-service";
+import CartaOnlineLoader from "@/components/CartaOnlineLoader";
 import { useTenantUIState } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { auth, db } from "@/lib/firebase";
@@ -758,9 +759,7 @@ export default function MenuClient({ tenantId }: Props) {
 
   if (!uiReady) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-white">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-500" />
-      </div>
+      <CartaOnlineLoader text="Cargando la carta…" />
     );
   }
 

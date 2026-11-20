@@ -2,6 +2,7 @@
 
 import Footer from "@/components/footer";
 import Header from "@/components/header";
+import CartaOnlineLoader from "@/components/CartaOnlineLoader";
 import { useTenantUIState } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { usePathname } from "next/navigation";
@@ -39,9 +40,7 @@ export default function PublicLayout({
       } as CSSProperties}
     >
       {showLoader && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-500" />
-        </div>
+        <CartaOnlineLoader text="Cargando la carta…" className="fixed inset-0 z-[100]" />
       )}
       <Header />
       <main
