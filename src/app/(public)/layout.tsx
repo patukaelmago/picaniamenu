@@ -2,9 +2,10 @@
 
 import Footer from "@/components/footer";
 import Header from "@/components/header";
-import { useTenantUI } from "@/hooks/use-tenant-ui";
+import { useTenantUIState } from "@/hooks/use-tenant-ui";
+import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { usePathname } from "next/navigation";
-import type { CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 export default function PublicLayout({
   children,
@@ -15,7 +16,15 @@ export default function PublicLayout({
   const parts = pathname.split("/").filter(Boolean);
   const menuIndex = parts.indexOf("menu");
   const tenantId = menuIndex >= 0 ? parts[menuIndex + 1] : null;
-  const ui = useTenantUI(tenantId);
+  const { ui, ready: uiLoaded } = useTenantUIState(tenantId);
+  const settings = useRestaurantSettings();
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setTimedOut(true), 4000);
+    return () => window.clearTimeout(timer);
+  }, []);
+  // En la carta de un restaurante, tapar todo hasta tener sus colores y logo (evita ver el diseño por defecto).
+  const showLoader = !!tenantId && !timedOut && (!uiLoaded || settings === null);
 
   return (
     <div
@@ -29,6 +38,11 @@ export default function PublicLayout({
         color: `hsl(${ui.foreground})`,
       } as CSSProperties}
     >
+      {showLoader && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-500" />
+        </div>
+      )}
       <Header />
       <main
         className="flex-grow"
