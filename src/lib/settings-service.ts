@@ -9,6 +9,7 @@ export type RestaurantSettings = {
   websiteUrl: string;
   showLogo: boolean;
   showName: boolean;
+  showLegend?: boolean;
   specialLabel: string;
   paymentMethods: string[];
 };
@@ -44,6 +45,7 @@ export async function getRestaurantSettings(
     websiteUrl: data.websiteUrl ?? "",
     showLogo: data.showLogo ?? true,
     showName: data.showName ?? true,
+    showLegend: data.showLegend ?? true,
     specialLabel: data.specialLabel?.trim().slice(0, 15) || "Sugerencia",
     paymentMethods: Array.isArray(data.paymentMethods)
       ? data.paymentMethods.filter((method: unknown): method is string =>
@@ -66,6 +68,7 @@ export async function saveRestaurantSettings(
       websiteUrl: data.websiteUrl,
       showLogo: data.showLogo,
       showName: data.showName,
+      showLegend: data.showLegend ?? true,
       specialLabel: data.specialLabel.trim().slice(0, 15) || "Sugerencia",
       paymentMethods: data.paymentMethods,
       updatedAt: serverTimestamp(),

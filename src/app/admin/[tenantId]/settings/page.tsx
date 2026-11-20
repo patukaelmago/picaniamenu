@@ -53,6 +53,7 @@ type RestaurantSettingsExtra = {
   websiteUrl?: string;
   showLogo?: boolean;
   showName?: boolean;
+  showLegend?: boolean;
   specialLabel?: string;
   paymentMethods?: string[];
 };
@@ -70,6 +71,7 @@ export default function TenantSettingsPage({
 
   const [showLogo, setShowLogo] = useState(true);
   const [showName, setShowName] = useState(true);
+  const [showLegend, setShowLegend] = useState(true);
   const [specialLabel, setSpecialLabel] = useState("Sugerencia");
   const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
   const [showDesktopCategoryList, setShowDesktopCategoryList] = useState(false);
@@ -112,6 +114,7 @@ export default function TenantSettingsPage({
         setCurrency(settings.currency || "ARS");
         setShowLogo(settings.showLogo ?? true);
         setShowName(settings.showName ?? true);
+        setShowLegend(settings.showLegend ?? true);
         setSpecialLabel(
           settings.specialLabel?.trim().slice(0, 15) || "Sugerencia"
         );
@@ -401,6 +404,7 @@ export default function TenantSettingsPage({
         websiteUrl: websiteUrl.trim(),
         showLogo,
         showName,
+        showLegend,
         specialLabel: specialLabel.trim().slice(0, 15) || "Sugerencia",
         paymentMethods,
       } as any);
@@ -518,6 +522,20 @@ export default function TenantSettingsPage({
               <p className="text-sm text-muted-foreground">
                 Este nombre aparece en la columna del menú y en la carta pública.
               </p>
+            </div>
+
+            <div className="flex items-center justify-between rounded-md border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="show-legend">Mostrar referencias</Label>
+                <p className="text-sm text-muted-foreground">
+                  Muestra u oculta los íconos de {specialLabel.trim() || "Sugerencia"} y Sin TACC debajo del buscador.
+                </p>
+              </div>
+              <Switch
+                id="show-legend"
+                checked={showLegend}
+                onCheckedChange={setShowLegend}
+              />
             </div>
 
             <div className="flex items-center justify-between rounded-md border p-4">

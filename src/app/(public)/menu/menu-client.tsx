@@ -960,6 +960,7 @@ export default function MenuClient({ tenantId }: Props) {
                 className="pl-10 placeholder:!text-[hsl(var(--search-placeholder))] placeholder:!opacity-70 focus-visible:ring-1 focus-visible:ring-[hsl(var(--search-placeholder))]"
               />
             </div>
+            {settings?.showLegend !== false && (
             <div
               className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs"
               style={{ color: `hsl(${ui.foreground})` }}
@@ -986,6 +987,7 @@ export default function MenuClient({ tenantId }: Props) {
                 {copy.glutenFree}
               </span>
             </div>
+            )}
           </div>
 
           <div className="space-y-10">
