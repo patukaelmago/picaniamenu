@@ -12,7 +12,7 @@ import type { Category, MenuItem } from "@/lib/types";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { listMenuItems, listenMenuItems } from "@/lib/menu-service";
 import { listCategories, listenCategories } from "@/lib/categories-service";
-import { useTenantUI } from "@/hooks/use-tenant-ui";
+import { useTenantUIState } from "@/hooks/use-tenant-ui";
 import { useRestaurantSettings } from "@/hooks/use-restaurant-settings";
 import { auth, db } from "@/lib/firebase";
 import { restoreMaidoDemo } from "@/lib/restoreMaidoDemo";
@@ -123,8 +123,13 @@ export default function MenuClient({ tenantId }: Props) {
     price: number;
   } | null>(null);
 
-  const ui = useTenantUI(tenantId);
+  const { ui, ready: uiLoaded } = useTenantUIState(tenantId);
   const settings = useRestaurantSettings();
+  const [settingsTimedOut, setSettingsTimedOut] = useState(false);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSettingsTimedOut(true), 4000);
+    return () => window.clearTimeout(timer);
+  }, []);
   const tenantCurrency: "ARS" | "USD" =
     settings?.currency === "USD" ? "USD" : "ARS";
 
@@ -138,7 +143,8 @@ export default function MenuClient({ tenantId }: Props) {
     document.title = `${settings?.name?.trim() || fallbackName} | Carta Online`;
   }, [settings?.name, tenantId]);
 
-  const uiReady = true;
+  // No mostrar la carta hasta tener los colores y el logo del restaurante (evita ver el diseño por defecto).
+  const uiReady = uiLoaded && (settings !== null || settingsTimedOut);
   const isPicaniaTenant = ["picana", "picania"].includes(
     tenantId.toLowerCase()
   );
@@ -750,7 +756,13 @@ export default function MenuClient({ tenantId }: Props) {
     isPicaniaTenant,
   ]);
 
-  if (!uiReady) return null;
+  if (!uiReady) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-500" />
+      </div>
+    );
+  }
 
   if (unpublished) {
     return (

@@ -11,14 +11,22 @@ import {
 } from "@/lib/tenant-ui/brand-colors";
 
 export function useTenantUI(tenantId?: string | null): TenantUI {
+  return useTenantUIState(tenantId).ui;
+}
+
+// Igual que useTenantUI, pero además avisa cuándo terminaron de cargar los colores del tenant.
+export function useTenantUIState(tenantId?: string | null): { ui: TenantUI; ready: boolean } {
   const [ui, setUi] = useState<TenantUI>(() => getTenantUI(tenantId));
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const base = getTenantUI(tenantId);
     setUi(base);
+    setReady(false);
 
     if (!tenantId) {
+      setReady(true);
       return () => {
         cancelled = true;
       };
@@ -40,6 +48,9 @@ export function useTenantUI(tenantId?: string | null): TenantUI {
       })
       .catch((error) => {
         console.error("Error cargando colores del tenant", error);
+      })
+      .finally(() => {
+        if (!cancelled) setReady(true);
       });
 
     return () => {
@@ -47,5 +58,5 @@ export function useTenantUI(tenantId?: string | null): TenantUI {
     };
   }, [tenantId]);
 
-  return ui;
+  return { ui, ready };
 }
