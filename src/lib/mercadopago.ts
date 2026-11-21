@@ -2,6 +2,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { avisar } from "@/lib/avisos";
+import { guardarPago, registrarEvento } from "@/lib/cobros-historial";
 import { DIA_CORTE, diasEntre, hoyAR, sumarMes, type Cobro } from "@/lib/cobros-shared";
 
 export const ABONO_MENSUAL_ARS = 25000;
@@ -15,7 +16,11 @@ export type Preapproval = {
   init_point?: string;
   date_created?: string;
   next_payment_date?: string;
-  summarized?: { last_charged_date?: string | null; charged_quantity?: number | null };
+  summarized?: {
+    last_charged_date?: string | null;
+    last_charged_amount?: number | null;
+    charged_quantity?: number | null;
+  };
 };
 
 export async function mpFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -115,6 +120,27 @@ export async function syncSubscription(p: Preapproval) {
   }
   update.cobro = cobro;
   await ref.set(update, { merge: true });
+
+  // Historial: cada cobro acreditado queda como una cuota pagada.
+  const ultimoCobro = p.status === "authorized" ? p.summarized?.last_charged_date?.slice(0, 10) : undefined;
+  if (ultimoCobro) {
+    const nueva = await guardarPago(
+      slug,
+      {
+        fecha: ultimoCobro,
+        desde: ultimoCobro,
+        hasta: sumarMes(ultimoCobro),
+        monto: Number(p.summarized?.last_charged_amount ?? ABONO_MENSUAL_ARS),
+        medio: "mp",
+        nota: "Cobro automático de Mercado Pago",
+      },
+      `mp-${p.id}-${ultimoCobro}`
+    );
+    if (nueva) await registrarEvento(slug, "pago", `Mercado Pago cobró el abono del ${ultimoCobro}.`);
+  }
+  if (prevCobro.suspendido && cobro.suspendido === false) {
+    await registrarEvento(slug, "reactivacion", "Carta reactivada al acreditarse el pago.");
+  }
 
   const before = actual?.status;
 

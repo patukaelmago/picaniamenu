@@ -2,6 +2,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { avisar, enviarMail } from "@/lib/avisos";
+import { registrarEvento } from "@/lib/cobros-historial";
 import { findSubscription, syncSubscription, SITE, ABONO_MENSUAL_ARS } from "@/lib/mercadopago";
 import { DIAS_AVISO, DIA_CORTE, diasEntre, fechaLinda, hoyAR, type Cobro } from "@/lib/cobros-shared";
 
@@ -116,6 +117,11 @@ async function procesarLocal(slug: string, data: FirebaseFirestore.DocumentData,
       ``,
       `Carta Online`,
     ]);
+    await registrarEvento(
+      slug,
+      "pausa",
+      `Carta pausada por falta de pago (venció el ${fechaLinda(ciclo)}). Mail ${enviado ? `enviado a ${para}` : "NO enviado"}.`
+    );
     if (!enviado) {
       await avisar(`no salió el aviso de pausa: ${nombre}`, [
         `La carta de ${slug} se pausó pero no se pudo mandar el mail a "${para || "(sin email)"}".`,
@@ -138,6 +144,11 @@ async function procesarLocal(slug: string, data: FirebaseFirestore.DocumentData,
     ]);
   }
   await ref.set({ cobro: { aviso: { ciclo, etapa } } }, { merge: true });
+  await registrarEvento(
+    slug,
+    "aviso",
+    `Aviso día ${etapa}: "${asunto}" ${ok ? `enviado a ${para}` : "NO enviado"}.`
+  );
   return `${slug}: aviso día ${etapa}`;
 }
 
