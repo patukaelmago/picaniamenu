@@ -94,7 +94,8 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
   }
 
   function registrarPago() {
-    const nuevo = proximoVencimiento(cobro.pagadoHasta || pagadoHasta || undefined);
+    // Usa la fecha escrita en el campo, aunque todavía no se haya guardado.
+    const nuevo = proximoVencimiento(pagadoHasta || cobro.pagadoHasta || undefined);
     guardar(
       {
         "cobro.pagadoHasta": nuevo,
