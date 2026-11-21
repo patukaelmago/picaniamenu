@@ -3,9 +3,9 @@ import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { avisar } from "@/lib/avisos";
 import { guardarPago, registrarEvento } from "@/lib/cobros-historial";
-import { DIA_CORTE, diasEntre, hoyAR, sumarMes, type Cobro } from "@/lib/cobros-shared";
+import { DIA_CORTE, PRECIO_BASE, diasEntre, hoyAR, sumarMes, type Cobro } from "@/lib/cobros-shared";
 
-export const ABONO_MENSUAL_ARS = 25000;
+export const ABONO_MENSUAL_ARS = PRECIO_BASE;
 export const SITE = "https://carta-online.com";
 
 export type Preapproval = {
@@ -43,7 +43,7 @@ export async function mpFetch<T>(path: string, init: RequestInit = {}): Promise<
   return data as T;
 }
 
-export function createSubscription(slug: string, payerEmail: string) {
+export function createSubscription(slug: string, payerEmail: string, monto = ABONO_MENSUAL_ARS) {
   return mpFetch<Preapproval>("/preapproval", {
     method: "POST",
     body: JSON.stringify({
@@ -53,7 +53,7 @@ export function createSubscription(slug: string, payerEmail: string) {
       auto_recurring: {
         frequency: 1,
         frequency_type: "months",
-        transaction_amount: ABONO_MENSUAL_ARS,
+        transaction_amount: monto,
         currency_id: "ARS",
       },
       back_url: `${SITE}/registro/listo?local=${encodeURIComponent(slug)}`,
@@ -136,7 +136,16 @@ export async function syncSubscription(p: Preapproval) {
       },
       `mp-${p.id}-${ultimoCobro}`
     );
-    if (nueva) await registrarEvento(slug, "pago", `Mercado Pago cobró el abono del ${ultimoCobro}.`);
+    if (nueva) {
+      await registrarEvento(slug, "pago", `Mercado Pago cobró el abono del ${ultimoCobro}.`);
+      const { enviarRecibo } = await import("@/lib/cobros");
+      await enviarRecibo(slug, {
+        monto: Number(p.summarized?.last_charged_amount ?? ABONO_MENSUAL_ARS),
+        medio: "mp",
+        desde: ultimoCobro,
+        hasta: sumarMes(ultimoCobro),
+      });
+    }
   }
   if (prevCobro.suspendido && cobro.suspendido === false) {
     await registrarEvento(slug, "reactivacion", "Carta reactivada al acreditarse el pago.");

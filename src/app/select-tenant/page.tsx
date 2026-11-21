@@ -183,6 +183,15 @@ export default function SelectTenantPage() {
             </Link>
           )}
 
+          {isSuperAdmin && (
+            <Link
+              href="/cobros"
+              className="mb-5 flex w-full items-center justify-center rounded-xl border border-[#3A3A3A] px-4 py-3 font-semibold transition-colors hover:border-[#4B75FF]"
+            >
+              Cobros
+            </Link>
+          )}
+
           {isSuperAdmin && pendingTenants.length > 0 && (
             <div className="mb-6 space-y-3 rounded-xl border border-[#FF7A00]/50 bg-[#FF7A00]/10 p-4">
               <p className="font-semibold">Registros pendientes de aprobación</p>

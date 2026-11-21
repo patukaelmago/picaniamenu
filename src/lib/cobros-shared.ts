@@ -7,9 +7,18 @@ export type Cobro = {
   autoCorte?: boolean; // avisos y corte automáticos
   pagadoHasta?: string; // "AAAA-MM-DD": vence ese día
   email?: string; // a dónde van los avisos (si no, el dueño del local)
+  precio?: number; // abono mensual de este local (si no, el precio general)
   suspendido?: boolean; // carta pausada por falta de pago
   aviso?: { ciclo: string; etapa: number }; // último aviso enviado para ese vencimiento
 };
+
+// Abono mensual general.
+export const PRECIO_BASE = 25000;
+export const precioDe = (cobro: Cobro) => (Number(cobro.precio) > 0 ? Number(cobro.precio) : PRECIO_BASE);
+export const pesos = (n: number) => `$${Math.round(n).toLocaleString("es-AR")}`;
+
+// Recordatorio antes del vencimiento (solo cobro manual).
+export const DIAS_ANTES = 3;
 
 // Días desde el vencimiento en que se avisa, y día en que se pausa.
 export const DIAS_AVISO = [0, 3, 7];

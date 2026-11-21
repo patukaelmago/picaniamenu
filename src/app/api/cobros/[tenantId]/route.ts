@@ -1,25 +1,17 @@
 import { NextResponse } from "next/server";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminDb } from "@/lib/firebase-admin";
+import { superadminDe } from "@/lib/superadmin-server";
+import { enviarRecibo } from "@/lib/cobros";
 import { guardarPago, registrarEvento, type MedioPago } from "@/lib/cobros-historial";
-import { ABONO_MENSUAL_ARS } from "@/lib/mercadopago";
-import { diasEntre, fechaLinda, hoyAR, proximoVencimiento } from "@/lib/cobros-shared";
+import { mpFetch } from "@/lib/mercadopago";
+import { diasEntre, fechaLinda, hoyAR, pesos, precioDe, proximoVencimiento } from "@/lib/cobros-shared";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Historial y acciones de cobro de un local. Solo el superadmin.
-async function superadmin(request: Request) {
-  const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (!token) return null;
-  try {
-    const email = ((await adminAuth.verifyIdToken(token)).email ?? "").toLowerCase();
-    const snap = await adminDb.doc(`superadmins/${email}`).get();
-    return snap.exists && snap.data()?.enabled === true ? email : null;
-  } catch {
-    return null;
-  }
-}
+const superadmin = superadminDe;
 
 const ts = (v: unknown) => (v instanceof Timestamp ? v.toDate().toISOString() : null);
 
@@ -56,6 +48,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     medio?: MedioPago;
     nota?: string;
     pagoId?: string;
+    recibo?: boolean;
+    modo?: string;
+    autoCorte?: boolean;
+    pagadoHasta?: string;
+    email?: string;
+    precio?: number;
   };
   const ref = adminDb.doc(`tenants/${tenantId}`);
   const t = await ref.get();
@@ -67,7 +65,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     const hasta = proximoVencimiento(base || undefined);
     // Mismo criterio que el vencimiento: sigue el ciclo si el atraso es de hasta 15 días.
     const desde = base && diasEntre(base, hoyAR()) <= 15 ? base : hoyAR();
-    const monto = Number(body.monto) > 0 ? Math.round(Number(body.monto)) : ABONO_MENSUAL_ARS;
+    const monto = Number(body.monto) > 0 ? Math.round(Number(body.monto)) : precioDe(cobro);
     const medio: MedioPago = ["mp", "efectivo", "transferencia"].includes(String(body.medio))
       ? (body.medio as MedioPago)
       : "efectivo";
@@ -91,11 +89,53 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     await registrarEvento(
       tenantId,
       "pago",
-      `Pago registrado: $${monto.toLocaleString("es-AR")} (${medio}). Vence el ${fechaLinda(hasta)}.${
+      `Pago registrado: ${pesos(monto)} (${medio}). Vence el ${fechaLinda(hasta)}.${
         cobro.suspendido ? " Carta reactivada." : ""
       }`
     );
-    return NextResponse.json({ ok: true, hasta });
+    const recibo = body.recibo === false ? null : await enviarRecibo(tenantId, { monto, medio, desde, hasta });
+    return NextResponse.json({ ok: true, hasta, recibo });
+  }
+
+  if (body.accion === "ajustes") {
+    const modo = body.modo === "mp" ? "mp" : "manual";
+    const pagadoHasta = /^\d{4}-\d{2}-\d{2}$/.test(body.pagadoHasta ?? "") ? body.pagadoHasta : "";
+    const email = String(body.email ?? "").trim().toLowerCase().slice(0, 120);
+    const precio = Number(body.precio) > 0 ? Math.round(Number(body.precio)) : null;
+    const autoCorte = body.autoCorte === true;
+    if (autoCorte && !pagadoHasta) {
+      return NextResponse.json({ error: "Cargá la fecha de vencimiento" }, { status: 400 });
+    }
+    await ref.set(
+      {
+        cobro: { modo, autoCorte, pagadoHasta, email, precio: precio ?? FieldValue.delete() },
+        updatedAt: FieldValue.serverTimestamp(),
+      },
+      { merge: true }
+    );
+    const cambios: string[] = [];
+    if (cobro.pagadoHasta !== pagadoHasta) cambios.push(`vencimiento ${fechaLinda(pagadoHasta) || "sin fecha"}`);
+    if ((cobro.precio ?? null) !== precio) cambios.push(`abono ${pesos(precio ?? precioDe({}))}`);
+    if ((cobro.autoCorte === true) !== autoCorte) cambios.push(`avisos ${autoCorte ? "activados" : "apagados"}`);
+    if (cambios.length) await registrarEvento(tenantId, "ajuste", `Cambios: ${cambios.join(", ")}.`);
+
+    // Si cobra por Mercado Pago y cambió el precio, se actualiza la suscripción.
+    let mp: string | null = null;
+    const subId = t.data()?.subscription?.id;
+    if (modo === "mp" && subId && (cobro.precio ?? null) !== precio && t.data()?.subscription?.status === "authorized") {
+      try {
+        await mpFetch(`/preapproval/${subId}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            auto_recurring: { transaction_amount: precio ?? precioDe({}), currency_id: "ARS" },
+          }),
+        });
+        mp = "ok";
+      } catch {
+        mp = "error";
+      }
+    }
+    return NextResponse.json({ ok: true, mp });
   }
 
   if (body.accion === "pausar" || body.accion === "reactivar") {

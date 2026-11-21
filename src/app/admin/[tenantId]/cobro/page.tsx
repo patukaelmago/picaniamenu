@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +23,10 @@ import {
   DIAS_AVISO,
   diasEntre,
   fechaLinda,
+  DIAS_ANTES,
+  PRECIO_BASE,
   hoyAR,
+  precioDe,
   proximoVencimiento,
   type Cobro,
   type CobroModo,
@@ -58,6 +61,8 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
   const [autoCorte, setAutoCorte] = useState(false);
   const [pagadoHasta, setPagadoHasta] = useState("");
   const [email, setEmail] = useState("");
+  const [precio, setPrecio] = useState("");
+  const [recibo, setRecibo] = useState(true);
   const [guardando, setGuardando] = useState(false);
   const [historial, setHistorial] = useState<Historial | null>(null);
   const [dialogoPago, setDialogoPago] = useState(false);
@@ -112,6 +117,8 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
     setAutoCorte(c.autoCorte === true);
     setPagadoHasta(c.pagadoHasta ?? "");
     setEmail(c.email ?? "");
+    setPrecio(c.precio ? String(c.precio) : "");
+    setMonto(String(precioDe(c)));
   }
 
   useEffect(() => {
@@ -126,20 +133,6 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tenantId]);
 
-  async function guardar(cambios: Record<string, unknown>, mensaje: string) {
-    setGuardando(true);
-    try {
-      await updateDoc(doc(db, "tenants", tenantId), { ...cambios, updatedAt: serverTimestamp() });
-      await cargar();
-      toast({ title: mensaje });
-    } catch (e) {
-      console.error(e);
-      toast({ title: "No se pudo guardar", variant: "destructive" });
-    } finally {
-      setGuardando(false);
-    }
-  }
-
   function guardarAjustes() {
     if (autoCorte && !pagadoHasta) {
       toast({ title: "Cargá la fecha de vencimiento para activar los avisos", variant: "destructive" });
@@ -149,12 +142,14 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
       toast({ title: "Cargá el email para los avisos", variant: "destructive" });
       return;
     }
-    guardar(
+    accion(
       {
-        "cobro.modo": modo,
-        "cobro.autoCorte": autoCorte,
-        "cobro.pagadoHasta": pagadoHasta,
-        "cobro.email": email.trim().toLowerCase(),
+        accion: "ajustes",
+        modo,
+        autoCorte,
+        pagadoHasta,
+        email: email.trim().toLowerCase(),
+        precio: Number(precio) || null,
       },
       "Cobro guardado"
     );
@@ -165,7 +160,7 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
     const base = pagadoHasta || cobro.pagadoHasta || "";
     const nuevo = proximoVencimiento(base || undefined);
     const ok = await accion(
-      { accion: "pago", base, monto: Number(monto), medio, nota },
+      { accion: "pago", base, monto: Number(monto), medio, nota, recibo },
       `Pago registrado. Próximo vencimiento: ${fechaLinda(nuevo)}`
     );
     if (ok) {
@@ -222,8 +217,8 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
             <div>
               <p className="font-medium">Avisos y corte automáticos</p>
               <p className="text-sm text-muted-foreground">
-                Avisa por mail los días {DIAS_AVISO.join(", ")} desde el vencimiento y pausa la carta el día{" "}
-                {DIA_CORTE}.
+                Recordatorio {DIAS_ANTES} días antes (solo cobro manual), avisos los días{" "}
+                {DIAS_AVISO.join(", ")} desde el vencimiento y pausa la carta el día {DIA_CORTE}.
               </p>
             </div>
             <Switch checked={autoCorte} onCheckedChange={setAutoCorte} />
@@ -233,6 +228,16 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
             <div className="space-y-2">
               <Label htmlFor="vence">Vence el</Label>
               <Input id="vence" type="date" value={pagadoHasta} onChange={(e) => setPagadoHasta(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="precio">Abono mensual</Label>
+              <Input
+                id="precio"
+                inputMode="numeric"
+                placeholder={`${PRECIO_BASE} (general)`}
+                value={precio}
+                onChange={(e) => setPrecio(e.target.value.replace(/\D/g, ""))}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email para avisos</Label>
@@ -390,6 +395,10 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
             <div className="space-y-2">
               <Label htmlFor="nota">Nota (opcional)</Label>
               <Input id="nota" value={nota} onChange={(e) => setNota(e.target.value)} />
+            </div>
+            <div className="flex items-center justify-between gap-4">
+              <Label htmlFor="recibo">Enviar recibo por mail al cliente</Label>
+              <Switch id="recibo" checked={recibo} onCheckedChange={setRecibo} />
             </div>
           </div>
           <DialogFooter>

@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 const RESERVED = new Set([
   "admin", "api", "menu", "login", "registro", "qr", "settings", "colors", "import",
   "select-tenant", "no-access", "tenants", "carta-online", "carta", "demo", "test",
-  "inicio", "estadisticas", "almuerzo", "www", "app",
+  "inicio", "estadisticas", "almuerzo", "www", "app", "cobros", "cobro",
 ]);
 
 const DEFAULT_BRAND = {
@@ -72,7 +72,8 @@ export async function POST(request: Request) {
     const debe = prevTenant?.data()?.cobro?.suspendido === true || (atraso !== null && atraso >= 0);
     if (prevTenant?.exists && (prevTenant.data()?.active !== true || debe)) {
       try {
-        const sub = await createSubscription(prevSlug, mpEmail);
+        const precio = Number(prevTenant.data()?.cobro?.precio) || undefined;
+        const sub = await createSubscription(prevSlug, mpEmail, precio);
         return NextResponse.json({ tenantId: prevSlug, pagoUrl: sub.init_point });
       } catch {
         return NextResponse.json({ error: "No se pudo generar el pago. Probá de nuevo." }, { status: 502 });
