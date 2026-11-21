@@ -31,3 +31,37 @@ export async function avisar(asunto: string, lineas: string[]) {
     console.error("Aviso por mail:", e);
   }
 }
+
+// Mails a los clientes: salen de la cuenta de Carta Online (con copia oculta al dueño).
+const CLIENTES_USER = "cartaonlinerosario@gmail.com";
+let transportClientes: nodemailer.Transporter | null = null;
+
+function getTransportClientes() {
+  const pass = process.env.CARTA_GMAIL_APP_PASSWORD;
+  if (!pass) return null;
+  transportClientes ??= nodemailer.createTransport({
+    service: "gmail",
+    auth: { user: CLIENTES_USER, pass: pass.replace(/\s+/g, "") },
+  });
+  return transportClientes;
+}
+
+// Devuelve si salió. Nunca hace fallar la operación que lo llama.
+export async function enviarMail(para: string, asunto: string, lineas: string[]) {
+  try {
+    const t = getTransportClientes();
+    if (!t || !para) return false;
+    await t.sendMail({
+      from: `Carta Online <${CLIENTES_USER}>`,
+      to: para,
+      bcc: DESTINO,
+      replyTo: CLIENTES_USER,
+      subject: asunto,
+      text: lineas.join("\n"),
+    });
+    return true;
+  } catch (e) {
+    console.error("Mail a cliente:", e);
+    return false;
+  }
+}

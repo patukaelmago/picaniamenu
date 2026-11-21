@@ -31,6 +31,7 @@ import {
   Palette,
   Home,
   BarChart3,
+  Wallet,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -93,8 +94,16 @@ export default function AdminSidebar({
   const [tenantLogo, setTenantLogo] = useState("");
   const [tenantName, setTenantName] = useState("");
 
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => setUser(u));
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (!u?.email) return setIsSuperAdmin(false);
+      getDoc(doc(db, "superadmins", u.email.toLowerCase()))
+        .then((s) => setIsSuperAdmin(s.exists() && s.data()?.enabled === true))
+        .catch(() => setIsSuperAdmin(false));
+    });
     return () => unsub();
   }, []);
 
@@ -215,12 +224,17 @@ export default function AdminSidebar({
           label: "Ajustes",
           icon: Settings,
         },
+        isSuperAdmin && {
+          href: `/admin/${tenantId}/cobro`,
+          label: "Cobro",
+          icon: Wallet,
+        },
       ].filter(Boolean) as Array<{
         href: string;
         label: string;
         icon: any;
       }>,
-    [tenantId, ui.showFriday]
+    [tenantId, ui.showFriday, isSuperAdmin]
   );
 
   const isActiveHref = (href: string) => {

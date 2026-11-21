@@ -1,0 +1,14 @@
+name: Revisar cobros (avisos y corte)
+
+on:
+  schedule:
+    - cron: "17 12 * * *" # todos los días 9:17 de Argentina
+  workflow_dispatch:
+
+jobs:
+  revisar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Revisar cobros
+        run: |
+          curl -fsS -X POST --max-time 300 https://carta-online.com/api/cobros/revisar

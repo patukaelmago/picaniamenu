@@ -10,3 +10,7 @@ env:
     secret: GMAIL_APP_PASSWORD
     availability:
       - RUNTIME
+  - variable: CARTA_GMAIL_APP_PASSWORD
+    secret: CARTA_GMAIL_APP_PASSWORD
+    availability:
+      - RUNTIME

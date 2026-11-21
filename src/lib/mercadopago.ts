@@ -2,6 +2,7 @@
 import { FieldValue } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
 import { avisar } from "@/lib/avisos";
+import { DIA_CORTE, diasEntre, hoyAR, sumarMes, type Cobro } from "@/lib/cobros-shared";
 
 export const ABONO_MENSUAL_ARS = 25000;
 export const SITE = "https://carta-online.com";
@@ -13,6 +14,8 @@ export type Preapproval = {
   payer_email?: string;
   init_point?: string;
   date_created?: string;
+  next_payment_date?: string;
+  summarized?: { last_charged_date?: string | null; charged_quantity?: number | null };
 };
 
 export async function mpFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -68,7 +71,8 @@ export async function findSubscription(slug: string): Promise<Preapproval | null
   );
 }
 
-// Aplica el estado de la suscripción al local: pagada = publicada; cancelada o pausada = sin publicar.
+// Aplica el estado de la suscripción al local. El vencimiento sale del último cobro acreditado;
+// los avisos y el corte por atraso los maneja la revisión diaria (src/lib/cobros.ts).
 // Solo toca locales que se registraron solos (tienen ownerEmail); nunca los creados a mano.
 export async function syncSubscription(p: Preapproval) {
   const slug = p.external_reference;
@@ -76,22 +80,64 @@ export async function syncSubscription(p: Preapproval) {
   const ref = adminDb.doc(`tenants/${slug}`);
   const snap = await ref.get();
   if (!snap.exists || !snap.data()?.ownerEmail) return null;
+  const prevCobro: Cobro = snap.data()?.cobro ?? {};
+  const actual = snap.data()?.subscription;
+
+  // Una suscripción vieja o sin terminar no pisa a la que está pagando.
+  if (p.status !== "authorized" && actual?.status === "authorized" && actual?.id !== p.id) {
+    return { slug, active: snap.data()?.active === true, status: p.status };
+  }
 
   const update: Record<string, unknown> = {
     subscription: { id: p.id, status: p.status, updatedAt: FieldValue.serverTimestamp() },
     updatedAt: FieldValue.serverTimestamp(),
   };
+  const cobro: Record<string, unknown> = { modo: "mp" };
+  if (prevCobro.autoCorte === undefined) cobro.autoCorte = true;
+
   if (p.status === "authorized") {
-    update.active = true;
-    update.pending = false;
+    const ultimo = p.summarized?.last_charged_date?.slice(0, 10);
+    let pagadoHasta = ultimo ? sumarMes(ultimo) : prevCobro.pagadoHasta;
+    if (!pagadoHasta) pagadoHasta = sumarMes(String(p.date_created ?? new Date().toISOString()).slice(0, 10));
+    if (prevCobro.pagadoHasta && prevCobro.pagadoHasta > pagadoHasta) pagadoHasta = prevCobro.pagadoHasta;
+    cobro.pagadoHasta = pagadoHasta;
+
+    const atraso = diasEntre(pagadoHasta, hoyAR()) - 1;
+    if (atraso < DIA_CORTE) {
+      update.active = true;
+      update.pending = false;
+      cobro.suspendido = false;
+    }
   } else if (p.status === "cancelled" || p.status === "paused") {
-    // Si estaba publicada y la cancelan, la carta deja de verse.
-    if (snap.data()?.subscription?.id === p.id || snap.data()?.active === true) update.active = false;
+    // Si nunca pagó, la carta no se ve. Si ya pagaba, sigue hasta el vencimiento y después
+    // corren los avisos y el corte de la revisión diaria.
+    if (!prevCobro.pagadoHasta) update.active = false;
   }
+  update.cobro = cobro;
   await ref.set(update, { merge: true });
 
+  const before = actual?.status;
+
+  // Si pagó con una suscripción nueva, se cancelan las anteriores para no cobrarle dos veces.
+  if (p.status === "authorized" && (before !== "authorized" || actual?.id !== p.id)) {
+    try {
+      const res = await mpFetch<{ results?: Preapproval[] }>(
+        `/preapproval/search?external_reference=${encodeURIComponent(slug)}&limit=20`
+      );
+      for (const otra of res.results ?? []) {
+        if (otra.id !== p.id && ["authorized", "paused"].includes(otra.status)) {
+          await mpFetch(`/preapproval/${otra.id}`, {
+            method: "PUT",
+            body: JSON.stringify({ status: "cancelled" }),
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Cancelar suscripciones viejas", slug, e);
+    }
+  }
+
   // Aviso por mail solo cuando el estado cambia.
-  const before = snap.data()?.subscription?.status;
   if (before !== p.status && ["authorized", "cancelled", "paused"].includes(p.status)) {
     const nombre = String(snap.data()?.name ?? slug);
     const titulo =
@@ -101,7 +147,9 @@ export async function syncSubscription(p: Preapproval) {
     await avisar(titulo, [
       p.status === "authorized"
         ? "Se acreditó el abono y la carta quedó publicada."
-        : "La carta dejó de verse por el QR.",
+        : update.active === false
+          ? "La carta dejó de verse por el QR."
+          : "La carta sigue visible hasta el vencimiento; después corren los avisos y el corte.",
       ``,
       `Carta: https://carta-online.com/menu/${slug}`,
       `Cuenta: ${snap.data()?.ownerEmail ?? ""}`,

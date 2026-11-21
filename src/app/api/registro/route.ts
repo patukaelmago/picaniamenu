@@ -4,6 +4,7 @@ import { adminAuth, adminDb } from "@/lib/firebase-admin";
 import { REGISTRO_ABIERTO } from "@/lib/registro";
 import { createSubscription } from "@/lib/mercadopago";
 import { avisar } from "@/lib/avisos";
+import { diasDeAtraso } from "@/lib/cobros";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,7 +67,10 @@ export async function POST(request: Request) {
   if (previo.exists) {
     const prevSlug = String(previo.data()?.tenantId ?? "");
     const prevTenant = prevSlug ? await adminDb.doc(`tenants/${prevSlug}`).get() : null;
-    if (prevTenant?.exists && prevTenant.data()?.active !== true) {
+    // También si está atrasado o pausado por falta de pago (para pagar o cambiar la tarjeta).
+    const atraso = prevTenant?.exists ? diasDeAtraso(prevTenant.data()?.cobro ?? {}) : null;
+    const debe = prevTenant?.data()?.cobro?.suspendido === true || (atraso !== null && atraso >= 0);
+    if (prevTenant?.exists && (prevTenant.data()?.active !== true || debe)) {
       try {
         const sub = await createSubscription(prevSlug, mpEmail);
         return NextResponse.json({ tenantId: prevSlug, pagoUrl: sub.init_point });

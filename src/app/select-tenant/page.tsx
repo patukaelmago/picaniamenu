@@ -87,7 +87,7 @@ export default function SelectTenantPage() {
           );
 
           for (const tenant of snap.docs) {
-            if (tenant.data()?.active !== true) continue;
+            if (tenant.data()?.active !== true && tenant.data()?.cobro?.suspendido !== true) continue;
 
             visibles.push({
               id: tenant.id,
@@ -105,7 +105,7 @@ export default function SelectTenantPage() {
             supervisorSnap.data()?.tenants ?? [];
 
           for (const tenant of snap.docs) {
-            if (tenant.data()?.active !== true) continue;
+            if (tenant.data()?.active !== true && tenant.data()?.cobro?.suspendido !== true) continue;
 
             if (allowedTenants.includes(tenant.id)) {
               visibles.push({
@@ -121,7 +121,7 @@ export default function SelectTenantPage() {
 
         // Admin normal
         for (const tenant of snap.docs) {
-          if (tenant.data()?.active !== true) continue;
+          if (tenant.data()?.active !== true && tenant.data()?.cobro?.suspendido !== true) continue;
 
           const adminSnap = await getDoc(
             doc(db, "tenants", tenant.id, "admins", email)

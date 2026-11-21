@@ -25,5 +25,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false }, { status: 500 }); // Mercado Pago reintenta
     }
   }
+
+  // Cobro mensual de una suscripción (aprobado o rechazado): se actualiza el vencimiento del local.
+  if (
+    (type === "subscription_authorized_payment" || type === "authorized_payment") &&
+    /^[\w-]{1,64}$/.test(id)
+  ) {
+    try {
+      const pago = await mpFetch<{ preapproval_id?: string }>(`/authorized_payments/${id}`);
+      if (pago.preapproval_id && /^[\w-]{6,64}$/.test(pago.preapproval_id)) {
+        const p = await mpFetch<Preapproval>(`/preapproval/${pago.preapproval_id}`);
+        await syncSubscription(p);
+      }
+    } catch (e) {
+      console.error("Webhook Mercado Pago (cobro):", e);
+      return NextResponse.json({ ok: false }, { status: 500 });
+    }
+  }
   return NextResponse.json({ ok: true });
 }
