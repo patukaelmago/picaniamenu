@@ -104,7 +104,7 @@ async function procesarLocal(slug: string, data: FirebaseFirestore.DocumentData,
       },
       { merge: true }
     );
-    await enviarMail(para, `La carta de ${nombre} está pausada`, [
+    const enviado = await enviarMail(para, `La carta de ${nombre} está pausada`, [
       `Hola,`,
       ``,
       `Como el abono de Carta Online sigue pendiente, la carta de ${nombre} quedó pausada y no se ve por el QR.`,
@@ -116,7 +116,11 @@ async function procesarLocal(slug: string, data: FirebaseFirestore.DocumentData,
       ``,
       `Carta Online`,
     ]);
-    if (!para) await avisar(`carta pausada sin email: ${nombre}`, [`El local ${slug} no tiene email para avisos.`]);
+    if (!enviado) {
+      await avisar(`no salió el aviso de pausa: ${nombre}`, [
+        `La carta de ${slug} se pausó pero no se pudo mandar el mail a "${para || "(sin email)"}".`,
+      ]);
+    }
     return `${slug}: pausada`;
   }
 

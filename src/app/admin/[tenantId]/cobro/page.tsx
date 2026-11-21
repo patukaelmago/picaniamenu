@@ -139,6 +139,7 @@ export default function CobroPage({ params }: { params: Promise<{ tenantId: stri
                   key={m}
                   type="button"
                   variant={modo === m ? "default" : "outline"}
+                  className={modo === m ? "" : "bg-transparent text-card-foreground"}
                   onClick={() => setModo(m)}
                 >
                   {m === "mp" ? "Mercado Pago" : "Manual (efectivo o transferencia)"}
