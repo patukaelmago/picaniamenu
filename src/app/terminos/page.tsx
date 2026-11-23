@@ -3,7 +3,7 @@ import PaginaLegal from "@/components/legal/PaginaLegal";
 import { PRECIO_BASE, pesos, DIA_CORTE, DIAS_AVISO } from "@/lib/cobros-shared";
 import { PROVEEDOR } from "@/lib/proveedor";
 
-export const metadata: Metadata = { title: "Términos y condiciones | Carta Online" };
+export const metadata: Metadata = { title: "Términos y condiciones" };
 
 const H = ({ children }: { children: React.ReactNode }) => <h2 className="pt-2 text-lg font-bold text-[#151A24]">{children}</h2>;
 

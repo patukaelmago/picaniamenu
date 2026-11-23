@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PaginaLegal from "@/components/legal/PaginaLegal";
 import FormBaja from "./FormBaja";
 
-export const metadata: Metadata = { title: "Botón de baja | Carta Online", robots: { index: false } };
+export const metadata: Metadata = { title: "Botón de baja", robots: { index: false } };
 
 export default function BajaPage() {
   return (

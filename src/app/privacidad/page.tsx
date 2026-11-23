@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PaginaLegal from "@/components/legal/PaginaLegal";
 import { PROVEEDOR } from "@/lib/proveedor";
 
-export const metadata: Metadata = { title: "Política de privacidad | Carta Online" };
+export const metadata: Metadata = { title: "Política de privacidad" };
 
 const H = ({ children }: { children: React.ReactNode }) => <h2 className="pt-2 text-lg font-bold text-[#151A24]">{children}</h2>;
 

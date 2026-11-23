@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PaginaLegal from "@/components/legal/PaginaLegal";
 import FormBaja from "../baja/FormBaja";
 
-export const metadata: Metadata = { title: "Botón de arrepentimiento | Carta Online", robots: { index: false } };
+export const metadata: Metadata = { title: "Botón de arrepentimiento", robots: { index: false } };
 
 export default function ArrepentimientoPage() {
   return (
