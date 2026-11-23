@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 const RESERVED = new Set([
   "admin", "api", "menu", "login", "registro", "qr", "settings", "colors", "import",
   "select-tenant", "no-access", "tenants", "carta-online", "carta", "demo", "test",
-  "inicio", "estadisticas", "almuerzo", "www", "app", "cobros", "cobro",
+  "inicio", "estadisticas", "almuerzo", "www", "app", "cobros", "cobro", "dashboard",
 ]);
 
 const DEFAULT_BRAND = {

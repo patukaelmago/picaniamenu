@@ -185,10 +185,10 @@ export default function SelectTenantPage() {
 
           {isSuperAdmin && auth.currentUser?.email?.toLowerCase() === "patriciouskaer@gmail.com" && (
             <Link
-              href="/cobros"
+              href="/dashboard"
               className="mb-5 flex w-full items-center justify-center rounded-xl border border-[#3A3A3A] px-4 py-3 font-semibold transition-colors hover:border-[#4B75FF]"
             >
-              Cobros
+              Mi panel
             </Link>
           )}
 

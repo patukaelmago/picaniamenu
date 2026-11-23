@@ -265,7 +265,7 @@ export async function estadoDeCobros(hoy = hoyAR()) {
       const data = d.data();
       const cobro: Cobro = data.cobro ?? {};
       const pagos = await d.ref.collection("pagos").orderBy("fecha", "desc").limit(200).get();
-      const lista = pagos.docs.map((p) => p.data() as { fecha: string; monto: number });
+      const lista = pagos.docs.map((p) => p.data() as { fecha: string; monto: number; medio?: string });
       const atraso = diasDeAtraso(cobro, hoy);
       const precio = precioDe(cobro);
       // Cuotas vencidas sin pagar: una por cada mes desde el vencimiento.
@@ -321,6 +321,6 @@ async function enviarResumenMensual(mes: string, hoy: string) {
         )}), debe ${pesos(l.debe)}`
     ),
     ``,
-    `Detalle: ${SITE}/cobros`,
+    `Detalle: ${SITE}/dashboard/cobros`,
   ]);
 }

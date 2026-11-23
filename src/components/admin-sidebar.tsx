@@ -230,8 +230,8 @@ export default function AdminSidebar({
           icon: Settings,
         },
         isSuperAdmin && {
-          href: `/cobros`,
-          label: "Cobros",
+          href: `/dashboard`,
+          label: "Mi panel",
           icon: Wallet,
         },
       ].filter(Boolean) as Array<{
