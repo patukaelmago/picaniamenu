@@ -15,7 +15,7 @@ export default function DashboardResumen() {
 
   const hoy = hoyAR();
   const clientes = locales.filter((l) => l.pagadoHasta);
-  const mensual = clientes.filter((l) => !l.suspendido).reduce((a, l) => a + l.precio, 0);
+  const mensual = clientes.filter((l) => !l.suspendido && !l.baja).reduce((a, l) => a + l.precio, 0);
   const cobradoMes = locales.reduce((a, l) => a + l.cobradoMes, 0);
   const deuda = locales.reduce((a, l) => a + l.debe, 0);
   const atrasados = locales.filter((l) => ["alerta", "pausa"].includes(estadoLocal(l).tono));

@@ -32,6 +32,7 @@ import {
   Home,
   BarChart3,
   Wallet,
+  CreditCard,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -228,6 +229,11 @@ export default function AdminSidebar({
           href: `/admin/${tenantId}/settings`,
           label: "Ajustes",
           icon: Settings,
+        },
+        {
+          href: `/admin/${tenantId}/abono`,
+          label: "Mi abono",
+          icon: CreditCard,
         },
         isSuperAdmin && {
           href: `/dashboard`,

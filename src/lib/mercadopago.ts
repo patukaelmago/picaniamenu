@@ -43,7 +43,17 @@ export async function mpFetch<T>(path: string, init: RequestInit = {}): Promise<
   return data as T;
 }
 
-export function createSubscription(slug: string, payerEmail: string, monto = ABONO_MENSUAL_ARS) {
+// inicio: "AAAA-MM-DD" del primer débito (si es futuro). Sin inicio, el primer débito es inmediato.
+export function createSubscription(
+  slug: string,
+  payerEmail: string,
+  monto = ABONO_MENSUAL_ARS,
+  opciones: { inicio?: string; volverA?: string } = {}
+) {
+  const inicio =
+    opciones.inicio && opciones.inicio > new Date(Date.now() - 3 * 3600 * 1000).toISOString().slice(0, 10)
+      ? `${opciones.inicio}T12:00:00.000-03:00`
+      : undefined;
   return mpFetch<Preapproval>("/preapproval", {
     method: "POST",
     body: JSON.stringify({
@@ -55,8 +65,9 @@ export function createSubscription(slug: string, payerEmail: string, monto = ABO
         frequency_type: "months",
         transaction_amount: monto,
         currency_id: "ARS",
+        ...(inicio ? { start_date: inicio } : {}),
       },
-      back_url: `${SITE}/registro/listo?local=${encodeURIComponent(slug)}`,
+      back_url: opciones.volverA ?? `${SITE}/registro/listo?local=${encodeURIComponent(slug)}`,
       status: "pending",
     }),
   });
@@ -78,13 +89,13 @@ export async function findSubscription(slug: string): Promise<Preapproval | null
 
 // Aplica el estado de la suscripción al local. El vencimiento sale del último cobro acreditado;
 // los avisos y el corte por atraso los maneja la revisión diaria (src/lib/cobros.ts).
-// Solo toca locales que se registraron solos (tienen ownerEmail); nunca los creados a mano.
 export async function syncSubscription(p: Preapproval) {
   const slug = p.external_reference;
   if (!slug) return null;
   const ref = adminDb.doc(`tenants/${slug}`);
   const snap = await ref.get();
-  if (!snap.exists || !snap.data()?.ownerEmail) return null;
+  // Locales registrados solos (ownerEmail) o cargados a mano que ya tienen datos de cobro.
+  if (!snap.exists || (!snap.data()?.ownerEmail && !snap.data()?.cobro)) return null;
   const prevCobro: Cobro = snap.data()?.cobro ?? {};
   const actual = snap.data()?.subscription;
 

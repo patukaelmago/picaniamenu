@@ -307,7 +307,7 @@ export default function MenuClient({ tenantId }: Props) {
     getDoc(doc(db, "tenants", tenantId))
       .then((snap) => {
         setUnpublished(snap.exists() && snap.data()?.active === false);
-        setPaused(snap.data()?.cobro?.suspendido === true);
+        setPaused(snap.data()?.cobro?.suspendido === true || !!snap.data()?.cobro?.baja);
       })
       .catch(() => setUnpublished(false));
   }, [tenantId]);

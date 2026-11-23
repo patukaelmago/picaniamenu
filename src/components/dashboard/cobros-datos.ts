@@ -11,6 +11,7 @@ export type LocalCobro = {
   modo: "mp" | "manual" | null;
   autoCorte: boolean;
   suspendido: boolean;
+  baja: { tipo: string; efectivaEl: string; pendiente?: boolean } | null;
   pagadoHasta: string | null;
   atraso: number | null;
   precio: number;
@@ -23,6 +24,7 @@ export type LocalCobro = {
 export type PagoReciente = { fecha: string; monto: number; medio?: string; local: string; localId: string };
 
 export function estadoLocal(l: LocalCobro): { texto: string; tono: "ok" | "alerta" | "pausa" | "neutro" } {
+  if (l.baja) return { texto: l.baja.pendiente ? `Baja el ${l.baja.efectivaEl.split("-").reverse().join("/")}` : "Dado de baja", tono: "pausa" };
   if (l.suspendido) return { texto: "Pausada", tono: "pausa" };
   if (l.pendiente) return { texto: "Registro sin pagar", tono: "neutro" };
   if (!l.pagadoHasta) return { texto: "Sin vencimiento", tono: "neutro" };

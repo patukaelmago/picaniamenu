@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LinksLegales } from "@/components/legal/PaginaLegal";
 import {
   ArrowRight,
   Check,
@@ -103,12 +104,18 @@ const FAQ_SCHEMA = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen overflow-hidden bg-white pt-20 text-[#151A24]">
+    <main className="min-h-screen overflow-hidden bg-white pt-28 text-[#151A24]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_SCHEMA) }}
       />
       <header className="fixed inset-x-0 top-0 z-50 border-b border-[#DED9CF] bg-[#F3F1EC]/95 backdrop-blur">
+        <div className="border-b border-[#DED9CF] bg-[#151A24] text-white">
+          <div className="mx-auto flex h-8 max-w-7xl items-center justify-end gap-5 px-6 text-xs font-bold">
+            <Link href="/baja" className="hover:underline">Botón de baja</Link>
+            <Link href="/arrepentimiento" className="hover:underline">Botón de arrepentimiento</Link>
+          </div>
+        </div>
         <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
           <Link href="/" aria-label="Carta Online">
             <img
@@ -155,7 +162,7 @@ export default function Home() {
         <div className="absolute right-[-130px] top-12 h-[430px] w-[430px] rounded-full bg-[#2563EB]/10 blur-3xl" />
         <div className="absolute left-[-180px] top-64 h-[360px] w-[360px] rounded-full bg-[#FF6B00]/10 blur-3xl" />
 
-        <div className="relative mx-auto grid min-h-[calc(100svh-80px)] max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_.95fr]">
+        <div className="relative mx-auto grid min-h-[calc(100svh-112px)] max-w-7xl items-center gap-12 px-6 py-16 lg:grid-cols-[1.05fr_.95fr]">
           <div>
             <span className="inline-flex rounded-full bg-[#EAF0FF] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#2563EB]">
               Menú digital para restaurantes
@@ -716,6 +723,7 @@ export default function Home() {
             <p className="text-sm text-[#707784]">
               © {new Date().getFullYear()} Carta Online. Todos los derechos reservados.
             </p>
+            <LinksLegales className="justify-center md:justify-end" />
           </div>
         </div>
       </footer>

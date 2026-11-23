@@ -252,6 +252,12 @@ export default function RegistroPage() {
                 >
                   {sending ? "Un momento..." : soloPagar ? "Ir a pagar" : "Crear mi carta y pagar"}
                 </button>
+                <p className="text-center text-xs leading-5 text-[#B8B2A7]">
+                  El abono se debita todos los meses hasta que lo des de baja, cuando quieras, desde tu panel o el{" "}
+                  <a href="/baja" className="underline">botón de baja</a>. Al continuar aceptás los{" "}
+                  <a href="/terminos" target="_blank" className="underline">términos y condiciones</a> y la{" "}
+                  <a href="/privacidad" target="_blank" className="underline">política de privacidad</a>.
+                </p>
               </form>
             )}
 

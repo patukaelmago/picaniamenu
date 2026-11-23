@@ -226,6 +226,12 @@ export async function revisarCobros({ forzar = false } = {}) {
   const hoy = hoyAR(ahora);
   const snap = await adminDb.collection("tenants").where("cobro.autoCorte", "==", true).get();
   const resultados: string[] = [];
+  try {
+    const { aplicarBajasPendientes } = await import("@/lib/bajas");
+    resultados.push(...(await aplicarBajasPendientes(hoy)));
+  } catch (e) {
+    console.error("Bajas pendientes", e);
+  }
   for (const d of snap.docs) {
     try {
       const r = await procesarLocal(d.id, d.data(), hoy);
@@ -270,7 +276,7 @@ export async function estadoDeCobros(hoy = hoyAR()) {
       const precio = precioDe(cobro);
       // Cuotas vencidas sin pagar: una por cada mes desde el vencimiento.
       let cuotasDebe = 0;
-      if (atraso !== null && atraso >= 0 && cobro.pagadoHasta) {
+      if (!data.cobro?.baja && atraso !== null && atraso >= 0 && cobro.pagadoHasta) {
         const [y1, m1, d1] = cobro.pagadoHasta.split("-").map(Number);
         const [y2, m2, d2] = hoy.split("-").map(Number);
         cuotasDebe = (y2 - y1) * 12 + (m2 - m1) + (d2 >= d1 ? 1 : 0);
@@ -284,6 +290,7 @@ export async function estadoDeCobros(hoy = hoyAR()) {
         modo: cobro.modo ?? null,
         autoCorte: cobro.autoCorte === true,
         suspendido: cobro.suspendido === true,
+        baja: (data.cobro?.baja as { tipo: string; efectivaEl: string; pendiente?: boolean } | undefined) ?? null,
         pagadoHasta: cobro.pagadoHasta ?? null,
         atraso,
         precio,

@@ -22,6 +22,7 @@ const SECTION_LABELS: Record<string, string> = {
   estadisticas: "Estadísticas",
   colors: "Colores",
   settings: "Ajustes",
+  abono: "Mi abono",
 
 };
 
@@ -103,7 +104,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                 ? "No se borró nada: vuelve a verse cuando se registre el pago."
                 : "Si no se paga, la carta se pausa."}{" "}
               {pagoMp ? (
-                <a href="/registro?pagar=1" className="font-semibold underline">
+                <a href={`/admin/${tenantId}/abono`} className="font-semibold underline">
                   Pagar con Mercado Pago
                 </a>
               ) : (
