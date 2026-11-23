@@ -113,7 +113,7 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
       <Card>
         <CardHeader>
           <CardTitle>Mi abono</CardTitle>
-          <CardDescription>Carta Online · {abono.nombre}</CardDescription>
+          <CardDescription className="text-card-foreground/70">Carta Online · {abono.nombre}</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-3">
           <Dato label="Abono mensual" valor={pesos(abono.precio)} />
@@ -139,7 +139,7 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
         <Card>
           <CardHeader>
             <CardTitle>Débito automático</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-card-foreground/70">
               {debitoActivo
                 ? `Activo: Mercado Pago debita ${pesos(abono.precio)} todos los meses. No tenés que hacer nada.`
                 : `Pagá el abono solo, todos los meses, con tu tarjeta o el dinero de tu cuenta de Mercado Pago.${
@@ -155,7 +155,7 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
             <Button onClick={activar} disabled={ocupado || !mpEmail}>
               {debitoActivo ? "Cambiar tarjeta o cuenta" : "Activar débito automático"}
             </Button>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-card-foreground/70">
               Te llevamos a Mercado Pago para que elijas cómo pagar y lo autorices. Podés darlo de baja cuando quieras
               desde acá abajo. Al activarlo aceptás los{" "}
               <Link href="/terminos" target="_blank" className="underline">
@@ -173,14 +173,14 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
         </CardHeader>
         <CardContent>
           {abono.pagos.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Todavía no hay pagos registrados.</p>
+            <p className="text-sm text-card-foreground/70">Todavía no hay pagos registrados.</p>
           ) : (
             <ul className="divide-y text-sm">
               {abono.pagos.map((p, i) => (
                 <li key={i} className="flex flex-wrap justify-between gap-2 py-2.5">
                   <span>
                     {fechaLinda(p.desde)} al {fechaLinda(p.hasta)}
-                    <span className="text-muted-foreground"> · {MEDIOS[p.medio] ?? p.medio}</span>
+                    <span className="text-card-foreground/70"> · {MEDIOS[p.medio] ?? p.medio}</span>
                   </span>
                   <span className="font-semibold">{pesos(p.monto)}</span>
                 </li>
@@ -194,7 +194,7 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
         <Card>
           <CardHeader>
             <CardTitle>Dar de baja</CardTitle>
-            <CardDescription>
+            <CardDescription className="text-card-foreground/70">
               Se cancela el débito y no se te vuelve a cobrar. La carta sigue visible hasta el fin del período que ya
               pagaste.
             </CardDescription>
@@ -238,7 +238,7 @@ export default function AbonoPage({ params }: { params: Promise<{ tenantId: stri
 function Dato({ label, valor }: { label: string; valor: string }) {
   return (
     <div>
-      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-xs text-card-foreground/70">{label}</p>
       <p className="mt-1 text-lg font-semibold">{valor}</p>
     </div>
   );
