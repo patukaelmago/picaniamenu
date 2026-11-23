@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import { adminDb } from "@/lib/firebase-admin";
-import { superadminDe } from "@/lib/superadmin-server";
+import { duenoDe } from "@/lib/superadmin-server";
 import { enviarRecibo } from "@/lib/cobros";
 import { guardarPago, registrarEvento, type MedioPago } from "@/lib/cobros-historial";
 import { mpFetch } from "@/lib/mercadopago";
@@ -11,7 +11,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Historial y acciones de cobro de un local. Solo el superadmin.
-const superadmin = superadminDe;
+const superadmin = duenoDe;
 
 const ts = (v: unknown) => (v instanceof Timestamp ? v.toDate().toISOString() : null);
 

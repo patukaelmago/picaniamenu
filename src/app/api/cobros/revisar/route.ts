@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { superadminDe } from "@/lib/superadmin-server";
+import { duenoDe } from "@/lib/superadmin-server";
 import { revisarCobros } from "@/lib/cobros";
 
 export const runtime = "nodejs";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Sin sesión de superadmin corre como máximo una vez cada 20 horas aunque la llamen más veces.
 export async function POST(request: Request) {
   try {
-    const r = await revisarCobros({ forzar: Boolean(await superadminDe(request)) });
+    const r = await revisarCobros({ forzar: Boolean(await duenoDe(request)) });
     return NextResponse.json(r);
   } catch (e) {
     console.error("Revisar cobros:", e);

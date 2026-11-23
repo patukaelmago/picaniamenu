@@ -5,6 +5,9 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import { fechaLinda, pesos } from "@/lib/cobros-shared";
+import CobroPanel from "@/components/admin/CobroPanel";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Toaster } from "@/components/ui/toaster";
 
 type Local = {
   id: string;
@@ -32,29 +35,43 @@ function estado(l: Local) {
   return { texto: "Al día", color: "bg-emerald-100 text-emerald-800" };
 }
 
-// Pantalla general de cobros: todos los locales. Solo el superadmin.
+// Pantalla de cobros: todos los locales. Solo el dueño de Carta Online.
 export default function CobrosPage() {
   const [locales, setLocales] = useState<Local[] | null>(null);
   const [error, setError] = useState("");
+  const [abierto, setAbierto] = useState("");
+
+  async function cargarLista() {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      const res = await fetch("/api/cobros/resumen", {
+        headers: { Authorization: `Bearer ${await user.getIdToken()}` },
+      });
+      if (!res.ok) throw new Error(res.status === 403 ? "No tenés acceso a esta pantalla." : "No se pudo cargar.");
+      setLocales((await res.json()).locales);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No se pudo cargar.");
+    }
+  }
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
+    const local = new URLSearchParams(window.location.search).get("local");
+    if (local) setAbierto(local);
+    const unsub = onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "/admin/login";
         return;
       }
-      try {
-        const res = await fetch("/api/cobros/resumen", {
-          headers: { Authorization: `Bearer ${await user.getIdToken()}` },
-        });
-        if (!res.ok) throw new Error(res.status === 403 ? "Solo el administrador de Carta Online ve esta pantalla." : "No se pudo cargar.");
-        setLocales((await res.json()).locales);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : "No se pudo cargar.");
-      }
+      cargarLista();
     });
     return () => unsub();
   }, []);
+
+  function abrir(id: string) {
+    setAbierto(id);
+    window.history.replaceState(null, "", id ? `/cobros?local=${encodeURIComponent(id)}` : "/cobros");
+  }
 
   if (error) return <p className="p-8 text-center text-slate-600">{error}</p>;
   if (!locales) return <p className="p-8 text-center text-slate-500 animate-pulse">Cargando cobros…</p>;
@@ -69,7 +86,7 @@ export default function CobrosPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-2xl font-bold">Cobros</h1>
           <Link href="/select-tenant" className="text-sm font-semibold text-[#1D2E58] underline">
-            Volver a restaurantes
+            Ir a restaurantes
           </Link>
         </div>
 
@@ -103,12 +120,8 @@ export default function CobrosPage() {
               {locales.map((l) => {
                 const e = estado(l);
                 return (
-                  <tr key={l.id}>
-                    <td className="px-4 py-3">
-                      <Link href={`/admin/${l.id}/cobro`} className="font-semibold text-[#1D2E58] hover:underline">
-                        {l.nombre}
-                      </Link>
-                    </td>
+                  <tr key={l.id} onClick={() => abrir(l.id)} className="cursor-pointer hover:bg-slate-50">
+                    <td className="px-4 py-3 font-semibold text-[#1D2E58]">{l.nombre}</td>
                     <td className="px-4 py-3">
                       <span className={`rounded-full px-2 py-1 text-xs font-semibold ${e.color}`}>{e.texto}</span>
                     </td>
@@ -127,6 +140,20 @@ export default function CobrosPage() {
           </table>
         </div>
       </div>
+
+      <Sheet open={!!abierto} onOpenChange={(o) => !o && abrir("")}>
+        <SheetContent className="w-full overflow-y-auto bg-[#F5F3EE] sm:max-w-2xl">
+          <SheetHeader>
+            <SheetTitle>{locales.find((l) => l.id === abierto)?.nombre ?? abierto}</SheetTitle>
+          </SheetHeader>
+          {abierto && (
+            <div className="mt-4">
+              <CobroPanel tenantId={abierto} onCambio={cargarLista} />
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+      <Toaster />
     </main>
   );
 }

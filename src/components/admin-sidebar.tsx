@@ -101,7 +101,12 @@ export default function AdminSidebar({
       setUser(u);
       if (!u?.email) return setIsSuperAdmin(false);
       getDoc(doc(db, "superadmins", u.email.toLowerCase()))
-        .then((s) => setIsSuperAdmin(s.exists() && s.data()?.enabled === true))
+        .then((s) =>
+          // Cobros: solo el dueño de Carta Online.
+          setIsSuperAdmin(
+            s.exists() && s.data()?.enabled === true && u.email?.toLowerCase() === "patriciouskaer@gmail.com"
+          )
+        )
         .catch(() => setIsSuperAdmin(false));
     });
     return () => unsub();
@@ -225,8 +230,8 @@ export default function AdminSidebar({
           icon: Settings,
         },
         isSuperAdmin && {
-          href: `/admin/${tenantId}/cobro`,
-          label: "Cobro",
+          href: `/cobros`,
+          label: "Cobros",
           icon: Wallet,
         },
       ].filter(Boolean) as Array<{

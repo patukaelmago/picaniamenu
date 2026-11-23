@@ -22,7 +22,7 @@ const SECTION_LABELS: Record<string, string> = {
   estadisticas: "Estadísticas",
   colors: "Colores",
   settings: "Ajustes",
-  cobro: "Cobro",
+
 };
 
 // "/admin/ladepto/menu" -> "Menú"
