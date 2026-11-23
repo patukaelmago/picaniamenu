@@ -73,8 +73,12 @@ export default function CobrosPage() {
     window.history.replaceState(null, "", id ? `/cobros?local=${encodeURIComponent(id)}` : "/cobros");
   }
 
-  if (error) return <p className="p-8 text-center text-slate-600">{error}</p>;
-  if (!locales) return <p className="p-8 text-center text-slate-500 animate-pulse">Cargando cobros…</p>;
+  if (error || !locales)
+    return (
+      <main className="min-h-screen bg-[#F5F3EE] p-8 text-center text-slate-600">
+        <p className={error ? "" : "animate-pulse"}>{error || "Cargando cobros…"}</p>
+      </main>
+    );
 
   const cobradoMes = locales.reduce((a, l) => a + l.cobradoMes, 0);
   const deuda = locales.reduce((a, l) => a + l.debe, 0);
