@@ -4,6 +4,6 @@ export const PROVEEDOR = {
   ciudad: "Rosario, Santa Fe, Argentina",
   email: "cartaonlinerosario@gmail.com",
   whatsapp: "+54 9 341 751-0112",
-  cuit: "", // completar
+  cuit: "20-25588799-9",
   actualizacion: "23 de noviembre de 2026",
 };
