@@ -54,6 +54,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     pagadoHasta?: string;
     email?: string;
     precio?: number;
+    fecha?: string;
+    desde?: string;
+    hasta?: string;
   };
   const ref = adminDb.doc(`tenants/${tenantId}`);
   const t = await ref.get();
@@ -95,6 +98,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
     );
     const recibo = body.recibo === false ? null : await enviarRecibo(tenantId, { monto, medio, desde, hasta });
     return NextResponse.json({ ok: true, hasta, recibo });
+  }
+
+  // Pago viejo: queda en el historial pero no mueve el vencimiento ni manda recibo.
+  if (body.accion === "pagoHistorico") {
+    const f = /^\d{4}-\d{2}-\d{2}$/;
+    if (![body.fecha, body.desde, body.hasta].every((x) => f.test(String(x ?? "")))) {
+      return NextResponse.json({ error: "Fechas inválidas" }, { status: 400 });
+    }
+    const monto = Number(body.monto) > 0 ? Math.round(Number(body.monto)) : precioDe(cobro);
+    const medio: MedioPago = ["mp", "efectivo", "transferencia"].includes(String(body.medio))
+      ? (body.medio as MedioPago)
+      : "transferencia";
+    await guardarPago(tenantId, {
+      fecha: body.fecha!,
+      desde: body.desde!,
+      hasta: body.hasta!,
+      monto,
+      medio,
+      nota: String(body.nota ?? "").slice(0, 200),
+    });
+    await registrarEvento(
+      tenantId,
+      "pago",
+      `Pago anterior cargado: ${pesos(monto)} (${medio}), período ${fechaLinda(body.desde!)} al ${fechaLinda(body.hasta!)}.`
+    );
+    return NextResponse.json({ ok: true });
   }
 
   if (body.accion === "ajustes") {
