@@ -4,6 +4,7 @@ import { isTenant } from "@/lib/tenants";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { getMenuSeo } from "@/lib/menu-seo";
+import { getTenantShareInfo } from "@/lib/tenant-share";
 import {
   jsonLd,
   PUBLIC_TENANTS,
@@ -25,12 +26,12 @@ export async function generateMetadata({
   params: Promise<{ tenantId: string }>;
 }): Promise<Metadata> {
   const { tenantId } = await params;
-  const seo = await loadSeo(tenantId);
-  const name = seo?.name || tenantDisplayName(tenantId);
+  const [seo, share] = await Promise.all([loadSeo(tenantId), getTenantShareInfo(tenantId)]);
+  const name = seo?.name || share?.name || tenantDisplayName(tenantId);
   const title = `Carta de ${name}`;
   const description = `Consultá la carta digital actualizada de ${name}: platos, bebidas, precios y sugerencias.`;
   const canonical = `/menu/${tenantId}`;
-  const image = seo?.logoUrl || "/carta-online-logo.png";
+  const image = `/api/og/${encodeURIComponent(tenantId)}`;
 
   return {
     title,
@@ -44,10 +45,10 @@ export async function generateMetadata({
       siteName: "Carta Online",
       title: `${title} | Carta Online`,
       description,
-      images: [{ url: image, alt: name }],
+      images: [{ url: image, width: 1200, height: 630, type: "image/png", alt: name }],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: `${title} | Carta Online`,
       description,
       images: [image],
